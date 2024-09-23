@@ -25,6 +25,15 @@ jobs:
     # checked out.
     # https://github.com/actions/checkout
     - uses: actions/checkout@v3
+    #Sets up Firebase Config files
+    - name: Write firebase_options.dart
+      run: echo '${{ secrets.FIREBASE_OPTIONS }}' > lib/firebase_options.dart
+    - name: Write GoogleService-info.plist
+      run: echo '${{ secrets.GOOGLE_SERVICE_INFO_PLIST }}' > ios/Runner/GoogleService-Info.plist
+    - name: Write google-services.json
+      run: echo '${{ secrets.GOOGLE_SERVICES_JSON }}' > android/app/google-services.json
+    - name: Write firebase.json
+      run: echo '${{ secrets.FIREBASE_JSON }}' > firebase.json
     # Sets up Java
     # https://github.com/actions/setup-java
     - name: Java 8 Setup
