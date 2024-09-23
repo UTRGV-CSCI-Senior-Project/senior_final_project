@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:senior_final_project/views/home_screen.dart';
+import 'package:senior_final_project/views/signup_screen.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
@@ -22,7 +24,8 @@ class WelcomeScreen extends StatelessWidget {
                       width: 3,
                     ),
                     borderRadius: BorderRadius.all(Radius.circular(10))),
-                child: TextButton(onPressed: () {}, child: Text('Login')),
+                child: TextButton(onPressed: () {
+                }, child: Text('Login')),
               ),
               Container(
                 width: screenWidth - 40,
@@ -32,7 +35,9 @@ class WelcomeScreen extends StatelessWidget {
                       width: 3,
                     ),
                     borderRadius: BorderRadius.all(Radius.circular(10))),
-                child: TextButton(onPressed: () {}, child: Text('Sign up')),
+                child: TextButton(onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => SignupScreen()));
+                }, child: Text('Sign up')),
               )
             ],
           )
