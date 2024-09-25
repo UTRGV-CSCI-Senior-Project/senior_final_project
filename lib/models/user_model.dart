@@ -10,7 +10,17 @@ class UserModel {
       required this.username,
       this.fullName,
       required this.email,
-      required this.isProfessional});
+      required this.isProfessional}){
+    if (uid.isEmpty) {
+      throw ArgumentError('UID cannot be empty');
+    }
+    if (username.isEmpty) {
+      throw ArgumentError('Username cannot be empty');
+    }
+    if (email.isEmpty) {
+      throw ArgumentError('Email cannot be empty');
+    }
+  }
 
   toJson() {
     return {
