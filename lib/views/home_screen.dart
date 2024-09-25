@@ -1,7 +1,6 @@
 //File just to navigate to after successful sign/log in
 //Can be changed
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatelessWidget {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:senior_final_project/views/home_screen.dart';
+import 'package:senior_final_project/core/service_locator.dart';
+import 'package:senior_final_project/repositories/user_repository.dart';
 import 'package:senior_final_project/views/signup_screen.dart';
 
 class WelcomeScreen extends StatelessWidget {
@@ -36,7 +37,7 @@ class WelcomeScreen extends StatelessWidget {
                     ),
                     borderRadius: BorderRadius.all(Radius.circular(10))),
                 child: TextButton(onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => SignupScreen()));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => SignupScreen(userRepository: locator<UserRepository>(),)));
                 }, child: Text('Sign up')),
               )
             ],

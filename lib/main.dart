@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:senior_final_project/core/service_locator.dart';
 import 'views/splash_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -8,6 +9,7 @@ Future<void> main() async {
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
+  setUpLocator();
   runApp(MyApp());
 }
 

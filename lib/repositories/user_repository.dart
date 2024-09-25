@@ -7,11 +7,8 @@ class UserRepository {
   final AuthServices _authServices;
   final UserFirestoreServices _userFirestoreServices;
 
-  UserRepository({
-    AuthServices? authServices,
-    UserFirestoreServices? userFirestoreServices,
-  }) : _authServices = authServices ?? AuthServices(),
-       _userFirestoreServices = userFirestoreServices ?? UserFirestoreServices();
+  UserRepository(this._authServices, this._userFirestoreServices);
+
   
 
   Future<void> createUser(String username, String email, String password) async {

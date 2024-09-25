@@ -16,9 +16,7 @@ void main() {
   setUp(() {
     mockAuthServices = MockAuthServices();
     mockUserFirestoreServices = MockUserFirestoreServices();
-    userRepository = UserRepository(
-        authServices: mockAuthServices,
-        userFirestoreServices: mockUserFirestoreServices);
+    userRepository = UserRepository(mockAuthServices, mockUserFirestoreServices);
   });
 
   test('createUser successfully creates a user', () async {

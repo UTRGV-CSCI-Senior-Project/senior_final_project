@@ -4,8 +4,9 @@ import 'package:senior_final_project/widgets/snackbar_widget.dart';
 import 'package:senior_final_project/views/home_screen.dart';
 
 class SignupScreen extends StatelessWidget {
-  SignupScreen({super.key});
+  SignupScreen({super.key, required this.userRepository});
 
+  final UserRepository userRepository;
   final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -46,11 +47,11 @@ class SignupScreen extends StatelessWidget {
               const SizedBox(
                 height: 25,
               ),
-              _inputField('Username', 'Enter your unique username',
+              _inputField('username-field','Username', 'Enter your unique username',
                   TextInputType.text, _usernameController),
-              _inputField('Email', 'Enter your email',
+              _inputField('email-field','Email', 'Enter your email',
                   TextInputType.emailAddress, _emailController),
-              _inputField('Password', 'Enter your password', TextInputType.text,
+              _inputField('password-field','Password', 'Enter your password', TextInputType.text,
                   _passwordController,
                   isPassword: true),
               const SizedBox(
@@ -59,13 +60,14 @@ class SignupScreen extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: TextButton(
+                  key: const Key('signup-button'),
                   onPressed: () async {
                     if(_usernameController.text.isEmpty || _emailController.text.isEmpty || _passwordController.text.isEmpty){
                       showCustomSnackBar(context, 'Please fill in all fields.');
                     }else{
 
                     try {
-                      await UserRepository().createUser(
+                      await userRepository.createUser(
                           _usernameController.text,
                           _emailController.text,
                           _passwordController.text);
@@ -118,7 +120,7 @@ class SignupScreen extends StatelessWidget {
   }
 }
 
-Widget _inputField(String label, String hintText, TextInputType keyboardType,
+Widget _inputField(String key, String label, String hintText, TextInputType keyboardType,
     TextEditingController controller,
     {bool isPassword = false}) {
   return Padding(
@@ -130,6 +132,7 @@ Widget _inputField(String label, String hintText, TextInputType keyboardType,
       ),
       const Padding(padding: EdgeInsets.only(bottom: 5)),
       TextField(
+        key: Key(key),
         controller: controller,
         cursorColor: const Color.fromARGB(255, 0, 111, 253),
         obscureText: isPassword,
