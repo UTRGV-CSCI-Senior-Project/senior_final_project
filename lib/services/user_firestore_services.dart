@@ -13,17 +13,22 @@ class UserFirestoreServices {
       try{
         await _firestore.collection('users').doc(user.uid).set(user.toJson());
       } catch(e){
-        throw Exception('An error ocurred. Try again later');
+        throw 'unexpected-error';
 
       }
     }
 
 
     Future<bool> isUsernameUnique(String username) async {
+      try{
     final querySnapshot = await _firestore
         .collection('users')
         .where('username', isEqualTo: username)
         .get();
     return querySnapshot.docs.isEmpty;
+      }catch (e){
+        throw 'unexpected-error';
+      }
+
   }
 }

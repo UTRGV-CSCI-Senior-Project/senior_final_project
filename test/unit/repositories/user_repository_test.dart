@@ -48,8 +48,7 @@ void main() {
 
     expect(
         () => userRepository.createUser(username, email, password),
-        throwsA(isA<Exception>().having((e) => e.toString(), 'message',
-            contains('Username is already taken'))));
+        throwsA(equals('taken-username')));
   });
 
   test('createUser throws exception when sign up fails', () async {
@@ -60,12 +59,11 @@ void main() {
     when(mockUserFirestoreServices.isUsernameUnique(username))
         .thenAnswer((_) async => true);
     when(mockAuthServices.signUp(email: email, password: password))
-        .thenThrow(Exception('Sign up failed'));
+        .thenThrow('unexpected-error');
 
     expect(
         () => userRepository.createUser(username, email, password),
-        throwsA(isA<Exception>().having((e) => e.toString(), 'message',
-            contains('Exception: Sign up failed'))));
+        throwsA(equals('unexpected-error')));
 
     verifyNever(mockUserFirestoreServices.addUser(any));
   });
@@ -82,11 +80,10 @@ void main() {
     when(mockAuthServices.signUp(email: email, password: password))
         .thenAnswer((_) async => uid);
     when(mockUserFirestoreServices.addUser(any))
-        .thenThrow(Exception('Failed to add user to Firestore'));
+        .thenThrow('unexpected-error');
 
     expect(
         () => userRepository.createUser(username, email, password),
-        throwsA(isA<Exception>().having((e) => e.toString(), 'message',
-            contains('An error ocurred. Try again later'))));
+        throwsA(equals('unexpected-error')));
   });
 }

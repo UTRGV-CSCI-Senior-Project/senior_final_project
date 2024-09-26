@@ -17,7 +17,7 @@ void main() {
     }
   });
 
-  group("inital test ", () {
+  group("sign up flow", () {
     test("first test", () {});
   });
 }

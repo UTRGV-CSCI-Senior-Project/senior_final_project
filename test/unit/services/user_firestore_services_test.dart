@@ -68,8 +68,7 @@ void main() {
 
     expect(
         () => userFirestoreServices.addUser(user),
-        throwsA(isA<Exception>().having((e) => e.toString(), 'message',
-            'Exception: An error ocurred. Try again later')));
+        throwsA(equals('unexpected-error')));
   });
 
   test('isUsernameUnique returns true if username is unique', () async {
@@ -102,4 +101,5 @@ void main() {
 
     expect(result, false);
   });
+
 }

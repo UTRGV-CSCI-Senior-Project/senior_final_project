@@ -37,7 +37,7 @@ void main() {
       await tester.tap(signUpButton);
       await tester.pump();
 
-      expect(find.text('Please fill in all fields.'), findsOneWidget);
+      expect(find.text('Please fill in all of the fields.'), findsOneWidget);
 
     });
 
@@ -67,7 +67,7 @@ void main() {
       const username = 'takenUsername';
       const email = 'email@email.com';
       const password = 'Pass123!';
-      when(mockUserRepository.createUser(username, email, password)).thenThrow(Exception('Username is already taken'));
+      when(mockUserRepository.createUser(username, email, password)).thenThrow('username-taken');
       await tester.pumpWidget(MaterialApp(
         home: SignupScreen(
           userRepository: mockUserRepository,
@@ -83,14 +83,14 @@ void main() {
       await tester.pump();
 
       expect(find.byType(SnackBar), findsOneWidget);
-      expect(find.textContaining('Username is already taken'), findsOneWidget);
+      expect(find.textContaining('This username is already taken. Please try another one.'), findsOneWidget);
     });
 
     testWidgets('shows error when a generic firestore exception ocurrs',(WidgetTester tester) async {
       const username = 'username';
       const email = 'email@email.com';
       const password = 'Pass123!';
-      when(mockUserRepository.createUser(username, email, password)).thenThrow(Exception('An error ocurred. Try again later'));
+      when(mockUserRepository.createUser(username, email, password)).thenThrow('unexpected-error');
       await tester.pumpWidget(MaterialApp(
         home: SignupScreen(
           userRepository: mockUserRepository,
@@ -106,13 +106,13 @@ void main() {
       await tester.pump();
 
       expect(find.byType(SnackBar), findsOneWidget);
-      expect(find.textContaining('An error ocurred. Try again later'), findsOneWidget);
+      expect(find.textContaining('An unknown error ocurred. Please try again later.'), findsOneWidget);
     });
     testWidgets('shows error when the password is weak',(WidgetTester tester) async {
       const username = 'username';
       const email = 'email@email.com';
       const password = '1';
-      when(mockUserRepository.createUser(username, email, password)).thenThrow(Exception('The password provided is too weak.'));
+      when(mockUserRepository.createUser(username, email, password)).thenThrow('weak-password');
       await tester.pumpWidget(MaterialApp(
         home: SignupScreen(
           userRepository: mockUserRepository,
@@ -134,7 +134,7 @@ void main() {
 const username = 'username';
       const email = 'taken@email.com';
       const password = '1';
-      when(mockUserRepository.createUser(username, email, password)).thenThrow(Exception('An account already exists for that email.'));
+      when(mockUserRepository.createUser(username, email, password)).thenThrow('email-already-in-use');
       await tester.pumpWidget(MaterialApp(
         home: SignupScreen(
           userRepository: mockUserRepository,
@@ -150,14 +150,14 @@ const username = 'username';
       await tester.pump();
 
       expect(find.byType(SnackBar), findsOneWidget);
-      expect(find.textContaining('An account already exists for that email.'), findsOneWidget);
+      expect(find.textContaining('This email is already associated with another account.'), findsOneWidget);
 
     });
     testWidgets('shows error when a generic firebase auth exception ocurrs',(WidgetTester tester) async {
       const username = 'username';
       const email = 'email@email.com';
       const password = '1';
-      when(mockUserRepository.createUser(username, email, password)).thenThrow(Exception('An error ocurred. Try again later'));
+      when(mockUserRepository.createUser(username, email, password)).thenThrow('unexpected-error');
       await tester.pumpWidget(MaterialApp(
         home: SignupScreen(
           userRepository: mockUserRepository,
@@ -173,7 +173,7 @@ const username = 'username';
       await tester.pump();
 
       expect(find.byType(SnackBar), findsOneWidget);
-      expect(find.textContaining('An error ocurred. Try again later'), findsOneWidget);
+      expect(find.textContaining('An unknown error ocurred. Please try again later.'), findsOneWidget);
     });
 
 

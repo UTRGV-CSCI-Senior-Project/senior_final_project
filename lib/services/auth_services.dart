@@ -14,18 +14,10 @@ class AuthServices {
           .createUserWithEmailAndPassword(email: email, password: password);
       return credential.user?.uid;
     } on FirebaseAuthException catch (e) {
-      String errorMessage;
-
-      if (e.code == 'weak-password') {
-        errorMessage = "The password provided is too weak.";
-      } else if (e.code == 'email-already-in-use') {
-        errorMessage = "An account already exists for that email.";
-      } else {
-        errorMessage = "An error ocurred. Try again later";
-      }
-      throw Exception(errorMessage);
+      
+      throw e.code;
     } catch (e) {
-      throw Exception("An unexpected error ocurred. Try again later");
+      throw "unexpected-error";
     }
   }
 }

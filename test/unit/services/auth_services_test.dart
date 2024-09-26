@@ -22,7 +22,7 @@ void main() {
   });
   tearDown(() {});
 
-  group('sign up', ()  {
+  group('sign up', () {
     test('create account successfully', () async {
       when(mockFirebaseAuth.createUserWithEmailAndPassword(
         email: 'test@email.com',
@@ -45,20 +45,18 @@ void main() {
       expect(
           () => authServices.signUp(
               email: 'test@email.com', password: 'Pass123!'),
-          throwsA(isA<Exception>().having((e) => e.toString(), 'message',
-              'Exception: An error ocurred. Try again later')));
+          throwsA(equals('other-error')));
     });
 
-    test('create account fails with weak-password FirebaseAuthException', () async {
+    test('create account fails with weak-password FirebaseAuthException',
+        () async {
       when(mockFirebaseAuth.createUserWithEmailAndPassword(
               email: 'test@email.com', password: '1!'))
           .thenAnswer(
               (_) => throw FirebaseAuthException(code: 'weak-password'));
 
-      expect(
-          () => authServices.signUp(email: 'test@email.com', password: '1!'),
-          throwsA(isA<Exception>().having((e) => e.toString(), 'message',
-              'Exception: The password provided is too weak.')));
+      expect(() => authServices.signUp(email: 'test@email.com', password: '1!'),
+          throwsA(equals('weak-password')));
     });
 
     test('create account fails with email-already-in-use FirebaseAuthException',
@@ -68,10 +66,8 @@ void main() {
           .thenAnswer(
               (_) => throw FirebaseAuthException(code: 'email-already-in-use'));
 
-      expect(
-          () => authServices.signUp(email: 'test@email.com', password: '1!'),
-          throwsA(isA<Exception>().having((e) => e.toString(), 'message',
-              'Exception: An account already exists for that email.')));
+      expect(() => authServices.signUp(email: 'test@email.com', password: '1!'),
+          throwsA(equals('email-already-in-use')));
     });
 
     test('create account fails with generic exception', () async {
@@ -79,10 +75,8 @@ void main() {
               email: 'test@email.com', password: '1!'))
           .thenAnswer((_) => throw Exception('Random Error'));
 
-      expect(
-          () => authServices.signUp(email: 'test@email.com', password: '1!'),
-          throwsA(isA<Exception>().having((e) => e.toString(), 'message',
-              'Exception: An unexpected error ocurred. Try again later')));
+      expect(() => authServices.signUp(email: 'test@email.com', password: '1!'),
+          throwsA(equals('unexpected-error')));
     });
   });
 }

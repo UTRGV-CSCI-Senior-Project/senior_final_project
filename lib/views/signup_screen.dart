@@ -63,7 +63,7 @@ class SignupScreen extends StatelessWidget {
                   key: const Key('signup-button'),
                   onPressed: () async {
                     if(_usernameController.text.isEmpty || _emailController.text.isEmpty || _passwordController.text.isEmpty){
-                      showCustomSnackBar(context, 'Please fill in all fields.');
+                      showCustomSnackBar(context, 'empty-fields');
                     }else{
 
                     try {
