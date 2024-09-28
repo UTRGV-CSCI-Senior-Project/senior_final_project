@@ -1,9 +1,7 @@
 # Name of the workflow
 name: Unit and Integration tests
 # This work flow is triggered when pull requests are opened or updated
-on:
-  push:
-  pull_request:
+on: [pull_request]
 # A workflow run is made up of one or more jobs.
 jobs:
   # id of job, a string that is unique to the "jobs" node above.
@@ -88,7 +86,7 @@ jobs:
         api-level: 29
         arch: x86_64
         profile: Nexus 6
-    
-    - name: Run Integration Tests
-      run: flutter pub get && flutter test integration_test
-      
+        script: |
+          adb wait-for-device
+          flutter pub get
+          flutter integration_test
