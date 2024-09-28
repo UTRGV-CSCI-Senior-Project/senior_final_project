@@ -13,7 +13,7 @@ class WelcomeScreen extends StatelessWidget {
       backgroundColor: Colors.white60,
       body: ListView(
         children: [
-          Text("APP Name"),
+          const Text("APP Name"),
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -21,24 +21,26 @@ class WelcomeScreen extends StatelessWidget {
                 width: screenWidth - 40,
                 decoration: BoxDecoration(
                     border: Border.all(
-                      color: Color.fromARGB(255, 0, 162, 255),
+                      color: const Color.fromARGB(255, 0, 162, 255),
                       width: 3,
                     ),
-                    borderRadius: BorderRadius.all(Radius.circular(10))),
+                    borderRadius: const BorderRadius.all(Radius.circular(10))),
                 child: TextButton(onPressed: () {
-                }, child: Text('Login')),
+                }, child: const Text('Login')),
               ),
               Container(
                 width: screenWidth - 40,
                 decoration: BoxDecoration(
                     border: Border.all(
-                      color: Color.fromARGB(255, 0, 162, 255),
+                      color: const Color.fromARGB(255, 0, 162, 255),
                       width: 3,
                     ),
-                    borderRadius: BorderRadius.all(Radius.circular(10))),
-                child: TextButton(onPressed: () {
+                    borderRadius: const BorderRadius.all(Radius.circular(10))),
+                child: TextButton(
+                  key: const Key('signup-button'),
+                  onPressed: () {
                   Navigator.push(context, MaterialPageRoute(builder: (context) => SignupScreen(userRepository: locator<UserRepository>(),)));
-                }, child: Text('Sign up')),
+                }, child: const Text('Sign up')),
               )
             ],
           )

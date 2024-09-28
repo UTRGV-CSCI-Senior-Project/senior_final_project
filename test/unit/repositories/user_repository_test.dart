@@ -48,7 +48,7 @@ void main() {
 
     expect(
         () => userRepository.createUser(username, email, password),
-        throwsA(equals('taken-username')));
+        throwsA(equals('username-taken')));
   });
 
   test('createUser throws exception when sign up fails', () async {

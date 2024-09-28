@@ -70,6 +70,39 @@ void main() {
           throwsA(equals('email-already-in-use')));
     });
 
+    test('create account fails with invalid email FirebaseAuthException',
+        () async {
+      when(mockFirebaseAuth.createUserWithEmailAndPassword(
+              email: 'test@email.com', password: '1!'))
+          .thenAnswer(
+              (_) => throw FirebaseAuthException(code: 'invalid-email'));
+
+      expect(() => authServices.signUp(email: 'test@email.com', password: '1!'),
+          throwsA(equals('invalid-email')));
+    });
+
+    test('create account fails with invalid email FirebaseAuthException',
+        () async {
+      when(mockFirebaseAuth.createUserWithEmailAndPassword(
+              email: 'test@email.com', password: '1!'))
+          .thenAnswer(
+              (_) => throw FirebaseAuthException(code: 'too-many-requests'));
+
+      expect(() => authServices.signUp(email: 'test@email.com', password: '1!'),
+          throwsA(equals('too-many-requests')));
+    });
+
+        test('create account fails with invalid email FirebaseAuthException',
+        () async {
+      when(mockFirebaseAuth.createUserWithEmailAndPassword(
+              email: 'test@email.com', password: '1!'))
+          .thenAnswer(
+              (_) => throw FirebaseAuthException(code: 'network-request-failed'));
+
+      expect(() => authServices.signUp(email: 'test@email.com', password: '1!'),
+          throwsA(equals('network-request-failed')));
+    });
+
     test('create account fails with generic exception', () async {
       when(mockFirebaseAuth.createUserWithEmailAndPassword(
               email: 'test@email.com', password: '1!'))

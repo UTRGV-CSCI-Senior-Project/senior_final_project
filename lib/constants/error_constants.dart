@@ -1,7 +1,7 @@
 class ErrorConstants {
   static const Map<String, String> errorMessages = {
     'email-already-in-use': 'This email is already associated with another account.',
-    'invalid-email': 'The email provided is not a valid email address',
+    'invalid-email': 'The email provided is not a valid email address.',
     'weak-password': 'The password provided is too weak.',
     'too-many-requests':'Too many requests. Please try again later.',
     'network-request-failed': 'A network error ocurred. Please check your connection and try again.',
