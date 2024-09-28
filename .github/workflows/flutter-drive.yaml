@@ -7,7 +7,7 @@ on:
 # A workflow run is made up of one or more jobs.
 jobs:
   # id of job, a string that is unique to the "jobs" node above.
-  android:
+  iphone:
     # The type of machine to run the job on.
     runs-on: macOS-latest
     # Creates a build matrix for your jobs. You can define different
@@ -40,7 +40,7 @@ jobs:
     # Unit Tests
     - name: Run Unit Tests
       run: flutter test
-    # Integration Tests
+    # Set up IOS simulator and run integration tests
     - name: "Set up simulator"
       uses: futureware-tech/simulator-action@v3
       with:
