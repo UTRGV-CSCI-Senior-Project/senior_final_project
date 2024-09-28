@@ -36,7 +36,7 @@ jobs:
       run: echo '${{ secrets.FIREBASE_JSON }}' > firebase.json
     # Sets up Java
     # https://github.com/actions/setup-java
-    - name: Java 8 Setup
+    - name: Java Setup
       uses: actions/setup-java@v2
       with:
         distribution: 'zulu'
@@ -46,17 +46,15 @@ jobs:
     - name: Setup Flutter SDK
       uses: subosito/flutter-action@v2
       with:
-        flutter-version: '3.22.2'
         channel: 'stable' # or: 'dev' or 'beta'
     # Unit Tests
     - name: Run Unit Tests
       run: flutter test
     # Integration Tests
     - name: "Run Flutter Driver tests"
-#     run: "flutter drive --target=test_driver/app.dart"
       uses: reactivecircus/android-emulator-runner@v2
       with:
         api-level: ${{ matrix.api-level }}
         arch: x86_64
         profile: Nexus 6
-        script: flutter drive --target=test_driver/app.dart
+        script: flutter test integration_test
