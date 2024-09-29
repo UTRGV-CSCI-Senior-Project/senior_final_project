@@ -5,6 +5,7 @@ void main() {
   group("Valid User Models", () {
 
     test('Creates a valid user', () {
+      //Create a valid user
       final user = UserModel(
         uid: '123',
         username: 'testuser',
@@ -13,6 +14,7 @@ void main() {
         isProfessional: true,
       );
 
+      //Expect the user to have all the correct information
       expect(user.uid, '123');
       expect(user.username, 'testuser');
       expect(user.email, 'test@example.com');
@@ -21,6 +23,7 @@ void main() {
     });
 
     test('toJson should return a valid JSON representation', () {
+      //Create a valid user
       final user = UserModel(
         uid: '123',
         username: 'testuser',
@@ -29,6 +32,7 @@ void main() {
         isProfessional: true,
       );
 
+      //Check that the toJson returns the correct JSON
       final json = user.toJson();
       expect(json['uid'], '123');
       expect(json['username'], 'testuser');
@@ -41,6 +45,7 @@ void main() {
 
   group("Invalid User Models", () {
        test('UserModel should throw an error when uid is empty', () {
+        //Expect a user with an empty UID to throw an argument error
       expect(() => UserModel(
         uid: '',
         username: 'testuser',
@@ -50,6 +55,7 @@ void main() {
     });
 
     test('UserModel should throw an error when username is empty', () {
+      //Expect a user with an empty username to throw an argument error
       expect(() => UserModel(
         uid: '123',
         username: '',
@@ -59,6 +65,7 @@ void main() {
     });
 
     test('UserModel should throw an error when email is empty', () {
+      //Expect a user with an empty email to throw an argument error
       expect(() => UserModel(
         uid: '123',
         username: 'testuser',
