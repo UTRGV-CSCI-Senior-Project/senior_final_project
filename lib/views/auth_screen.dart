@@ -1,15 +1,35 @@
 import 'package:flutter/material.dart';
+import 'package:senior_final_project/core/service_locator.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:senior_final_project/repositories/user_repository.dart';
 import 'package:senior_final_project/widgets/snackbar_widget.dart';
 import 'package:senior_final_project/views/home_screen.dart';
 
-class SignupScreen extends StatelessWidget {
-  SignupScreen({super.key, required this.userRepository});
+class AuthScreen extends ConsumerStatefulWidget {
+  final bool isLogin;
+  const AuthScreen({super.key, required  this.isLogin});
 
-  final UserRepository userRepository;
+
+  @override
+  AuthScreenState createState() => AuthScreenState();
+}
+
+class AuthScreenState extends ConsumerState<AuthScreen> {
   final _usernameController = TextEditingController();
+
   final _emailController = TextEditingController();
+
   final _passwordController = TextEditingController();
+  late bool _isLogin;
+  late UserRepository userRepository;
+
+
+ @override
+  void initState() {
+    // TODO: implement initState
+    _isLogin = widget.isLogin;
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,18 +60,18 @@ class SignupScreen extends StatelessWidget {
               const SizedBox(
                 height: 75,
               ),
-              const Text(
-                "Sign Up",
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
+              Text(_isLogin ? "Sign In" : "Sign Up",
+                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
               ),
               const SizedBox(
                 height: 25,
               ),
-              _inputField('username-field','Username', 'Enter your unique username',
-                  TextInputType.text, _usernameController),
-              _inputField('email-field','Email', 'Enter your email',
+              if(!_isLogin)
+                inputField('username-field','Username', 'Enter your unique username',
+                    TextInputType.text, _usernameController),
+              inputField('email-field','Email', 'Enter your email',
                   TextInputType.emailAddress, _emailController),
-              _inputField('password-field','Password', 'Enter your password', TextInputType.text,
+              inputField('password-field','Password', 'Enter your password', TextInputType.text,
                   _passwordController,
                   isPassword: true),
               const SizedBox(
@@ -60,21 +80,27 @@ class SignupScreen extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: TextButton(
-                  key: const Key('signup-button'),
+                  key: Key(_isLogin ? 'login-button' : 'signup-button'),
                   onPressed: () async {
-                    if(_usernameController.text.isEmpty || _emailController.text.isEmpty || _passwordController.text.isEmpty){
+                    if(_emailController.text.isEmpty || _passwordController.text.isEmpty || !_isLogin && _usernameController.text.isEmpty){
                       showCustomSnackBar(context, 'empty-fields');
                     }else{
-
+                      userRepository = ref.watch(userRepositoryProvider);
                     try {
-                      await userRepository.createUser(
+
+                      if(_isLogin){
+
+                      }else{
+                        await userRepository.createUser(
                           _usernameController.text,
                           _emailController.text,
                           _passwordController.text);
+                      }
+                      
                       Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const HomeScreen()));
+                              builder: (context) =>  HomeScreen()));
                     } catch (e) {
                       showCustomSnackBar(context, e.toString());
                     }}
@@ -84,9 +110,8 @@ class SignupScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(26)),
                       backgroundColor: const Color.fromARGB(255, 0, 111, 253),
                       padding: const EdgeInsets.symmetric(vertical: 12)),
-                  child: const Text(
-                    'Sign Up',
-                    style: TextStyle(
+                  child: Text(_isLogin ? 'Sign In': 'Sign Up',
+                    style: const TextStyle(
                         color: Colors.white,
                         fontSize: 20,
                         fontWeight: FontWeight.bold),
@@ -96,17 +121,21 @@ class SignupScreen extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    setState(() {
+                      _isLogin = !_isLogin;
+                    });
+                  },
                   child: RichText(
-                      text: const TextSpan(
-                          text: "Already have an account? ",
-                          style: TextStyle(
+                      text: TextSpan(
+                          text: _isLogin ? "Don't have an account?  " : "Already have an account?  ",
+                          style: const TextStyle(
                               fontWeight: FontWeight.normal,
                               color: Colors.black),
                           children: [
                         TextSpan(
-                            text: 'Sign Up',
-                            style: TextStyle(
+                            text: _isLogin ? "Sign Up" : "Sign In",
+                            style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: Color.fromARGB(255, 0, 111, 253)))
                       ])),
@@ -118,9 +147,16 @@ class SignupScreen extends StatelessWidget {
       )),
     );
   }
+
+@override void dispose() {
+    _usernameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 }
 
-Widget _inputField(String key, String label, String hintText, TextInputType keyboardType,
+Widget inputField(String key, String label, String hintText, TextInputType keyboardType,
     TextEditingController controller,
     {bool isPassword = false}) {
   return Padding(
@@ -151,4 +187,5 @@ Widget _inputField(String key, String label, String hintText, TextInputType keyb
       ),
     ]),
   );
+
 }

@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:get_it/get_it.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:senior_final_project/main.dart';
 import 'package:senior_final_project/core/service_locator.dart';
@@ -12,11 +12,10 @@ void main() {
 
   setUpAll(() async {
     await Firebase.initializeApp();
-    setUpLocator(useEmulators: true);
+    setupEmulators(useEmulators: true);
   });
 
   tearDownAll(() {
-    GetIt.instance.reset();
   });
 
   group('sign up flow', () {
@@ -27,7 +26,7 @@ void main() {
 
     Future<void> navigateToSignUpPage(WidgetTester tester) async {
       //Wait for app to load
-      await tester.pumpWidget(MyApp());
+      await tester.pumpWidget(const ProviderScope(child: MyApp()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
       //Navigate to sign up screen by tapping sign up button on welcome screen

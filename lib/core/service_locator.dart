@@ -2,29 +2,28 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:get_it/get_it.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart'; 
 import 'package:senior_final_project/repositories/user_repository.dart';
 import 'package:senior_final_project/services/auth_services.dart';
 import 'package:senior_final_project/services/user_firestore_services.dart';
 
-//Global instance of GetIt, allows for global access of services
-final locator = GetIt.instance;
+final authServicesProvider = Provider<AuthServices>((ref) {
+  return AuthServices();
+});
 
-void setUpLocator({bool useEmulators = false}) {
+final userFirestoreServicesProvider = Provider<UserFirestoreServices>((ref){
+  return UserFirestoreServices();
+});
 
+final userRepositoryProvider = Provider<UserRepository>((ref) {
+  final authServices = ref.watch(authServicesProvider);
+  final userFirestoreServices = ref.watch(userFirestoreServicesProvider);
+  return UserRepository(authServices, userFirestoreServices);
+});
 
-  //For testing, run services on emulators.
-  if(useEmulators){
-    //Set up Firebase authentication emulator
+void setupEmulators({bool useEmulators = false}) {
+  if (useEmulators) {
     FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
-
-    //Set up Firebase Firestore emulator
     FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
   }
-
-  //Register necessary services
-  locator.registerSingleton<AuthServices>(AuthServices());
-  locator.registerSingleton<UserFirestoreServices>(UserFirestoreServices());
-  locator.registerSingleton<UserRepository>(UserRepository(locator<AuthServices>(), locator<UserFirestoreServices>()));
-
 }
