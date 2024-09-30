@@ -295,7 +295,7 @@ packages:
     source: sdk
     version: "0.0.0"
   flutter_driver:
-    dependency: "direct main"
+    dependency: transitive
     description: flutter
     source: sdk
     version: "0.0.0"
@@ -370,6 +370,11 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.0.2"
+  integration_test:
+    dependency: "direct dev"
+    description: flutter
+    source: sdk
+    version: "0.0.0"
   integration_test:
     dependency: "direct dev"
     description: flutter

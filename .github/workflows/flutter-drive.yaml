@@ -1,21 +1,16 @@
 # Name of the workflow
 name: Unit and Integration tests
 # This work flow is triggered when pull requests are opened or updated
-on: [ pull_request ]
+on: [pull_request]
 # A workflow run is made up of one or more jobs.
 jobs:
   # id of job, a string that is unique to the "jobs" node above.
-  android:
+  iphone:
     # The type of machine to run the job on.
-    runs-on: ubuntu-latest
+    runs-on: macOS-latest
     # Creates a build matrix for your jobs. You can define different
     # variations of an environment to run each job in.
     strategy:
-      # A set of different configurations of the virtual  
-      # environment.
-      matrix:
-        api-level:
-          - "29"
       # When set to true, GitHub cancels all in-progress jobs if any        
       # matrix job fails.
       fail-fast: true
@@ -34,29 +29,20 @@ jobs:
       run: echo '${{ secrets.GOOGLE_SERVICES_JSON }}' > android/app/google-services.json
     - name: Write firebase.json
       run: echo '${{ secrets.FIREBASE_JSON }}' > firebase.json
-    # Sets up Java
-    # https://github.com/actions/setup-java
-    - name: Java 8 Setup
-      uses: actions/setup-java@v2
-      with:
-        distribution: 'zulu'
-        java-version: '11.x' 
     # Sets up a flutter environment.
     # https://github.com/marketplace/actions/flutter-action
     - name: Setup Flutter SDK
       uses: subosito/flutter-action@v2
       with:
-        flutter-version: '3.22.2'
         channel: 'stable' # or: 'dev' or 'beta'
     # Unit Tests
     - name: Run Unit Tests
       run: flutter test
-    # Integration Tests
-    - name: "Run Flutter Driver tests"
-#     run: "flutter drive --target=test_driver/app.dart"
-      uses: reactivecircus/android-emulator-runner@v2
+    # Set up IOS simulator and run integration tests
+    - name: "Set up simulator"
+      uses: futureware-tech/simulator-action@v3
       with:
-        api-level: ${{ matrix.api-level }}
-        arch: x86_64
-        profile: Nexus 6
-        script: flutter drive --target=test_driver/app.dart
+        model: 'iPhone 14'
+        os_version: '>=13.0'
+    - name: "Run Integration Tests"
+      run: flutter pub get && flutter test integration_test
