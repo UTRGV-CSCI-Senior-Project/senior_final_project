@@ -1,4 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:senior_final_project/services/storage/storage_service.dart';
 
 void main() {
   runApp(const UploadPictures());
@@ -9,6 +13,34 @@ class UploadPictures extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold();
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Upload Images',
+        ),
+        centerTitle: true,
+      ),
+      body: _buildUI(),
+      floatingActionButton: _uploadMediaButton(context),
+    );
+  }
+
+  Widget _uploadMediaButton(BuildContext context) {
+    return FloatingActionButton(
+      onPressed: () async {
+        File? selectedImage = await getImageFromGallery(context);
+        if (selectedImage != null) {
+          bool success = await uploadFileForUser(selectedImage);
+          print(success);
+        }
+      },
+      child: const Icon(
+        Icons.upload,
+      ),
+    );
+  }
+
+  Widget _buildUI() {
+    return Container();
   }
 }
