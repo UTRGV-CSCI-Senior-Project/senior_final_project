@@ -84,7 +84,11 @@ void main() {
       await tester.pumpAndSettle();
 
       //Expect to see error for invalid email address
-      expect(find.text('The email provided is not a valid email address.'), findsOneWidget);
+      expect(find.byType(SnackBar), findsOneWidget);
+      expect(
+          find.textContaining(
+              'The email provided is not a valid email address.'),
+          findsOneWidget);
     });
 
     testWidgets('Already existing email shows error', (tester) async {
@@ -101,7 +105,11 @@ void main() {
       await tester.pumpAndSettle();
 
       //Expect to see error for taken email
-      expect(find.text('This email is already associated with another account.'), findsOneWidget);
+      expect(find.byType(SnackBar), findsOneWidget);
+      expect(
+          find.textContaining(
+              'This email is already associated with another account.'),
+          findsOneWidget);
     });
 
     testWidgets('Username not unique shows error', (tester) async {
@@ -118,7 +126,11 @@ void main() {
       await tester.pumpAndSettle();
 
       //Expect to see error for taken username
-      expect(find.text('This username is already taken. Please try another one.'), findsOneWidget);
+      expect(find.byType(SnackBar), findsOneWidget);
+      expect(
+          find.textContaining(
+              'This username is already taken. Please try another one.'),
+          findsOneWidget);
     });
 
   });
