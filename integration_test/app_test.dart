@@ -27,7 +27,10 @@ void main() {
     Future<void> navigateToSignUpPage(WidgetTester tester) async {
       //Wait for app to load
       await tester.pumpWidget(const ProviderScope(child: MyApp()));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pumpAndSettle(const Duration(seconds: 10));
+
+  // Wait for Firebase to complete the sign-up process
+  await Future.delayed(const Duration(seconds: 5));
 
       //Navigate to sign up screen by tapping sign up button on welcome screen
       expect(signUpButton, findsOneWidget);
