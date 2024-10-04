@@ -22,6 +22,7 @@ class AuthScreenState extends ConsumerState<AuthScreen> {
   final _passwordController = TextEditingController();
   late bool _isLogin;
   late UserRepository userRepository;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -90,12 +91,16 @@ class AuthScreenState extends ConsumerState<AuthScreen> {
                 width: double.infinity,
                 child: TextButton(
                   key: Key(_isLogin ? 'login-button' : 'signup-button'),
-                  onPressed: () async {
+                  onPressed: _isLoading ? null :
+                  () async {
                     if (_emailController.text.isEmpty ||
                         _passwordController.text.isEmpty ||
                         !_isLogin && _usernameController.text.isEmpty) {
                       showCustomSnackBar(context, 'empty-fields');
                     } else {
+                      setState(() {
+                        _isLoading = true;
+                      });
                       userRepository = ref.read(userRepositoryProvider);
                       try {
                         if (_isLogin) {
@@ -119,6 +124,12 @@ class AuthScreenState extends ConsumerState<AuthScreen> {
                           }
                       } catch (e) {
                         showCustomSnackBar(context, e.toString());
+                      } finally {
+                        if(mounted){
+                          setState(() {
+                            _isLoading = false;
+                          });
+                        }
                       }
                     }
                   },
@@ -127,7 +138,15 @@ class AuthScreenState extends ConsumerState<AuthScreen> {
                           borderRadius: BorderRadius.circular(26)),
                       backgroundColor: const Color.fromARGB(255, 0, 111, 253),
                       padding: const EdgeInsets.symmetric(vertical: 12)),
-                  child: Text(
+                  child: _isLoading ? const SizedBox(
+                    height: 25,
+                    width: 25,
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 5,
+                    ),
+                  ) :
+                  Text(
                     _isLogin ? 'Sign In' : 'Sign Up',
                     style: const TextStyle(
                         color: Colors.white,
