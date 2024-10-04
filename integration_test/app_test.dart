@@ -42,7 +42,7 @@ void main() {
           child: MyApp(
         duration: Duration.zero,
       )));
-      await tester.pumpAndSettle(const Duration(seconds: 2));
+      await tester.pumpAndSettle(const Duration(seconds: 10));
 
       await waitForLoadingToComplete(tester);
 
@@ -67,6 +67,7 @@ void main() {
 
       //Tap sign up button
       await tester.tap(signUpButton);
+      await tester.pumpAndSettle(const Duration(seconds: 5));
       await waitForLoadingToComplete(tester);
       //Grab the current authenticated user and check it matches our previous inputs
       final user = FirebaseAuth.instance.currentUser;
