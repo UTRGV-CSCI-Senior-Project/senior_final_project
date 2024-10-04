@@ -23,6 +23,13 @@ void main() {
     container.read(authServicesProvider).signOut();
   });
 
+  Future<void> waitForLoadingToComplete(WidgetTester tester) async {
+    await tester.pumpAndSettle();
+    while(find.byType(CircularProgressIndicator).evaluate().isNotEmpty){
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+  }
+
   group('sign up flow', () {
     final usernameField = find.byKey(const Key('username-field'));
     final emailField = find.byKey(const Key('email-field'));
@@ -37,11 +44,14 @@ void main() {
       )));
       await tester.pumpAndSettle(const Duration(seconds: 2));
 
+      await waitForLoadingToComplete(tester);
+
       //Navigate to sign up screen by tapping sign up button on welcome screen
       expect(signUpButton, findsOneWidget);
       await tester.tap(signUpButton);
-      await tester.pumpAndSettle();
+      await waitForLoadingToComplete(tester);
 
+      await waitForLoadingToComplete(tester);
       //Expect to see Sign Up title to verify we are on sign up screen
       expect(find.text('Sign Up'), findsAny);
     }
@@ -57,13 +67,13 @@ void main() {
 
       //Tap sign up button
       await tester.tap(signUpButton);
-      await tester.pumpAndSettle(const Duration(seconds: 5));
-
+      await waitForLoadingToComplete(tester);
       //Grab the current authenticated user and check it matches our previous inputs
       final user = FirebaseAuth.instance.currentUser;
       expect(user, isNotNull);
       expect(user!.email, 'testuser@email.com');
       expect(user.uid, isNotEmpty);
+      expect(find.text('Home Screen'), findsOneWidget);
     });
 
     testWidgets('Empty fields show error', (tester) async {
@@ -72,7 +82,7 @@ void main() {
 
       //Tap sign up button without entering necessary data
       await tester.tap(signUpButton);
-      await tester.pumpAndSettle();
+      await waitForLoadingToComplete(tester);
 
       //Expect to see error for empty fields
       expect(find.text('Please fill in all of the fields.'), findsOneWidget);
@@ -89,7 +99,7 @@ void main() {
 
       //Tap sign up button
       await tester.tap(signUpButton);
-      await tester.pumpAndSettle();
+      await waitForLoadingToComplete(tester);
 
       //Expect to see error for invalid email address
       expect(find.byType(SnackBar), findsOneWidget);
@@ -110,7 +120,7 @@ void main() {
 
       //Tap sign up button
       await tester.tap(signUpButton);
-      await tester.pumpAndSettle();
+      await waitForLoadingToComplete(tester);
 
       //Expect to see error for taken email
       expect(find.byType(SnackBar), findsOneWidget);
@@ -131,7 +141,7 @@ void main() {
 
       //Tap sign up button
       await tester.tap(signUpButton);
-      await tester.pumpAndSettle();
+      await waitForLoadingToComplete(tester);
 
       //Expect to see error for taken username
       expect(find.byType(SnackBar), findsOneWidget);
@@ -153,12 +163,12 @@ void main() {
           child: MyApp(
         duration: Duration.zero,
       )));
-      await tester.pumpAndSettle(const Duration(seconds: 2));
+      await waitForLoadingToComplete(tester);
 
       //Navigate to sign up screen by tapping sign up button on welcome screen
       expect(logInButton, findsOneWidget);
       await tester.tap(logInButton);
-      await tester.pumpAndSettle();
+      await waitForLoadingToComplete(tester);
 
       //Expect to see Sign Up title to verify we are on sign up screen
       expect(find.text('Sign In'), findsAny);
@@ -174,7 +184,7 @@ void main() {
 
       //Tap sign up button
       await tester.tap(logInButton);
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await waitForLoadingToComplete(tester);
 
       //Grab the current authenticated user and check it matches our previous inputs
       final user = FirebaseAuth.instance.currentUser;
@@ -189,7 +199,7 @@ void main() {
 
       //Tap sign up button without entering necessary data
       await tester.tap(logInButton);
-      await tester.pumpAndSettle();
+      await waitForLoadingToComplete(tester);
 
       //Expect to see error for empty fields
       expect(find.text('Please fill in all of the fields.'), findsOneWidget);
@@ -205,7 +215,7 @@ void main() {
 
       //Tap sign up button
       await tester.tap(logInButton);
-      await tester.pumpAndSettle();
+      await waitForLoadingToComplete(tester);
 
       //Expect to see error for invalid email address
       expect(find.byType(SnackBar), findsOneWidget);
@@ -225,7 +235,7 @@ void main() {
 
       //Tap sign up button
       await tester.tap(logInButton);
-      await tester.pumpAndSettle();
+      await waitForLoadingToComplete(tester);
 
       //Expect to see error for taken email
       expect(find.byType(SnackBar), findsOneWidget);
