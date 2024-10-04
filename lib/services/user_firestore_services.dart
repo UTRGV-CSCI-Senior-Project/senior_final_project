@@ -18,6 +18,23 @@ class UserFirestoreServices {
       }
     }
 
+    Future<UserModel?> getUser(String uid) async {
+      try{
+      final docSnapshot = await _firestore.collection('users').doc(uid).get();
+      if(docSnapshot.exists){
+        return UserModel.fromJson(docSnapshot.data()!);
+      }else {
+        throw 'user-not-found';
+      }
+      }catch (e){
+        if(e == 'user-not-found'){
+          rethrow;
+        }else{
+        throw 'unexpected-error';
+
+        }
+      }
+    }
 
     Future<bool> isUsernameUnique(String username) async {
       try{

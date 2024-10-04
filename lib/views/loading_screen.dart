@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 
-class SplashScreen extends StatelessWidget {
-  const SplashScreen({super.key});
+class LoadingScreen extends StatelessWidget {
+  const LoadingScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -21,6 +21,10 @@ class SplashScreen extends StatelessWidget {
                 letterSpacing: 0.1, // 10% letterSpacing
               ),
             ),
+            CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Color.fromARGB(255, 0, 111, 253)) ,
+              
+            )
           ],
         ),
       ),

@@ -7,7 +7,12 @@ class ErrorConstants {
     'network-request-failed': 'A network error ocurred. Please check your connection and try again.',
     'username-taken': 'This username is already taken. Please try another one.',
     'unexpected-error': 'An unknown error ocurred. Please try again later.',
-    'empty-fields': 'Please fill in all of the fields.'
+    'empty-fields': 'Please fill in all of the fields.',
+    'invalid-credential': 'Your email address or password is incorrect.',
+    'user-disabled': 'The account for the provided email has been disabled.',
+    'user-not-found': 'There is no user corresponding to the email provided.',
+    'wrong-password': 'Your email address or password is incorrect.'
+  
   };
 
   static String getMessage(String errorCode){

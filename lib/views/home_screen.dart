@@ -2,17 +2,25 @@
 //Can be changed
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:senior_final_project/core/service_locator.dart';
+import 'package:senior_final_project/views/welcome_screen.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return  const Scaffold(
+  Widget build(BuildContext context, WidgetRef ref) {
+    
+    return   Scaffold(
       body: SafeArea(child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text('Home Screen')
+          const Text('Home Screen'),
+          ElevatedButton(onPressed: (){
+            ref.watch(userRepositoryProvider).signOut();
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const WelcomeScreen()));
+          }, child: const Text('Sign Out '))
         ],
       )),
     );

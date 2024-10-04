@@ -5,11 +5,12 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i3;
 
+import 'package:firebase_auth/firebase_auth.dart' as _i4;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:senior_final_project/models/user_model.dart' as _i5;
+import 'package:senior_final_project/models/user_model.dart' as _i6;
 import 'package:senior_final_project/services/auth_services.dart' as _i2;
 import 'package:senior_final_project/services/user_firestore_services.dart'
-    as _i4;
+    as _i5;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -48,19 +49,66 @@ class MockAuthServices extends _i1.Mock implements _i2.AuthServices {
         ),
         returnValue: _i3.Future<String?>.value(),
       ) as _i3.Future<String?>);
+
+  @override
+  _i3.Future<void> signIn({
+    required String? email,
+    required String? password,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #signIn,
+          [],
+          {
+            #email: email,
+            #password: password,
+          },
+        ),
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
+
+  @override
+  _i3.Future<void> signOut() => (super.noSuchMethod(
+        Invocation.method(
+          #signOut,
+          [],
+        ),
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
+
+  @override
+  _i3.Stream<_i4.User?> authStateChanges() => (super.noSuchMethod(
+        Invocation.method(
+          #authStateChanges,
+          [],
+        ),
+        returnValue: _i3.Stream<_i4.User?>.empty(),
+      ) as _i3.Stream<_i4.User?>);
+
+  @override
+  _i3.Future<void> deleteUser() => (super.noSuchMethod(
+        Invocation.method(
+          #deleteUser,
+          [],
+        ),
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
 }
 
 /// A class which mocks [UserFirestoreServices].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockUserFirestoreServices extends _i1.Mock
-    implements _i4.UserFirestoreServices {
+    implements _i5.UserFirestoreServices {
   MockUserFirestoreServices() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i3.Future<void> addUser(_i5.UserModel? user) => (super.noSuchMethod(
+  _i3.Future<void> addUser(_i6.UserModel? user) => (super.noSuchMethod(
         Invocation.method(
           #addUser,
           [user],
@@ -68,6 +116,15 @@ class MockUserFirestoreServices extends _i1.Mock
         returnValue: _i3.Future<void>.value(),
         returnValueForMissingStub: _i3.Future<void>.value(),
       ) as _i3.Future<void>);
+
+  @override
+  _i3.Future<_i6.UserModel?> getUser(String? uid) => (super.noSuchMethod(
+        Invocation.method(
+          #getUser,
+          [uid],
+        ),
+        returnValue: _i3.Future<_i6.UserModel?>.value(),
+      ) as _i3.Future<_i6.UserModel?>);
 
   @override
   _i3.Future<bool> isUsernameUnique(String? username) => (super.noSuchMethod(
