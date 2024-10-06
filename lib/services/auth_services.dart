@@ -51,4 +51,17 @@ class AuthServices {
       throw e.toString();
     }
   }
+
+  Future<void> sendVerificationEmail() async {
+    try{
+      if(_firebaseAuth.currentUser?.emailVerified == false){
+        await _firebaseAuth.currentUser?.sendEmailVerification();
+      }else{
+        throw 'already-verified';
+      }
+    }catch (e){
+      throw 'email-verification-error';
+    }
+  }
+
 }

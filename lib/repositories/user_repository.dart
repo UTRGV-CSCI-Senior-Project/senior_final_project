@@ -10,7 +10,6 @@ class UserRepository {
 
   UserRepository(this._authServices, this._userFirestoreServices, this._ref);
 
-
   Future<void> createUser(
       String username, String email, String password) async {
     try {
@@ -34,6 +33,8 @@ class UserRepository {
           await _authServices.deleteUser();
           throw 'firestore-add-fail';
         }
+
+        _authServices.sendVerificationEmail();
       }
     } catch (e) {
       rethrow;
@@ -51,5 +52,4 @@ class UserRepository {
   Future<void> signOut() async {
     await _authServices.signOut();
   }
-
 }
