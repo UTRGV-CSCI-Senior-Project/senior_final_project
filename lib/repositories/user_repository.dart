@@ -19,7 +19,7 @@ class UserRepository {
         throw 'username-taken';
       }
       final result =
-          await _authServices.signUp(email: email, password: password);
+          await _authServices.signUp(email: email, password: password, username: username);
       if (result != null) {
         final user = UserModel(
             uid: result,
@@ -29,6 +29,7 @@ class UserRepository {
 
         try {
           await _userFirestoreServices.addUser(user);
+
         } catch (e) {
           await _authServices.deleteUser();
           throw 'firestore-add-fail';

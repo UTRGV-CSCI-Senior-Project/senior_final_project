@@ -7,10 +7,11 @@ class AuthServices {
       : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance;
 
   Future<String?> signUp(
-      {required String email, required String password}) async {
+      {required String email, required String password, required String username}) async {
     try {
       final credential = await _firebaseAuth.createUserWithEmailAndPassword(
           email: email, password: password);
+      await credential.user?.updateDisplayName(username);
       return credential.user?.uid;
     } on FirebaseAuthException catch (e) {
       throw e.code.toString();
@@ -54,13 +55,22 @@ class AuthServices {
 
   Future<void> sendVerificationEmail() async {
     try{
+      if(_firebaseAuth.currentUser == null)
+      {
+        throw 'no-user';
+      }
       if(_firebaseAuth.currentUser?.emailVerified == false){
         await _firebaseAuth.currentUser?.sendEmailVerification();
       }else{
         throw 'already-verified';
       }
     }catch (e){
-      throw 'email-verification-error';
+      if(e == 'already-verified' || e == 'no-user'){
+        rethrow;
+      }
+      else{
+        throw 'email-verification-error';
+      }
     }
   }
 

@@ -38,10 +38,11 @@ void main() {
     when(mockUserFirestoreServices.isUsernameUnique(username))
         .thenAnswer((_) async => true);
     //Return a uid when sign up is called
-    when(mockAuthServices.signUp(email: email, password: password))
+    when(mockAuthServices.signUp(email: email, password: password, username: username))
         .thenAnswer((_) async => uid);
     //Return no exceptions (successfull) when the user is added to firestore
-    when(mockUserFirestoreServices.addUser(any)).thenAnswer((_) async => {});
+    when(mockUserFirestoreServices.addUser(any)).thenAnswer((_) async {});
+    when(mockAuthServices.sendVerificationEmail()).thenAnswer((_) async {});
 
     //Create the user using the user repository
     final userRepository = container.read(userRepositoryProvider);
@@ -49,7 +50,7 @@ void main() {
 
     //Verify that all necessary services for creating a user (username check, sign up, firestore) were called
     verify(mockUserFirestoreServices.isUsernameUnique(username)).called(1);
-    verify(mockAuthServices.signUp(email: email, password: password)).called(1);
+    verify(mockAuthServices.signUp(email: email, password: password, username: username)).called(1);
     verify(mockUserFirestoreServices.addUser(any)).called(1);
   });
 
@@ -79,7 +80,7 @@ void main() {
     when(mockUserFirestoreServices.isUsernameUnique(username))
         .thenAnswer((_) async => true);
     //Throw an unexpected-error when signup is called
-    when(mockAuthServices.signUp(email: email, password: password))
+    when(mockAuthServices.signUp(email: email, password: password, username: username))
         .thenThrow('unexpected-error');
     final userRepository = container.read(userRepositoryProvider);
 
@@ -103,7 +104,7 @@ void main() {
     when(mockUserFirestoreServices.isUsernameUnique(username))
         .thenAnswer((_) async => true);
     //Return a uid when signup is called (successful signup)
-    when(mockAuthServices.signUp(email: email, password: password))
+    when(mockAuthServices.signUp(email: email, password: password, username: username))
         .thenAnswer((_) async => uid);
     //Throw an unexpected-error when trying to add user to firestore
     when(mockUserFirestoreServices.addUser(any))
