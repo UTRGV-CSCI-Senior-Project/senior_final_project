@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 Future<void> signInUserAnon() async {
   try {
@@ -13,12 +15,16 @@ Future<void> signInUserAnon() async {
 
 Future<File?> getImageFromGallery(BuildContext context) async {
   try {
-    List<MediaFile>? singleMedia =
-        await GalleryPicker.pickMedia(context: context, singleMedia: true);
-    return singleMedia?.first.getFile();
+    final ImagePicker _picker = ImagePicker();
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+
+    if (image != null) {
+      return File(image.path);
+    }
   } catch (e) {
     print(e);
   }
+  return null;
 }
 
 Future<bool> uploadFileForUser(File file) async {
