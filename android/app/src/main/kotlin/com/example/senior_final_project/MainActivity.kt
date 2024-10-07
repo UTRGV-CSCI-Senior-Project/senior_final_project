@@ -1,4 +1,4 @@
-package com.example.senior_final_project
+package com.example.folio
 
 import io.flutter.embedding.android.FlutterActivity
 

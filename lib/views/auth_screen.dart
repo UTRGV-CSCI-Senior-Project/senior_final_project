@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:senior_final_project/core/service_locator.dart';
+import 'package:folio/core/service_locator.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:senior_final_project/repositories/user_repository.dart';
-import 'package:senior_final_project/widgets/input_field_widget.dart';
-import 'package:senior_final_project/widgets/snackbar_widget.dart';
-import 'package:senior_final_project/views/home_screen.dart';
+import 'package:folio/repositories/user_repository.dart';
+import 'package:folio/widgets/input_field_widget.dart';
+import 'package:folio/widgets/snackbar_widget.dart';
+import 'package:folio/views/home_screen.dart';
 
 class AuthScreen extends ConsumerStatefulWidget {
   final bool isLogin;

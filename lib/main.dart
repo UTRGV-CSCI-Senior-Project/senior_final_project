@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:senior_final_project/core/service_locator.dart';
-import 'package:senior_final_project/views/home_screen.dart';
-import 'package:senior_final_project/views/loading_screen.dart';
-import 'package:senior_final_project/views/welcome_screen.dart';
+import 'package:folio/core/service_locator.dart';
+import 'package:folio/views/home_screen.dart';
+import 'package:folio/views/loading_screen.dart';
+import 'package:folio/views/welcome_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

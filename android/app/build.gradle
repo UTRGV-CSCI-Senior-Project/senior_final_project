@@ -27,7 +27,7 @@ if (flutterVersionName == null) {
 }
 
 android {
-    namespace = "com.example.senior_final_project"
+    namespace = "com.example.folio"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
