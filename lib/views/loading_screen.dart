@@ -13,7 +13,7 @@ class LoadingScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              "APP NAME",
+              "Folio",
               style: TextStyle(
                 fontWeight: FontWeight.w400,
                 fontSize: 48.0,
