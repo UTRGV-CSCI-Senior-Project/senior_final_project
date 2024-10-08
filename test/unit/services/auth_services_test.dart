@@ -37,7 +37,7 @@ void main() {
 
       //expect the signUp method to return the correct uid
       final result = await authServices.signUp(
-          email: 'test@email.com', password: 'Pass123!');
+          email: 'test@email.com', password: 'Pass123!', username: 'username');
       expect(result, 'test-uid');
     });
 
@@ -49,7 +49,7 @@ void main() {
       //Expect other-error to be caught when registering a user
       expect(
           () => authServices.signUp(
-              email: 'test@email.com', password: 'Pass123!'),
+              email: 'test@email.com', password: 'Pass123!', username: 'username'),
           throwsA(equals('other-error')));
     });
 
@@ -61,7 +61,7 @@ void main() {
           .thenAnswer(
               (_) => throw FirebaseAuthException(code: 'weak-password'));
       //Expect weak-pasword to be caught when registering a user
-      expect(() => authServices.signUp(email: 'test@email.com', password: '1!'),
+      expect(() => authServices.signUp(email: 'test@email.com', password: '1!', username: 'username'),
           throwsA(equals('weak-password')));
     });
 
@@ -73,7 +73,7 @@ void main() {
           .thenAnswer(
               (_) => throw FirebaseAuthException(code: 'email-already-in-use'));
       //Expect email-already-in-use to be caught when registering a user
-      expect(() => authServices.signUp(email: 'test@email.com', password: '1!'),
+      expect(() => authServices.signUp(email: 'test@email.com', password: '1!', username: 'username'),
           throwsA(equals('email-already-in-use')));
     });
 
@@ -85,7 +85,7 @@ void main() {
           .thenAnswer(
               (_) => throw FirebaseAuthException(code: 'invalid-email'));
       //Expect invalid-email to be caught when registering a user
-      expect(() => authServices.signUp(email: 'test@email.com', password: '1!'),
+      expect(() => authServices.signUp(email: 'test@email.com', password: '1!', username: 'username'),
           throwsA(equals('invalid-email')));
     });
 
@@ -97,7 +97,7 @@ void main() {
           .thenAnswer(
               (_) => throw FirebaseAuthException(code: 'too-many-requests'));
       //Expect too-many-requests to be caught
-      expect(() => authServices.signUp(email: 'test@email.com', password: '1!'),
+      expect(() => authServices.signUp(email: 'test@email.com', password: '1!', username: 'username'),
           throwsA(equals('too-many-requests')));
     });
 
@@ -109,7 +109,7 @@ void main() {
           .thenAnswer(
               (_) => throw FirebaseAuthException(code: 'network-request-failed'));
       //Expect a network-request-failed to be caught when registering a user
-      expect(() => authServices.signUp(email: 'test@email.com', password: '1!'),
+      expect(() => authServices.signUp(email: 'test@email.com', password: '1!', username: 'username'),
           throwsA(equals('network-request-failed')));
     });
 
@@ -119,7 +119,7 @@ void main() {
               email: 'test@email.com', password: '1!'))
           .thenAnswer((_) => throw Exception('Random Error'));
       //Expect the random error to be caught with unexpected-error
-      expect(() => authServices.signUp(email: 'test@email.com', password: '1!'),
+      expect(() => authServices.signUp(email: 'test@email.com', password: '1!', username: 'username'),
           throwsA(equals('unexpected-error')));
     });
   });
@@ -224,5 +224,62 @@ void main() {
       expect(() async => await authServices.deleteUser(), throwsA(equals('user-not-found')));
 
     });
+  });
+
+  group('sendVerificationEmail', () {
+    test('sends verification email, when account is not verified', () async {
+      //When the user is called to check their verification status, return false (for not verified)
+      when(mockFirebaseAuth.currentUser).thenReturn(mockUser);
+      when(mockUser.emailVerified).thenReturn(false);
+      when(mockUser.sendEmailVerification()).thenAnswer((_) async => Future.value());
+
+      // Should complete normally
+      await expectLater(
+        authServices.sendVerificationEmail(),
+        completes,
+      );
+
+      // Verify that sendEmailVerification was called
+      verify(mockUser.sendEmailVerification()).called(1);
+
+    });
+
+    test("doesn't send verification email, when account is already verified", () async {
+      //When the user is called to check their verification status, return true (for already verified)
+      when(mockFirebaseAuth.currentUser).thenReturn(mockUser);
+      when(mockUser.emailVerified).thenReturn(true);
+
+      // Should throw already verified
+      expect(() =>
+        authServices.sendVerificationEmail(),
+        throwsA(equals('already-verified')),
+      );
+    });
+
+    test('throws email-verification-error when sending fails', () async {
+      //When the user is called to check their verification status, return false (for not verified)
+      when(mockFirebaseAuth.currentUser).thenReturn(mockUser);
+      when(mockUser.emailVerified).thenReturn(false);
+      when(mockUser.sendEmailVerification())
+          .thenThrow(Exception('Failed to send email'));
+
+      // Should throw email-verification-error
+      expect(
+        () => authServices.sendVerificationEmail(),
+        throwsA(equals('email-verification-error')),
+      );
+    });
+
+    test('throws no-user, when user is null', () async {
+ // Mock no current user
+      when(mockFirebaseAuth.currentUser).thenReturn(null);
+
+      // Should throw email-verification-error
+      expect(
+        () => authServices.sendVerificationEmail(),
+        throwsA(equals('no-user')),
+      );
+    });
+
   });
 }
