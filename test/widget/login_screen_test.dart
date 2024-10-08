@@ -3,9 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:senior_final_project/core/service_locator.dart';
-import 'package:senior_final_project/repositories/user_repository.dart';
-import 'package:senior_final_project/views/auth_screen.dart';
+import 'package:folio/core/service_locator.dart';
+import 'package:folio/repositories/user_repository.dart';
+import 'package:folio/views/auth_screen.dart';
 
 @GenerateMocks([UserRepository])
 import '../mocks/signup_screen_test.mocks.dart';

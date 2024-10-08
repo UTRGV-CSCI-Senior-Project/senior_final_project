@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:senior_final_project/models/user_model.dart';
-import 'package:senior_final_project/services/auth_services.dart';
-import 'package:senior_final_project/services/user_firestore_services.dart';
+import 'package:folio/models/user_model.dart';
+import 'package:folio/services/auth_services.dart';
+import 'package:folio/services/user_firestore_services.dart';
 
 class UserRepository {
   final AuthServices _authServices;
