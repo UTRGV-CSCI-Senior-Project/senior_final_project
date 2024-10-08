@@ -12,7 +12,7 @@ class WelcomeScreen extends StatelessWidget {
       backgroundColor: Colors.white60,
       body: ListView(
         children: [
-          const Text("APP Name"),
+          const Text("Folio"),
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

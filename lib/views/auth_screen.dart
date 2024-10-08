@@ -56,7 +56,7 @@ class AuthScreenState extends ConsumerState<AuthScreen> {
                   Image.asset('assets/Explore.png'),
                   const Padding(padding: EdgeInsets.only(right: 12)),
                   const Text(
-                    "App Name",
+                    "Folio",
                     style: TextStyle(fontSize: 32, fontWeight: FontWeight.w700),
                   ),
                 ],
