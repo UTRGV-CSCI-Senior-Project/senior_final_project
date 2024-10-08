@@ -1,7 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mockito/mockito.dart';
 import 'package:folio/core/service_locator.dart';
-import 'package:folio/repositories/user_repository.dart';
 import 'package:folio/services/auth_services.dart';
 import 'package:folio/services/user_firestore_services.dart';
 import 'package:mockito/annotations.dart';
