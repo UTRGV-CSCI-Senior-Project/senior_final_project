@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:senior_final_project/models/user_model.dart';
+import 'package:folio/models/user_model.dart';
 
 
 class UserFirestoreServices {

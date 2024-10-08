@@ -3,8 +3,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:senior_final_project/core/service_locator.dart';
-import 'package:senior_final_project/views/welcome_screen.dart';
+import 'package:folio/core/service_locator.dart';
+import 'package:folio/views/welcome_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});

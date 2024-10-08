@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:senior_final_project/services/auth_services.dart';
+import 'package:folio/services/auth_services.dart';
 import 'package:test/expect.dart';
 import 'package:test/scaffolding.dart';
 

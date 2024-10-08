@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:senior_final_project/views/auth_screen.dart';
+import 'package:folio/views/auth_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class WelcomeScreen extends StatelessWidget {
