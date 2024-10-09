@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:senior_final_project/services/upload_image_service.dart';
-import 'package:senior_final_project/views/create_portfolio/more_details_screen.dart';
+import 'package:folio/services/upload_image_service.dart';
+import 'package:folio/views/create_portfolio/more_details_screen.dart';
 
 void main() {
   runApp(const UploadPictures(
@@ -17,18 +17,18 @@ class UploadPictures extends StatefulWidget {
   final String monthsText;
 
   const UploadPictures({
-    Key? key,
+    super.key,
     required this.serviceText,
     required this.yearsText,
     required this.monthsText,
-  }) : super(key: key);
+  });
 
   @override
   _UploadPicturesState createState() => _UploadPicturesState();
 }
 
 class _UploadPicturesState extends State<UploadPictures> {
-  List<File> _selectedImages = [];
+  final List<File> _selectedImages = [];
   List<String> _fetchedImages = [];
   bool _isUploading = false;
   bool _isLoading = false;

@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:senior_final_project/views/create_portfolio/upload_pictures_screen.dart';
+import 'package:folio/views/create_portfolio/upload_pictures_screen.dart';
 
 class InputExperience extends StatefulWidget {
   final String serviceText;
 
-  const InputExperience({Key? key, required this.serviceText})
-      : super(key: key);
+  const InputExperience({super.key, required this.serviceText});
 
   @override
   State<InputExperience> createState() => _InputExperienceState();

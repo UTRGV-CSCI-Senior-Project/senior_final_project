@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:senior_final_project/views/create_portfolio/input_experience_screen.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:folio/views/create_portfolio/input_experience_screen.dart';
 
 class ChooseService extends StatefulWidget {
   const ChooseService({super.key});

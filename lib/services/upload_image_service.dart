@@ -17,8 +17,8 @@ Future<void> signInUserAnon() async {
 Future<List<File?>> getImagesFromGallery(BuildContext context) async {
   List<File?> selectedImages = [];
   try {
-    final ImagePicker _picker = ImagePicker();
-    final List<XFile>? images = await _picker.pickMultiImage();
+    final ImagePicker picker = ImagePicker();
+    final List<XFile> images = await picker.pickMultiImage();
 
     if (images != null) {
       for (var image in images) {

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:senior_final_project/services/upload_image_service.dart';
+import 'package:folio/services/upload_image_service.dart';
 
 void main() {
   runApp(const MoreDetailsScreen(
@@ -15,11 +15,10 @@ class MoreDetailsScreen extends StatefulWidget {
   final String monthsText;
 
   const MoreDetailsScreen(
-      {Key? key,
+      {super.key,
       required this.serviceText,
       required this.yearsText,
-      required this.monthsText})
-      : super(key: key);
+      required this.monthsText});
 
   @override
   State<MoreDetailsScreen> createState() => _MoreDetailsScreenState();
