@@ -1,7 +1,9 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mockito/mockito.dart';
-import 'package:senior_final_project/repositories/user_repository.dart';
-import 'package:senior_final_project/services/auth_services.dart';
-import 'package:senior_final_project/services/user_firestore_services.dart';
+import 'package:folio/core/service_locator.dart';
+import 'package:folio/repositories/user_repository.dart';
+import 'package:folio/services/auth_services.dart';
+import 'package:folio/services/user_firestore_services.dart';
 import 'package:mockito/annotations.dart';
 import 'package:test/test.dart';
 
@@ -10,14 +12,19 @@ import '../../mocks/user_repository_test.mocks.dart';
 
 void main() {
   //Mock all necessary services
-  late UserRepository userRepository;
+  late ProviderContainer container;
   late MockAuthServices mockAuthServices;
   late MockUserFirestoreServices mockUserFirestoreServices;
 
   setUp(() {
     mockAuthServices = MockAuthServices();
     mockUserFirestoreServices = MockUserFirestoreServices();
-    userRepository = UserRepository(mockAuthServices, mockUserFirestoreServices);
+    container = ProviderContainer(
+      overrides: [
+        authServicesProvider.overrideWithValue(mockAuthServices),
+        userFirestoreServicesProvider.overrideWithValue(mockUserFirestoreServices)
+      ]
+    );
   });
 
   test('createUser successfully creates a user', () async {
@@ -37,6 +44,7 @@ void main() {
     when(mockUserFirestoreServices.addUser(any)).thenAnswer((_) async => {});
 
     //Create the user using the user repository
+    final userRepository = container.read(userRepositoryProvider);
     await userRepository.createUser(username, email, password);
 
     //Verify that all necessary services for creating a user (username check, sign up, firestore) were called
@@ -54,7 +62,7 @@ void main() {
     //Return false when username check is called. (false = username not uniqe)
     when(mockUserFirestoreServices.isUsernameUnique(username))
         .thenAnswer((_) async => false);
-
+    final userRepository = container.read(userRepositoryProvider);
     //Expect username-taken to be caught
     expect(
         () => userRepository.createUser(username, email, password),
@@ -73,6 +81,7 @@ void main() {
     //Throw an unexpected-error when signup is called
     when(mockAuthServices.signUp(email: email, password: password))
         .thenThrow('unexpected-error');
+    final userRepository = container.read(userRepositoryProvider);
 
     //Expect unexpected-error to be caught
     expect(
@@ -99,10 +108,12 @@ void main() {
     //Throw an unexpected-error when trying to add user to firestore
     when(mockUserFirestoreServices.addUser(any))
         .thenThrow('unexpected-error');
+    when(mockAuthServices.deleteUser()).thenAnswer((_)async {});
+    final userRepository = container.read(userRepositoryProvider);
 
     //Expect unexpected-error to be caught
     expect(
         () => userRepository.createUser(username, email, password),
-        throwsA(equals('unexpected-error')));
+        throwsA(equals('firestore-add-fail')));
   });
 }

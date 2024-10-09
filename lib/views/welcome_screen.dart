@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:senior_final_project/views/auth_screen.dart';
+import 'package:folio/views/auth_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class WelcomeScreen extends StatelessWidget {
@@ -12,7 +12,7 @@ class WelcomeScreen extends StatelessWidget {
       backgroundColor: Colors.white60,
       body: ListView(
         children: [
-          const Text("APP Name"),
+          const Text("Folio"),
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -25,6 +25,7 @@ class WelcomeScreen extends StatelessWidget {
                     ),
                     borderRadius: const BorderRadius.all(Radius.circular(10))),
                 child: TextButton(
+                  key: const Key('login-button'),
                     onPressed: () {
                       Navigator.push(
                           context,

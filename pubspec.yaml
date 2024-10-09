@@ -1,4 +1,4 @@
-name: senior_final_project
+name: folio
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -41,8 +41,12 @@ dependencies:
   cloud_firestore: ^5.4.2
   riverpod: ^2.5.1
   flutter_riverpod: ^2.5.1
+<<<<<<< HEAD
   firebase_storage: ^12.3.2
   image_picker: ^1.0.0
+=======
+  geolocator: ^13.0.1
+>>>>>>> origin/main
 
 dev_dependencies:
   flutter_test:
