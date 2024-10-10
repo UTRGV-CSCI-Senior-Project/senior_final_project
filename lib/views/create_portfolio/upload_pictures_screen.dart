@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:folio/services/upload_image_service.dart';
+import 'package:folio/services/create_profile_services.dart';
 import 'package:folio/views/create_portfolio/more_details_screen.dart';
 
 void main() {

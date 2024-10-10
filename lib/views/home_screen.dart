@@ -5,7 +5,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:folio/core/service_locator.dart';
+import 'package:folio/services/edit_profile_services.dart';
 import 'package:folio/views/create_portfolio/choose_service_screen.dart';
+import 'package:folio/views/edit_profile.dart';
 import 'package:folio/views/welcome_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -14,7 +16,7 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = FirebaseAuth.instance.currentUser;
-    final String userId = user!.uid;
+    final Future<bool> isProfessional = isProfessionalStatus();
     return Scaffold(
       body: SafeArea(
           child: Column(
@@ -31,11 +33,24 @@ class HomeScreen extends ConsumerWidget {
               },
               child: const Text('Sign Out ')),
           ElevatedButton(
-              onPressed: () {
-                Navigator.pushReplacement(context,
-                    MaterialPageRoute(builder: (context) => ChooseService()));
+              onPressed: () async {
+                // Fetch the professional status
+                bool isProfessional = await isProfessionalStatus();
+
+                // Navigate based on the status
+                if (isProfessional) {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => EditProfile()),
+                  );
+                } else {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => ChooseService()),
+                  );
+                }
               },
-              child: const Text('Create Profile'))
+              child: const Text('Edit Profile'))
         ],
       )),
     );
