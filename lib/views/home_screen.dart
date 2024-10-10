@@ -1,6 +1,5 @@
 //File just to navigate to after successful sign/log in
 //Can be changed
-
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -15,19 +14,29 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
           automaticallyImplyLeading: false,
           title: const Text(
-            "Welcome USER ", //change this to users name,
+            "Welcome USER ",
+            style: TextStyle(
+              fontWeight: FontWeight.w900,
+            ), //change this to users name,
           )),
       body: SingleChildScrollView(
           child: Column(
         children: [
           Container(
+            //this part still needs work not done
             height: 50,
+            width: Phonewidth - 10,
             child: Column(
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    const Text("Prefences"),
+                    const Text(
+                      "Prefences",
+                      style: TextStyle(
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
                     const SizedBox(
                       width: 150,
                     ),
@@ -46,11 +55,16 @@ class HomeScreen extends StatelessWidget {
                           height: 24,
                           child: ElevatedButton(
                               style: ButtonStyle(
-                                backgroundColor:
-                                    WidgetStateProperty.all(Colors.blueGrey),
+                                backgroundColor: WidgetStateProperty.all(Colors
+                                    .blueGrey), //change this ugly color to  EAF2FF
                               ),
                               onPressed: () {},
-                              child: const Text("Proffesional")));
+                              child: const Text(
+                                "Proffesional",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w900,
+                                ),
+                              )));
                     },
                   ),
                 )
@@ -77,33 +91,72 @@ class HomeScreen extends StatelessWidget {
                 itemSnapping: true,
                 children: List.generate(10, (int index) {
                   return Container(
-                    color: Colors.blueAccent,
+                    child: Stack(
+                      alignment: Alignment.bottomCenter,
+                      children: [
+                        Image.asset(
+                          "assets/Explore.png",
+                          width: 250,
+                          height: 245,
+                        ),
+                        const Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "First Last ",
+                              style: TextStyle(
+                                  fontSize: 14, fontWeight: FontWeight.bold),
+                            ),
+                            Text(
+                              "Proffesion",
+                              style: TextStyle(fontSize: 12),
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
                   );
                 })),
           ),
-          Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-            const Text(
-              "Recently Viewed",
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(
-              width: 150,
-            ),
-            IconButton(
-                onPressed: () {}, icon: const Icon(Icons.arrow_forward_sharp)),
-          ]),
+          const Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Text(
+                  "Recently Viewed",
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ]),
           SizedBox(
-            height: 245,
+            height: 360,
             child: CarouselView(
                 scrollDirection: Axis.vertical,
-                itemExtent: 50,
+                itemExtent: 70,
                 itemSnapping: true,
-                children: List.generate(10, (int index) {
-                  return Container(
-                    color: Colors.blueAccent,
+                children: List.generate(2, (int index) {
+                  return Row(
+                    children: [
+                      Image.asset(
+                        "assets/Explore.png",
+                        width: 80,
+                      ),
+                      Column(children: [
+                        Text(
+                          "First Last ",
+                          style: TextStyle(
+                              fontSize: 14, fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          "Proffesion",
+                          style: TextStyle(fontSize: 12),
+                        ),
+                      ]),
+                      Spacer(),
+                      Icon(Icons.arrow_forward_ios_sharp)
+                    ],
                   );
                 })),
           )
