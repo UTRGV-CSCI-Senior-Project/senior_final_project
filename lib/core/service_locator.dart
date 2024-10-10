@@ -1,8 +1,5 @@
-
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:folio/models/user_model.dart';
 import 'package:folio/repositories/user_repository.dart';
@@ -13,7 +10,7 @@ final authServicesProvider = Provider<AuthServices>((ref) {
   return AuthServices();
 });
 
-final userFirestoreServicesProvider = Provider<UserFirestoreServices>((ref){
+final userFirestoreServicesProvider = Provider<UserFirestoreServices>((ref) {
   return UserFirestoreServices();
 });
 
@@ -23,7 +20,7 @@ final userRepositoryProvider = Provider<UserRepository>((ref) {
   return UserRepository(authServices, userFirestoreServices, ref);
 });
 
-final authStateProvider = StreamProvider<User?>((ref){
+final authStateProvider = StreamProvider<User?>((ref) {
   return ref.watch(authServicesProvider).authStateChanges();
 });
 
@@ -37,7 +34,7 @@ final userModelProvider = FutureProvider<UserModel?>((ref) async {
 });
 
 void setupEmulators({bool useEmulators = false}) {
-  if(useEmulators){
+  if (useEmulators) {
     try {
       FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
       FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
@@ -47,5 +44,4 @@ void setupEmulators({bool useEmulators = false}) {
       print('Failed to set up emulators: $e');
     }
   }
-
 }

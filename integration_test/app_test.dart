@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:folio/main.dart';
 import 'package:folio/core/service_locator.dart';
+import 'package:folio/services/create_profile_services.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -22,7 +23,6 @@ void main() {
     container = ProviderContainer();
     container.read(authServicesProvider).signOut();
   });
-
 
   group('sign up flow', () {
     final usernameField = find.byKey(const Key('username-field'));
@@ -221,10 +221,8 @@ void main() {
       //Expect to see error for incorrect credentials
       expect(find.byType(SnackBar), findsOneWidget);
       expect(
-          find.textContaining(
-              'Your email address or password is incorrect.'),
+          find.textContaining('Your email address or password is incorrect.'),
           findsOneWidget);
     });
-
   });
 }
