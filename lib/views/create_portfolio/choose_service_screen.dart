@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:folio/views/create_portfolio/input_experience_screen.dart';
 
 class ChooseService extends StatefulWidget {
-  const ChooseService({super.key});
+  const ChooseService({Key? key}) : super(key: key);
 
   @override
   State<ChooseService> createState() => _ChooseServiceState();
@@ -18,7 +18,6 @@ class _ChooseServiceState extends State<ChooseService> {
   void initState() {
     super.initState();
     user = FirebaseAuth.instance.currentUser;
-    print('#################Here is the user id:${user?.uid}');
   }
 
   List<String> services = [
@@ -67,19 +66,30 @@ class _ChooseServiceState extends State<ChooseService> {
               ),
             ),
             const SizedBox(height: 10.0),
-            AbsorbPointer(
-              absorbing: isDisabled,
-              child: TextField(
-                controller: serviceType,
-                decoration: InputDecoration(
-                  prefixIcon: const Icon(Icons.edit),
-                  hintText: 'Enter here',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
+            GestureDetector(
+              onTap: () {
+                // Perform action when tapped, e.g., show a list of services
+                // You might want to implement your logic here
+                if (services.isNotEmpty) {
+                  // For example, just to show a SnackBar
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("Choose a service")),
+                  );
+                }
+              },
+              child: AbsorbPointer(
+                child: TextField(
+                  controller: serviceType,
+                  decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.edit),
+                    hintText: 'Enter here',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                   ),
-                ),
-                style: const TextStyle(
-                  fontSize: 15.0,
+                  style: const TextStyle(
+                    fontSize: 15.0,
+                  ),
                 ),
               ),
             ),
@@ -153,11 +163,14 @@ class _ChooseServiceState extends State<ChooseService> {
               onPressed: selectedService == null || serviceType.text.isEmpty
                   ? null
                   : () {
+                      print(
+                          'User before navigating: ${FirebaseAuth.instance.currentUser?.uid}');
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>
-                              InputExperience(serviceText: serviceType.text),
+                          builder: (context) => InputExperience(
+                            serviceText: serviceType.text,
+                          ),
                         ),
                       );
                     },

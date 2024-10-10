@@ -5,15 +5,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
-Future<void> signInUserAnon() async {
-  try {
-    final userCredential = await FirebaseAuth.instance.signInAnonymously();
-    print("Sign in with temporary account. UID:${userCredential.user?.uid}");
-  } catch (e) {
-    print("Error signing in: $e");
-  }
-}
-
 Future<List<File?>> getImagesFromGallery(BuildContext context) async {
   List<File?> selectedImages = [];
   try {
@@ -60,7 +51,7 @@ Future<List<String>> fetchImagesForUser() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return [];
 
-    final userId = user.uid;
+    final userId = user?.uid;
     final storageRef = FirebaseStorage.instance.ref().child("$userId/uploads");
 
     // List all items in the uploads folder
@@ -114,5 +105,26 @@ Future<void> savePortfolioDetails(String serviceText, String yearsText,
     print("Portfolio details saved successfully.");
   } catch (e) {
     print("Error saving portfolio details: $e");
+  }
+}
+
+Future<void> updateUserProfessionalStatus(bool status) async {
+  try {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      print("User is not signed in.");
+      return;
+    }
+
+    final userId = user.uid;
+    final userRef = FirebaseFirestore.instance.collection('users').doc(userId);
+
+    await userRef.update({
+      'isProfessional': status,
+    });
+
+    print("User professional status updated successfully.");
+  } catch (e) {
+    print("Error updating professional status: $e");
   }
 }

@@ -1,9 +1,11 @@
 //File just to navigate to after successful sign/log in
 //Can be changed
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:folio/core/service_locator.dart';
+import 'package:folio/views/create_portfolio/choose_service_screen.dart';
 import 'package:folio/views/welcome_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -11,6 +13,8 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final user = FirebaseAuth.instance.currentUser;
+    final String userId = user!.uid;
     return Scaffold(
       body: SafeArea(
           child: Column(
@@ -25,7 +29,13 @@ class HomeScreen extends ConsumerWidget {
                     MaterialPageRoute(
                         builder: (context) => const WelcomeScreen()));
               },
-              child: const Text('Sign Out '))
+              child: const Text('Sign Out ')),
+          ElevatedButton(
+              onPressed: () {
+                Navigator.pushReplacement(context,
+                    MaterialPageRoute(builder: (context) => ChooseService()));
+              },
+              child: const Text('Create Profile'))
         ],
       )),
     );

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:folio/services/upload_image_service.dart';
 import 'package:folio/views/create_portfolio/more_details_screen.dart';
@@ -28,6 +29,7 @@ class UploadPictures extends StatefulWidget {
 }
 
 class _UploadPicturesState extends State<UploadPictures> {
+  User? user;
   final List<File> _selectedImages = [];
   List<String> _fetchedImages = [];
   bool _isUploading = false;
@@ -36,7 +38,10 @@ class _UploadPicturesState extends State<UploadPictures> {
   @override
   void initState() {
     super.initState();
-    _loadFetchedImages();
+    Future.delayed(Duration.zero, () {
+      user = FirebaseAuth.instance.currentUser;
+      _loadFetchedImages();
+    });
   }
 
   Future<void> _loadFetchedImages() async {
@@ -210,7 +215,16 @@ class _UploadPicturesState extends State<UploadPictures> {
                     _isUploading = true;
                   });
 
-                  await signInUserAnon();
+                  final user = FirebaseAuth.instance.currentUser;
+                  if (user == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('User is not signed in.')),
+                    );
+                    setState(() {
+                      _isUploading = false;
+                    });
+                    return;
+                  }
 
                   bool success = true;
                   for (File image in _selectedImages) {
@@ -219,7 +233,7 @@ class _UploadPicturesState extends State<UploadPictures> {
                   setState(() {
                     _isUploading = false;
                     if (success) {
-                      _selectedImages.clear(); // Clear after successful upload
+                      _selectedImages.clear();
                     }
                   });
                   if (success) {

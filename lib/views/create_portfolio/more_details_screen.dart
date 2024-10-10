@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:folio/services/upload_image_service.dart';
+import 'package:folio/views/home_screen.dart';
 
 void main() {
   runApp(const MoreDetailsScreen(
@@ -14,11 +15,12 @@ class MoreDetailsScreen extends StatefulWidget {
   final String yearsText;
   final String monthsText;
 
-  const MoreDetailsScreen(
-      {super.key,
-      required this.serviceText,
-      required this.yearsText,
-      required this.monthsText});
+  const MoreDetailsScreen({
+    super.key,
+    required this.serviceText,
+    required this.yearsText,
+    required this.monthsText,
+  });
 
   @override
   State<MoreDetailsScreen> createState() => _MoreDetailsScreenState();
@@ -121,19 +123,17 @@ class _MoreDetailsScreenState extends State<MoreDetailsScreen> {
                   widget.monthsText,
                   detailsText.text,
                 );
-                // Show a message when the Next button is clicked
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('All done!'),
-                  ),
-                );
+                await updateUserProfessionalStatus(true);
+
+                Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(builder: (context) => HomeScreen()));
               },
               style: OutlinedButton.styleFrom(
                 backgroundColor: Colors.blue,
                 fixedSize: const Size(150, 50),
               ),
               child: const Text(
-                'Next',
+                'Done',
                 style: TextStyle(
                   fontSize: 20.0,
                   fontWeight: FontWeight.bold,
