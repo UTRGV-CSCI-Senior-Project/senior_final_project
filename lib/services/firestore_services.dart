@@ -1,13 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:folio/core/service_locator.dart';
 import 'package:folio/models/user_model.dart';
 
 
-class UserFirestoreServices {
+class FirestoreServices {
   final FirebaseFirestore _firestore;
+  final Ref _ref;
 
-  UserFirestoreServices({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
-
+  FirestoreServices(this._firestore, this._ref);
 
     Future<void> addUser(UserModel user) async {
       try{
@@ -47,5 +48,15 @@ class UserFirestoreServices {
         throw 'unexpected-error';
       }
 
+  }
+
+
+  Future<void> updateUser(Map<String, dynamic> fieldsToUpdate) async {
+    try{
+      final uid = _ref.read(authStateProvider).value?.uid;
+      await _firestore.collection('users').doc(uid).update(fieldsToUpdate);
+    }catch(e){
+      throw 'update-failed';
+    }
   }
 }

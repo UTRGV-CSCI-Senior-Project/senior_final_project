@@ -9,7 +9,7 @@ import 'package:firebase_auth/firebase_auth.dart' as _i4;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:folio/models/user_model.dart' as _i6;
 import 'package:folio/services/auth_services.dart' as _i2;
-import 'package:folio/services/user_firestore_services.dart'
+import 'package:folio/services/firestore_services.dart'
     as _i5;
 
 // ignore_for_file: type=lint

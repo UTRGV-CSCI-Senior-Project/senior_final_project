@@ -3,7 +3,7 @@ import 'package:mockito/annotations.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:mockito/mockito.dart';
 import 'package:folio/models/user_model.dart';
-import 'package:folio/services/user_firestore_services.dart';
+import 'package:folio/services/firestore_services.dart';
 
 @GenerateMocks([
   FirebaseFirestore,
@@ -18,7 +18,7 @@ import '../../mocks/user_firestore_services_test.mocks.dart';
 
 void main() {
   //Create ncessary mocks for services
-  late UserFirestoreServices userFirestoreServices;
+  late FirestoreServices firestoreServices;
   late MockFirebaseFirestore mockFirebaseFirestore;
   late MockCollectionReference<Map<String, dynamic>> mockCollectionReference;
   late MockDocumentReference<Map<String, dynamic>> mockDocumentReference;
@@ -28,8 +28,8 @@ void main() {
 
   setUp(() {
     mockFirebaseFirestore = MockFirebaseFirestore();
-    userFirestoreServices =
-        UserFirestoreServices(firestore: mockFirebaseFirestore);
+    firestoreServices =
+        FirestoreServices(mockFirebaseFirestore);
     mockCollectionReference = MockCollectionReference<Map<String, dynamic>>();
     mockDocumentReference = MockDocumentReference<Map<String, dynamic>>();
     mockQuery = MockQuery<Map<String, dynamic>>();
@@ -56,7 +56,7 @@ void main() {
           .thenAnswer((_) async => {});
 
       //Expect the addUser to return successfully
-      expect(() => userFirestoreServices.addUser(user), returnsNormally);
+      expect(() => firestoreServices.addUser(user), returnsNormally);
       //Expect all necessary function to add a user to be called
       verify(mockFirebaseFirestore.collection('users')).called(1);
       verify(mockCollectionReference.doc(user.uid)).called(1);
@@ -80,7 +80,7 @@ void main() {
           .thenThrow(Exception('failed'));
 
       //Expect a general exception to be caught
-      expect(() => userFirestoreServices.addUser(user),
+      expect(() => firestoreServices.addUser(user),
           throwsA(equals('unexpected-error')));
     });
   });
@@ -99,7 +99,7 @@ void main() {
       when(mockQuerySnapshot.docs).thenReturn([]);
 
       //Call isUsernameUnique to check username
-      final result = await userFirestoreServices.isUsernameUnique(username);
+      final result = await firestoreServices.isUsernameUnique(username);
 
       //Expect true == unique username
       expect(result, true);
@@ -120,7 +120,7 @@ void main() {
       when(mockQuerySnapshot.docs).thenReturn([mockQueryDocumentSnapshot]);
 
       //Call isUsernameUnique to check username
-      final result = await userFirestoreServices.isUsernameUnique(username);
+      final result = await firestoreServices.isUsernameUnique(username);
 
       //Expect false = taken username
       expect(result, false);
@@ -144,7 +144,7 @@ void main() {
       when(mockDocumentSnapshot.exists).thenReturn(true);
       when(mockDocumentSnapshot.data()).thenReturn(user);
 
-      final result = await userFirestoreServices.getUser('testUid');
+      final result = await firestoreServices.getUser('testUid');
       expect(result!.toJson(), equals(user));
     });
 
@@ -157,7 +157,7 @@ void main() {
       when(mockDocumentReference.get()).thenAnswer((_) async => mockDocumentSnapshot);
       when(mockDocumentSnapshot.exists).thenReturn(false);
 
-      expect(() => userFirestoreServices.getUser(uid), throwsA('user-not-found'));
+      expect(() => firestoreServices.getUser(uid), throwsA('user-not-found'));
     });
 
     test('should throw unexpected-error when the user doesnt exist', () async {
@@ -167,7 +167,7 @@ void main() {
           .thenReturn(mockCollectionReference);
       when(mockCollectionReference.doc(uid)).thenThrow(Exception());
 
-      expect(() => userFirestoreServices.getUser(uid), throwsA('unexpected-error'));
+      expect(() => firestoreServices.getUser(uid), throwsA('unexpected-error'));
     });
   });
 }

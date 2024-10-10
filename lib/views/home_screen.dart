@@ -4,6 +4,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:folio/core/service_locator.dart';
+import 'package:folio/views/loading_screen.dart';
+import 'package:folio/views/onboarding_screen.dart';
 import 'package:folio/views/welcome_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -11,8 +13,13 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    
-    return   Scaffold(
+    return   ref.watch(userModelProvider).when(data: (userModel){
+      if(userModel == null){
+        return const WelcomeScreen();
+      }
+
+      if(userModel.completedOnboarding){
+        return Scaffold(
       body: SafeArea(child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -24,5 +31,10 @@ class HomeScreen extends ConsumerWidget {
         ],
       )),
     );
+      }else{
+        return const OnboardingScreen();
+      }
+
+    }, error: (s, p) => const LoadingScreen(), loading: () => const LoadingScreen());
   }
 }

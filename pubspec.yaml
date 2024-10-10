@@ -42,6 +42,8 @@ dependencies:
   riverpod: ^2.5.1
   flutter_riverpod: ^2.5.1
   geolocator: ^13.0.1
+  firebase_storage: ^12.3.3
+  image_picker: ^1.0.0
 
 dev_dependencies:
   flutter_test:

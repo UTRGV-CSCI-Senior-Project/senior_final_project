@@ -17,7 +17,7 @@ void main() {
 
   setUp(() {
     mockFirebaseAuth = MockFirebaseAuth();
-    authServices = AuthServices(firebaseAuth: mockFirebaseAuth);
+    authServices = AuthServices(mockFirebaseAuth);
     mockUserCredential = MockUserCredential();
     mockUser = MockUser();
   });

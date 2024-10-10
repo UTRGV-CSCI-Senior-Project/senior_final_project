@@ -2,18 +2,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mockito/mockito.dart';
 import 'package:folio/core/service_locator.dart';
 import 'package:folio/services/auth_services.dart';
-import 'package:folio/services/user_firestore_services.dart';
+import 'package:folio/services/firestore_services.dart';
 import 'package:mockito/annotations.dart';
 import 'package:test/test.dart';
 
-@GenerateMocks([AuthServices, UserFirestoreServices])
+@GenerateMocks([AuthServices, FirestoreServices])
 import '../../mocks/user_repository_test.mocks.dart';
 
 void main() {
   //Mock all necessary services
   late ProviderContainer container;
   late MockAuthServices mockAuthServices;
-  late MockUserFirestoreServices mockUserFirestoreServices;
+  late MockFirestoreServices mockUserFirestoreServices;
 
   setUp(() {
     mockAuthServices = MockAuthServices();
@@ -21,7 +21,7 @@ void main() {
     container = ProviderContainer(
       overrides: [
         authServicesProvider.overrideWithValue(mockAuthServices),
-        userFirestoreServicesProvider.overrideWithValue(mockUserFirestoreServices)
+        firestoreServicesProvider.overrideWithValue(mockUserFirestoreServices)
       ]
     );
   });
