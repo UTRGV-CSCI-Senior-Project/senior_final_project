@@ -15,8 +15,6 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final user = FirebaseAuth.instance.currentUser;
-    final Future<bool> isProfessional = isProfessionalStatus();
     return Scaffold(
       body: SafeArea(
           child: Column(
