@@ -19,149 +19,175 @@ class HomeScreen extends StatelessWidget {
               fontWeight: FontWeight.w900,
             ), //change this to users name,
           )),
-      body: SingleChildScrollView(
-          child: Column(
-        children: [
-          Container(
-            //this part still needs work not done
-            height: 50,
-            width: Phonewidth - 10,
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    const Text(
-                      "Prefences",
-                      style: TextStyle(
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 150,
-                    ),
-                    TextButton(onPressed: () {}, child: Text("Edit"))
-                  ],
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: List.generate(
-                    3,
-                    (int index) {
-                      return SizedBox(
-                          height: 24,
-                          child: ElevatedButton(
-                              style: ButtonStyle(
-                                backgroundColor: WidgetStateProperty.all(Colors
-                                    .blueGrey), //change this ugly color to  EAF2FF
-                              ),
-                              onPressed: () {},
-                              child: const Text(
-                                "Proffesional",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w900,
-                                ),
-                              )));
-                    },
-                  ),
-                )
-              ],
-            ),
-          ),
-          const SizedBox(
-            height: 50,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Text("Near You"),
-              const SizedBox(
-                width: 150,
-              ),
-              TextButton(onPressed: () {}, child: Text("See more"))
-            ],
-          ),
-          SizedBox(
-            height: 245,
-            child: CarouselView(
-                itemExtent: 250,
-                itemSnapping: true,
-                children: List.generate(10, (int index) {
-                  return Container(
-                    child: Stack(
-                      alignment: Alignment.bottomCenter,
-                      children: [
-                        Image.asset(
-                          "assets/Explore.png",
-                          width: 250,
-                          height: 245,
+      body: ListView(children: [
+        Column(
+          children: [
+            Container(
+              //this part still needs work not done
+
+              width: Phonewidth - 10,
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      const Text(
+                        "Prefences",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w900,
                         ),
-                        const Column(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "First Last ",
+                      ),
+                      const SizedBox(
+                        width: 150,
+                      ),
+                      TextButton(
+                        key: Key("Edit_Proffesion_Key"),
+                        onPressed: () {},
+                        child: const Text(
+                          "Edit",
+                          style:
+                              TextStyle(color: Color.fromRGBO(0, 111, 253, 1)),
+                        ),
+                      )
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: List.generate(
+                      3,
+                      (int index) {
+                        return ElevatedButton(
+                            key: Key("Proffesion_button_$index "),
+                            style: const ButtonStyle(
+                              backgroundColor: WidgetStatePropertyAll<Color>(
+                                  Color.fromRGBO(234, 242, 255, 1)),
+                            ),
+                            onPressed: () {},
+                            child: const Text(
+                              "Proffesional",
                               style: TextStyle(
-                                  fontSize: 14, fontWeight: FontWeight.bold),
-                            ),
-                            Text(
-                              "Proffesion",
-                              style: TextStyle(fontSize: 12),
-                            ),
-                          ],
-                        )
-                      ],
+                                  fontWeight: FontWeight.w900,
+                                  color: Color.fromRGBO(0, 111, 253, 1)),
+                            ));
+                      },
                     ),
-                  );
-                })),
-          ),
-          const Row(
+                  )
+                ],
+              ),
+            ),
+            Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Text(
-                  "Recently Viewed",
+                const Text(
+                  "Near You",
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-              ]),
-          SizedBox(
-            height: 360,
-            child: CarouselView(
-                scrollDirection: Axis.vertical,
-                itemExtent: 70,
-                itemSnapping: true,
-                children: List.generate(2, (int index) {
-                  return Row(
-                    children: [
-                      Image.asset(
-                        "assets/Explore.png",
-                        width: 80,
+                const SizedBox(
+                  width: 150,
+                ),
+                TextButton(
+                  key: Key("See_more_button"),
+                  onPressed: () {},
+                  child: const Text(
+                    "See more",
+                    style: TextStyle(color: Color.fromRGBO(0, 111, 253, 1)),
+                  ),
+                )
+              ],
+            ),
+            SizedBox(
+              height: 245,
+              child: CarouselView(
+                  itemExtent: 250,
+                  itemSnapping: true,
+                  children: List.generate(10, (int index) {
+                    return Container(
+                      key: Key("Near_You_Recommendation_Button_$index "),
+                      child: Stack(
+                        alignment: Alignment.bottomCenter,
+                        children: [
+                          Image.asset(
+                            "assets/Explore.png",
+                            width: 250,
+                            height: 245,
+                          ),
+                          const Column(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "First Last ",
+                                style: TextStyle(
+                                    fontSize: 14, fontWeight: FontWeight.bold),
+                              ),
+                              Text(
+                                "Proffesion",
+                                style: TextStyle(fontSize: 12),
+                              ),
+                            ],
+                          )
+                        ],
                       ),
-                      Column(children: [
-                        Text(
-                          "First Last ",
-                          style: TextStyle(
-                              fontSize: 14, fontWeight: FontWeight.bold),
+                    );
+                  })),
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+            const Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Text(
+                    "Recently Viewed",
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(
+                    width: 200,
+                  ),
+                ]),
+            SizedBox(
+              height: 360,
+              child: CarouselView(
+                  scrollDirection: Axis.vertical,
+                  itemExtent: 70,
+                  itemSnapping: true,
+                  children: List.generate(2, (int index) {
+                    return Row(
+                      key: Key("Recenty_View_Button_$index "),
+                      children: [
+                        Image.asset(
+                          "assets/Explore.png",
+                          width: 80,
                         ),
-                        Text(
-                          "Proffesion",
-                          style: TextStyle(fontSize: 12),
-                        ),
-                      ]),
-                      Spacer(),
-                      Icon(Icons.arrow_forward_ios_sharp)
-                    ],
-                  );
-                })),
-          )
-        ],
-      )),
+                        const Column(children: [
+                          Text(
+                            "First Last ",
+                            style: TextStyle(
+                                fontSize: 14, fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            "Proffesion",
+                            style: TextStyle(fontSize: 12),
+                          ),
+                        ]),
+                        const Spacer(),
+                        const Icon(Icons.arrow_forward_ios_sharp)
+                      ],
+                    );
+                  })),
+            )
+          ],
+        )
+      ]),
       bottomNavigationBar: NavigationBar(
         destinations: const [
           NavigationDestination(
