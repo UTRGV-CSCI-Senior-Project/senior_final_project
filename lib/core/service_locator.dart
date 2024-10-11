@@ -48,6 +48,7 @@ final authStateProvider = StreamProvider<User?>((ref){
   return ref.watch(authServicesProvider).authStateChanges();
 });
 
+
 final userModelProvider = FutureProvider<UserModel?>((ref) async {
   final authState = await ref.watch(authStateProvider.future);
   if (authState != null) {
@@ -55,6 +56,17 @@ final userModelProvider = FutureProvider<UserModel?>((ref) async {
     return await firestoreServices.getUser(authState.uid);
   }
   return null;
+});
+
+final userStreamProvider = StreamProvider<UserModel?>((ref) {
+  final authState = ref.watch(authStateProvider).value;
+
+  if (authState != null) {
+    final firestoreServices = ref.read(firestoreServicesProvider);
+    return firestoreServices.getUserStream(authState.uid);
+  } else {
+    return Stream.value(null);
+  }
 });
 
 void setupEmulators({bool useEmulators = false}) {

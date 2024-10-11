@@ -37,6 +37,14 @@ class FirestoreServices {
       }
     }
 
+    Stream<UserModel> getUserStream(String uid) {
+      return _firestore.collection('users')
+        .doc(uid)
+        .snapshots()
+        .map((snapshot) => UserModel.fromJson(snapshot.data()!));
+    }
+
+
     Future<bool> isUsernameUnique(String username) async {
       try{
     final querySnapshot = await _firestore
@@ -50,13 +58,23 @@ class FirestoreServices {
 
   }
 
-
   Future<void> updateUser(Map<String, dynamic> fieldsToUpdate) async {
     try{
       final uid = _ref.read(authStateProvider).value?.uid;
       await _firestore.collection('users').doc(uid).update(fieldsToUpdate);
     }catch(e){
       throw 'update-failed';
+    }
+  }
+
+  Future<List<String>> getServices() async {
+    try{
+      final QuerySnapshot servicesSnapshot = await _firestore.collection('services').get();
+
+      List<String> servicesList = servicesSnapshot.docs.map((doc) => doc.get('service') as String).toList();
+      return servicesList;
+    } catch (e){
+      throw 'unexpected-error';
     }
   }
 }

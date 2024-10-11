@@ -1,6 +1,3 @@
-//File just to navigate to after successful sign/log in
-//Can be changed
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:folio/core/service_locator.dart';
@@ -13,11 +10,10 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return   ref.watch(userModelProvider).when(data: (userModel){
+    return ref.watch(userStreamProvider).when(data: (userModel){
       if(userModel == null){
         return const WelcomeScreen();
       }
-
       if(userModel.completedOnboarding){
         return Scaffold(
       body: SafeArea(child: Column(
