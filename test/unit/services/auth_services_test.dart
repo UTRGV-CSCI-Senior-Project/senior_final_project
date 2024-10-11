@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:senior_final_project/services/auth_services.dart';
+import 'package:folio/services/auth_services.dart';
 import 'package:test/expect.dart';
 import 'package:test/scaffolding.dart';
 
@@ -24,7 +24,7 @@ void main() {
   tearDown(() {});
 
   group('sign up', () {
-    test('create account successfully', () async {
+    test('creates account successfully', () async {
       //when registering a user, return a mock user (successful registration)
       when(mockFirebaseAuth.createUserWithEmailAndPassword(
         email: 'test@email.com',
@@ -77,7 +77,7 @@ void main() {
           throwsA(equals('email-already-in-use')));
     });
 
-    test('create account fails with invalid email FirebaseAuthException',
+    test('create account fails with invalid-email FirebaseAuthException',
         () async {
       //When registering a user, return a invalid-email exception
       when(mockFirebaseAuth.createUserWithEmailAndPassword(
@@ -89,7 +89,7 @@ void main() {
           throwsA(equals('invalid-email')));
     });
 
-    test('create account fails with invalid email FirebaseAuthException',
+    test('create account fails with too-many-requests FirebaseAuthException',
         () async {
       //When registering a user, return a too-many-requests exception
       when(mockFirebaseAuth.createUserWithEmailAndPassword(
@@ -101,7 +101,7 @@ void main() {
           throwsA(equals('too-many-requests')));
     });
 
-        test('create account fails with invalid email FirebaseAuthException',
+        test('create account fails with network-request-failed FirebaseAuthException',
         () async {
       //When registering a user, return a network-request-failed exception
       when(mockFirebaseAuth.createUserWithEmailAndPassword(
@@ -121,6 +121,108 @@ void main() {
       //Expect the random error to be caught with unexpected-error
       expect(() => authServices.signUp(email: 'test@email.com', password: '1!'),
           throwsA(equals('unexpected-error')));
+    });
+  });
+
+  group('log in', () {
+
+    test('logs in successfully', () async {
+      //when logging in a user, return a mock user (successful log in)
+      when(mockFirebaseAuth.signInWithEmailAndPassword(
+        email: 'test@email.com',
+        password: 'Pass123!',
+      )).thenAnswer((_) async => mockUserCredential);
+
+      //When checking the user, return user created previously
+      when(mockUserCredential.user).thenReturn(mockUser);
+      when(mockUser.uid).thenReturn('test-uid');
+
+      //expect the signIn method to return normally (no error)
+      expect(() => authServices.signIn(email: 'test@email.com', password: 'Pass123!'), returnsNormally);
+    });
+
+    test('login fails with general FirebaseAuthException', () async {
+      //When logging in, return a other-error exception
+      when(mockFirebaseAuth.signInWithEmailAndPassword(
+              email: 'test@email.com', password: 'Pass123!'))
+          .thenAnswer((_) => throw FirebaseAuthException(code: 'other-error'));
+      //Expect other-error to be caught when logging in
+      expect(
+          () => authServices.signIn(
+              email: 'test@email.com', password: 'Pass123!'),
+          throwsA(equals('other-error')));
+    });
+
+     test('log in fails with invalid-email FirebaseAuthException',
+        () async {
+          //When logging, return a invalid-email exception
+      when(mockFirebaseAuth.signInWithEmailAndPassword(
+              email: 'test@email.com', password: '1!'))
+          .thenAnswer(
+              (_) => throw FirebaseAuthException(code: 'invalid-email'));
+      //Expect invalid-email to be caught when logging in
+      expect(() => authServices.signIn(email: 'test@email.com', password: '1!'),
+          throwsA(equals('invalid-email')));
+    });
+
+    test('log in fails with user-not-found FirebaseAuthException',
+        () async {
+          //When logging, return a user-not-found exception
+      when(mockFirebaseAuth.signInWithEmailAndPassword(
+              email: 'test@email.com', password: '1!'))
+          .thenAnswer(
+              (_) => throw FirebaseAuthException(code: 'user-not-found'));
+      //Expect user-not-found to be caught when logging in
+      expect(() => authServices.signIn(email: 'test@email.com', password: '1!'),
+          throwsA(equals('user-not-found')));
+    });
+
+    test('log in fails with wrong-password FirebaseAuthException',
+        () async {
+          //When logging, return a wrong-password exception
+      when(mockFirebaseAuth.signInWithEmailAndPassword(
+              email: 'test@email.com', password: '1!'))
+          .thenAnswer(
+              (_) => throw FirebaseAuthException(code: 'wrong-password'));
+      //Expect wrong-password to be caught when logging in
+      expect(() => authServices.signIn(email: 'test@email.com', password: '1!'),
+          throwsA(equals('wrong-password')));
+    });
+
+  });
+
+  group('authStateChanges', () {
+    test('emits a user when there is a user', () async {
+      when(mockFirebaseAuth.authStateChanges()).thenAnswer((_) => Stream.value(mockUser));
+
+      expectLater(authServices.authStateChanges(), emitsInOrder([mockUser]));
+    });
+
+    test('emits null when there is no user logged in', () async {
+      when(mockFirebaseAuth.authStateChanges()).thenAnswer((_) => Stream.value(null));
+
+      expectLater(authServices.authStateChanges(), emitsInOrder([null]));
+    });
+  });
+
+  group('deleteUser', () {
+    test('deletes the current user', () async {
+      when(mockFirebaseAuth.currentUser).thenReturn(mockUser);
+      when(mockUser.delete()).thenAnswer((_) async => Future.value());
+
+      await authServices.deleteUser();
+
+      verify(mockFirebaseAuth.currentUser).called(1);
+      verify(mockUser.delete()).called(1);
+
+    });
+
+    test('does nothing if there is no user logged in', () async {
+      when(mockFirebaseAuth.currentUser).thenReturn(mockUser);
+      when(mockUser.delete()).thenThrow(FirebaseAuthException(code: 'user-not-found'));
+
+      expect(() async => await authServices.deleteUser(), throwsA(equals('user-not-found')));
+
     });
   });
 }

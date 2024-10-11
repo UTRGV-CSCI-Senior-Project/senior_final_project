@@ -1,11 +1,15 @@
 //File just to navigate to after successful sign/log in
 //Can be changed
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:folio/core/service_locator.dart';
+import 'package:folio/views/welcome_screen.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
+
   Widget build(BuildContext context) {
     double Phonewidth = MediaQuery.sizeOf(context).width;
     double Phoneheight = MediaQuery.sizeOf(context).height;
@@ -206,6 +210,7 @@ class HomeScreen extends StatelessWidget {
             icon: Icon(Icons.person),
             label: 'Profile',
           ),
+
         ],
       ),
     );

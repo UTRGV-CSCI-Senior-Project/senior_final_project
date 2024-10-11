@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:senior_final_project/models/user_model.dart';
+import 'package:folio/models/user_model.dart';
 
 
 class UserFirestoreServices {
@@ -18,6 +18,23 @@ class UserFirestoreServices {
       }
     }
 
+    Future<UserModel?> getUser(String uid) async {
+      try{
+      final docSnapshot = await _firestore.collection('users').doc(uid).get();
+      if(docSnapshot.exists){
+        return UserModel.fromJson(docSnapshot.data()!);
+      }else {
+        throw 'user-not-found';
+      }
+      }catch (e){
+        if(e == 'user-not-found'){
+          rethrow;
+        }else{
+        throw 'unexpected-error';
+
+        }
+      }
+    }
 
     Future<bool> isUsernameUnique(String username) async {
       try{
