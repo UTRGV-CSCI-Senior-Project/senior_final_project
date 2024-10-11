@@ -1,8 +1,11 @@
 //File just to navigate to after successful sign/log in
 //Can be changed
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:folio/core/service_locator.dart';
+import 'package:folio/views/welcome_screen.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override

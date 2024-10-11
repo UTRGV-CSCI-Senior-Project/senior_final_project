@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:senior_final_project/constants/error_constants.dart';
+import 'package:folio/constants/error_constants.dart';
 
 void showCustomSnackBar(BuildContext context, String errorCode) {
   final errorMessage = ErrorConstants.getMessage(errorCode);
