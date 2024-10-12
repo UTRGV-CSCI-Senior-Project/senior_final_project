@@ -57,27 +57,30 @@ class HomeScreen extends ConsumerWidget {
                   const SizedBox(
                     height: 10,
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: List.generate(
-                      3,
-                      (int index) {
-                        return ElevatedButton(
-                            key: Key("Proffesion_button_$index "),
-                            style: const ButtonStyle(
-                              backgroundColor: WidgetStatePropertyAll<Color>(
-                                  Color.fromRGBO(234, 242, 255, 1)),
-                            ),
-                            onPressed: () {},
-                            child: const Text(
-                              "Proffesional",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w900,
-                                  color: Color.fromRGBO(0, 111, 253, 1)),
-                            ));
-                      },
-                    ),
-                  )
+                  SizedBox(
+                      height: 30,
+                      child: CarouselView(
+                        itemExtent: 140,
+                        children: List.generate(
+                          10,
+                          (int index) {
+                            return ElevatedButton(
+                                key: Key("Proffesion_button_$index "),
+                                style: const ButtonStyle(
+                                  backgroundColor:
+                                      WidgetStatePropertyAll<Color>(
+                                          Color.fromRGBO(234, 242, 255, 1)),
+                                ),
+                                onPressed: () {},
+                                child: const Text(
+                                  "Proffesional",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w900,
+                                      color: Color.fromRGBO(0, 111, 253, 1)),
+                                ));
+                          },
+                        ),
+                      ))
                 ],
               ),
             ),
