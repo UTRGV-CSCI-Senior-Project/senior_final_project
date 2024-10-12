@@ -2,10 +2,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:folio/constants/error_constants.dart';
 import 'package:folio/core/service_locator.dart';
-import 'package:folio/services/firestore_services.dart';
 import 'package:folio/views/home_screen.dart';
-import 'package:folio/widgets/snackbar_widget.dart';
 import 'package:image_picker/image_picker.dart';
 
 class OnboardingScreen extends ConsumerStatefulWidget {
@@ -20,6 +19,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   int _currentPage = 0;
   File? file;
   final _fullNameController = TextEditingController();
+  String errorMessage = "";
+  bool _isLoading = false;
 
   late List<String> services = [];
 
@@ -81,8 +82,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               child: Stack(
                 children: [
                   Container(
-                    height: 160,
-                    width: 160,
+                    height: 200,
+                    width: 200,
                     decoration: const BoxDecoration(
                       color: Color.fromARGB(255, 234, 242, 255),
                       shape: BoxShape.circle,
@@ -97,7 +98,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                           )
                         : const Icon(
                             Icons.person,
-                            size: 160,
+                            size: 200,
                             color: Color.fromARGB(255, 180, 219, 255),
                           ),
                   ),
@@ -233,22 +234,57 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               const SizedBox(height: 24),
               Expanded(
                 child: PageView(
+                  physics: const NeverScrollableScrollPhysics(),
                   controller: _pageController,
                   onPageChanged: (int index) {
                     setState(() {
                       _currentPage = index;
+                      errorMessage = "";
                     });
                   },
                   children: [buildProfile(context), buildInterests(context)],
                 ),
               ),
+              errorMessage.isNotEmpty
+                  ? Container(
+                      margin: const EdgeInsets.symmetric(vertical: 5),
+                      decoration: BoxDecoration(
+                        color:
+                            Colors.red.withOpacity(0.1), // Light red background
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.red),
+                      ),
+                      child: ListTile(
+                        leading: const Icon(Icons.error_outline,
+                            color: Colors.red), // Error icon
+                        title: Text(
+                          errorMessage,
+                          style: const TextStyle(
+                              color: Colors.red,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14),
+                        ),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.close, color: Colors.red),
+                          onPressed: () {
+                            setState(() {
+                              errorMessage = ""; // Dismiss error message
+                            });
+                          },
+                        ),
+                      ),
+                    )
+                  : Container(),
               Padding(
                 padding: const EdgeInsets.all(12),
                 child: TextButton(
                     onPressed: () async {
                       if (_currentPage == 0) {
                         if (_fullNameController.text.isEmpty || file == null) {
-                          showCustomSnackBar(context, 'empty-fields');
+                          setState(() {
+                            errorMessage =
+                                "Please upload an image and enter your name.";
+                          });
                         } else {
                           _pageController.nextPage(
                             duration: const Duration(milliseconds: 300),
@@ -256,24 +292,39 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                           );
                         }
                       } else {
+                        setState(() {
+                          _isLoading = true;
+                        });
                         try {
                           final List<String> selectedServicesList =
                               selectedServices.entries
                                   .where((entry) => entry.value == true)
                                   .map((entry) => entry.key)
                                   .toList();
-                          await ref.read(userRepositoryProvider).updateProfile(profilePicture: file, fields: {
+                          await ref
+                              .read(userRepositoryProvider)
+                              .updateProfile(profilePicture: file, fields: {
                             'fullName': _fullNameController.text,
                             'completedOnboarding': true,
-                            'preferredServices': selectedServicesList});
+                            'preferredServices': selectedServicesList
+                          });
 
+                          if (mounted) {
+                            Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const HomeScreen()));
+                          }
                         } catch (e) {
-                          print(e);
+                          setState(() {
+                            errorMessage =
+                                ErrorConstants.getMessage(e.toString());
+                          });
+                        } finally {
+                          if (mounted) {
+                            _isLoading = false;
+                          }
                         }
-                        Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const HomeScreen()));
                       }
                     },
                     style: TextButton.styleFrom(
@@ -281,11 +332,20 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                             borderRadius: BorderRadius.circular(20)),
                         backgroundColor: const Color.fromARGB(255, 0, 111, 253),
                         padding: const EdgeInsets.symmetric(vertical: 12)),
-                    child: Text(_currentPage == 0 ? 'Next' : 'Done!',
-                        style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold))),
+                    child: _isLoading
+                        ? const SizedBox(
+                            height: 24,
+                            width: 24,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 5,
+                            ),
+                          )
+                        : Text(_currentPage == 0 ? 'Next' : 'Done!',
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold))),
               )
             ],
           ),
@@ -294,272 +354,3 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-// // if(_fullNameController.text.isEmpty || file == null){
-// //               showCustomSnackBar(context, 'empty-fields');
-// //             }else{
-// //               try{
-// //                 ref.read(userRepositoryProvider).updateProfile(profilePicture: file, fields: {'fullName': _fullNameController.text});
-// //               }catch(e){
-// //                 print(e);
-// //               }
-// //                 Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomeScreen()));
-// //             }
-// // 
-
-// import 'dart:io';
-// import 'package:flutter/material.dart';
-// import 'package:flutter_riverpod/flutter_riverpod.dart';
-// import 'package:image_picker/image_picker.dart';
-
-// class OnboardingScreen extends ConsumerStatefulWidget {
-//   const OnboardingScreen({super.key});
-
-//   @override
-//   ConsumerState<OnboardingScreen> createState() => _OnboardingScreenState();
-// }
-
-// class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
-//   final PageController _pageController = PageController();
-//   File? file;
-//   final _fullNameController = TextEditingController();
-
-//   Future<void> onProfileTap() async {
-//     final ImagePicker imagePicker = ImagePicker();
-//     final XFile? image = await imagePicker.pickImage(source: ImageSource.gallery);
-//     if (image == null) return;
-//     setState(() {
-//       file = File(image.path);
-//     });
-//   }
-
-//   Widget buildProfile(BuildContext context) {
-//     return LayoutBuilder(
-//       builder: (context, constraints) {
-//         return SingleChildScrollView(
-//           child: ConstrainedBox(
-//             constraints: BoxConstraints(minHeight: constraints.maxHeight),
-//             child: Padding(
-//               padding: const EdgeInsets.symmetric(vertical: 24),
-//               child: Column(
-//                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                 children: [
-//                   // Header Section
-//                   Column(
-//                     children: [
-//                       const Text(
-//                         'Name and Profile Picture',
-//                         textAlign: TextAlign.center,
-//                         style: TextStyle(
-//                           fontSize: 24,
-//                           fontWeight: FontWeight.bold,
-//                           height: 1.2,
-//                         ),
-//                       ),
-//                       const SizedBox(height: 8),
-//                       Text(
-//                         'This is how others will see you.',
-//                         textAlign: TextAlign.center,
-//                         style: TextStyle(
-//                           fontSize: 16,
-//                           color: Colors.grey[600],
-//                           height: 1.5,
-//                         ),
-//                       ),
-//                     ],
-//                   ),
-
-//                   // Profile Picture Section
-//                   Padding(
-//                     padding: const EdgeInsets.symmetric(vertical: 12),
-//                     child: Center(
-//                       child: Stack(
-//                         children: [
-//                           Container(
-//                             height: 180,
-//                             width: 180,
-//                             decoration: BoxDecoration(
-//                               color: const Color.fromARGB(255, 234, 242, 255),
-//                               shape: BoxShape.circle,
-//                               boxShadow: [
-//                                 BoxShadow(
-//                                   color: Colors.black.withOpacity(0.1),
-//                                   blurRadius: 10,
-//                                   offset: const Offset(0, 5),
-//                                 ),
-//                               ],
-//                             ),
-//                             child: file != null
-//                                 ? ClipRRect(
-//                                     borderRadius: BorderRadius.circular(90),
-//                                     child: Image.file(
-//                                       file!,
-//                                       fit: BoxFit.cover,
-//                                     ),
-//                                   )
-//                                 : const Icon(
-//                                     Icons.person,
-//                                     size: 100,
-//                                     color: Color.fromARGB(255, 180, 219, 255),
-//                                   ),
-//                           ),
-//                           Positioned(
-//                             bottom: 0,
-//                             right: 0,
-//                             child: GestureDetector(
-//                               onTap: onProfileTap,
-//                               child: Container(
-//                                 height: 50,
-//                                 width: 50,
-//                                 decoration: BoxDecoration(
-//                                   color: const Color.fromARGB(255, 0, 111, 253),
-//                                   shape: BoxShape.circle,
-//                                   border: Border.all(
-//                                     color: Colors.white,
-//                                     width: 3,
-//                                   ),
-//                                   boxShadow: [
-//                                     BoxShadow(
-//                                       color: Colors.black.withOpacity(0.2),
-//                                       blurRadius: 5,
-//                                       offset: const Offset(0, 2),
-//                                     ),
-//                                   ],
-//                                 ),
-//                                 child: const Icon(
-//                                   Icons.camera_alt,
-//                                   size: 25,
-//                                   color: Colors.white,
-//                                 ),
-//                               ),
-//                             ),
-//                           ),
-//                         ],
-//                       ),
-//                     ),
-//                   ),
-//                   Padding(
-//                     padding: const EdgeInsets.symmetric(horizontal: 16),
-//                     child: Column(
-//                       crossAxisAlignment: CrossAxisAlignment.start,
-//                       children: [
-//                         TextField(
-//           controller: _fullNameController,
-//           cursorColor: const Color.fromARGB(255, 0, 111, 253),
-//           decoration: const InputDecoration(
-//             hintText: 'Full Name',
-//             focusedBorder: OutlineInputBorder(
-//                 borderRadius: BorderRadius.all(Radius.circular(8)),
-//                 borderSide: BorderSide(
-//                     color: Color.fromARGB(255, 0, 111, 253), width: 2.3)),
-//             enabledBorder: OutlineInputBorder(
-//                 borderRadius: BorderRadius.all(Radius.circular(8)),
-//                 borderSide: BorderSide(
-//                     color: Color.fromARGB(255, 104, 97, 97), width: 2)),
-//           ),
-//                     )],
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//             ),
-//           ),
-//         );
-//       },
-//     );
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       body: SafeArea(
-//         child: Column(
-//           children: [
-//             // Progress Indicator
-//             Container(
-//               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-//               child: Column(
-//                 crossAxisAlignment: CrossAxisAlignment.start,
-//                 children: [
-//                   const Text(
-//                     'Step 1 of 3',
-//                     style: TextStyle(
-//                       fontSize: 14,
-//                       fontWeight: FontWeight.w500,
-//                       color: Colors.grey,
-//                     ),
-//                   ),
-//                   const SizedBox(height: 8),
-//                   ClipRRect(
-//                     borderRadius: BorderRadius.circular(8),
-//                     child: const LinearProgressIndicator(
-//                       value: .33,
-//                       minHeight: 6,
-//                       backgroundColor: Color.fromARGB(255, 234, 242, 255),
-//                       valueColor: AlwaysStoppedAnimation<Color>(
-//                         Color.fromARGB(255, 0, 111, 253),
-//                       ),
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//             ),
-
-//             // Main Content
-//             Expanded(
-//               child: PageView(
-//                 controller: _pageController,
-//                 children: [
-//                   buildProfile(context),
-//                 ],
-//               ),
-//             ),
-
-//             // Bottom Button
-//             Padding(
-//               padding: const EdgeInsets.all(24),
-//               child: ElevatedButton(
-//                 onPressed: () async {},
-//                 style: ElevatedButton.styleFrom(
-//                   backgroundColor: const Color.fromARGB(255, 0, 111, 253),
-//                   foregroundColor: Colors.white,
-//                   padding: const EdgeInsets.symmetric(vertical: 16),
-//                   shape: RoundedRectangleBorder(
-//                     borderRadius: BorderRadius.circular(12),
-//                   ),
-//                   elevation: 2,
-//                 ),
-//                 child: const Row(
-//                   mainAxisAlignment: MainAxisAlignment.center,
-//                   children: [
-//                     Text(
-//                       'Continue',
-//                       style: TextStyle(
-//                         fontSize: 18,
-//                         fontWeight: FontWeight.bold,
-//                       ),
-//                     ),
-//                     SizedBox(width: 8),
-//                     Icon(Icons.arrow_forward),
-//                   ],
-//                 ),
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
