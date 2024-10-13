@@ -76,7 +76,6 @@ void main() {
       //Tap log in button
       await tester.ensureVisible(logInButton);
       await tester.tap(logInButton);
-      await tester.pumpAndSettle();
 
       //Verify that the signIn (from user repository) was called
       verify(mockUserRepository.signIn(email, password))
