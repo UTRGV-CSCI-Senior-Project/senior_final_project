@@ -37,6 +37,7 @@ class MockAuthServices extends _i1.Mock implements _i2.AuthServices {
   _i3.Future<String?> signUp({
     required String? email,
     required String? password,
+    required String? username,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -45,6 +46,7 @@ class MockAuthServices extends _i1.Mock implements _i2.AuthServices {
           {
             #email: email,
             #password: password,
+            #username: username,
           },
         ),
         returnValue: _i3.Future<String?>.value(),
@@ -91,6 +93,16 @@ class MockAuthServices extends _i1.Mock implements _i2.AuthServices {
   _i3.Future<void> deleteUser() => (super.noSuchMethod(
         Invocation.method(
           #deleteUser,
+          [],
+        ),
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
+
+  @override
+  _i3.Future<void> sendVerificationEmail() => (super.noSuchMethod(
+        Invocation.method(
+          #sendVerificationEmail,
           [],
         ),
         returnValue: _i3.Future<void>.value(),
