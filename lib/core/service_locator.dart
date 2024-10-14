@@ -38,6 +38,11 @@ final firestoreServicesProvider = Provider<FirestoreServices>((ref){
   return FirestoreServices(firebaseFirestore, ref);
 });
 
+final portfoliosProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
+  final firestoreServices = ref.watch(firestoreServicesProvider);
+  return firestoreServices.getAllPortfoliosWithUsers();
+});
+
 final storageServicesProvider = Provider<StorageServices>((ref){
   final firebaseStorage = ref.watch(firebaseStorageProvider);
   return StorageServices(ref, firebaseStorage);
@@ -55,13 +60,13 @@ final authStateProvider = StreamProvider<User?>((ref){
 });
 
 
-final userModelProvider = FutureProvider<UserModel?>((ref) async {
+final userModelProvider = FutureProvider<List<Object?>>((ref) async {
   final authState = await ref.watch(authStateProvider.future);
   if (authState != null) {
     final firestoreServices = ref.read(firestoreServicesProvider);
     return await firestoreServices.getUser(authState.uid);
   }
-  return null;
+  return [null];
 });
 
 final userStreamProvider = StreamProvider<UserModel?>((ref) {
