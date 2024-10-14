@@ -80,8 +80,10 @@ void setupEmulators({bool useEmulators = false}) {
     try {
       FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
       FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
+      FirebaseStorage.instance.useStorageEmulator('localhost', 9199);
       // Add other emulators as needed
     } catch (e) {
+      print(e);
     }
   }
 
