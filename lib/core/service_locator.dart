@@ -9,6 +9,12 @@ import 'package:folio/repositories/user_repository.dart';
 import 'package:folio/services/auth_services.dart';
 import 'package:folio/services/firestore_services.dart';
 import 'package:folio/services/storage_services.dart';
+import 'package:image_picker/image_picker.dart';
+
+final imagePickerProvider = Provider<ImagePicker>((ref) {
+  final imagePicker = ImagePicker();
+  return imagePicker;
+});
 
 final firebaseAuthProvider = Provider<FirebaseAuth>((ref){
   return FirebaseAuth.instance;

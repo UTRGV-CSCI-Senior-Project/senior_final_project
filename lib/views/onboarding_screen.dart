@@ -21,6 +21,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   final _fullNameController = TextEditingController();
   String errorMessage = "";
   bool _isLoading = false;
+  late final imagePicker;
 
   late List<String> services = [];
 
@@ -34,6 +35,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   Future<void> loadServices() async {
     try {
+      imagePicker = ref.read(imagePickerProvider);
       final firestoreServices = ref.read(firestoreServicesProvider);
       final fetchedServices = await firestoreServices.getServices();
       setState(() {
@@ -44,12 +46,11 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         }
       });
     } catch (e) {
-      print('error-loading');
+      print(e);
     }
   }
 
   Future<void> onProfileTap() async {
-    final ImagePicker imagePicker = ImagePicker();
     final XFile? image =
         await imagePicker.pickImage(source: ImageSource.gallery);
     if (image == null) return;
@@ -106,6 +107,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     bottom: 0,
                     right: 0,
                     child: GestureDetector(
+                      key: const Key('image-picker-button'),
                       onTap: onProfileTap,
                       child: Container(
                         height: 50,
@@ -134,6 +136,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: TextField(
+              key: const Key('name-field'),
               controller: _fullNameController,
               cursorColor: const Color.fromARGB(255, 0, 111, 253),
               decoration: const InputDecoration(
