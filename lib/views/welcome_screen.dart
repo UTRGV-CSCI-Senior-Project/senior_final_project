@@ -26,7 +26,7 @@ class WelcomeScreen extends StatelessWidget {
                   fontSize: 60,
                 ),
                 ),
-              Image.asset("assets/Explore.png",width: 250,height: 250,),
+              Image.asset("assets/Explore.png",width: 250,height: 250,color: const Color.fromRGBO(0, 111, 253, 1),),
               const Text("Discover Local Talent,",style: tempTextstlye.customTextstyle,),
               const Text("Book with Ease ",style: tempTextstlye.customTextstyle,),
               //const Text("App Name",style: tempTextstlye.customTextstyle,),
