@@ -24,27 +24,28 @@ class MyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp(
-      title: 'Folio',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      home: FutureBuilder(future: Future.delayed(duration, () {
-          return ref.watch(authStateProvider);
-        }), builder: (context, snapshot){
-            return snapshot.data?.when(
-              data: (user) {
-                if (user != null) {
-                  return const HomeScreen();
-                } else {
-                  return const WelcomeScreen();
-                }
-              },
-              error: (e, s) => const LoadingScreen(),
-              loading: () => const LoadingScreen(),
-            ) ?? const LoadingScreen();
-        })
-
-    );
+        title: 'Folio',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+          visualDensity: VisualDensity.adaptivePlatformDensity,
+        ),
+        home: FutureBuilder(
+            future: Future.delayed(duration, () {
+              return ref.watch(authStateProvider);
+            }),
+            builder: (context, snapshot) {
+              return snapshot.data?.when(
+                    data: (user) {
+                      if (user != null) {
+                        return const HomeScreen();
+                      } else {
+                        return const WelcomeScreen();
+                      }
+                    },
+                    error: (e, s) => const LoadingScreen(),
+                    loading: () => const LoadingScreen(),
+                  ) ??
+                  const LoadingScreen();
+            }));
   }
 }
