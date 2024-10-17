@@ -1,0 +1,4 @@
+{
+"gradle.autoDetect": "on",
+"java.configuration.updateBuildConfiguration": "interactive"
+}
