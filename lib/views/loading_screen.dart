@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 
 
@@ -6,25 +8,30 @@ class LoadingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      backgroundColor: Color.fromARGB(255, 76, 96, 139),
+    return  Scaffold(
+      backgroundColor: Color.fromRGBO(0, 111, 253, 1),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
+            const SizedBox(height: 40,),
+            const Text(
               "Folio",
               style: TextStyle(
-                fontWeight: FontWeight.w400,
-                fontSize: 48.0,
+                fontWeight: FontWeight.bold,
+                fontSize: 72.0,
                 color: Color(0xFFFFFFFF),
-                letterSpacing: 0.1, // 10% letterSpacing
+                letterSpacing: .1, // 10% letterSpacing
               ),
             ),
-            CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Color.fromARGB(255, 0, 111, 253)) ,
+            const Spacer(),
+            Image.asset("assets/Explore.png",width: 250,height: 250,),
+            const Spacer(),
+            const CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.white) ,
               
-            )
+            ),
+            const SizedBox(height: 40,),
           ],
         ),
       ),

@@ -18,7 +18,7 @@ Future<void> main({bool useEmulator = false}) async {
 
 class MyApp extends ConsumerWidget {
   final Duration duration;
-  const MyApp({super.key, this.duration = const Duration(seconds: 2)});
+  const MyApp({super.key, this.duration = const Duration(seconds: 3)});
 
   // This widget is the root of your application.
   @override
