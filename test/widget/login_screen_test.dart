@@ -15,7 +15,7 @@ void main() {
   late MockUserRepository mockUserRepository;
   final emailField = find.byKey(const Key('email-field'));
   final passwordField = find.byKey(const Key('password-field'));
-  final logInButton = find.byKey(const Key('login-button'));
+  final logInButton = find.byKey(const Key('signin-button'));
 
   setUp(() {
     mockUserRepository = MockUserRepository();

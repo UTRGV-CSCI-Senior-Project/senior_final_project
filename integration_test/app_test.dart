@@ -1,25 +1,31 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:folio/main.dart';
 import 'package:folio/core/service_locator.dart';
-import 'package:mockito/mockito.dart';
-
-import '../test/mocks/onboarding_screen_test.mocks.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-  ProviderContainer container;
-  late MockImagePicker mockImagePicker;
-  late MockXFile mockXFile;
+  late ProviderContainer container;
+
+//////////////////////// Any Necessary Finders ////////////////////////
+
+  final usernameField = find.byKey(const Key('username-field'));
+  final emailField = find.byKey(const Key('email-field'));
+  final passwordField = find.byKey(const Key('password-field'));
+  final signUpButton = find.byKey(const Key('signup-button'));
+  final fullNameField = find.byKey(const Key('name-field'));
+  final onboardingButton = find.byKey(const Key('onboarding-button'));
+  final signInButton = find.byKey(const Key('signin-button'));
+
+////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////// Set Up and Tear Down //////////////////////////
 
   setUpAll(() async {
-    mockImagePicker = MockImagePicker();
-    mockXFile = MockXFile();
     await Firebase.initializeApp();
     setupEmulators(useEmulators: true);
   });
@@ -27,255 +33,257 @@ void main() {
   tearDownAll(() {});
 
   setUp(() {
-    container = ProviderContainer(
-      overrides: [
-        imagePickerProvider.overrideWithValue(mockImagePicker)
-      ]
-    );
+    container = ProviderContainer();
     container.read(authServicesProvider).signOut();
   });
 
-  group('Happy Paths', () {
-    final usernameField = find.byKey(const Key('username-field'));
-    final emailField = find.byKey(const Key('email-field'));
-    final passwordField = find.byKey(const Key('password-field'));
-    final signUpButton = find.byKey(const Key('signup-button'));
-    final imagePickerButton = find.byKey(const Key('image-picker-button'));
+////////////////////////////////////////////////////////////////////////
 
-    testWidgets('As a new user, I can sign up, complete onboarding, and reach the home screen.', (WidgetTester tester) async {
-      
-      await tester.pumpWidget(const ProviderScope(child: MyApp(duration: Duration.zero,)));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
-      await tester.tap(signUpButton);
-      await tester.pumpAndSettle();
-            await tester.enterText(usernameField, 'testUser');
+
+//////////////////////// Any Necessary Functions ////////////////////////
+
+  Future<void> signUpUser(WidgetTester tester, String username, String password) async {
+     //Wait for app to load
+    await tester.pumpWidget(const ProviderScope(
+        child: MyApp(
+      duration: Duration.zero,
+    )));
+    await tester.pumpAndSettle(const Duration(seconds: 5));
+
+    //Navigate to sign up screen
+    await tester.tap(signUpButton);
+    await tester.pumpAndSettle();
+
+    //Enter necessary data
+    await tester.enterText(usernameField, username);
+    await tester.enterText(emailField, '$username@email.com');
+    await tester.enterText(passwordField, password);
+
+    //Tap sign up button
+    await tester.tap(signUpButton);
+    await tester.pumpAndSettle(const Duration(seconds: 5));
+  }
+
+  Future<void> navigateToSignUpPage(WidgetTester tester) async {
+    //Wait for app to load
+    await tester.pumpWidget(const ProviderScope(
+        child: MyApp(
+      duration: Duration.zero,
+    )));
+    await tester.pumpAndSettle(const Duration(seconds: 5));
+
+    //Navigate to sign up screen by tapping sign up button on welcome screen
+    expect(signUpButton, findsOneWidget);
+    await tester.tap(signUpButton);
+    await tester.pumpAndSettle();
+
+    //Expect to see Sign Up title to verify we are on sign up screen
+    expect(find.text('Sign Up'), findsAny);
+  }
+
+  Future<void> navigateToLogInScreen(WidgetTester tester) async {
+    //Wait for app to load
+    await tester.pumpWidget(const ProviderScope(
+        child: MyApp(
+      duration: Duration.zero,
+    )));
+    await tester.pumpAndSettle(const Duration(seconds: 5));
+
+    //Navigate to log in screen by tapping log in button on welcome screen
+    expect(signInButton, findsOneWidget);
+    await tester.tap(signInButton);
+    await tester.pumpAndSettle();
+
+    //Expect to see Sign In title to verify we are on Log in screen
+    expect(find.text('Sign In'), findsAny);
+  }
+////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////// HAPPY PATHS //////////////////////////////////////////////////////////////////////
+  group('Happy Paths', () {
+    testWidgets('As a new user, I can sign up, complete onboarding, and reach the home screen.',(WidgetTester tester) async {
+      //Navigate to sign up screen
+      await navigateToSignUpPage(tester);
+
+      //Enter necessary data
+      await tester.enterText(usernameField, 'testUser');
       await tester.enterText(emailField, 'testuser@email.com');
       await tester.enterText(passwordField, 'Pass123!');
 
       //Tap sign up button
       await tester.tap(signUpButton);
       await tester.pumpAndSettle(const Duration(seconds: 5));
-      final mockFile = XFile('integration_test/assets/image.jpg');
-      when(mockImagePicker.pickImage(source: ImageSource.gallery)).thenAnswer((_) async => mockFile);
-      await tester.tap(imagePickerButton);
+
+      //Enter full name in onboarding screen and tap next
+      await tester.enterText(fullNameField, "First Last");
+      await tester.tap(onboardingButton);
+      await tester.pumpAndSettle();
+
+      //Tap next on second onboarding screen
+      expect(find.text('What professions are you interested in?'), findsOneWidget);
+      await tester.tap(onboardingButton);
+      await tester.pumpAndSettle();
+      
+      //Expect to see home screen with user's full name
+      expect(find.text('Welcome, First Last'), findsOneWidget);
+    });
+
+    testWidgets('As an existing user that has not completed onboarding, I can sign in, complete onboarding, and reach the home screen',(WidgetTester tester) async {
+      //Sign up a new user and sign them out without completing onboarding
+      await signUpUser(tester, 'newUser', 'pass123');
+      await container.read(authServicesProvider).signOut();
+      await tester.pumpAndSettle();
+      expect(find.text('FOLIO'), findsOneWidget);
+
+      //Navigate to sign in screen
+      await tester.tap(signInButton);
+      await tester.pumpAndSettle();
+
+      //Enter necessary data and sign in
+      await tester.enterText(emailField, 'newUser@email.com');
+      await tester.enterText(passwordField, 'pass123');
+      await tester.tap(signInButton);
       await tester.pumpAndSettle(const Duration(seconds: 5));
-      verify(mockImagePicker.pickImage(source: ImageSource.gallery)).called(1);
 
+      //Fill in full name on onbording screen and proceed to 2nd screen
+      expect(find.text('Name and Profile Picture'), findsOneWidget);
+      await tester.enterText(fullNameField, "New User");
+      await tester.tap(onboardingButton);
+      await tester.pumpAndSettle();
 
+      //Tap Done! on second onboarding screen
+      expect(
+          find.text('What professions are you interested in?'), findsOneWidget);
+      await tester.tap(onboardingButton);
+      await tester.pumpAndSettle();
+
+      //Expect to see home screen with user's full name
+      expect(find.text('Welcome, New User'), findsOneWidget);
     });
 
-    testWidgets('As an existing user that has not completed onboarding, I can sign in, complete onboarding, and reach the home screen', (WidgetTester tester) async {
+    testWidgets('As an existing user I can sign in and reach the home screen',(WidgetTester tester) async {
+      //Navigate to sign up screen
+      await navigateToLogInScreen(tester);
 
+      //Sign In with the correct credentials
+      await tester.enterText(emailField, 'newUser@email.com');
+      await tester.enterText(passwordField, 'pass123');
+
+      //Tap Sign In and wait
+      await tester.tap(signInButton);
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      //Expect to see home screen with user's full name.
+      expect(find.text('Welcome, New User'), findsOneWidget);
     });
-
-    testWidgets('As an existing user I can sign in and reach the home screen', (WidgetTester tester) async {
-
-    });
-
   });
 
+  /////////////////////////////////////////////// HAPPY PATHS //////////////////////////////////////////////////////////////////////
 
-  // group('sign up flow', () {
-  //   final usernameField = find.byKey(const Key('username-field'));
-  //   final emailField = find.byKey(const Key('email-field'));
-  //   final passwordField = find.byKey(const Key('password-field'));
-  //   final signUpButton = find.byKey(const Key('signup-button'));
+  /////////////////////////////////////////////// SAD PATHS ////////////////////////////////////////////////////////////////////////
 
-  //   Future<void> navigateToSignUpPage(WidgetTester tester) async {
-  //     //Wait for app to load
-  //     await tester.pumpWidget(const ProviderScope(
-  //         child: MyApp(
-  //       duration: Duration.zero,
-  //     )));
+  group('Sad Paths', () {
+    testWidgets('As a new user, if I sign up with invalid email, I see an error and stay on the sign up screen',(WidgetTester tester) async {
+      //Navigate to sign up screen
+      await navigateToSignUpPage(tester);
 
-  //     await tester.pumpAndSettle(const Duration(seconds: 5));
-  //     //Navigate to sign up screen by tapping sign up button on welcome screen
-  //     expect(signUpButton, findsOneWidget);
-  //     await tester.tap(signUpButton);
-  //     await tester.pumpAndSettle();
-  //     //Expect to see Sign Up title to verify we are on sign up screen
-  //     expect(find.text('Sign Up'), findsAny);
-  //   }
+      //Enter necessary data, but with an invalid email address
+      await tester.enterText(usernameField, 'testUser2');
+      await tester.enterText(emailField, 'invalidemail');
+      await tester.enterText(passwordField, 'Pass123!');
 
-  //   testWidgets('User can sign up and reach home page', (tester) async {
-  //     //Navigate to sign up screen
-  //     await navigateToSignUpPage(tester);
+      //Tap sign up button
+      await tester.tap(signUpButton);
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+      //Expect to see error for invalid email address
+      expect(find.byType(SnackBar), findsOneWidget);
+      expect(find.textContaining('The email provided is not a valid email address.'),findsOneWidget);
+    });
 
-  //     //Enter all necessary information to corresponding fields
-  //     await tester.enterText(usernameField, 'testUser');
-  //     await tester.enterText(emailField, 'testuser@email.com');
-  //     await tester.enterText(passwordField, 'Pass123!');
+    testWidgets('As a new user, if I sign up with an existing email, I see an error and stay on the sign up screen',(WidgetTester tester) async {
+      //Navigate to sign up screen
+      await navigateToSignUpPage(tester);
 
-  //     //Tap sign up button
-  //     await tester.tap(signUpButton);
-  //     await tester.pumpAndSettle(const Duration(seconds: 5));
-  //     //Grab the current authenticated user and check it matches our previous inputs
-  //     final user = FirebaseAuth.instance.currentUser;
-  //     expect(user, isNotNull);
-  //     expect(user!.email, 'testuser@email.com');
-  //     expect(user.uid, isNotEmpty);
-  //     expect(find.text('Home Screen'), findsOneWidget);
-  //   });
+      //Enter necessary data, but using an email that's taken (email was used on first test)
+      await tester.enterText(usernameField, 'testUser3');
+      await tester.enterText(emailField, 'testuser@email.com');
+      await tester.enterText(passwordField, 'Pass123!');
 
-  //   testWidgets('Empty fields show error', (tester) async {
-  //     //Navigate to sign up screen
-  //     await navigateToSignUpPage(tester);
+      //Tap sign up button
+      await tester.tap(signUpButton);
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+      //Expect to see error for taken email
+      expect(find.byType(SnackBar), findsOneWidget);
+      expect(find.textContaining('This email is already associated with another account.'),findsOneWidget);
+    });
 
-  //     //Tap sign up button without entering necessary data
-  //     await tester.tap(signUpButton);
-  //     await tester.pumpAndSettle(const Duration(seconds: 1));
-  //     //Expect to see error for empty fields
-  //     expect(find.text('Please fill in all of the fields.'), findsOneWidget);
-  //   });
+    testWidgets('As a new user, if I sign up with a weak password, I see an error and stay on the sign up screen',(WidgetTester tester) async {
+      //Navigate to sign up screen
+      await navigateToSignUpPage(tester);
 
-  //   testWidgets('Invalid email format shows error', (tester) async {
-  //     //Navigate to sign up screen
-  //     await navigateToSignUpPage(tester);
+      //Enter necessary data, but using a username that's taken (username was used on first test)
+      await tester.enterText(usernameField, 'weakUser');
+      await tester.enterText(emailField, 'weakUser@email.com');
+      await tester.enterText(passwordField, '1');
 
-  //     //Enter necessary data, but with an invalid email address
-  //     await tester.enterText(usernameField, 'testUser2');
-  //     await tester.enterText(emailField, 'invalidemail');
-  //     await tester.enterText(passwordField, 'Pass123!');
+      //Tap sign up button
+      await tester.tap(signUpButton);
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+      //Expect to see error for taken username
+      expect(find.byType(SnackBar), findsOneWidget);
+      expect(find.textContaining('The password provided is too weak.'),findsOneWidget);
+    });
 
-  //     //Tap sign up button
-  //     await tester.tap(signUpButton);
-  //     await tester.pumpAndSettle(const Duration(seconds: 1));
-  //     //Expect to see error for invalid email address
-  //     expect(find.byType(SnackBar), findsOneWidget);
-  //     expect(
-  //         find.textContaining(
-  //             'The email provided is not a valid email address.'),
-  //         findsOneWidget);
-  //   });
+    testWidgets('As a new user, if I sign up with a taken username, I see an error and stay on the sign up screen',(WidgetTester tester) async {
+      //Navigate to sign up screen
+      await navigateToSignUpPage(tester);
 
-  //   testWidgets('Already existing email shows error', (tester) async {
-  //     //Navigate to sign up screen
-  //     await navigateToSignUpPage(tester);
+      //Enter necessary data, but using a username that's taken (username was used on first test)
+      await tester.enterText(usernameField, 'testUser');
+      await tester.enterText(emailField, 'testuser@email.com');
+      await tester.enterText(passwordField, 'Pass123!');
 
-  //     //Enter necessary data, but using an email that's taken (email was used on first test)
-  //     await tester.enterText(usernameField, 'testUser3');
-  //     await tester.enterText(emailField, 'testuser@email.com');
-  //     await tester.enterText(passwordField, 'Pass123!');
+      //Tap sign up button
+      await tester.tap(signUpButton);
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+      //Expect to see error for taken username
+      expect(find.byType(SnackBar), findsOneWidget);
+      expect(find.textContaining('This username is already taken. Please try another one.'),findsOneWidget);
+    });
 
-  //     //Tap sign up button
-  //     await tester.tap(signUpButton);
-  //     await tester.pumpAndSettle(const Duration(seconds: 1));
-  //     //Expect to see error for taken email
-  //     expect(find.byType(SnackBar), findsOneWidget);
-  //     expect(
-  //         find.textContaining(
-  //             'This email is already associated with another account.'),
-  //         findsOneWidget);
-  //   });
+    testWidgets('As an existing user, if I sign in with an unexisting email, I see an error and stay on the sign in screen', (WidgetTester tester) async {
+      //Navigate to log in screen
+      await navigateToLogInScreen(tester);
 
-  //   testWidgets('Username not unique shows error', (tester) async {
-  //     //Navigate to sign up screen
-  //     await navigateToSignUpPage(tester);
+      //Enter necessary data, but using the incorrect password
+      await tester.enterText(emailField, 'testuser@email.com');
+      await tester.enterText(passwordField, 'incorrect');
 
-  //     //Enter necessary data, but using a username that's taken (username was used on first test)
-  //     await tester.enterText(usernameField, 'testUser');
-  //     await tester.enterText(emailField, 'testuser@email.com');
-  //     await tester.enterText(passwordField, 'Pass123!');
+      //Tap log in button
+      await tester.tap(signInButton);
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+      //Expect to see error for incorrect credentials
+      expect(find.byType(SnackBar), findsOneWidget);
+      expect(find.textContaining('Your email address or password is incorrect.'), findsOneWidget);
+    });
 
-  //     //Tap sign up button
-  //     await tester.tap(signUpButton);
-  //     await tester.pumpAndSettle(const Duration(seconds: 1));
-  //     //Expect to see error for taken username
-  //     expect(find.byType(SnackBar), findsOneWidget);
-  //     expect(
-  //         find.textContaining(
-  //             'This username is already taken. Please try another one.'),
-  //         findsOneWidget);
-  //   });
-  // });
+    testWidgets('As an existing user, if I sign in with the incorrect password, I see an error and stay on the sign in screen', (WidgetTester tester) async {
+      //Navigate to log in screen
+      await navigateToLogInScreen(tester);
 
-  // group('log in flow', () {
-  //   final emailField = find.byKey(const Key('email-field'));
-  //   final passwordField = find.byKey(const Key('password-field'));
-  //   final logInButton = find.byKey(const Key('login-button'));
+      //Enter necessary data, but using the incorrect password
+      await tester.enterText(emailField, 'testuser@email.com');
+      await tester.enterText(passwordField, 'incorrect');
 
-  //   Future<void> navigateToLogInScreen(WidgetTester tester) async {
-  //     //Wait for app to load
-  //     await tester.pumpWidget(const ProviderScope(
-  //         child: MyApp(
-  //       duration: Duration.zero,
-  //     )));
-  //     await tester.pumpAndSettle(const Duration(seconds: 5));
-  //     //Navigate to log in screen by tapping log in button on welcome screen
-  //     expect(logInButton, findsOneWidget);
-  //     await tester.tap(logInButton);
-  //     await tester.pumpAndSettle();
-  //     //Expect to see Sign In title to verify we are on Log in screen
-  //     expect(find.text('Sign In'), findsAny);
-  //   }
+      //Tap log in button
+      await tester.tap(signInButton);
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+      //Expect to see error for incorrect credentials
+      expect(find.byType(SnackBar), findsOneWidget);
+      expect(find.textContaining('Your email address or password is incorrect.'),findsOneWidget);
+    });
 
-  //   testWidgets('User can log in  and reach home page', (tester) async {
-  //     //Navigate to log in screen
-  //     await navigateToLogInScreen(tester);
+  /////////////////////////////////////////////// SAD PATHS ////////////////////////////////////////////////////////////////////////
 
-  //     //Enter all necessary information to corresponding fields
-  //     await tester.enterText(emailField, 'testuser@email.com');
-  //     await tester.enterText(passwordField, 'Pass123!');
-
-  //     //Tap log in button
-  //     await tester.tap(logInButton);
-  //     await tester.pumpAndSettle(const Duration(seconds: 5));
-  //     //Grab the current authenticated user and check it matches our previous inputs
-  //     final user = FirebaseAuth.instance.currentUser;
-  //     expect(user, isNotNull);
-  //     expect(user!.email, 'testuser@email.com');
-  //     expect(user.uid, isNotEmpty);
-  //     expect(find.text('Home Screen'), findsOneWidget);
-  //   });
-
-  //   testWidgets('Empty fields show error', (tester) async {
-  //     //Navigate to log in screen
-  //     await navigateToLogInScreen(tester);
-
-  //     //Tap log in button without entering necessary data
-  //     await tester.tap(logInButton);
-  //     await tester.pumpAndSettle(const Duration(seconds: 1));
-  //     //Expect to see error for empty fields
-  //     expect(find.text('Please fill in all of the fields.'), findsOneWidget);
-  //   });
-
-  //   testWidgets('Invalid email format shows error', (tester) async {
-  //     //Navigate to log in screen
-  //     await navigateToLogInScreen(tester);
-
-  //     //Enter necessary data, but with an invalid email address
-  //     await tester.enterText(emailField, 'invalidemail');
-  //     await tester.enterText(passwordField, 'Pass123!');
-
-  //     //Tap log in button
-  //     await tester.tap(logInButton);
-  //     await tester.pumpAndSettle(const Duration(seconds: 1));
-  //     //Expect to see error for invalid email address
-  //     expect(find.byType(SnackBar), findsOneWidget);
-  //     expect(
-  //         find.textContaining(
-  //             'The email provided is not a valid email address.'),
-  //         findsOneWidget);
-  //   });
-
-  //   testWidgets('Incorrect password shows error', (tester) async {
-  //     //Navigate to log in screen
-  //     await navigateToLogInScreen(tester);
-
-  //     //Enter necessary data, but using the incorrect password
-  //     await tester.enterText(emailField, 'testuser@email.com');
-  //     await tester.enterText(passwordField, 'incorrect');
-
-  //     //Tap log in button
-  //     await tester.tap(logInButton);
-  //     await tester.pumpAndSettle(const Duration(seconds: 1));
-  //     //Expect to see error for incorrect credentials
-  //     expect(find.byType(SnackBar), findsOneWidget);
-  //     expect(
-  //         find.textContaining(
-  //             'Your email address or password is incorrect.'),
-  //         findsOneWidget);
-  //   });
-
-  // });
+  });
 }

@@ -59,7 +59,7 @@ void main() {
       await tester.tap(find.text('Next'));
       await tester.pumpAndSettle();
 
-      expect(find.text("Please upload an image and enter your name."),
+      expect(find.text("Please enter your full name."),
           findsOneWidget);
     });
 

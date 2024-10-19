@@ -21,7 +21,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   final _fullNameController = TextEditingController();
   String errorMessage = "";
   bool _isLoading = false;
-  late final imagePicker;
 
   late List<String> services = [];
 
@@ -35,7 +34,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   Future<void> loadServices() async {
     try {
-      imagePicker = ref.read(imagePickerProvider);
       final firestoreServices = ref.read(firestoreServicesProvider);
       final fetchedServices = await firestoreServices.getServices();
       setState(() {
@@ -51,6 +49,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   }
 
   Future<void> onProfileTap() async {
+    final ImagePicker imagePicker = ref.read(imagePickerProvider);
     final XFile? image =
         await imagePicker.pickImage(source: ImageSource.gallery);
     if (image == null) return;
@@ -178,6 +177,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           ...services.map((service) {
             bool isSelected = selectedServices[service] ?? false;
             return GestureDetector(
+              key: Key('${service}-button'),
                 onTap: () => setState(() {
                       selectedServices[service] = !isSelected;
                     }),
@@ -281,12 +281,13 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               Padding(
                 padding: const EdgeInsets.all(12),
                 child: TextButton(
+                  key: const Key('onboarding-button'),
                     onPressed: () async {
                       if (_currentPage == 0) {
-                        if (_fullNameController.text.isEmpty || file == null) {
+                        if (_fullNameController.text.isEmpty) {
                           setState(() {
                             errorMessage =
-                                "Please upload an image and enter your name.";
+                                "Please enter your full name.";
                           });
                         } else {
                           _pageController.nextPage(
