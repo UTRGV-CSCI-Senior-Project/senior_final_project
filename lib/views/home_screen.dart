@@ -3,6 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:folio/core/service_locator.dart';
+import 'package:folio/views/loading_screen.dart';
+import 'package:folio/views/onboarding_screen.dart';
 import 'package:folio/views/welcome_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -11,14 +13,20 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     double Phonewidth = MediaQuery.sizeOf(context).width;
-    double Phoneheight = MediaQuery.sizeOf(context).height;
-    return Scaffold(
+
+    return ref.watch(userStreamProvider).when(data: (userModel){
+      if(userModel == null){
+        return const WelcomeScreen();
+      }
+
+      if(userModel.completedOnboarding){
+        return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
           automaticallyImplyLeading: false,
-          title: const Text(
-            "Welcome USER ",
-            style: TextStyle(
+          title:  Text(
+            "Welcome, ${userModel.fullName ?? userModel.username}",
+            style: const TextStyle(
               fontWeight: FontWeight.w900,
             ), //change this to users name,
           )),
@@ -44,7 +52,7 @@ class HomeScreen extends ConsumerWidget {
                         width: 150,
                       ),
                       TextButton(
-                        key: Key("Edit_Proffesion_Key"),
+                        key: const Key("Edit_Proffesion_Key"),
                         onPressed: () {},
                         child: const Text(
                           "Edit",
@@ -98,7 +106,7 @@ class HomeScreen extends ConsumerWidget {
                   width: 150,
                 ),
                 TextButton(
-                  key: Key("See_more_button"),
+                  key: const Key("See_more_button"),
                   onPressed: () {},
                   child: const Text(
                     "See more",
@@ -215,5 +223,13 @@ class HomeScreen extends ConsumerWidget {
         ],
       ),
     );
+      }else{
+        return const OnboardingScreen();
+      }
+
+    }, error: (s, p) => const LoadingScreen(), loading: () => const LoadingScreen());
+    
+    
+    
   }
 }

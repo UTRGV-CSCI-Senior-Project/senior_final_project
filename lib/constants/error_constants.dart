@@ -11,8 +11,9 @@ class ErrorConstants {
     'invalid-credential': 'Your email address or password is incorrect.',
     'user-disabled': 'The account for the provided email has been disabled.',
     'user-not-found': 'There is no user corresponding to the email provided.',
-    'wrong-password': 'Your email address or password is incorrect.'
-  
+    'wrong-password': 'Your email address or password is incorrect.',
+    'no-user': 'Account not found, try logging in again.',
+    'pfp-error': 'Error uploading your image, try again later.',  
   };
 
   static String getMessage(String errorCode){

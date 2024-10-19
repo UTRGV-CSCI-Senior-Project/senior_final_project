@@ -44,7 +44,7 @@ class WelcomeScreen extends StatelessWidget {
                     ),
                     borderRadius: const BorderRadius.all(Radius.circular(10))),
                 child: TextButton(
-                  key: const Key('login-button'),
+                  key: const Key('signin-button'),
                     onPressed: () {
                       Navigator.push(
                           context,
