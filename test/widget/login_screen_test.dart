@@ -15,7 +15,7 @@ void main() {
   late MockUserRepository mockUserRepository;
   final emailField = find.byKey(const Key('email-field'));
   final passwordField = find.byKey(const Key('password-field'));
-  final logInButton = find.byKey(const Key('login-button'));
+  final logInButton = find.byKey(const Key('signin-button'));
 
   setUp(() {
     mockUserRepository = MockUserRepository();
@@ -76,7 +76,6 @@ void main() {
       //Tap log in button
       await tester.ensureVisible(logInButton);
       await tester.tap(logInButton);
-      await tester.pumpAndSettle();
 
       //Verify that the signIn (from user repository) was called
       verify(mockUserRepository.signIn(email, password))

@@ -7,7 +7,7 @@ class SplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
-      backgroundColor: Color.fromARGB(255, 76, 96, 139),
+      backgroundColor: Color.fromRGBO(0, 111, 253, 1),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -16,7 +16,7 @@ class SplashScreen extends StatelessWidget {
               "Folio",
               style: TextStyle(
                 fontWeight: FontWeight.w400,
-                fontSize: 48.0,
+                fontSize: 60,
                 color: Color(0xFFFFFFFF),
                 letterSpacing: 0.1, // 10% letterSpacing
               ),

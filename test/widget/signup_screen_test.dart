@@ -80,7 +80,6 @@ void main() {
       //Tap sign up button
       await tester.ensureVisible(signUpButton);
       await tester.tap(signUpButton);
-      await tester.pumpAndSettle();
 
       //Verify that the createUser (from userrepository) was called
       verify(mockUserRepository.createUser(username, email, password))

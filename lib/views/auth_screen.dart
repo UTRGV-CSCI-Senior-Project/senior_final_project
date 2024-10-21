@@ -53,7 +53,7 @@ class AuthScreenState extends ConsumerState<AuthScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Image.asset('assets/Explore.png'),
+              Image.asset("assets/Explore.png",width: 45,height: 45,color: const Color.fromRGBO(0, 111, 253, 1),),
                   const Padding(padding: EdgeInsets.only(right: 12)),
                   const Text(
                     "Folio",
@@ -90,7 +90,7 @@ class AuthScreenState extends ConsumerState<AuthScreen> {
               SizedBox(
                 width: double.infinity,
                 child: TextButton(
-                  key: Key(_isLogin ? 'login-button' : 'signup-button'),
+                  key: Key(_isLogin ? 'signin-button' : 'signup-button'),
                   onPressed: _isLoading ? null :
                   () async {
                     if (_emailController.text.isEmpty ||

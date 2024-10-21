@@ -1,13 +1,10 @@
 //File just to navigate to after successful sign/log in
 //Can be changed
-
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:folio/core/service_locator.dart';
-import 'package:folio/services/edit_profile_services.dart';
-import 'package:folio/views/create_portfolio/choose_service_screen.dart';
-import 'package:folio/views/edit_profile.dart';
+import 'package:folio/views/loading_screen.dart';
+import 'package:folio/views/onboarding_screen.dart';
 import 'package:folio/views/welcome_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -15,42 +12,224 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      body: SafeArea(
-          child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Text('Home Screen'),
-          ElevatedButton(
-              onPressed: () {
-                ref.watch(userRepositoryProvider).signOut();
-                Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const WelcomeScreen()));
-              },
-              child: const Text('Sign Out ')),
-          ElevatedButton(
-              onPressed: () async {
-                // Fetch the professional status
-                bool isProfessional = await isProfessionalStatus();
+    double Phonewidth = MediaQuery.sizeOf(context).width;
 
-                // Navigate based on the status
-                if (isProfessional) {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => EditProfile()),
-                  );
-                } else {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => ChooseService()),
-                  );
-                }
-              },
-              child: const Text('Edit Profile'))
+    return ref.watch(userStreamProvider).when(data: (userModel){
+      if(userModel == null){
+        return const WelcomeScreen();
+      }
+
+      if(userModel.completedOnboarding){
+        return Scaffold(
+      resizeToAvoidBottomInset: false,
+      appBar: AppBar(
+          automaticallyImplyLeading: false,
+          title:  Text(
+            "Welcome, ${userModel.fullName ?? userModel.username}",
+            style: const TextStyle(
+              fontWeight: FontWeight.w900,
+            ), //change this to users name,
+          )),
+      body: ListView(children: [
+        Column(
+          children: [
+            Container(
+              //this part still needs work not done
+
+              width: Phonewidth - 10,
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      const Text(
+                        "Prefences",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 150,
+                      ),
+                      TextButton(
+                        key: const Key("Edit_Proffesion_Key"),
+                        onPressed: () {},
+                        child: const Text(
+                          "Edit",
+                          style:
+                              TextStyle(color: Color.fromRGBO(0, 111, 253, 1)),
+                        ),
+                      )
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  SizedBox(
+                      height: 30,
+                      child: CarouselView(
+                        itemExtent: 140,
+                        children: List.generate(
+                          10,
+                          (int index) {
+                            return ElevatedButton(
+                                key: Key("Proffesion_button_$index "),
+                                style: const ButtonStyle(
+                                  backgroundColor:
+                                      WidgetStatePropertyAll<Color>(
+                                          Color.fromRGBO(234, 242, 255, 1)),
+                                ),
+                                onPressed: () {},
+                                child: const Text(
+                                  "Proffesional",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w900,
+                                      color: Color.fromRGBO(0, 111, 253, 1)),
+                                ));
+                          },
+                        ),
+                      ))
+                ],
+              ),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                const Text(
+                  "Near You",
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(
+                  width: 150,
+                ),
+                TextButton(
+                  key: const Key("See_more_button"),
+                  onPressed: () {},
+                  child: const Text(
+                    "See more",
+                    style: TextStyle(color: Color.fromRGBO(0, 111, 253, 1)),
+                  ),
+                )
+              ],
+            ),
+            SizedBox(
+              height: 245,
+              child: CarouselView(
+                  itemExtent: 250,
+                  itemSnapping: true,
+                  children: List.generate(10, (int index) {
+                    return Container(
+                      key: Key("Near_You_Recommendation_Button_$index "),
+                      child: Stack(
+                        alignment: Alignment.bottomCenter,
+                        children: [
+                          Image.asset(
+                            "assets/Explore.png",
+                            width: 250,
+                            height: 245,
+                          ),
+                          const Column(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "First Last ",
+                                style: TextStyle(
+                                    fontSize: 14, fontWeight: FontWeight.bold),
+                              ),
+                              Text(
+                                "Proffesion",
+                                style: TextStyle(fontSize: 12),
+                              ),
+                            ],
+                          )
+                        ],
+                      ),
+                    );
+                  })),
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+            const Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Text(
+                    "Recently Viewed",
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(
+                    width: 200,
+                  ),
+                ]),
+            SizedBox(
+              height: 360,
+              child: CarouselView(
+                  scrollDirection: Axis.vertical,
+                  itemExtent: 70,
+                  itemSnapping: true,
+                  children: List.generate(2, (int index) {
+                    return Row(
+                      key: Key("Recenty_View_Button_$index "),
+                      children: [
+                        Image.asset(
+                          "assets/Explore.png",
+                          width: 80,
+                        ),
+                        const Column(children: [
+                          Text(
+                            "First Last ",
+                            style: TextStyle(
+                                fontSize: 14, fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            "Proffesion",
+                            style: TextStyle(fontSize: 12),
+                          ),
+                        ]),
+                        const Spacer(),
+                        const Icon(Icons.arrow_forward_ios_sharp)
+                      ],
+                    );
+                  })),
+            )
+          ],
+        )
+      ]),
+      bottomNavigationBar: NavigationBar(
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.explore),
+            label: 'Discover',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.bookmark_border),
+            label: 'Inbox',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.person),
+            label: 'Profile',
+          ),
         ],
-      )),
+      ),
     );
+      }else{
+        return const OnboardingScreen();
+      }
+
+    }, error: (s, p) => const LoadingScreen(), loading: () => const LoadingScreen());
+    
+    
+    
   }
 }

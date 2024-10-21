@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:folio/views/auth_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
+
+
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
@@ -9,23 +12,39 @@ class WelcomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
-      backgroundColor: Colors.white60,
+      backgroundColor: Colors.white,
       body: ListView(
+        shrinkWrap: true,
         children: [
-          const Text("Folio"),
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              Text(
+                "FOLIO",
+                style: GoogleFonts.sora(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 60,
+                ),
+                ),
+              Image.asset("assets/Explore.png",width: 250,height: 250,color: const Color.fromRGBO(0, 111, 253, 1),),
+              const SizedBox(height: 50,),
+              const Text("Discover Local Talent,",style: tempTextstlye.customTextstyle,),
+              const Text("Book with Ease ",style: tempTextstlye.customTextstyle,),
+              //const Text("App Name",style: tempTextstlye.customTextstyle,),
+              const SizedBox(height: 50,),
+              
               Container(
                 width: screenWidth - 40,
+                height: 60,
                 decoration: BoxDecoration(
+                    color:  const Color.fromRGBO(0, 111, 253, 1),
                     border: Border.all(
-                      color: const Color.fromARGB(255, 0, 162, 255),
+                      color: const Color.fromRGBO(0, 111, 253, 1),
                       width: 3,
                     ),
                     borderRadius: const BorderRadius.all(Radius.circular(10))),
                 child: TextButton(
-                  key: const Key('login-button'),
+                  key: const Key('signin-button'),
                     onPressed: () {
                       Navigator.push(
                           context,
@@ -34,13 +53,16 @@ class WelcomeScreen extends StatelessWidget {
                                     isLogin: true,
                                   )));
                     },
-                    child: const Text('Login')),
-              ),
+                    child: const Text('Login',
+                    style: tempTextstlye.customButtonTextstyle,)),
+              ), 
+              const SizedBox(height: 20,),
               Container(
                   width: screenWidth - 40,
                   decoration: BoxDecoration(
-                      border: Border.all(
-                        color: const Color.fromARGB(255, 0, 162, 255),
+                    color:  const Color.fromRGBO(0, 111, 253, 1),
+                    border: Border.all(
+                      color:  const Color.fromRGBO(0, 111, 253, 1),
                         width: 3,
                       ),
                       borderRadius:
@@ -56,7 +78,11 @@ class WelcomeScreen extends StatelessWidget {
                                         isLogin: false,
                                       )));
                         },
-                        child: const Text('Sign up'));
+                        child: const Text(
+                          'Sign up',
+                          style: tempTextstlye.customButtonTextstyle,
+                          )
+                        );
                   }))
             ],
           )
@@ -64,4 +90,15 @@ class WelcomeScreen extends StatelessWidget {
       ),
     );
   }
+}
+class tempTextstlye{
+   static const customTextstyle = TextStyle(
+      fontSize: 24,
+      fontWeight: FontWeight.w500,
+      
+      );
+   static const customButtonTextstyle = TextStyle(
+      fontSize: 20,
+      color: Colors.white,
+      );
 }
