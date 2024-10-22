@@ -1,11 +1,12 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:folio/views/create_portfolio/upload_pictures_screen.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class InputExperience extends StatefulWidget {
-  final String serviceText;
-
-  const InputExperience({super.key, required this.serviceText});
+  final Function(int, int) onExperienceEntered;
+  const InputExperience({super.key, required this.onExperienceEntered});
 
   @override
   State<InputExperience> createState() => _InputExperienceState();
@@ -13,8 +14,7 @@ class InputExperience extends StatefulWidget {
 
 class _InputExperienceState extends State<InputExperience> {
   final TextEditingController yrsController = TextEditingController(text: '0');
-  final TextEditingController monthController =
-      TextEditingController(text: '0');
+  final TextEditingController monthController = TextEditingController(text: '0');
 
   @override
   void initState() {
@@ -25,135 +25,81 @@ class _InputExperienceState extends State<InputExperience> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(children: <Widget>[
-          SafeArea(
-            child: LinearProgressIndicator(
-              value: 0.5,
-              backgroundColor: Colors.grey,
-              minHeight: 10.0,
-              color: const Color.fromARGB(255, 0, 140, 255),
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-          const SizedBox(height: 20.0),
-          const Text(
-            "Let's get your profile ready!",
-            style: TextStyle(
-              fontSize: 20.0,
-              letterSpacing: 1.5,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 140.0),
-          Text(
-            'How much experience do you have in ${widget.serviceText}?',
-            style: const TextStyle(
-              fontSize: 18.0,
-              letterSpacing: 1.5,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 10.0),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: <Widget>[
-              const SizedBox(width: 10.0),
-              Expanded(
-                child: TextField(
-                  controller: yrsController,
-                  keyboardType: TextInputType.number,
-                  inputFormatters: <TextInputFormatter>[
-                    FilteringTextInputFormatter.digitsOnly,
-                  ],
-                  decoration: const InputDecoration(
-                    labelText: 'Year/s',
-                    border: OutlineInputBorder(),
-                    contentPadding:
-                        EdgeInsets.symmetric(vertical: 30.0, horizontal: 10.0),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10.0),
-              Expanded(
-                child: TextField(
-                  controller: monthController,
-                  keyboardType: TextInputType.number,
-                  inputFormatters: <TextInputFormatter>[
-                    FilteringTextInputFormatter.digitsOnly,
-                  ],
-                  decoration: const InputDecoration(
-                    labelText: 'Month/s',
-                    border: OutlineInputBorder(),
-                    contentPadding:
-                        EdgeInsets.symmetric(vertical: 30.0, horizontal: 10.0),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10.0),
-            ],
-          ),
-          const SizedBox(height: 10.0),
-          const Spacer(),
-        ]),
-      ),
-      bottomNavigationBar: BottomAppBar(
-        shadowColor: Colors.white,
-        color: Colors.white,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            OutlinedButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              style: OutlinedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                fixedSize: const Size(150, 50),
-              ),
-              child: const Text(
-                'Back',
-                style: TextStyle(
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
+            const SizedBox(height: 20.0),
+            Text(
+              "Let's get your profile ready!",
+              style: GoogleFonts.poppins(
+                  fontSize: 22, fontWeight: FontWeight.w500),
             ),
-            OutlinedButton(
-              onPressed: () {
-                // Capture the input data
-                String yearsText = yrsController.text;
-                String monthsText = monthController.text;
-
-                // Pass the data to the UploadPictures screen
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => UploadPictures(
-                      serviceText: widget.serviceText,
-                      yearsText: yearsText,
-                      monthsText: monthsText,
-                    ),
-                  ),
-                );
-              },
-              style: OutlinedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                fixedSize: const Size(150, 50),
-              ),
-              child: const Text(
-                'Next',
-                style: TextStyle(
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+            const SizedBox(height: 8.0),
+            Text(
+              'How much experience do you have?',
+              style: GoogleFonts.poppins(
+                  fontSize: 18, fontWeight: FontWeight.w300),
+            ),
+            Expanded(
+              child: Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    _buildInputColumn('Years', yrsController),
+                    const SizedBox(width: 10),
+                    _buildInputColumn('Months', monthController),
+                  ],
                 ),
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildInputColumn(String label, TextEditingController controller) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(label,
+            style: GoogleFonts.poppins(
+                fontSize: 18, fontWeight: FontWeight.w300)),
+        Container(
+          alignment: Alignment.center,
+          height: 90,
+          width: 90,
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: Colors.black,
+              )),
+          child: TextField(
+            cursorColor: Colors.black,
+            style: GoogleFonts.poppins(
+                fontSize: 30, fontWeight: FontWeight.w300),
+            textAlign: TextAlign.center,
+            onChanged: (value) {
+              int enteredValue = int.tryParse(value) ?? 0;
+              if (label == 'Years') {
+                widget.onExperienceEntered(enteredValue,
+                    int.tryParse(monthController.text) ?? 0);
+              } else {
+                widget.onExperienceEntered(
+                    int.tryParse(yrsController.text) ?? 0, enteredValue);
+              }
+            },
+            controller: controller,
+            keyboardType: TextInputType.number,
+            inputFormatters: <TextInputFormatter>[
+              FilteringTextInputFormatter.digitsOnly,
+            ],
+            decoration: null,
+          ),
+        ),
+      ],
     );
   }
 }

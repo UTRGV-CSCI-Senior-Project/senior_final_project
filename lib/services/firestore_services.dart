@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:folio/core/service_locator.dart';
+import 'package:folio/models/portfolio_model.dart';
 import 'package:folio/models/user_model.dart';
 
 class FirestoreServices {
@@ -17,22 +18,6 @@ class FirestoreServices {
     }
   }
 
-  Future<UserModel?> getUser(String uid) async {
-    try {
-      final docSnapshot = await _firestore.collection('users').doc(uid).get();
-      if (docSnapshot.exists) {
-        return UserModel.fromJson(docSnapshot.data()!);
-      } else {
-        throw 'user-not-found';
-      }
-    } catch (e) {
-      if (e == 'user-not-found') {
-        rethrow;
-      } else {
-        throw 'unexpected-error';
-      }
-    }
-  }
 
   Stream<UserModel> getUserStream(String uid) {
     return _firestore.collection('users').doc(uid).snapshots().map((snapshot) {
@@ -49,6 +34,24 @@ class FirestoreServices {
       {
         throw error;
       }else{
+        throw 'unexpected-error';
+      }
+    });
+  }
+
+  Stream<PortfolioModel?> getPortfolioStream(String uid) {
+    return _firestore.collection('portfolios').doc(uid).snapshots().map((snapshot) {
+      if(!snapshot.exists){
+        return null;
+      }try{
+        return PortfolioModel.fromJson(snapshot.data()!);
+      }catch (e){
+        throw 'invalid-portfolio-data';
+      }
+    }).handleError((error) {
+    if (error == 'invalid-user-data') {
+        throw error;
+      } else {
         throw 'unexpected-error';
       }
     });
@@ -88,4 +91,69 @@ class FirestoreServices {
       throw 'unexpected-error';
     }
   }
+
+
+  Future<void> savePortfolioDetails(Map<String, dynamic> fieldsToUpdate) async {
+  try {
+    final uid = _ref.read(authStateProvider).value?.uid;
+
+      if (uid == null) {
+        throw 'no-user';
+      }
+
+    final portfolioRef =  _firestore.collection('portfolios').doc(uid);
+    final portoflioDoc = await portfolioRef.get();
+
+    if(portoflioDoc.exists){
+      if(fieldsToUpdate.containsKey('images')){
+        fieldsToUpdate['images'] = FieldValue.arrayUnion(fieldsToUpdate['images']);
+      }
+      await portfolioRef.update(fieldsToUpdate);
+
+    }else{
+      await portfolioRef.set(fieldsToUpdate);
+    }
+
+  } catch (e) {
+    throw 'update-failed';
+  }
+}
+
+Future<void> deletePortfolioImage(String filePath, String downloadUrl) async {
+  try {
+    final uid = _ref.read(authStateProvider).value?.uid;
+
+    if (uid == null) {
+      throw 'no-user';
+    }
+
+    final portfolioRef = _firestore.collection('portfolios').doc(uid);
+
+    await portfolioRef.update({
+      'images': FieldValue.arrayRemove([{
+        'filePath': filePath,
+        'downloadUrl': downloadUrl,
+      }])
+    });
+  } catch (e) {
+    throw 'delete-failed';
+  }
+}
+
+Future<void> deletePortfolio() async {
+  try{
+    final uid = _ref.read(authStateProvider).value?.uid;
+
+      if (uid == null) {
+        throw 'no-user';
+      }
+
+    await _firestore.collection('portfolios').doc(uid).delete();
+
+  } catch (e){
+    throw 'unexpected-error';
+  }
+}
+
+
 }

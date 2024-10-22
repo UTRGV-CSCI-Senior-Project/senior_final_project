@@ -1,112 +1,80 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:folio/core/service_locator.dart';
 import 'package:folio/views/create_portfolio/input_experience_screen.dart';
+import 'package:folio/widgets/error_widget.dart';
+import 'package:google_fonts/google_fonts.dart';
 
-class ChooseService extends StatefulWidget {
-  const ChooseService({Key? key}) : super(key: key);
+class ChooseService extends ConsumerStatefulWidget {
+  final Function(String) onServiceSelected;
+
+  const ChooseService({super.key, required this.onServiceSelected});
 
   @override
-  State<ChooseService> createState() => _ChooseServiceState();
+  ConsumerState<ChooseService> createState() => _ChooseServiceState();
 }
 
-class _ChooseServiceState extends State<ChooseService> {
-  User? user;
+class _ChooseServiceState extends ConsumerState<ChooseService> {
   final serviceType = TextEditingController();
   String? selectedService; // Track the selected service
+  late List<String> services = [];
+  final searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    user = FirebaseAuth.instance.currentUser;
+    loadServices();
   }
 
-  List<String> services = [
-    'Nail Tech',
-    'Tattoo Artist',
-    'Landscaper',
-    'Car Detailer',
-    'Photographer',
-    'Barber',
-    'Pet Groomer'
-  ];
+  Future<void> loadServices() async {
+    try{
+      final firestoreServices = ref.read(firestoreServicesProvider);
+      final fetchedServices = await firestoreServices.getServices();
+      setState(() {
+        services = fetchedServices;
+      });
+    }catch(e){
+      print(e);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final isDisabled = selectedService != null;
 
-    return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
+    return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            SafeArea(
-              child: LinearProgressIndicator(
-                value: 0.25,
-                backgroundColor: Colors.grey,
-                minHeight: 10.0,
-                color: const Color.fromARGB(255, 0, 140, 255),
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
+            
             const SizedBox(height: 20.0),
-            const Text(
+             Text(
               "Let's get your profile ready!",
-              style: TextStyle(
-                fontSize: 20.0,
-                letterSpacing: 1.5,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 10.0),
-            const Text(
-              'What service do you offer?',
-              style: TextStyle(
-                fontSize: 15.0,
-                letterSpacing: 1.5,
-              ),
-            ),
-            const SizedBox(height: 10.0),
-            GestureDetector(
-              onTap: () {
-                // Perform action when tapped, e.g., show a list of services
-                // You might want to implement your logic here
-                if (services.isNotEmpty) {
-                  // For example, just to show a SnackBar
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text("Choose a service")),
-                  );
-                }
-              },
-              child: AbsorbPointer(
-                child: TextField(
-                  controller: serviceType,
-                  decoration: InputDecoration(
-                    prefixIcon: const Icon(Icons.edit),
-                    hintText: 'Enter here',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  style: const TextStyle(
-                    fontSize: 15.0,
-                  ),
-                ),
-              ),
+              style: GoogleFonts.poppins(fontSize: 22, fontWeight: FontWeight.w500),
             ),
             const SizedBox(height: 8.0),
-            const Row(
-              children: [
-                Padding(
-                  padding: EdgeInsets.fromLTRB(10.0, 0, 0, 0),
-                  child: Text(
-                    'Type of services:',
-                    style: TextStyle(
-                      fontSize: 14.0,
-                    ),
-                  ),
-                ),
-              ],
+             Text(
+              'What service do you offer?',
+              style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w300),
             ),
+            const SizedBox(height: 30.0),
+             Container(
+              decoration: BoxDecoration(
+                color: const Color.fromRGBO(248, 249, 254, 1),
+                borderRadius: BorderRadius.circular(25),
+              ),
+              child: TextField(
+                cursorColor: Colors.black,
+                controller: searchController,
+                decoration: const InputDecoration(
+                  hintText: 'Services',
+                  prefixIcon: Icon(Icons.search, color: Colors.black),
+                  border: InputBorder.none,
+                  contentPadding: EdgeInsets.symmetric(vertical: 15),
+                ),
+              ),
+            ),
+            const SizedBox(height: 30.0),
             Expanded(
               child: ListView.builder(
                 itemCount: services.length,
@@ -118,102 +86,66 @@ class _ChooseServiceState extends State<ChooseService> {
                         if (selectedService == service) {
                           selectedService = null; // Deselect the service
                           serviceType.clear(); // Clear the TextField
+
                         } else {
                           selectedService = service; // Select the service
                           serviceType.text = service; // Set the TextField
                         }
+                        widget.onServiceSelected(selectedService!);
+
                       });
                     },
                     child: serviceTemplate(service, service == selectedService),
                   );
                 },
               ),
+              
             ),
-            const SizedBox(height: 20.0),
+                    
           ],
-        ),
-      ),
-      bottomNavigationBar: BottomAppBar(
-        elevation: 0,
-        shadowColor: Colors.white,
-        color: Colors.white,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            OutlinedButton(
-              onPressed: selectedService == null
-                  ? null
-                  : () {
-                      Navigator.pop(context);
-                    },
-              style: OutlinedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                fixedSize: const Size(150, 50),
-              ),
-              child: const Text(
-                'Back',
-                style: TextStyle(
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-            OutlinedButton(
-              onPressed: selectedService == null || serviceType.text.isEmpty
-                  ? null
-                  : () {
-                      print(
-                          'User before navigating: ${FirebaseAuth.instance.currentUser?.uid}');
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => InputExperience(
-                            serviceText: serviceType.text,
-                          ),
-                        ),
-                      );
-                    },
-              style: OutlinedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                fixedSize: const Size(150, 50),
-              ),
-              child: const Text(
-                'Next',
-                style: TextStyle(
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+        );
   }
 
-  Widget serviceTemplate(String service, bool isSelected) {
-    return Card(
-      margin: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0),
-      color: isSelected ? Colors.blue[100] : Colors.white,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              service,
-              style: const TextStyle(
-                fontSize: 15.0,
+   Widget serviceTemplate(String service, bool isSelected) {
+    return GestureDetector(
+      key: Key('$service-button'),
+      onTap: () {
+        setState(() {
+          selectedService = isSelected ? null : service; // Toggle selection
+          serviceType.text = selectedService ?? ''; // Update TextField
+          widget.onServiceSelected(selectedService ?? '');
+        });
+      },
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 5),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? const Color.fromRGBO(229, 255, 200, 100)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isSelected
+                ? const Color.fromRGBO(9, 195, 54, 100)
+                : Colors.grey,
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Text(
+                service,
+                style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.normal),
               ),
-            ),
-            if (isSelected)
-              const Icon(
-                Icons.check,
-                color: Colors.green,
-              ),
-          ],
+              const Spacer(),
+              if (isSelected)
+                const Icon(
+                  Icons.check,
+                  color: Color.fromRGBO(9, 195, 19, 100),
+                  size: 20,
+                ),
+            ],
+          ),
         ),
       ),
     );

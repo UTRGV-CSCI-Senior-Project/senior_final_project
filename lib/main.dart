@@ -26,6 +26,7 @@ class MyApp extends ConsumerWidget {
     return MaterialApp(
         title: 'Folio',
         theme: ThemeData(
+          scaffoldBackgroundColor: Colors.white,
           primarySwatch: Colors.blue,
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),

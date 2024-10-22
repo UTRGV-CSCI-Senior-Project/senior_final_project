@@ -5,7 +5,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:folio/main.dart';
 import 'package:folio/core/service_locator.dart';
-import 'package:folio/services/create_profile_services.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -126,7 +125,7 @@ void main() {
       await tester.pumpAndSettle();
       
       //Expect to see home screen with user's full name
-      expect(find.text('Welcome, First Last'), findsOneWidget);
+      expect(find.text('Welcome, First Last!'), findsOneWidget);
     });
 
     testWidgets('As an existing user that has not completed onboarding, I can sign in, complete onboarding, and reach the home screen',(WidgetTester tester) async {
@@ -159,7 +158,7 @@ void main() {
       await tester.pumpAndSettle();
 
       //Expect to see home screen with user's full name
-      expect(find.text('Welcome, New User'), findsOneWidget);
+      expect(find.text('Welcome, New User!'), findsOneWidget);
     });
 
     testWidgets('As an existing user I can sign in and reach the home screen',(WidgetTester tester) async {
@@ -175,7 +174,7 @@ void main() {
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
       //Expect to see home screen with user's full name.
-      expect(find.text('Welcome, New User'), findsOneWidget);
+      expect(find.text('Welcome, New User!'), findsOneWidget);
     });
   });
 

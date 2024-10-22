@@ -3,11 +3,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:folio/models/user_model.dart';
+import 'package:folio/repositories/portfolio_repository.dart';
 import 'package:folio/repositories/user_repository.dart';
 import 'package:folio/services/auth_services.dart';
 import 'package:folio/services/firestore_services.dart';
 import 'package:folio/services/storage_services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:rxdart/rxdart.dart';
 
 final imagePickerProvider = Provider<ImagePicker>((ref) {
   final imagePicker = ImagePicker();
@@ -53,19 +55,16 @@ final userRepositoryProvider = Provider<UserRepository>((ref) {
   return UserRepository(authServices, firestoreServices, storageServices, ref);
 });
 
+final portfolioRepositoryProvider = Provider<PortfolioRepository>((ref){
+   final firestoreServices = ref.watch(firestoreServicesProvider);
+  final storageServices = ref.watch(storageServicesProvider);
+  return PortfolioRepository(firestoreServices, storageServices);
+});
+
 final authStateProvider = StreamProvider<User?>((ref) {
   return ref.watch(authServicesProvider).authStateChanges();
 });
 
-
-final userModelProvider = FutureProvider<UserModel?>((ref) async {
-  final authState = await ref.watch(authStateProvider.future);
-  if (authState != null) {
-    final firestoreServices = ref.read(firestoreServicesProvider);
-    return await firestoreServices.getUser(authState.uid);
-  }
-  return null;
-});
 
 final userStreamProvider = StreamProvider<UserModel?>((ref) {
   final authState = ref.watch(authStateProvider).value;
@@ -76,6 +75,21 @@ final userStreamProvider = StreamProvider<UserModel?>((ref) {
   } else {
     return Stream.value(null);
   }
+});
+
+final userDataStreamProvider = StreamProvider<Map<String, dynamic>?>((ref){
+    final authState = ref.watch(authStateProvider).value;
+
+ if(authState != null){
+    final firestoreServices = ref.watch(firestoreServicesProvider);
+    final userStream = firestoreServices.getUserStream(authState.uid);
+    final portfolioStream = firestoreServices.getPortfolioStream(authState.uid);
+    return Rx.combineLatest2(userStream, portfolioStream, (userData, portfolio) => {
+      'user': userData,
+      'portfolio': portfolio
+    });
+ }
+ return Stream.value(null);
 });
 
 void setupEmulators({bool useEmulators = false}) {

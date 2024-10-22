@@ -1,57 +1,30 @@
 import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:folio/services/create_profile_services.dart';
-import 'package:folio/views/create_portfolio/more_details_screen.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:folio/core/service_locator.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
 
-void main() {
-  runApp(const UploadPictures(
-    serviceText: '',
-    yearsText: '0',
-    monthsText: '0',
-  ));
-}
+class UploadPictures extends ConsumerStatefulWidget {
+  final Function(List<File>) onImagesAdded;
+  final List<File> selectedImages;
 
-class UploadPictures extends StatefulWidget {
-  final String serviceText;
-  final String yearsText;
-  final String monthsText;
-
-  const UploadPictures({
-    super.key,
-    required this.serviceText,
-    required this.yearsText,
-    required this.monthsText,
-  });
+  const UploadPictures(
+      {super.key, required this.onImagesAdded, required this.selectedImages});
 
   @override
-  _UploadPicturesState createState() => _UploadPicturesState();
+  ConsumerState<UploadPictures> createState() => _UploadPicturesState();
 }
 
-class _UploadPicturesState extends State<UploadPictures> {
-  User? user;
-  final List<File> _selectedImages = [];
-  List<String> _fetchedImages = [];
-  bool _isUploading = false;
-  bool _isLoading = false;
+class _UploadPicturesState extends ConsumerState<UploadPictures> {
+  late List<File> _selectedImages = [];
 
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration.zero, () {
-      user = FirebaseAuth.instance.currentUser;
-      _loadFetchedImages();
-    });
-  }
-
-  Future<void> _loadFetchedImages() async {
-    setState(() {
-      _isLoading = true;
-    });
-    _fetchedImages = await fetchImagesForUser();
-    setState(() {
-      _isLoading = false;
-    });
+    _selectedImages =
+        widget.selectedImages; // Initialize with the passed images
   }
 
   @override
@@ -60,107 +33,26 @@ class _UploadPicturesState extends State<UploadPictures> {
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
-          children: <Widget>[
-            SafeArea(
-              child: LinearProgressIndicator(
-                value: _isLoading ? null : 0.75,
-                backgroundColor: Colors.grey,
-                minHeight: 10.0,
-                color: const Color.fromARGB(255, 0, 140, 255),
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
             const SizedBox(height: 20.0),
-            const Text(
+            Text(
               "Let's get your profile ready!",
-              style: TextStyle(
-                fontSize: 20.0,
-                letterSpacing: 1.5,
-                fontWeight: FontWeight.bold,
-              ),
+              style: GoogleFonts.poppins(
+                  fontSize: 22, fontWeight: FontWeight.w500),
             ),
-            const SizedBox(height: 15),
-            const Text(
-              'Upload Images',
-              style: TextStyle(
-                fontSize: 18.0,
-                letterSpacing: 1.5,
-                fontWeight: FontWeight.bold,
-              ),
+            const SizedBox(height: 8.0),
+            Text(
+              'Add photos to your portfolio.',
+              style: GoogleFonts.poppins(
+                  fontSize: 18, fontWeight: FontWeight.w300),
             ),
-            const SizedBox(height: 10.0),
+            const SizedBox(height: 30.0),
             Expanded(child: _buildUI()),
           ],
         ),
       ),
-      floatingActionButton: _uploadMediaButton(context),
-      bottomNavigationBar: BottomAppBar(
-        shadowColor: Colors.white,
-        color: Colors.white,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            OutlinedButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              style: OutlinedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                fixedSize: const Size(150, 50),
-              ),
-              child: const Text(
-                'Back',
-                style: TextStyle(
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-            OutlinedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => MoreDetailsScreen(
-                            serviceText: widget.serviceText,
-                            yearsText: widget.yearsText,
-                            monthsText: widget.monthsText,
-                          )),
-                );
-              },
-              style: OutlinedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                fixedSize: const Size(150, 50),
-              ),
-              child: const Text(
-                'Next',
-                style: TextStyle(
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _uploadMediaButton(BuildContext context) {
-    return FloatingActionButton(
-      onPressed: _isUploading
-          ? null
-          : () async {
-              List<File?> selectedImages = await getImagesFromGallery(context);
-              if (selectedImages.isNotEmpty) {
-                setState(() {
-                  _selectedImages.addAll(selectedImages.whereType<File>());
-                });
-              }
-            },
-      child: const Icon(Icons.add_a_photo),
+      
     );
   }
 
@@ -168,86 +60,74 @@ class _UploadPicturesState extends State<UploadPictures> {
     return Column(
       children: [
         Expanded(
-          child: _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : _fetchedImages.isEmpty
-                  ? const Center(child: Text('No images found.'))
-                  : GridView.builder(
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        childAspectRatio: 1,
-                      ),
-                      itemCount: _fetchedImages.length,
-                      itemBuilder: (context, index) {
-                        return Stack(
-                          children: [
-                            Image.network(
-                              _fetchedImages[index],
-                              fit: BoxFit.cover,
-                            ),
-                            Positioned(
-                              right: 0,
-                              child: IconButton(
-                                icon:
-                                    const Icon(Icons.delete, color: Colors.red),
-                                onPressed: () async {
-                                  bool deleted = await deleteImageFromStorage(
-                                      _fetchedImages[index]);
-                                  if (deleted) {
-                                    setState(() {
-                                      _fetchedImages.removeAt(index);
-                                    });
-                                  }
-                                },
-                              ),
-                            ),
-                          ],
-                        );
-                      },
-                    ),
-        ),
-        ElevatedButton(
-          onPressed: _selectedImages.isEmpty || _isUploading
-              ? null
-              : () async {
-                  setState(() {
-                    _isUploading = true;
-                  });
+          child: GridView.builder(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              crossAxisSpacing: 8.0, // Space between grid items
+              mainAxisSpacing: 8.0,
+              childAspectRatio: 1,
+            ),
+            itemCount: _selectedImages.length + 1,
+            itemBuilder: (context, index) {
+              if (index == 0) {
+                return GestureDetector(
+                  onTap: () async {
+                    final imagePicker = ref.watch(imagePickerProvider);
+                    final List<XFile> images =
+                        await imagePicker.pickMultiImage();
 
-                  final user = FirebaseAuth.instance.currentUser;
-                  if (user == null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('User is not signed in.')),
-                    );
-                    setState(() {
-                      _isUploading = false;
-                    });
-                    return;
-                  }
-
-                  bool success = true;
-                  for (File image in _selectedImages) {
-                    success = success && await uploadFileForUser(image);
-                  }
-                  setState(() {
-                    _isUploading = false;
-                    if (success) {
-                      _selectedImages.clear();
+                    if (images != null && images.isNotEmpty) {
+                      for (var image in images) {
+                        _selectedImages.add(File(image.path));
+                      }
                     }
-                  });
-                  if (success) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('All uploads successful!')),
-                    );
-                    _loadFetchedImages();
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Upload failed.')),
-                    );
-                  }
-                },
-          child: const Text('Upload Selected Images'),
+
+                    widget.onImagesAdded(_selectedImages);
+                  },
+                  child: Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.blue.withOpacity(0.1), width: 0),
+                      color: Colors.blue.withOpacity(0.1),
+                    ),
+                    child: const Center(
+                      child: Icon(Icons.add_rounded, color: Color.fromRGBO(0, 111, 253, 1), size: 50),
+                    ),
+                  ),
+                );
+              } else {
+                final imageIndex = index - 1;
+                return Stack(
+                  children: [
+                    Positioned.fill(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(
+                            10), // Optional: Rounded corners
+                        child: Image.file(
+                          _selectedImages[imageIndex],
+                          fit: BoxFit
+                              .cover, // Ensures the image covers the whole container
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      right: 0,
+                      child: IconButton(
+                        icon: const Icon(Icons.delete, color: Colors.red),
+                        onPressed: () {
+                          setState(() {
+                            _selectedImages.removeAt(imageIndex);
+                          });
+                          widget.onImagesAdded(_selectedImages);
+                        },
+                      ),
+                    ),
+                  ],
+                );
+              }
+            },
+          ),
         ),
       ],
     );

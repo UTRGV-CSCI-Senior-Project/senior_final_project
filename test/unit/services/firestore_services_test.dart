@@ -138,50 +138,7 @@ void main() {
     });
   });
 
-  group('getUser', () {
-    test('should return UserModel when the user exists', () async {
-      const user = {
-        'uid': 'testUid',
-        'username': 'testUsername',
-        'fullName': 'testName',
-        'email': 'test@email.com',
-        'isProfessional': false,
-        'completedOnboarding': false
-      };
-
-      when(mockFirebaseFirestore.collection('users'))
-          .thenReturn(mockCollectionReference);
-      when(mockCollectionReference.doc('testUid')).thenReturn(mockDocumentReference);
-      when(mockDocumentReference.get()).thenAnswer((_) async => mockDocumentSnapshot);
-      when(mockDocumentSnapshot.exists).thenReturn(true);
-      when(mockDocumentSnapshot.data()).thenReturn(user);
-
-      final result = await firestoreServices.getUser('testUid');
-      expect(result!.toJson(), equals(user));
-    });
-
-    test('should throw user-not-found when the user doesnt exist', () async {
-      const uid = 'testUid';
-
-      when(mockFirebaseFirestore.collection('users'))
-          .thenReturn(mockCollectionReference);
-      when(mockCollectionReference.doc(uid)).thenReturn(mockDocumentReference);
-      when(mockDocumentReference.get()).thenAnswer((_) async => mockDocumentSnapshot);
-      when(mockDocumentSnapshot.exists).thenReturn(false);
-
-      expect(() => firestoreServices.getUser(uid), throwsA('user-not-found'));
-    });
-
-    test('should throw unexpected-error when the user doesnt exist', () async {
-      const uid = 'testUid';
-
-      when(mockFirebaseFirestore.collection('users'))
-          .thenReturn(mockCollectionReference);
-      when(mockCollectionReference.doc(uid)).thenThrow(Exception());
-
-      expect(() => firestoreServices.getUser(uid), throwsA('unexpected-error'));
-    });
-  });
+  
 
   group('updateUser', (){
 
@@ -267,6 +224,8 @@ void main() {
         'email': 'test@email.com',
         'isProfessional': false,
         'completedOnboarding': false,
+        'preferredServices': [],
+        'profilePictureUrl': null
       };
       when(mockFirebaseFirestore.collection('users'))
           .thenReturn(mockCollectionReference);

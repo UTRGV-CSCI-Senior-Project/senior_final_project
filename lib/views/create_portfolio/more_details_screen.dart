@@ -1,25 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:folio/services/create_profile_services.dart';
-import 'package:folio/views/home_screen.dart';
-
-void main() {
-  runApp(const MoreDetailsScreen(
-    serviceText: '',
-    yearsText: '0',
-    monthsText: '0',
-  ));
-}
+import 'package:google_fonts/google_fonts.dart';
 
 class MoreDetailsScreen extends StatefulWidget {
-  final String serviceText;
-  final String yearsText;
-  final String monthsText;
-
+  final Function(String) onDetailsEntered;
   const MoreDetailsScreen({
     super.key,
-    required this.serviceText,
-    required this.yearsText,
-    required this.monthsText,
+    required this.onDetailsEntered
   });
 
   @override
@@ -28,120 +14,52 @@ class MoreDetailsScreen extends StatefulWidget {
 
 class _MoreDetailsScreenState extends State<MoreDetailsScreen> {
   final detailsText = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          children: <Widget>[
-            SafeArea(
-              child: LinearProgressIndicator(
-                value: 1,
-                backgroundColor: Colors.grey,
-                minHeight: 10.0,
-                color: const Color.fromARGB(255, 0, 140, 255),
-                borderRadius: BorderRadius.circular(10),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Let's get your profile ready!",
+                style: GoogleFonts.poppins(
+                    fontSize: 22, fontWeight: FontWeight.w500),
               ),
-            ),
-            const SizedBox(height: 20.0),
-            const Text(
-              "Let's get your profile ready!",
-              style: TextStyle(
-                fontSize: 20.0,
-                letterSpacing: 1.5,
-                fontWeight: FontWeight.bold,
+              const SizedBox(height: 8.0),
+              Text(
+                "Write any details for potential clients.",
+                style: GoogleFonts.poppins(
+                    fontSize: 18, fontWeight: FontWeight.w300),
               ),
-            ),
-            const SizedBox(height: 10.0),
-            const Text(
-              'Almost done.',
-              style: TextStyle(
-                fontSize: 18.0,
-                letterSpacing: 1.5,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const Row(
-              children: [Text('More Details: (optional)')],
-            ),
-            const SizedBox(height: 10.0),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                const SizedBox(width: 10.0),
-                Expanded(
-                  // Use Expanded to allow proper spacing
+              const SizedBox(height: 16.0),
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.black)
+                  ),
                   child: TextField(
+                    cursorColor: Colors.black,
+                    onChanged: (value){
+                      widget.onDetailsEntered(value);
+                    },
                     controller: detailsText,
                     decoration: const InputDecoration(
-                      labelText: 'Write here...',
-                      border: OutlineInputBorder(),
-                      contentPadding: EdgeInsets.symmetric(
-                          vertical: 30.0, horizontal: 10.0),
+                      border: InputBorder.none,
+                      hintText: 'Enter your details here...',
                     ),
-                    minLines: 1,
-                    maxLines: 10,
+                    maxLines: null,
+                    expands: true,
                   ),
                 ),
-                const SizedBox(width: 10.0),
-              ],
-            ),
-            const SizedBox(height: 10.0),
-            const Spacer(),
-          ],
-        ),
-      ),
-      bottomNavigationBar: BottomAppBar(
-        shadowColor: Colors.white,
-        color: Colors.white,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            OutlinedButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              style: OutlinedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                fixedSize: const Size(150, 50),
               ),
-              child: const Text(
-                'Back',
-                style: TextStyle(
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-            OutlinedButton(
-              onPressed: () async {
-                await savePortfolioDetails(
-                  widget.serviceText,
-                  widget.yearsText,
-                  widget.monthsText,
-                  detailsText.text,
-                );
-                await updateUserProfessionalStatus(true);
-
-                Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(builder: (context) => HomeScreen()));
-              },
-              style: OutlinedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                fixedSize: const Size(150, 50),
-              ),
-              child: const Text(
-                'Done',
-                style: TextStyle(
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
