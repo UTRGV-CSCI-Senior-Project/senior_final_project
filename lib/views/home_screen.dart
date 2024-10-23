@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:folio/core/service_locator.dart';
-import 'package:folio/views/edit_profile.dart';
+import 'package:folio/views/tabs/edit_profile.dart';
 import 'package:folio/views/loading_screen.dart';
 import 'package:folio/views/onboarding_screen.dart';
 import 'package:folio/views/tabs/discover_tab.dart';
@@ -25,7 +25,7 @@ class HomeScreen extends ConsumerWidget {
             String getTitle() {
               switch (selectedIndex) {
                 case 0:
-                  return 'Welcome, ${userModel.fullName}!';
+                  return 'Welcome,\  ${userModel.fullName}!';
                 case 1:
                   return 'Discover';
                 case 2:

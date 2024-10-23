@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:folio/core/app_exception.dart';
 import 'package:folio/core/service_locator.dart';
 import 'package:folio/models/portfolio_model.dart';
 import 'package:folio/models/user_model.dart';
@@ -14,45 +15,49 @@ class FirestoreServices {
     try {
       await _firestore.collection('users').doc(user.uid).set(user.toJson());
     } catch (e) {
-      throw 'unexpected-error';
+      throw AppException('add-user-error');
     }
   }
-
 
   Stream<UserModel> getUserStream(String uid) {
     return _firestore.collection('users').doc(uid).snapshots().map((snapshot) {
       if (!snapshot.exists) {
-        throw 'no-user';
+        throw AppException('no-user');
       }
       try {
         return UserModel.fromJson(snapshot.data()!);
       } catch (e) {
-        throw 'invalid-user-data';
+        throw AppException('invalid-user-data');
       }
     }).handleError((error) {
-      if(error == 'no-user' || error == 'invalid-user-data')
-      {
+      if (error is AppException &&
+          (error.code == 'no-user' || error.code == 'invalid-user-data')) {
         throw error;
-      }else{
-        throw 'unexpected-error';
+      } else {
+        throw AppException('user-stream-error');
       }
     });
   }
 
   Stream<PortfolioModel?> getPortfolioStream(String uid) {
-    return _firestore.collection('portfolios').doc(uid).snapshots().map((snapshot) {
-      if(!snapshot.exists){
+    return _firestore
+        .collection('portfolios')
+        .doc(uid)
+        .snapshots()
+        .map((snapshot) {
+      if (!snapshot.exists) {
         return null;
-      }try{
+      }
+      try {
         return PortfolioModel.fromJson(snapshot.data()!);
-      }catch (e){
-        throw 'invalid-portfolio-data';
+      } catch (e) {
+        throw AppException('invalid-portfolio-data');
       }
     }).handleError((error) {
-    if (error == 'invalid-user-data') {
+      if (error is AppException && error.code == 'invalid-user-data') {
         throw error;
       } else {
-        throw 'unexpected-error';
+        throw AppException('portfolio-stream-error');
       }
     });
   }
@@ -65,7 +70,7 @@ class FirestoreServices {
           .get();
       return querySnapshot.docs.isEmpty;
     } catch (e) {
-      throw 'unexpected-error';
+      throw AppException('username-unique-error');
     }
   }
 
@@ -74,7 +79,7 @@ class FirestoreServices {
       final uid = _ref.read(authStateProvider).value?.uid;
       await _firestore.collection('users').doc(uid).update(fieldsToUpdate);
     } catch (e) {
-      throw 'update-failed';
+      throw AppException('update-user-error');
     }
   }
 
@@ -88,72 +93,81 @@ class FirestoreServices {
           .toList();
       return servicesList;
     } catch (e) {
-      throw 'unexpected-error';
+      throw AppException('get-services-error');
     }
   }
-
 
   Future<void> savePortfolioDetails(Map<String, dynamic> fieldsToUpdate) async {
-  try {
-    final uid = _ref.read(authStateProvider).value?.uid;
+    try {
+      final uid = _ref.read(authStateProvider).value?.uid;
 
       if (uid == null) {
-        throw 'no-user';
+        throw AppException('no-user');
       }
 
-    final portfolioRef =  _firestore.collection('portfolios').doc(uid);
-    final portoflioDoc = await portfolioRef.get();
+      final portfolioRef = _firestore.collection('portfolios').doc(uid);
+      final portoflioDoc = await portfolioRef.get();
 
-    if(portoflioDoc.exists){
-      if(fieldsToUpdate.containsKey('images')){
-        fieldsToUpdate['images'] = FieldValue.arrayUnion(fieldsToUpdate['images']);
+      if (portoflioDoc.exists) {
+        if (fieldsToUpdate.containsKey('images')) {
+          fieldsToUpdate['images'] =
+              FieldValue.arrayUnion(fieldsToUpdate['images']);
+        }
+        await portfolioRef.update(fieldsToUpdate);
+      } else {
+        await portfolioRef.set(fieldsToUpdate);
       }
-      await portfolioRef.update(fieldsToUpdate);
-
-    }else{
-      await portfolioRef.set(fieldsToUpdate);
+    } catch (e) {
+      if (e is AppException && e.code == "no-user") {
+        rethrow;
+      } else {
+        throw AppException('update-portfolio-error');
+      }
     }
-
-  } catch (e) {
-    throw 'update-failed';
   }
-}
 
-Future<void> deletePortfolioImage(String filePath, String downloadUrl) async {
-  try {
-    final uid = _ref.read(authStateProvider).value?.uid;
-
-    if (uid == null) {
-      throw 'no-user';
-    }
-
-    final portfolioRef = _firestore.collection('portfolios').doc(uid);
-
-    await portfolioRef.update({
-      'images': FieldValue.arrayRemove([{
-        'filePath': filePath,
-        'downloadUrl': downloadUrl,
-      }])
-    });
-  } catch (e) {
-    throw 'delete-failed';
-  }
-}
-
-Future<void> deletePortfolio() async {
-  try{
-    final uid = _ref.read(authStateProvider).value?.uid;
+  Future<void> deletePortfolioImage(String filePath, String downloadUrl) async {
+    try {
+      final uid = _ref.read(authStateProvider).value?.uid;
 
       if (uid == null) {
-        throw 'no-user';
+        throw AppException('no-user');
       }
 
-    await _firestore.collection('portfolios').doc(uid).delete();
+      final portfolioRef = _firestore.collection('portfolios').doc(uid);
 
-  } catch (e){
-    throw 'unexpected-error';
+      await portfolioRef.update({
+        'images': FieldValue.arrayRemove([
+          {
+            'filePath': filePath,
+            'downloadUrl': downloadUrl,
+          }
+        ])
+      });
+    } catch (e) {
+      if (e is AppException && e.code == "no-user") {
+        rethrow;
+      } else {
+        throw AppException('delete-portfolio-image-error');
+      }
+    }
   }
-}
 
+  Future<void> deletePortfolio() async {
+    try {
+      final uid = _ref.read(authStateProvider).value?.uid;
 
+      if (uid == null) {
+        throw AppException('no-user');
+      }
+
+      await _firestore.collection('portfolios').doc(uid).delete();
+    } catch (e) {
+      if (e is AppException && e.code == "no-user") {
+        rethrow;
+      } else {
+        throw AppException('delete-portfolio-error');
+      }
+    }
+  }
 }

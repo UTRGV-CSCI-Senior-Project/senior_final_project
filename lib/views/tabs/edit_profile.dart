@@ -1,15 +1,14 @@
 import 'dart:io';
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:folio/core/app_exception.dart';
 import 'package:folio/core/service_locator.dart';
 import 'package:folio/views/create_portfolio_screen.dart';
-import 'package:folio/views/home_screen.dart';
-import 'package:folio/views/loading_screen.dart';
+import 'package:folio/views/state_screens.dart';
 import 'package:folio/views/welcome_screen.dart';
+import 'package:folio/widgets/error_widget.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 class EditProfile extends ConsumerStatefulWidget {
   const EditProfile({super.key});
@@ -19,6 +18,7 @@ class EditProfile extends ConsumerStatefulWidget {
 }
 
 class _EditProfileState extends ConsumerState<EditProfile> {
+  String errorMessage = "";
   @override
   Widget build(BuildContext context) {
     final userData = ref.watch(userDataStreamProvider);
@@ -142,12 +142,26 @@ class _EditProfileState extends ConsumerState<EditProfile> {
                                       for (var image in images) {
                                         selectedImages.add(File(image.path));
                                       }
+                                      try{
+
                                       final portfolioRepository = ref
                                           .watch(portfolioRepositoryProvider);
                                       await portfolioRepository.updatePortfolio(
                                           images: selectedImages);
+                                      }catch(e){
+                                        if(e is AppException){
+                                          setState(() {
+                                            
+                                          errorMessage = e.message;
+                                          });
+                                        }else{
+                                          setState(() {
+                                            
+                                          errorMessage = "Changes to your portfolio could not be saved. Please try again.";
+                                          });
+                                        }
+                                      }
 
-                                      setState(() {});
                                     }
                                   },
                                   child: Container(
@@ -189,7 +203,21 @@ class _EditProfileState extends ConsumerState<EditProfile> {
                                         icon: const Icon(Icons.delete,
                                             color: Colors.red),
                                         onPressed: () async {
+                                          try{
+
                                           await ref.read(portfolioRepositoryProvider).deletePortfolioImage(userPortfolio.images[imageIndex]['filePath'], userPortfolio.images[imageIndex]['downloadUrl']);
+                                          }catch(e){
+                                            if(e is AppException){
+                                              setState(() {
+                                                
+                                              errorMessage = e.message;
+                                              });
+                                            }else{
+                                              setState(() {
+                                                errorMessage = "Failed to remove portfolio image. Please try again later.";
+                                              });
+                                            }
+                                          }
                                         },
                                       ),
                                     ),
@@ -242,6 +270,10 @@ class _EditProfileState extends ConsumerState<EditProfile> {
                       ),
                     ),
                   ),
+
+                  ErrorBox(errorMessage: errorMessage, onDismiss: () {setState(() {
+                    errorMessage = "";
+                  });})
               ],
             ),
           );
@@ -249,8 +281,8 @@ class _EditProfileState extends ConsumerState<EditProfile> {
           return const WelcomeScreen();
         }
       },
-      loading: () => const Text('loading'),
-      error: (error, stack) => const Text('error'),
+      loading: () => const LoadingView(),
+      error: (error, stack) => const ErrorView(),
     );
   }
 }

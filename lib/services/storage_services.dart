@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:folio/core/app_exception.dart';
 import 'package:folio/core/service_locator.dart';
 
 class StorageServices {
@@ -14,7 +15,7 @@ class StorageServices {
       final uid = _ref.read(authStateProvider).value?.uid;
 
       if (uid == null) {
-        throw 'no-user';
+        throw AppException('no-user');
       }
 
       final storageRef = _firebaseStorage.ref().child('profile_pictures/$uid');
@@ -24,10 +25,10 @@ class StorageServices {
 
       return downloadUrl;
     } catch (e) {
-      if (e == 'no-user') {
+      if (e is AppException && e.code == 'no-user') {
         rethrow;
       } else {
-        throw 'pfp-error';
+        throw AppException('pfp-upload-error');
       }
     }
   }
@@ -38,7 +39,7 @@ class StorageServices {
       final uid = _ref.read(authStateProvider).value?.uid;
 
       if (uid == null) {
-        throw 'no-user';
+        throw AppException('no-user');
       }
 
       final storageRef = _firebaseStorage.ref();
@@ -59,7 +60,11 @@ class StorageServices {
 
       return imageData;
     } catch (e) {
-      throw 'unkown-error';
+      if(e is AppException){
+        rethrow;
+      }else{
+        throw AppException('upload-files-error');
+      }
     }
   }
 
@@ -69,7 +74,7 @@ class StorageServices {
       final uid = _ref.read(authStateProvider).value?.uid;
 
       if (uid == null) {
-        throw 'no-user';
+        throw AppException('no-user');
       }
 
       final storageRef =
@@ -86,7 +91,11 @@ class StorageServices {
       }
       return downloadUrls;
     } catch (e) {
-      throw 'unexpected-error';
+      if (e is AppException && e.code == 'no-user') {
+        rethrow;
+      } else {
+        throw AppException('fetch-images-error');
+      }
     }
   }
 
@@ -96,7 +105,7 @@ Future<void> deleteImage(String imagePath) async {
     final storageRef = _firebaseStorage.ref().child(imagePath);
     await storageRef.delete();
   } catch (e) {
-    throw 'unexpected-error';
+    throw AppException('delete-image-error');
   }
 }
 
@@ -105,7 +114,7 @@ Future<void> deleteImage(String imagePath) async {
       final uid = _ref.read(authStateProvider).value?.uid;
 
       if (uid == null) {
-        throw 'no-user';
+        throw AppException('no-user');
       }
 
       final storageRef = _firebaseStorage.ref().child('portfolios/$uid/uploads');
@@ -116,7 +125,11 @@ Future<void> deleteImage(String imagePath) async {
         await item.delete();
       }
     }catch (e){
-      throw 'unexpected-error';
+      if (e is AppException) {
+        rethrow;
+      } else {
+        throw AppException('delete-portfolio-error');
+      }
     }
   }
 

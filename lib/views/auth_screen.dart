@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:folio/constants/error_constants.dart';
+import 'package:folio/core/app_exception.dart';
 import 'package:folio/core/service_locator.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:folio/repositories/user_repository.dart';
+import 'package:folio/widgets/error_widget.dart';
 import 'package:folio/widgets/input_field_widget.dart';
-import 'package:folio/widgets/snackbar_widget.dart';
 import 'package:folio/views/home_screen.dart';
 
 class AuthScreen extends ConsumerStatefulWidget {
@@ -16,13 +18,12 @@ class AuthScreen extends ConsumerStatefulWidget {
 
 class AuthScreenState extends ConsumerState<AuthScreen> {
   final _usernameController = TextEditingController();
-
   final _emailController = TextEditingController();
-
   final _passwordController = TextEditingController();
   late bool _isLogin;
   late UserRepository userRepository;
   bool _isLoading = false;
+  String errorMessage = "";
 
   @override
   void initState() {
@@ -62,8 +63,14 @@ class AuthScreenState extends ConsumerState<AuthScreen> {
                 ],
               ),
               const SizedBox(
-                height: 75,
+                height: 25,
               ),
+              ErrorBox(errorMessage: errorMessage, onDismiss: (){
+                setState(() {
+                  errorMessage = "";
+                });
+              }),
+              const SizedBox(height: 25,),
               Text(
                 _isLogin ? "Sign In" : "Sign Up",
                 style:
@@ -78,11 +85,17 @@ class AuthScreenState extends ConsumerState<AuthScreen> {
                     'Username',
                     'Enter your unique username',
                     TextInputType.text,
-                    _usernameController),
+                    _usernameController, (value){setState(() {
+                      errorMessage = "";
+                    });}),
               inputField('email-field', 'Email', 'Enter your email',
-                  TextInputType.emailAddress, _emailController),
+                  TextInputType.emailAddress, _emailController, (value){setState(() {
+                      errorMessage = "";
+                    });}),
               inputField('password-field', 'Password', 'Enter your password',
-                  TextInputType.text, _passwordController,
+                  TextInputType.text, _passwordController, (value){setState(() {
+                      errorMessage = "";
+                    });},
                   isPassword: true),
               const SizedBox(
                 height: 25,
@@ -93,10 +106,16 @@ class AuthScreenState extends ConsumerState<AuthScreen> {
                   key: Key(_isLogin ? 'signin-button' : 'signup-button'),
                   onPressed: _isLoading ? null :
                   () async {
+                    setState(() {
+                      errorMessage = "";
+                    });
                     if (_emailController.text.isEmpty ||
                         _passwordController.text.isEmpty ||
                         !_isLogin && _usernameController.text.isEmpty) {
-                      showCustomSnackBar(context, 'empty-fields');
+                          setState(() {
+                            
+                       errorMessage = ErrorConstants.getMessage('empty-fields');
+                          });
                     } else {
                       setState(() {
                         _isLoading = true;
@@ -123,7 +142,13 @@ class AuthScreenState extends ConsumerState<AuthScreen> {
                             );
                           }
                       } catch (e) {
-                        showCustomSnackBar(context, e.toString());
+                        if(e is AppException){
+                          print(e.code);
+                          errorMessage = e.message;
+                        }else{
+                          print('not app exception');
+                          errorMessage = "An unexpected error occurred. Please try again later or contact support if the problem persists.";
+                        }
                       } finally {
                         if(mounted){
                           setState(() {

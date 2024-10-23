@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:folio/constants/error_constants.dart';
+import 'package:folio/core/app_exception.dart';
 import 'package:folio/core/service_locator.dart';
 import 'package:folio/views/home_screen.dart';
 import 'package:image_picker/image_picker.dart';
@@ -320,10 +321,16 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                                     builder: (context) => const HomeScreen()));
                           }
                         } catch (e) {
-                          setState(() {
-                            errorMessage =
-                                ErrorConstants.getMessage(e.toString());
-                          });
+                          if(e is AppException){
+                            setState(() {
+                              errorMessage = e.message;
+                            });
+                          }else{
+                            setState(() {
+                              errorMessage = "Failed to update profile information. Please try again.";
+                            });
+                          }
+                          
                         } finally {
                           if (mounted) {
                             _isLoading = false;
