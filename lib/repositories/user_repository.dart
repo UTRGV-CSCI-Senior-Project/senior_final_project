@@ -38,7 +38,7 @@ class UserRepository {
       await _authServices.sendVerificationEmail();
     } catch (e) {
       if (e is AppException) {
-        if (e.code == "adduser-error") {
+        if (e.code == "add-user-error") {
           await _authServices.deleteUser();
         }
         rethrow;

@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:folio/core/app_exception.dart';
 import 'package:folio/services/storage_services.dart';
 import 'package:mockito/mockito.dart';
 import 'package:folio/core/service_locator.dart';
@@ -9,7 +10,6 @@ import 'package:folio/services/firestore_services.dart';
 import 'package:mockito/annotations.dart';
 import 'package:test/test.dart';
 
-import '../../mocks/firestore_services_test.mocks.dart';
 @GenerateMocks([AuthServices, FirestoreServices, StorageServices])
 import '../../mocks/user_repository_test.mocks.dart';
 
@@ -74,8 +74,10 @@ void main() {
           .thenAnswer((_) async => false);
       final userRepository = container.read(userRepositoryProvider);
       //Expect username-taken to be caught
-      expect(() => userRepository.createUser(username, email, password),
-          throwsA(equals('username-taken')));
+      expect(() => userRepository.createUser(username, email, password), throwsA(predicate((e) => 
+    e is AppException && 
+    e.toString().contains('username-taken')
+  )));
     });
 
     test('throws exception when sign up fails', () async {
@@ -90,12 +92,15 @@ void main() {
       //Throw an unexpected-error when signup is called
       when(mockAuthServices.signUp(
               email: email, password: password, username: username))
-          .thenThrow('unexpected-error');
+          .thenThrow(AppException('sign-up-error'));
       final userRepository = container.read(userRepositoryProvider);
 
       //Expect unexpected-error to be caught
       expect(() => userRepository.createUser(username, email, password),
-          throwsA(equals('unexpected-error')));
+          throwsA(predicate((e) => 
+    e is AppException && 
+    e.toString().contains('sign-up-error')
+  )));
       //Verify that addUser was not called (user not added to firestore)
       verifyNever(mockFirestoreServices.addUser(any));
     });
@@ -115,13 +120,19 @@ void main() {
               email: email, password: password, username: username))
           .thenAnswer((_) async => uid);
       //Throw an unexpected-error when trying to add user to firestore
-      when(mockFirestoreServices.addUser(any)).thenThrow('unexpected-error');
+      when(mockFirestoreServices.addUser(any)).thenThrow(AppException('add-user-error'));
       when(mockAuthServices.deleteUser()).thenAnswer((_) async {});
       final userRepository = container.read(userRepositoryProvider);
 
       //Expect unexpected-error to be caught
       expect(() => userRepository.createUser(username, email, password),
-          throwsA(equals('firestore-add-fail')));
+         throwsA(predicate((e) => 
+    e is AppException && 
+    e.toString().contains('add-user-error')
+  )));
+
+        // verify(mockAuthServices.deleteUser()).called(1);
+
     });
   });
 
@@ -143,10 +154,13 @@ void main() {
       const email = 'testEmail@email.com';
       const password = 'WrongPassword';
 
-      when(mockAuthServices.signIn(email: email, password: password)).thenThrow('wrong-password');
+      when(mockAuthServices.signIn(email: email, password: password)).thenThrow(AppException('wrong-password'));
 
       final userRepository = container.read(userRepositoryProvider);
-      expect(() => userRepository.signIn(email, password), throwsA('wrong-password'));
+      expect(() => userRepository.signIn(email, password), throwsA(predicate((e) => 
+    e is AppException && 
+    e.toString().contains('wrong-password')
+  )));
     });
   });
 
@@ -161,10 +175,13 @@ void main() {
     });
 
     test('throws error when sign out fails', () async {
-      when(mockAuthServices.signOut()).thenThrow('sign-out-error');
+      when(mockAuthServices.signOut()).thenThrow(AppException('sign-out-error'));
 
       final userRepository = container.read(userRepositoryProvider);
-      expect(() => userRepository.signOut(), throwsA('sign-out-error'));
+      expect(() => userRepository.signOut(), throwsA(predicate((e) => 
+    e is AppException && 
+    e.toString().contains('sign-out-error')
+  )));
     });
   });
 
@@ -191,10 +208,13 @@ void main() {
         'username': 'newUsername'
       };
 
-      when(mockFirestoreServices.updateUser(fieldsToUpdate)).thenThrow('update-failed');
+      when(mockFirestoreServices.updateUser(fieldsToUpdate)).thenThrow(AppException('update-profile-failed'));
       final userRepository = container.read(userRepositoryProvider);
 
-      expect(() => userRepository.updateProfile(fields: fieldsToUpdate), throwsA('update-failed'));
+      expect(() => userRepository.updateProfile(fields: fieldsToUpdate), throwsA(predicate((e) => 
+    e is AppException && 
+    e.toString().contains('update-profile-failed')
+  )));
     });
   });
 }

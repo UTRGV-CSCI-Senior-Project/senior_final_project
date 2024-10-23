@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:folio/core/app_exception.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:folio/core/service_locator.dart';
@@ -58,7 +59,7 @@ void main() {
       await tester.pumpAndSettle();
 
       //Expect to find error for empty fields
-      expect(find.text('Please fill in all of the fields.'), findsOneWidget);
+      expect(find.text('Please fill in all required fields to continue.'), findsOneWidget);
     });
 
     testWidgets('Calls signIn when email and password are entered',
@@ -89,7 +90,7 @@ void main() {
       const password = 'Pass123!';
       //when signIn is called, throw the username-taken
       when(mockUserRepository.signIn(email, password))
-          .thenThrow('invalid-credential');
+          .thenThrow(AppException('invalid-credential'));
       final container = createProviderContainer();
       await tester.pumpWidget(createLogInWidget(container));
 
@@ -103,10 +104,9 @@ void main() {
       await tester.pumpAndSettle();
 
       //Expect to see error with taken username message
-      expect(find.byType(SnackBar), findsOneWidget);
       expect(
           find.textContaining(
-              'Your email address or password is incorrect.'),
+              'Invalid login credentials. Please check your email and password.'),
           findsOneWidget);
     });
 
@@ -117,7 +117,7 @@ void main() {
       const password = 'Pass123!';
       //When signIn is called, throw an unexpected error
       when(mockUserRepository.signIn(email, password))
-          .thenThrow('unexpected-error');
+          .thenThrow(AppException('sign-in-error'));
       //Wait for log in screen to laod
       final container = createProviderContainer();
       await tester.pumpWidget(createLogInWidget(container));
@@ -132,10 +132,9 @@ void main() {
       await tester.pumpAndSettle();
 
       //Expect to see error message for generic exception
-      expect(find.byType(SnackBar), findsOneWidget);
       expect(
           find.textContaining(
-              'An unknown error ocurred. Please try again later.'),
+              'Unable to sign in. Please check your credentials and try again.'),
           findsOneWidget);
     });
     testWidgets('shows error when the account has been disabled',
@@ -145,7 +144,7 @@ void main() {
       const password = '1';
       //When signIn is called, throw user-disabled
       when(mockUserRepository.signIn( email, password))
-          .thenThrow('user-disabled');
+          .thenThrow(AppException('user-disabled'));
       //Load log in screen
       final container = createProviderContainer();
       await tester.pumpWidget(createLogInWidget(container));
@@ -159,8 +158,7 @@ void main() {
       await tester.tap(logInButton);
       await tester.pumpAndSettle();
       //Expect to see error for user disabled
-      expect(find.byType(SnackBar), findsOneWidget);
-      expect(find.textContaining('The account for the provided email has been disabled.'),
+      expect(find.textContaining('This account has been disabled. Please contact support for assistance.'),
           findsOneWidget);
     });
     testWidgets('shows error when there is no account for the credentials',
@@ -170,7 +168,7 @@ void main() {
       const password = '1';
       //When signIn is called, throw user-not-found
       when(mockUserRepository.signIn(email, password))
-          .thenThrow('user-not-found');
+          .thenThrow(AppException('user-not-found'));
       //Load log in screen
       final container = createProviderContainer();
       await tester.pumpWidget(createLogInWidget(container));
@@ -185,10 +183,9 @@ void main() {
       await tester.pumpAndSettle();
 
       //Expect to see error message for user-not-found
-      expect(find.byType(SnackBar), findsOneWidget);
       expect(
           find.textContaining(
-              'There is no user corresponding to the email provided.'),
+              'No account found with this email address. Please check the email or create a new account.'),
           findsOneWidget);
     });
     testWidgets('shows error when a generic firebase auth exception ocurrs',
@@ -198,7 +195,7 @@ void main() {
       const password = '1';
       //When signIn is called throw an unexpected error
       when(mockUserRepository.signIn(email, password))
-          .thenThrow('unexpected-error');
+          .thenThrow(AppException('unexpected-error'));
       //load log in screen
       final container = createProviderContainer();
       await tester.pumpWidget(createLogInWidget(container));
@@ -212,10 +209,9 @@ void main() {
       await tester.tap(logInButton);
       await tester.pumpAndSettle();
       //Expect to see error message for general exception.
-      expect(find.byType(SnackBar), findsOneWidget);
       expect(
           find.textContaining(
-              'An unknown error ocurred. Please try again later.'),
+              'An unexpected error occurred. Please try again later or contact support if the problem persists.'),
           findsOneWidget);
     });
   });

@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:folio/core/app_exception.dart';
 import 'package:folio/core/service_locator.dart';
 import 'package:mockito/annotations.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -92,7 +93,10 @@ void main() {
 
       //Expect a general exception to be caught
       expect(() => firestoreServices.addUser(user),
-          throwsA(equals('unexpected-error')));
+          throwsA(predicate((e) => 
+    e is AppException && 
+    e.toString().contains('add-user-error')
+  )));
     });
   });
 
@@ -177,7 +181,10 @@ void main() {
 
       expect(
         () => firestoreServices.updateUser(fieldsToUpdate),
-        throwsA('update-failed'),
+        throwsA(predicate((e) => 
+    e is AppException && 
+    e.toString().contains('update-user-error')
+  )),
       );
     });
   });
@@ -209,7 +216,10 @@ void main() {
 
       expect(
         firestoreServices.getServices,
-        throwsA('unexpected-error'),
+        throwsA(predicate((e) => 
+    e is AppException && 
+    e.toString().contains('get-services-error')
+  ))
       );
     });
   });
@@ -264,7 +274,12 @@ void main() {
 
       final stream = firestoreServices.getUserStream(uid);
       
-      expect(stream, emitsError('no-user'));
+      expect(stream,emitsError(
+      predicate((error) => 
+        error is AppException && 
+        error.toString().contains('no-user')
+      )
+    ));
     });
 
     test('should throw invalid-user-data when data is invalid', () async {
@@ -289,7 +304,12 @@ void main() {
 
       final stream = firestoreServices.getUserStream(uid);
       
-      expect(stream, emitsError('invalid-user-data'));
+      expect(stream, emitsError(
+      predicate((error) => 
+        error is AppException && 
+        error.toString().contains('invalid-user-data')
+      )
+    ));
     });
 
     test('should throw unexpected-error on stream error', () async {
@@ -305,7 +325,12 @@ void main() {
 
       final stream = firestoreServices.getUserStream(uid);
       
-      expect(stream, emitsError('unexpected-error'));
+      expect(stream, emitsError(
+      predicate((error) => 
+        error is AppException && 
+        error.toString().contains('user-stream-error')
+      )
+    ));
     });
   });
 }

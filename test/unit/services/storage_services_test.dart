@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:folio/core/app_exception.dart';
 import 'package:folio/core/service_locator.dart';
 import 'package:folio/services/storage_services.dart';
 import 'package:mockito/annotations.dart';
@@ -78,7 +79,10 @@ void main() {
       when(mockRef.read(authStateProvider)).thenReturn(const AsyncValue.data(null));
 
       // Assert
-      expect(() => storageServices.uploadProfilePicture(testFile), throwsA('no-user'));
+      expect(() => storageServices.uploadProfilePicture(testFile), throwsA(predicate((error) => 
+        error is AppException && 
+        error.toString().contains('no-user')
+      )));
     });
 
     test('uploadProfilePicture throws generic error pfp-error', () async {
@@ -93,7 +97,10 @@ void main() {
       when(mockReference.child(any)).thenReturn(mockReference);
       when(mockReference.putFile(any)).thenThrow(Exception('upload-error'));
 
-      expect(() => storageServices.uploadProfilePicture(testFile), throwsA('pfp-error'));
+      expect(() => storageServices.uploadProfilePicture(testFile), throwsA(predicate((error) => 
+        error is AppException && 
+        error.toString().contains('pfp-upload-error')
+      )));
     });
 
 

@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:folio/core/app_exception.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:folio/services/auth_services.dart';
@@ -52,7 +53,10 @@ void main() {
               email: 'test@email.com',
               password: 'Pass123!',
               username: 'username'),
-          throwsA(equals('other-error')));
+          throwsA(predicate((e) => 
+    e is AppException && 
+    e.toString().contains('other-error')
+  )));
     });
 
     test('create account fails with weak-password FirebaseAuthException',
@@ -66,7 +70,10 @@ void main() {
       expect(
           () => authServices.signUp(
               email: 'test@email.com', password: '1!', username: 'username'),
-          throwsA(equals('weak-password')));
+          throwsA(predicate((e) => 
+    e is AppException && 
+    e.toString().contains('weak-password')
+  )));
     });
 
     test('create account fails with email-already-in-use FirebaseAuthException',
@@ -80,7 +87,10 @@ void main() {
       expect(
           () => authServices.signUp(
               email: 'test@email.com', password: '1!', username: 'username'),
-          throwsA(equals('email-already-in-use')));
+          throwsA(predicate((e) => 
+    e is AppException && 
+    e.toString().contains('email-already-in-use')
+  )));
     });
 
     test('create account fails with invalid-email FirebaseAuthException',
@@ -94,7 +104,10 @@ void main() {
       expect(
           () => authServices.signUp(
               email: 'test@email.com', password: '1!', username: 'username'),
-          throwsA(equals('invalid-email')));
+          throwsA(predicate((e) => 
+    e is AppException && 
+    e.toString().contains('invalid-email')
+  )));
     });
 
     test('create account fails with too-many-requests FirebaseAuthException',
@@ -108,7 +121,10 @@ void main() {
       expect(
           () => authServices.signUp(
               email: 'test@email.com', password: '1!', username: 'username'),
-          throwsA(equals('too-many-requests')));
+          throwsA(predicate((e) => 
+    e is AppException && 
+    e.toString().contains('too-many-requests')
+  )));
     });
 
     test(
@@ -123,7 +139,10 @@ void main() {
       expect(
           () => authServices.signUp(
               email: 'test@email.com', password: '1!', username: 'username'),
-          throwsA(equals('network-request-failed')));
+          throwsA(predicate((e) => 
+    e is AppException && 
+    e.toString().contains('network-request-failed')
+  )));
     });
 
     test('create account fails with generic exception', () async {
@@ -135,7 +154,10 @@ void main() {
       expect(
           () => authServices.signUp(
               email: 'test@email.com', password: '1!', username: 'username'),
-          throwsA(equals('unexpected-error')));
+          throwsA(predicate((e) => 
+    e is AppException && 
+    e.toString().contains('sign-up-error')
+  )));
     });
   });
 
@@ -167,7 +189,10 @@ void main() {
       expect(
           () => authServices.signIn(
               email: 'test@email.com', password: 'Pass123!'),
-          throwsA(equals('other-error')));
+          throwsA(predicate((e) => 
+    e is AppException && 
+    e.toString().contains('other-error')
+  )));
     });
 
     test('log in fails with invalid-email FirebaseAuthException', () async {
@@ -178,7 +203,10 @@ void main() {
               (_) => throw FirebaseAuthException(code: 'invalid-email'));
       //Expect invalid-email to be caught when logging in
       expect(() => authServices.signIn(email: 'test@email.com', password: '1!'),
-          throwsA(equals('invalid-email')));
+          throwsA(predicate((e) => 
+    e is AppException && 
+    e.toString().contains('invalid-email')
+  )));
     });
 
     test('log in fails with user-not-found FirebaseAuthException', () async {
@@ -189,7 +217,10 @@ void main() {
               (_) => throw FirebaseAuthException(code: 'user-not-found'));
       //Expect user-not-found to be caught when logging in
       expect(() => authServices.signIn(email: 'test@email.com', password: '1!'),
-          throwsA(equals('user-not-found')));
+          throwsA(predicate((e) => 
+    e is AppException && 
+    e.toString().contains('user-not-found')
+  )));
     });
 
     test('log in fails with wrong-password FirebaseAuthException', () async {
@@ -200,7 +231,10 @@ void main() {
               (_) => throw FirebaseAuthException(code: 'wrong-password'));
       //Expect wrong-password to be caught when logging in
       expect(() => authServices.signIn(email: 'test@email.com', password: '1!'),
-          throwsA(equals('wrong-password')));
+          throwsA(predicate((e) => 
+    e is AppException && 
+    e.toString().contains('wrong-password')
+  )));
     });
   });
 
@@ -216,7 +250,10 @@ void main() {
     test('throws sign-out-error on failure', () async {
       when(mockFirebaseAuth.signOut()).thenThrow(Exception('Sign out failed'));
 
-      expect(authServices.signOut(), throwsA('sign-out-error'));
+      expect(authServices.signOut(), throwsA(predicate((e) => 
+    e is AppException && 
+    e.toString().contains('sign-out-error')
+  )));
 
       verify(mockFirebaseAuth.signOut()).called(1);
     });
@@ -255,7 +292,10 @@ void main() {
           .thenThrow(FirebaseAuthException(code: 'user-not-found'));
 
       expect(() async => await authServices.deleteUser(),
-          throwsA(equals('user-not-found')));
+          throwsA(predicate((e) => 
+    e is AppException && 
+    e.toString().contains('user-not-found')
+  )));
     });
   });
 
@@ -286,7 +326,10 @@ void main() {
       // Should throw already verified
       expect(
         () => authServices.sendVerificationEmail(),
-        throwsA(equals('already-verified')),
+        throwsA(predicate((e) => 
+    e is AppException && 
+    e.toString().contains('already-verified')
+  )),
       );
     });
 
@@ -300,7 +343,10 @@ void main() {
       // Should throw email-verification-error
       expect(
         () => authServices.sendVerificationEmail(),
-        throwsA(equals('email-verification-error')),
+        throwsA(predicate((e) => 
+    e is AppException && 
+    e.toString().contains('email-verification-error')
+  )),
       );
     });
 
@@ -311,7 +357,10 @@ void main() {
       // Should throw email-verification-error
       expect(
         () => authServices.sendVerificationEmail(),
-        throwsA(equals('no-user')),
+        throwsA(predicate((e) => 
+    e is AppException && 
+    e.toString().contains('no-user')
+  )),
       );
     });
   });

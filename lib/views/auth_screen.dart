@@ -143,10 +143,8 @@ class AuthScreenState extends ConsumerState<AuthScreen> {
                           }
                       } catch (e) {
                         if(e is AppException){
-                          print(e.code);
                           errorMessage = e.message;
                         }else{
-                          print('not app exception');
                           errorMessage = "An unexpected error occurred. Please try again later or contact support if the problem persists.";
                         }
                       } finally {
