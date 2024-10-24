@@ -196,7 +196,6 @@ void main() {
       await tester.tap(signUpButton);
       await tester.pumpAndSettle(const Duration(seconds: 1));
       //Expect to see error for invalid email address
-      expect(find.byType(SnackBar), findsOneWidget);
       expect(find.textContaining('The email provided is not a valid email address.'),findsOneWidget);
     });
 
@@ -213,7 +212,6 @@ void main() {
       await tester.tap(signUpButton);
       await tester.pumpAndSettle(const Duration(seconds: 1));
       //Expect to see error for taken email
-      expect(find.byType(SnackBar), findsOneWidget);
       expect(find.textContaining('This email is already associated with another account.'),findsOneWidget);
     });
 
@@ -230,8 +228,7 @@ void main() {
       await tester.tap(signUpButton);
       await tester.pumpAndSettle(const Duration(seconds: 1));
       //Expect to see error for taken username
-      expect(find.byType(SnackBar), findsOneWidget);
-      expect(find.textContaining('The password provided is too weak.'),findsOneWidget);
+      expect(find.textContaining('Password must be at least 8 characters long and include numbers, letters, and special characters.'),findsOneWidget);
     });
 
     testWidgets('As a new user, if I sign up with a taken username, I see an error and stay on the sign up screen',(WidgetTester tester) async {
@@ -247,24 +244,22 @@ void main() {
       await tester.tap(signUpButton);
       await tester.pumpAndSettle(const Duration(seconds: 1));
       //Expect to see error for taken username
-      expect(find.byType(SnackBar), findsOneWidget);
-      expect(find.textContaining('This username is already taken. Please try another one.'),findsOneWidget);
+      expect(find.textContaining('This username is already taken. Please try a different one.'),findsOneWidget);
     });
 
     testWidgets('As an existing user, if I sign in with an unexisting email, I see an error and stay on the sign in screen', (WidgetTester tester) async {
       //Navigate to log in screen
       await navigateToLogInScreen(tester);
 
-      //Enter necessary data, but using the incorrect password
-      await tester.enterText(emailField, 'testuser@email.com');
+      //Enter necessary data, but using the an unexisting email
+      await tester.enterText(emailField, 'testusernotexisting@email.com');
       await tester.enterText(passwordField, 'incorrect');
 
       //Tap log in button
       await tester.tap(signInButton);
       await tester.pumpAndSettle(const Duration(seconds: 1));
       //Expect to see error for incorrect credentials
-      expect(find.byType(SnackBar), findsOneWidget);
-      expect(find.textContaining('Your email address or password is incorrect.'), findsOneWidget);
+      expect(find.textContaining('No account found with this email address. Please check the email or create a new account.'), findsOneWidget);
     });
 
     testWidgets('As an existing user, if I sign in with the incorrect password, I see an error and stay on the sign in screen', (WidgetTester tester) async {
@@ -279,8 +274,7 @@ void main() {
       await tester.tap(signInButton);
       await tester.pumpAndSettle(const Duration(seconds: 1));
       //Expect to see error for incorrect credentials
-      expect(find.byType(SnackBar), findsOneWidget);
-      expect(find.textContaining('Your email address or password is incorrect.'),findsOneWidget);
+      expect(find.textContaining('Incorrect password. Please try again or reset your password.'),findsOneWidget);
     });
 
   /////////////////////////////////////////////// SAD PATHS ////////////////////////////////////////////////////////////////////////
