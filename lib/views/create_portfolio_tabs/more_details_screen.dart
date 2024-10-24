@@ -44,6 +44,7 @@ class _MoreDetailsScreenState extends State<MoreDetailsScreen> {
                     border: Border.all(color: Colors.black)
                   ),
                   child: TextField(
+                    key: const Key('details-field'),
                     cursorColor: Colors.black,
                     onChanged: (value){
                       widget.onDetailsEntered(value);

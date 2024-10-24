@@ -7,15 +7,19 @@ class PortfolioModel {
 
   PortfolioModel({
     required String service,
-    required String details,
-    required int years,
-    required int months,
+    String details = "",
+    int years = 0,
+    int months = 0,
     List<Map<String, String>> images = const [],
   })  : _service = service,
         _details = details,
         _years = years,
         _months = months,
-        _images = images;
+        _images = images {
+    if (service.isEmpty) {
+      throw ArgumentError('UID cannot be empty');
+    }
+  }
 
   String get service => _service;
   String get details => _details;
@@ -30,7 +34,7 @@ class PortfolioModel {
       "details": details,
       "years": years,
       "months": months,
-      "images": images,  // No transformation needed since it's a list of maps
+      "images": images, // No transformation needed since it's a list of maps
     };
   }
 
@@ -45,15 +49,15 @@ class PortfolioModel {
       throw ArgumentError('empty-years');
     }
 
-
     return PortfolioModel(
-        service: json['service'] as String,
-        details: json['details'] as String,
-        years: json['years'] as int,
-        months: json['months'] as int,
-       images: (json['images'] as List<dynamic>?)
+      service: json['service'] as String,
+      details: json['details'] as String,
+      years: json['years'] as int,
+      months: json['months'] as int,
+      images: (json['images'] as List<dynamic>?)
               ?.map((e) => Map<String, String>.from(e as Map))
-              .toList() ?? [],
-);
+              .toList() ??
+          [],
+    );
   }
 }

@@ -54,7 +54,7 @@ class FirestoreServices {
         throw AppException('invalid-portfolio-data');
       }
     }).handleError((error) {
-      if (error is AppException && error.code == 'invalid-user-data') {
+      if (error is AppException && error.code == 'invalid-portfolio-data') {
         throw error;
       } else {
         throw AppException('portfolio-stream-error');

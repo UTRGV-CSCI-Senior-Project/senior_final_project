@@ -77,6 +77,7 @@ class _InputExperienceState extends State<InputExperience> {
                 color: Colors.black,
               )),
           child: TextField(
+            key:  Key('$label-field'),
             cursorColor: Colors.black,
             style: GoogleFonts.poppins(
                 fontSize: 30, fontWeight: FontWeight.w300),

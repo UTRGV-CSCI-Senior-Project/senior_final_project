@@ -4,10 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:folio/constants/error_constants.dart';
 import 'package:folio/core/app_exception.dart';
 import 'package:folio/core/service_locator.dart';
-import 'package:folio/views/create_portfolio/choose_service_screen.dart';
-import 'package:folio/views/create_portfolio/input_experience_screen.dart';
-import 'package:folio/views/create_portfolio/more_details_screen.dart';
-import 'package:folio/views/create_portfolio/upload_pictures_screen.dart';
+import 'package:folio/views/create_portfolio_tabs/choose_service_screen.dart';
+import 'package:folio/views/create_portfolio_tabs/input_experience_screen.dart';
+import 'package:folio/views/create_portfolio_tabs/more_details_screen.dart';
+import 'package:folio/views/create_portfolio_tabs/upload_pictures_screen.dart';
 import 'package:folio/widgets/error_widget.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -65,6 +65,7 @@ class _CreatePortfolioScreenState extends ConsumerState<CreatePortfolioScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         leading: IconButton(
+          key: const Key('close-button'),
             onPressed: () {
               Navigator.of(context).pop();
             },
@@ -125,7 +126,7 @@ class _CreatePortfolioScreenState extends ConsumerState<CreatePortfolioScreen> {
                         });
                       }),
                   TextButton(
-                      key: const Key('onboarding-button'),
+                      key: const Key('create-profile-button'),
                       onPressed: _isLoading
                           ? null
                           : () async {

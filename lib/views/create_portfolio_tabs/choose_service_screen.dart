@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:folio/core/service_locator.dart';
-import 'package:folio/views/create_portfolio/input_experience_screen.dart';
+import 'package:folio/views/create_portfolio_tabs/input_experience_screen.dart';
 import 'package:folio/widgets/error_widget.dart';
 import 'package:google_fonts/google_fonts.dart';
 

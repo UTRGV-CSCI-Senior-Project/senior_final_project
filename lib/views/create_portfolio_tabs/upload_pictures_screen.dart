@@ -71,6 +71,7 @@ class _UploadPicturesState extends ConsumerState<UploadPictures> {
             itemBuilder: (context, index) {
               if (index == 0) {
                 return GestureDetector(
+                  key: const Key('image-picker-button'),
                   onTap: () async {
                     final imagePicker = ref.watch(imagePickerProvider);
                     final List<XFile> images =
@@ -112,6 +113,7 @@ class _UploadPicturesState extends ConsumerState<UploadPictures> {
                       ),
                     ),
                     Positioned(
+                      key: Key('remove-image-$index'),
                       right: 0,
                       child: IconButton(
                         icon: const Icon(Icons.delete, color: Colors.red),
