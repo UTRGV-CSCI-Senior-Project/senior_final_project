@@ -75,6 +75,12 @@ flutter:
   assets:
     - assets/Explore.png
     - assets/Error.png
+    - integration_test/assets/pfp.jpg
+    - integration_test/assets/folio1.jpg
+    - integration_test/assets/folio2.jpg
+    - integration_test/assets/folio3.jpg
+    - integration_test/assets/folio4.jpg
+    - integration_test/assets/folio5.jpg
 
   # To add assets to your application, add an assets section, like this:
   # assets:

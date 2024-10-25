@@ -65,7 +65,7 @@ class _CreatePortfolioScreenState extends ConsumerState<CreatePortfolioScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         leading: IconButton(
-          key: const Key('close-button'),
+            key: const Key('close-button'),
             onPressed: () {
               Navigator.of(context).pop();
             },
@@ -126,7 +126,7 @@ class _CreatePortfolioScreenState extends ConsumerState<CreatePortfolioScreen> {
                         });
                       }),
                   TextButton(
-                      key: const Key('create-profile-button'),
+                      key: const Key('portfolio-next-button'),
                       onPressed: _isLoading
                           ? null
                           : () async {
@@ -169,10 +169,20 @@ class _CreatePortfolioScreenState extends ConsumerState<CreatePortfolioScreen> {
                                 });
                                 final portfolioRepository =
                                     ref.watch(portfolioRepositoryProvider);
+
+                                if (_selectedService == null ||
+                                    _selectedService!.isEmpty) {
+                                  setState(() {
+                                    errorMessage = "Please select a service.";
+                                    _isLoading = false;
+                                  });
+                                  _pageController.animateToPage(0, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+                                  return;
+                                }
                                 try {
                                   await portfolioRepository.createPortfolio(
                                       _selectedService!,
-                                      _details!,
+                                      _details ?? '',
                                       _months,
                                       _years,
                                       _images);
@@ -180,6 +190,7 @@ class _CreatePortfolioScreenState extends ConsumerState<CreatePortfolioScreen> {
                                     Navigator.of(context).pop();
                                   }
                                 } catch (e) {
+                                  print(e);
                                   if (e is AppException) {
                                     setState(() {
                                       errorMessage = e.message;

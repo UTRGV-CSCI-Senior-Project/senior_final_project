@@ -297,6 +297,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                           );
                         }
                       } else {
+                        if(!selectedServices.values.any((selected) => selected)){
+                          setState(() {
+                            errorMessage = "Select at least one service.";
+                          });
+                          return;
+                        }else{
                         setState(() {
                           _isLoading = true;
                         });
@@ -335,6 +341,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                           if (mounted) {
                             _isLoading = false;
                           }
+                        }
                         }
                       }
                     },

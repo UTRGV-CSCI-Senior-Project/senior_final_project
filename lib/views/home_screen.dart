@@ -25,7 +25,7 @@ class HomeScreen extends ConsumerWidget {
             String getTitle() {
               switch (selectedIndex) {
                 case 0:
-                  return 'Welcome, ${userModel.fullName}!';
+                  return 'Welcome, ${userModel.fullName?.trim()}!';
                 case 1:
                   return 'Discover';
                 case 2:
@@ -65,6 +65,7 @@ class HomeScreen extends ConsumerWidget {
                 },
                 destinations: const [
                   NavigationDestination(
+                    key:  Key('home-button'),
                     icon: Icon(Icons.home),
                     selectedIcon: Icon(
                       Icons.home,
@@ -73,6 +74,7 @@ class HomeScreen extends ConsumerWidget {
                     label: 'Home',
                   ),
                   NavigationDestination(
+                    key:  Key('discover-button'),
                     icon: Icon(Icons.explore),
                     selectedIcon: Icon(
                       Icons.explore,
@@ -81,6 +83,7 @@ class HomeScreen extends ConsumerWidget {
                     label: 'Discover',
                   ),
                   NavigationDestination(
+                    key:  Key('inbox-button'),
                     icon: Icon(Icons.bookmark_border),
                     enabled: false,
                     selectedIcon: Icon(
@@ -90,6 +93,7 @@ class HomeScreen extends ConsumerWidget {
                     label: 'Inbox',
                   ),
                   NavigationDestination(
+                    key:  Key('profile-button'),
                     icon: Icon(Icons.person),
                     selectedIcon: Icon(
                       Icons.person,

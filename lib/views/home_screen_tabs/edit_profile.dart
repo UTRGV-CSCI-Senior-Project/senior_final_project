@@ -237,6 +237,7 @@ class _EditProfileState extends ConsumerState<EditProfile> {
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: ElevatedButton(
+                      key: Key('create-portfolio-button'),
                       onPressed: () {
                         Navigator.push(
                             context,
