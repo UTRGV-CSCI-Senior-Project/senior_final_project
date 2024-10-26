@@ -44,6 +44,15 @@ class _EditProfileState extends ConsumerState<EditProfile> {
                                 width: 125,
                                 height: 125,
                                 fit: BoxFit.cover,
+                                loadingBuilder: (context, child, loadingProgress){
+                                            if(loadingProgress == null) return child;
+                                            return Center(child: CircularProgressIndicator(
+                                              value: loadingProgress.expectedTotalBytes != null ? loadingProgress.cumulativeBytesLoaded /loadingProgress.expectedTotalBytes! : null
+                                            ),);
+                                          }, errorBuilder: (context, error, stackTrace) => Container(
+                                            color: Colors.grey[300],
+                                            child: const Icon(Icons.broken_image, color: Colors.grey)
+                                          ),
                               )
                             : Container(
                                 width: 125,
@@ -194,6 +203,16 @@ class _EditProfileState extends ConsumerState<EditProfile> {
                                           userPortfolio
                                               .images[imageIndex]['downloadUrl'],
                                           fit: BoxFit.cover,
+                                          loadingBuilder: (context, child, loadingProgress){
+                                            if(loadingProgress == null) return child;
+                                            return Center(child: CircularProgressIndicator(
+                                              value: loadingProgress.expectedTotalBytes != null ? loadingProgress.cumulativeBytesLoaded /loadingProgress.expectedTotalBytes! : null
+                                            ),);
+                                          },
+                                          errorBuilder: (context, error, stackTrace) => Container(
+                                            color: Colors.grey[300],
+                                            child: const Icon(Icons.broken_image, color: Colors.grey)
+                                          ),
                                         ),
                                       ),
                                     ),

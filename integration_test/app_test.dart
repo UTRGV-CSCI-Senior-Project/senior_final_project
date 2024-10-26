@@ -104,7 +104,9 @@ void main() {
     setupEmulators(useEmulators: true);
   });
 
-  tearDownAll(() {});
+  tearDownAll(() {
+    container.read(authServicesProvider).signOut();
+  });
 
   setUp(() {
     container.read(authServicesProvider).signOut();
