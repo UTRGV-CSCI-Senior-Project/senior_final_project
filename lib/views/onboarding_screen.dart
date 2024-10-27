@@ -2,10 +2,10 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:folio/constants/error_constants.dart';
 import 'package:folio/core/app_exception.dart';
 import 'package:folio/core/service_locator.dart';
 import 'package:folio/views/home_screen.dart';
+import 'package:folio/views/state_screens.dart';
 import 'package:image_picker/image_picker.dart';
 
 class OnboardingScreen extends ConsumerStatefulWidget {
@@ -22,6 +22,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   final _fullNameController = TextEditingController();
   String errorMessage = "";
   bool _isLoading = false;
+  bool _servicesAreLoading = true;
 
   late List<String> services = [];
 
@@ -45,7 +46,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         }
       });
     } catch (e) {
-      print(e);
+      services = [];
+    } finally {
+      _servicesAreLoading = false;
     }
   }
 
@@ -158,6 +161,21 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   }
 
   Widget buildInterests(BuildContext context) {
+    if (_servicesAreLoading) {
+      return const Center(
+        child: CircularProgressIndicator(
+          color: Colors.blue,
+        ),
+      );
+    }
+
+    if (services.isEmpty) {
+      return const ErrorView(
+        bigText: 'Error fetching services!',
+        smallText: 'Please check your connection, or try again later.',
+      );
+    }
+
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -178,7 +196,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           ...services.map((service) {
             bool isSelected = selectedServices[service] ?? false;
             return GestureDetector(
-              key: Key('${service}-button'),
+                key: Key('$service-button'),
                 onTap: () => setState(() {
                       selectedServices[service] = !isSelected;
                     }),
@@ -282,13 +300,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               Padding(
                 padding: const EdgeInsets.all(12),
                 child: TextButton(
-                  key: const Key('onboarding-button'),
+                    key: const Key('onboarding-button'),
                     onPressed: () async {
                       if (_currentPage == 0) {
                         if (_fullNameController.text.isEmpty) {
                           setState(() {
-                            errorMessage =
-                                "Please enter your full name.";
+                            errorMessage = "Please enter your full name.";
                           });
                         } else {
                           _pageController.nextPage(
@@ -297,51 +314,53 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                           );
                         }
                       } else {
-                        if(!selectedServices.values.any((selected) => selected)){
+                        if (!selectedServices.values
+                            .any((selected) => selected)) {
                           setState(() {
                             errorMessage = "Select at least one service.";
                           });
                           return;
-                        }else{
-                        setState(() {
-                          _isLoading = true;
-                        });
-                        try {
-                          final List<String> selectedServicesList =
-                              selectedServices.entries
-                                  .where((entry) => entry.value == true)
-                                  .map((entry) => entry.key)
-                                  .toList();
-                          await ref
-                              .read(userRepositoryProvider)
-                              .updateProfile(profilePicture: file, fields: {
-                            'fullName': _fullNameController.text,
-                            'completedOnboarding': true,
-                            'preferredServices': selectedServicesList
+                        } else {
+                          setState(() {
+                            _isLoading = true;
                           });
+                          try {
+                            final List<String> selectedServicesList =
+                                selectedServices.entries
+                                    .where((entry) => entry.value == true)
+                                    .map((entry) => entry.key)
+                                    .toList();
+                            await ref
+                                .read(userRepositoryProvider)
+                                .updateProfile(profilePicture: file, fields: {
+                              'fullName': _fullNameController.text,
+                              'completedOnboarding': true,
+                              'preferredServices': selectedServicesList
+                            });
 
-                          if (mounted) {
-                            Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => const HomeScreen()));
+                            if (context.mounted) {
+                              Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          const HomeScreen()));
+                            }
+                          } catch (e) {
+                            if (e is AppException) {
+                              setState(() {
+                                errorMessage = e.message;
+                              });
+                            } else {
+                              setState(() {
+                                errorMessage =
+                                    "Failed to update profile information. Please try again.";
+                              });
+                            }
+                          } finally {
+                            if (mounted) {
+                              _isLoading = false;
+                            }
                           }
-                        } catch (e) {
-                          if(e is AppException){
-                            setState(() {
-                              errorMessage = e.message;
-                            });
-                          }else{
-                            setState(() {
-                              errorMessage = "Failed to update profile information. Please try again.";
-                            });
-                          }
-                          
-                        } finally {
-                          if (mounted) {
-                            _isLoading = false;
-                          }
-                        }
                         }
                       }
                     },

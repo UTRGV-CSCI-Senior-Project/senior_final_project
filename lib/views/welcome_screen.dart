@@ -28,9 +28,9 @@ class WelcomeScreen extends StatelessWidget {
                 ),
               Image.asset("assets/Explore.png",width: 250,height: 250,color: const Color.fromRGBO(0, 111, 253, 1),),
               const SizedBox(height: 50,),
-              const Text("Discover Local Talent,",style: tempTextstlye.customTextstyle,),
-              const Text("Book with Ease ",style: tempTextstlye.customTextstyle,),
-              //const Text("App Name",style: tempTextstlye.customTextstyle,),
+              const Text("Discover Local Talent,",style: TempTextStyle.customTextstyle,),
+              const Text("Book with Ease ",style: TempTextStyle.customTextstyle,),
+              //const Text("App Name",style: TempTextStyle.customTextstyle,),
               const SizedBox(height: 50,),
               
               Container(
@@ -54,7 +54,7 @@ class WelcomeScreen extends StatelessWidget {
                                   )));
                     },
                     child: const Text('Login',
-                    style: tempTextstlye.customButtonTextstyle,)),
+                    style: TempTextStyle.customButtonTextstyle,)),
               ), 
               const SizedBox(height: 20,),
               Container(
@@ -80,7 +80,7 @@ class WelcomeScreen extends StatelessWidget {
                         },
                         child: const Text(
                           'Sign up',
-                          style: tempTextstlye.customButtonTextstyle,
+                          style: TempTextStyle.customButtonTextstyle,
                           )
                         );
                   }))
@@ -91,7 +91,7 @@ class WelcomeScreen extends StatelessWidget {
     );
   }
 }
-class tempTextstlye{
+class TempTextStyle{
    static const customTextstyle = TextStyle(
       fontSize: 24,
       fontWeight: FontWeight.w500,

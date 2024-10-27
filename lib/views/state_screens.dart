@@ -21,11 +21,13 @@ class LoadingView extends StatelessWidget {
 }
 
 class ErrorView extends StatelessWidget {
-
+  final String bigText;
+  final String smallText;
 
   const ErrorView({
     super.key, 
-
+    required this.bigText,
+    required this.smallText
   });
 
   @override
@@ -43,7 +45,7 @@ class ErrorView extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              'Something went wrong',
+              bigText,
               textAlign: TextAlign.center,
               style: GoogleFonts.poppins(
                 fontSize: 30,
@@ -53,10 +55,10 @@ class ErrorView extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'Try restarting the app',
+              smallText,
               textAlign: TextAlign.center,
               style: GoogleFonts.inter(
-                fontSize: 20,
+                fontSize: 18,
                 fontWeight: FontWeight.w500,
                 color: Colors.black54
               ),

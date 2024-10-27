@@ -146,7 +146,7 @@ class _EditProfileState extends ConsumerState<EditProfile> {
                                     final List<XFile> images =
                                         await imagePicker.pickMultiImage();
 
-                                    if (images != null && images.isNotEmpty) {
+                                    if (images.isNotEmpty) {
                                       final List<File> selectedImages = [];
                                       for (var image in images) {
                                         selectedImages.add(File(image.path));
@@ -256,7 +256,7 @@ class _EditProfileState extends ConsumerState<EditProfile> {
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: ElevatedButton(
-                      key: Key('create-portfolio-button'),
+                      key: const Key('create-portfolio-button'),
                       onPressed: () {
                         Navigator.push(
                             context,
@@ -302,7 +302,7 @@ class _EditProfileState extends ConsumerState<EditProfile> {
         }
       },
       loading: () => const LoadingView(),
-      error: (error, stack) => const ErrorView(),
+      error: (error, stack) => const ErrorView(bigText: 'Something went wrong!', smallText: 'Try restarting the app',),
     );
   }
 }

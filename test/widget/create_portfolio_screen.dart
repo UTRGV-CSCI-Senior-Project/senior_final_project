@@ -77,7 +77,7 @@ void main() {
       await tester.pumpWidget(createPortfolioScreen(container));
       await tester.pumpAndSettle();
       // Select a service (you'll need to adjust this based on your ChooseService widget implementation)
-      await tester.tap(find.byKey(Key('Barber-button'))); // Assuming this exists
+      await tester.tap(find.byKey(const Key('Barber-button'))); // Assuming this exists
       await tester.pumpAndSettle();
 
       await tester.tap(nextButton);

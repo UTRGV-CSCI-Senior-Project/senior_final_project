@@ -188,7 +188,7 @@ void main() {
   group('updateProfile', () {
     test('updates profile with new profile picture and fields', () async {
       final mockFile = File('test_path');
-      final downloadUrl = 'https://example.com/profile.jpg';
+      const downloadUrl = 'https://example.com/profile.jpg';
       final fieldsToUpdate = {
         'username': 'newUsername'
       };

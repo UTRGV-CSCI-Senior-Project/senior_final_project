@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:folio/core/service_locator.dart';
@@ -77,7 +76,7 @@ class _UploadPicturesState extends ConsumerState<UploadPictures> {
                     final List<XFile> images =
                         await imagePicker.pickMultiImage();
 
-                    if (images != null && images.isNotEmpty) {
+                    if (images.isNotEmpty) {
                       for (var image in images) {
                         _selectedImages.add(File(image.path));
                       }

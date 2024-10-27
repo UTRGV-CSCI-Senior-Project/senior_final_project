@@ -123,7 +123,7 @@ void main() {
       final container = ProviderContainer(
         overrides: [
           userStreamProvider.overrideWith(
-            (ref) => Stream.empty(),
+            (ref) => const Stream.empty(),
           ),
         ],
       );

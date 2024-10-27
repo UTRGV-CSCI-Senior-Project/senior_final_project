@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:folio/constants/error_constants.dart';
 import 'package:folio/core/app_exception.dart';
 import 'package:folio/core/service_locator.dart';
 import 'package:folio/views/create_portfolio_tabs/choose_service_screen.dart';
@@ -152,8 +151,7 @@ class _CreatePortfolioScreenState extends ConsumerState<CreatePortfolioScreen> {
                                   curve: Curves.easeInOut,
                                 );
                               } else if (_currentPage == 2) {
-                                if (_images == null ||
-                                    _images.isEmpty ||
+                                if (_images.isEmpty ||
                                     _images.length < 5) {
                                   errorMessage =
                                       "Please upload at least 5 images.";
@@ -186,11 +184,10 @@ class _CreatePortfolioScreenState extends ConsumerState<CreatePortfolioScreen> {
                                       _months,
                                       _years,
                                       _images);
-                                  if (mounted) {
+                                  if (context.mounted) {
                                     Navigator.of(context).pop();
                                   }
                                 } catch (e) {
-                                  print(e);
                                   if (e is AppException) {
                                     setState(() {
                                       errorMessage = e.message;

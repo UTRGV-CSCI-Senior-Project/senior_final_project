@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:folio/core/app_exception.dart';
 import 'package:folio/models/user_model.dart';
 import 'package:folio/services/auth_services.dart';
@@ -11,10 +10,9 @@ class UserRepository {
   final AuthServices _authServices;
   final FirestoreServices _firestoreServices;
   final StorageServices _storageServices;
-  final Ref _ref;
 
   UserRepository(this._authServices, this._firestoreServices,
-      this._storageServices, this._ref);
+      this._storageServices);
 
   Future<void> createUser(
       String username, String email, String password) async {

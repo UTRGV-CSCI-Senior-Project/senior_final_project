@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:folio/core/app_exception.dart';
 import 'package:folio/core/service_locator.dart';
-import 'package:folio/repositories/portfolio_repository.dart';
 import 'package:mockito/mockito.dart';
 
 import '../../mocks/user_repository_test.mocks.dart';

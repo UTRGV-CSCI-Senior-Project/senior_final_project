@@ -22,7 +22,6 @@ import '../../mocks/auth_services_test.mocks.dart';
   Ref
 ])
 import '../../mocks/firestore_services_test.mocks.dart';
-import '../../mocks/storage_services_test.mocks.dart';
 
 void main() {
   //Create ncessary mocks for services

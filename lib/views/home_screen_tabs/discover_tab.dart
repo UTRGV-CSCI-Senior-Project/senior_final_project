@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:folio/core/service_locator.dart';
-import 'package:folio/widgets/input_field_widget.dart';
+
 
 class DiscoverTab extends ConsumerWidget {
   
@@ -30,11 +29,11 @@ class DiscoverTab extends ConsumerWidget {
                   hintText: 'Search Folio',
                   prefixIcon: Icon(Icons.search, color: Colors.grey[600]),
                   border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(vertical: 15),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 15),
                 ),
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             // Expanded(
             //   child: portfolios.when(
             //     data: (ports) {
@@ -55,7 +54,7 @@ class DiscoverTab extends ConsumerWidget {
             //             padding: const EdgeInsets.symmetric(vertical: 12.0),
             //             child: InkWell(
             //               onTap: () {
-            //                 // TODO: Implement view portfolio action
+            //                 // : Implement view portfolio action
             //               },
             //               child: Row(
             //                 crossAxisAlignment: CrossAxisAlignment.center,

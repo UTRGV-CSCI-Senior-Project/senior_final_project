@@ -108,7 +108,7 @@ class HomeScreen extends ConsumerWidget {
             return const OnboardingScreen();
           }
         },
-        error: (s, p) => const LoadingScreen(),
+        error: (s, p)  => const LoadingScreen(),
         loading: () => const LoadingScreen());
   }
 }

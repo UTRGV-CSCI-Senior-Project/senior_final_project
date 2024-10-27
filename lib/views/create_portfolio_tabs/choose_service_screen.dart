@@ -1,9 +1,7 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:folio/core/service_locator.dart';
-import 'package:folio/views/create_portfolio_tabs/input_experience_screen.dart';
-import 'package:folio/widgets/error_widget.dart';
+import 'package:folio/views/state_screens.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class ChooseService extends ConsumerStatefulWidget {
@@ -20,6 +18,8 @@ class _ChooseServiceState extends ConsumerState<ChooseService> {
   String? selectedService; // Track the selected service
   late List<String> services = [];
   final searchController = TextEditingController();
+  bool _isLoading = true;
+
 
   @override
   void initState() {
@@ -35,13 +35,30 @@ class _ChooseServiceState extends ConsumerState<ChooseService> {
         services = fetchedServices;
       });
     }catch(e){
-      print(e);
+      setState(() {
+        services = [];
+      });
+    }finally{
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final isDisabled = selectedService != null;
+
+    if (_isLoading) {
+    return const Center(
+      child: CircularProgressIndicator(
+        color: Colors.blue,
+      ),
+    );
+  }
+
+  if (services.isEmpty) {
+    return  const ErrorView(bigText: 'Error fetching services!', smallText: 'Please check your connection, or try again later.',);
+  }
 
     return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -58,6 +75,7 @@ class _ChooseServiceState extends ConsumerState<ChooseService> {
               style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w300),
             ),
             const SizedBox(height: 30.0),
+
              Container(
               decoration: BoxDecoration(
                 color: const Color.fromRGBO(248, 249, 254, 1),
