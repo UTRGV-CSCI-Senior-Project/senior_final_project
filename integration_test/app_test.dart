@@ -80,7 +80,7 @@ void main() {
   final signInButton = find.byKey(const Key('signin-button'));
   final imagePickerButton = find.byKey(const Key('image-picker-button'));
   final barberServiceButton = find.byKey(const Key('Barber-button'));
-  final landscaperServiceButton = find.byKey(const Key('Landscaper-button'));
+  final carDetailerServiceButton = find.byKey(const Key('Car Detailer-button'));
   final profileTabButton = find.byKey(const Key('profile-button'));
   final createPortfolioButton =
       find.byKey(const Key('create-portfolio-button'));
@@ -173,16 +173,14 @@ void main() {
       //Enter full name in onboarding screen and tap next
       await tester.enterText(fullNameField, "First Last");
       await tester.tap(onboardingButton);
-      await tester.pumpAndSettle();
-
+      await tester.pumpAndSettle(const Duration(seconds: 2));
       //Tap next on second onboarding screen
       expect(
           find.text('What professions are you interested in?'), findsOneWidget);
       await tester.tap(barberServiceButton);
-      await tester.tap(landscaperServiceButton);
+      await tester.tap(carDetailerServiceButton);
       await tester.tap(onboardingButton);
-      await tester.pumpAndSettle();
-
+      await tester.pumpAndSettle(const Duration(seconds: 2));
       //Expect to see home screen with user's full name
       expect(find.text('Welcome, First Last!'), findsOneWidget);
     });
@@ -204,16 +202,14 @@ void main() {
       await tester.tap(imagePickerButton);
       await tester.enterText(fullNameField, "Second User");
       await tester.tap(onboardingButton);
-      await tester.pumpAndSettle();
-
+      await tester.pumpAndSettle(const Duration(seconds: 2));
       //Tap Done! on second onboarding screen
       expect(
           find.text('What professions are you interested in?'), findsOneWidget);
       await tester.tap(barberServiceButton);
-      await tester.tap(landscaperServiceButton);
+      await tester.tap(carDetailerServiceButton);
       await tester.tap(onboardingButton);
-      await tester.pumpAndSettle();
-
+      await tester.pumpAndSettle(const Duration(seconds: 2));
       //Expect to see home screen with user's full name
       expect(find.text('Welcome, Second User!'), findsOneWidget);
     });
@@ -236,8 +232,7 @@ void main() {
       expect(find.text('Welcome, Second User!'), findsOneWidget);
 
       await tester.tap(profileTabButton);
-      await tester.pumpAndSettle();
-
+      await tester.pumpAndSettle(const Duration(seconds: 2));
       expect(find.text('Second User'), findsOneWidget);
       expect(find.text('secondUser@email.com'), findsOneWidget);
     });
@@ -260,7 +255,7 @@ void main() {
       expect(find.text('Welcome, First User!'), findsOneWidget);
 
       await tester.tap(profileTabButton);
-      await tester.pumpAndSettle();
+      await tester.pumpAndSettle(const Duration(seconds: 2));
       expect(find.text('First User'), findsOneWidget);
       expect(find.text('Barber'), findsOneWidget);
       expect(find.text('Barber Portfolio'), findsOneWidget);
@@ -286,26 +281,21 @@ void main() {
       expect(find.text('Welcome, Second User!'), findsOneWidget);
 
       await tester.tap(profileTabButton);
-      await tester.pumpAndSettle();
-
+      await tester.pumpAndSettle(const Duration(seconds: 2));
       expect(find.text('Second User'), findsOneWidget);
       expect(find.text('secondUser@email.com'), findsOneWidget);
 
       await tester.tap(createPortfolioButton);
-      await tester.pumpAndSettle();
-
+      await tester.pumpAndSettle(const Duration(seconds: 2));
       await tester.tap(barberServiceButton);
       await tester.tap(createPortfolioNextButton);
-      await tester.pumpAndSettle();
-
+      await tester.pumpAndSettle(const Duration(seconds: 2));
       await tester.tap(createPortfolioNextButton);
-      await tester.pumpAndSettle();
-
+      await tester.pumpAndSettle(const Duration(seconds: 2));
       await tester.tap(imagePickerButton);
-      await tester.pumpAndSettle();
+      await tester.pumpAndSettle(const Duration(seconds: 2));
       await tester.tap(createPortfolioNextButton);
-      await tester.pumpAndSettle();
-
+      await tester.pumpAndSettle(const Duration(seconds: 2));
       await tester.tap(createPortfolioNextButton);
       await tester.pumpAndSettle(const Duration(seconds: 30));
 
@@ -322,207 +312,205 @@ void main() {
   /////////////////////////////////////////////// SAD PATHS ////////////////////////////////////////////////////////////////////////
 
   group('Sad Paths', () {
-  testWidgets(
-      'As a new user, if I sign up with invalid email, I see an error and stay on the sign up screen',
-      (WidgetTester tester) async {
-    //Navigate to sign up screen
-    await navigateToSignUpPage(tester);
+    testWidgets(
+        'As a new user, if I sign up with invalid email, I see an error and stay on the sign up screen',
+        (WidgetTester tester) async {
+      //Navigate to sign up screen
+      await navigateToSignUpPage(tester);
 
-    //Enter necessary data, but with an invalid email address
-    await tester.enterText(usernameField, 'testUser2');
-    await tester.enterText(emailField, 'invalidemail');
-    await tester.enterText(passwordField, 'Pass123!');
+      //Enter necessary data, but with an invalid email address
+      await tester.enterText(usernameField, 'testUser2');
+      await tester.enterText(emailField, 'invalidemail');
+      await tester.enterText(passwordField, 'Pass123!');
 
-    //Tap sign up button
-    await tester.tap(signUpButton);
-    await tester.pumpAndSettle(const Duration(seconds: 1));
-    //Expect to see error for invalid email address
-    expect(
-        find.textContaining('The email provided is not a valid email address.'),
-        findsOneWidget);
-  });
+      //Tap sign up button
+      await tester.tap(signUpButton);
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+      //Expect to see error for invalid email address
+      expect(
+          find.textContaining(
+              'The email provided is not a valid email address.'),
+          findsOneWidget);
+    });
 
-  testWidgets(
-      'As a new user, if I sign up with an existing email, I see an error and stay on the sign up screen',
-      (WidgetTester tester) async {
-    //Navigate to sign up screen
-    await navigateToSignUpPage(tester);
+    testWidgets(
+        'As a new user, if I sign up with an existing email, I see an error and stay on the sign up screen',
+        (WidgetTester tester) async {
+      //Navigate to sign up screen
+      await navigateToSignUpPage(tester);
 
-    //Enter necessary data, but using an email that's taken (email was used on first test)
-    await tester.enterText(usernameField, 'testUser3');
-    await tester.enterText(emailField, 'testuser@email.com');
-    await tester.enterText(passwordField, 'Pass123!');
+      //Enter necessary data, but using an email that's taken (email was used on first test)
+      await tester.enterText(usernameField, 'testUser3');
+      await tester.enterText(emailField, 'testuser@email.com');
+      await tester.enterText(passwordField, 'Pass123!');
 
-    //Tap sign up button
-    await tester.tap(signUpButton);
-    await tester.pumpAndSettle(const Duration(seconds: 1));
-    //Expect to see error for taken email
-    expect(
-        find.textContaining(
-            'This email is already associated with another account.'),
-        findsOneWidget);
-  });
+      //Tap sign up button
+      await tester.tap(signUpButton);
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+      //Expect to see error for taken email
+      expect(
+          find.textContaining(
+              'This email is already associated with another account.'),
+          findsOneWidget);
+    });
 
-  testWidgets(
-      'As a new user, if I sign up with a weak password, I see an error and stay on the sign up screen',
-      (WidgetTester tester) async {
-    //Navigate to sign up screen
-    await navigateToSignUpPage(tester);
+    testWidgets(
+        'As a new user, if I sign up with a weak password, I see an error and stay on the sign up screen',
+        (WidgetTester tester) async {
+      //Navigate to sign up screen
+      await navigateToSignUpPage(tester);
 
-    //Enter necessary data, but using a username that's taken (username was used on first test)
-    await tester.enterText(usernameField, 'weakUser');
-    await tester.enterText(emailField, 'weakUser@email.com');
-    await tester.enterText(passwordField, '1');
+      //Enter necessary data, but using a username that's taken (username was used on first test)
+      await tester.enterText(usernameField, 'weakUser');
+      await tester.enterText(emailField, 'weakUser@email.com');
+      await tester.enterText(passwordField, '1');
 
-    //Tap sign up button
-    await tester.tap(signUpButton);
-    await tester.pumpAndSettle(const Duration(seconds: 1));
-    //Expect to see error for taken username
-    expect(
-        find.textContaining(
-            'Password must be at least 8 characters long and include numbers, letters, and special characters.'),
-        findsOneWidget);
-  });
+      //Tap sign up button
+      await tester.tap(signUpButton);
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+      //Expect to see error for taken username
+      expect(
+          find.textContaining(
+              'Password must be at least 8 characters long and include numbers, letters, and special characters.'),
+          findsOneWidget);
+    });
 
-  testWidgets(
-      'As a new user, if I sign up with a taken username, I see an error and stay on the sign up screen',
-      (WidgetTester tester) async {
-    //Navigate to sign up screen
-    await navigateToSignUpPage(tester);
+    testWidgets(
+        'As a new user, if I sign up with a taken username, I see an error and stay on the sign up screen',
+        (WidgetTester tester) async {
+      //Navigate to sign up screen
+      await navigateToSignUpPage(tester);
 
-    //Enter necessary data, but using a username that's taken (username was used on first test)
-    await tester.enterText(usernameField, 'testUser');
-    await tester.enterText(emailField, 'testuser@email.com');
-    await tester.enterText(passwordField, 'Pass123!');
+      //Enter necessary data, but using a username that's taken (username was used on first test)
+      await tester.enterText(usernameField, 'testUser');
+      await tester.enterText(emailField, 'testuser@email.com');
+      await tester.enterText(passwordField, 'Pass123!');
 
-    //Tap sign up button
-    await tester.tap(signUpButton);
-    await tester.pumpAndSettle(const Duration(seconds: 1));
-    //Expect to see error for taken username
-    expect(
-        find.textContaining(
-            'This username is already taken. Please try a different one.'),
-        findsOneWidget);
-  });
+      //Tap sign up button
+      await tester.tap(signUpButton);
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+      //Expect to see error for taken username
+      expect(
+          find.textContaining(
+              'This username is already taken. Please try a different one.'),
+          findsOneWidget);
+    });
 
-  testWidgets(
-      'As an existing user, if I sign in with an unexisting email, I see an error and stay on the sign in screen',
-      (WidgetTester tester) async {
-    //Navigate to log in screen
-    await navigateToLogInScreen(tester);
+    testWidgets(
+        'As an existing user, if I sign in with an unexisting email, I see an error and stay on the sign in screen',
+        (WidgetTester tester) async {
+      //Navigate to log in screen
+      await navigateToLogInScreen(tester);
 
-    //Enter necessary data, but using the an unexisting email
-    await tester.enterText(emailField, 'testusernotexisting@email.com');
-    await tester.enterText(passwordField, 'incorrect');
+      //Enter necessary data, but using the an unexisting email
+      await tester.enterText(emailField, 'testusernotexisting@email.com');
+      await tester.enterText(passwordField, 'incorrect');
 
-    //Tap log in button
-    await tester.tap(signInButton);
-    await tester.pumpAndSettle(const Duration(seconds: 1));
-    //Expect to see error for incorrect credentials
-    expect(
-        find.textContaining(
-            'No account found with this email address. Please check the email or create a new account.'),
-        findsOneWidget);
-  });
+      //Tap log in button
+      await tester.tap(signInButton);
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+      //Expect to see error for incorrect credentials
+      expect(
+          find.textContaining(
+              'No account found with this email address. Please check the email or create a new account.'),
+          findsOneWidget);
+    });
 
-  testWidgets(
-      'As an existing user, if I sign in with the incorrect password, I see an error and stay on the sign in screen',
-      (WidgetTester tester) async {
-    //Navigate to log in screen
-    await navigateToLogInScreen(tester);
+    testWidgets(
+        'As an existing user, if I sign in with the incorrect password, I see an error and stay on the sign in screen',
+        (WidgetTester tester) async {
+      //Navigate to log in screen
+      await navigateToLogInScreen(tester);
 
-    //Enter necessary data, but using the incorrect password
-    await tester.enterText(emailField, 'testuser@email.com');
-    await tester.enterText(passwordField, 'incorrect');
+      //Enter necessary data, but using the incorrect password
+      await tester.enterText(emailField, 'testuser@email.com');
+      await tester.enterText(passwordField, 'incorrect');
 
-    //Tap log in button
-    await tester.tap(signInButton);
-    await tester.pumpAndSettle(const Duration(seconds: 1));
-    //Expect to see error for incorrect credentials
-    expect(
-        find.textContaining(
-            'Incorrect password. Please try again or reset your password.'),
-        findsOneWidget);
-  });
+      //Tap log in button
+      await tester.tap(signInButton);
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+      //Expect to see error for incorrect credentials
+      expect(
+          find.textContaining(
+              'Incorrect password. Please try again or reset your password.'),
+          findsOneWidget);
+    });
 
-  testWidgets(
-      "As a user completing the onboarding, if I dont't enter my name I should see an error, and if I don't select at least one service, I should see an error.",
-      (WidgetTester tester) async {
-    await navigateToLogInScreen(tester);
+    testWidgets(
+        "As a user completing the onboarding, if I dont't enter my name I should see an error, and if I don't select at least one service, I should see an error.",
+        (WidgetTester tester) async {
+      await navigateToLogInScreen(tester);
 
-    //Enter necessary data and sign in
-    await tester.enterText(emailField, 'thirdUser@email.com');
-    await tester.enterText(passwordField, '123456');
-    await tester.tap(signInButton);
-    await tester.pumpAndSettle(const Duration(seconds: 5));
+      //Enter necessary data and sign in
+      await tester.enterText(emailField, 'thirdUser@email.com');
+      await tester.enterText(passwordField, '123456');
+      await tester.tap(signInButton);
+      await tester.pumpAndSettle(const Duration(seconds: 5));
 
-    //Tap next button without inputtting full name
-    expect(find.text('Name and Profile Picture'), findsOneWidget);
-    await tester.tap(onboardingButton);
-    await tester.pumpAndSettle();
+      //Tap next button without inputtting full name
+      expect(find.text('Name and Profile Picture'), findsOneWidget);
+      await tester.tap(onboardingButton);
+      await tester.pumpAndSettle();
 
-    //Expect to see error
-    expect(find.text('Please enter your full name.'), findsOneWidget);
-    await tester.enterText(fullNameField, 'Third User');
-    await tester.tap(onboardingButton);
-    await tester.pumpAndSettle();
+      //Expect to see error
+      expect(find.text('Please enter your full name.'), findsOneWidget);
+      await tester.enterText(fullNameField, 'Third User');
+      await tester.tap(onboardingButton);
+      await tester.pumpAndSettle();
 
-    //Tap Done! on second onboarding screen without choosing service
-    expect(
-        find.text('What professions are you interested in?'), findsOneWidget);
-    await tester.tap(onboardingButton);
-    await tester.pumpAndSettle();
+      //Tap Done! on second onboarding screen without choosing service
+      expect(
+          find.text('What professions are you interested in?'), findsOneWidget);
+      await tester.tap(onboardingButton);
+      await tester.pumpAndSettle();
 
-    //Expect to see error
-    expect(find.text('Select at least one service.'), findsOneWidget);
+      //Expect to see error
+      expect(find.text('Select at least one service.'), findsOneWidget);
 
-    await tester.tap(barberServiceButton);
-    await tester.tap(onboardingButton);
-    await tester.pumpAndSettle();
-  });
+      await tester.tap(barberServiceButton);
+      await tester.tap(onboardingButton);
+      await tester.pumpAndSettle();
+    });
 
-  testWidgets(
-      "As a user trying to create a portfolio, I should see errors if I don't select a service or upload at least 5 images",
-      (WidgetTester tester) async {
-    await navigateToLogInScreen(tester);
+    testWidgets(
+        "As a user trying to create a portfolio, I should see errors if I don't select a service or upload at least 5 images",
+        (WidgetTester tester) async {
+      await navigateToLogInScreen(tester);
 
-    //Enter necessary data and sign in
-    await tester.enterText(emailField, 'thirdUser@email.com');
-    await tester.enterText(passwordField, '123456');
-    await tester.tap(signInButton);
-    await tester.pumpAndSettle(const Duration(seconds: 5));
+      //Enter necessary data and sign in
+      await tester.enterText(emailField, 'thirdUser@email.com');
+      await tester.enterText(passwordField, '123456');
+      await tester.tap(signInButton);
+      await tester.pumpAndSettle(const Duration(seconds: 5));
 
-    //Go to profile tab and click button to create a portfolio
-    await tester.tap(profileTabButton);
-    await tester.pumpAndSettle();
-    await tester.tap(createPortfolioButton);
-    await tester.pumpAndSettle();
+      //Go to profile tab and click button to create a portfolio
+      await tester.tap(profileTabButton);
+      await tester.pumpAndSettle();
+      await tester.tap(createPortfolioButton);
+      await tester.pumpAndSettle();
 
-    //Tap next without selecting a service, expect to see an error for unselected service
-    await tester.tap(createPortfolioNextButton);
-    await tester.pumpAndSettle();
-    expect(find.text('Please select a service.'), findsOneWidget);
+      //Tap next without selecting a service, expect to see an error for unselected service
+      await tester.tap(createPortfolioNextButton);
+      await tester.pumpAndSettle();
+      expect(find.text('Please select a service.'), findsOneWidget);
 
-    //Select service to proceed to next screens
-    await tester.tap(landscaperServiceButton);
-    await tester.tap(createPortfolioNextButton);
-    await tester.pumpAndSettle();
+      //Select service to proceed to next screens
+      await tester.tap(barberServiceButton);
+      await tester.tap(createPortfolioNextButton);
+      await tester.pumpAndSettle();
 
-    //Pass the experience screen without inputting years/months
-    await tester.tap(createPortfolioNextButton);
-    await tester.pumpAndSettle();
+      //Pass the experience screen without inputting years/months
+      await tester.tap(createPortfolioNextButton);
+      await tester.pumpAndSettle();
 
-    //Tap next button on image upload screen without uploading images
-    await tester.tap(createPortfolioNextButton);
-    await tester.pumpAndSettle();
+      //Tap next button on image upload screen without uploading images
+      await tester.tap(createPortfolioNextButton);
+      await tester.pumpAndSettle();
 
-    //Expect to see error messages for required images
-    expect(find.text('Please upload at least 5 images.'), findsOneWidget);
+      //Expect to see error messages for required images
+      expect(find.text('Please upload at least 5 images.'), findsOneWidget);
+    });
 
-
-  });
-
-  // /////////////////////////////////////////////// SAD PATHS ////////////////////////////////////////////////////////////////////////
-
+    // /////////////////////////////////////////////// SAD PATHS ////////////////////////////////////////////////////////////////////////
   });
 }
