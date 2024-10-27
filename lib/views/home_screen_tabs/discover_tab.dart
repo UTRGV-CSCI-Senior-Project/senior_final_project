@@ -11,6 +11,7 @@ class DiscoverTab extends ConsumerWidget {
     // final portfolios = ref.watch(portfoliosProvider);
     final searchController = TextEditingController();
 
+
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(16.0),

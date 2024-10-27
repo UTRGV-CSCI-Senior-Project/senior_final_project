@@ -27,6 +27,14 @@ class _ChooseServiceState extends ConsumerState<ChooseService> {
     loadServices();
   }
 
+  @override
+  void dispose()
+  {
+    serviceType.dispose();
+    searchController.dispose();
+    super.dispose();
+  }
+
   Future<void> loadServices() async {
     try{
       final firestoreServices = ref.read(firestoreServicesProvider);

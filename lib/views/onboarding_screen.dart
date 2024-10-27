@@ -34,6 +34,13 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     loadServices();
   }
 
+  @override
+  void dispose() {
+    _pageController.dispose();
+    _fullNameController.dispose();
+    super.dispose();
+  }
+
   Future<void> loadServices() async {
     try {
       final firestoreServices = ref.read(firestoreServicesProvider);
@@ -46,9 +53,13 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         }
       });
     } catch (e) {
-      services = [];
+      setState(() {
+        services = [];
+      });
     } finally {
-      _servicesAreLoading = false;
+      setState(() {
+        _servicesAreLoading = false;
+      });
     }
   }
 
@@ -338,28 +349,20 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                               'preferredServices': selectedServicesList
                             });
 
-                            if (context.mounted) {
-                              Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          const HomeScreen()));
-                            }
+                            if (!context.mounted) return;
+                            Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const HomeScreen()));
                           } catch (e) {
-                            if (e is AppException) {
-                              setState(() {
-                                errorMessage = e.message;
-                              });
-                            } else {
-                              setState(() {
-                                errorMessage =
-                                    "Failed to update profile information. Please try again.";
-                              });
-                            }
-                          } finally {
-                            if (mounted) {
-                              _isLoading = false;
-                            }
+                            if (!context.mounted) return;
+                            setState(() {
+                              errorMessage = e is AppException
+                                  ? e.message
+                                  : "Failed to update profile information. Please try again.";
+                              _isLoading =
+                                  false; // Reset loading state on error
+                            });
                           }
                         }
                       }

@@ -16,6 +16,12 @@ class _MoreDetailsScreenState extends State<MoreDetailsScreen> {
   final detailsText = TextEditingController();
 
   @override
+  void dispose(){
+    detailsText.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(

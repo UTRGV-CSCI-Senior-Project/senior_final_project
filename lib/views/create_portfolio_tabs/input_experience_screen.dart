@@ -21,6 +21,13 @@ class _InputExperienceState extends State<InputExperience> {
   }
 
   @override
+  void dispose(){
+    yrsController.dispose();
+    monthController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
