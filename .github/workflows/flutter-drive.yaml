@@ -49,4 +49,4 @@ jobs:
         model: 'iPhone 14'
         os_version: '>=13.0'
     - name: "Run Integration Tests"
-      run: firebase emulators:exec --token '${{ secrets.FIREBASE_TOKEN }}' 'flutter test integration_test'
+      run: firebase emulators:exec --token '${{ secrets.FIREBASE_TOKEN }}' 'flutter test integration_test' --import=./data
