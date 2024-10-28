@@ -166,21 +166,26 @@ void main() {
       await tester.enterText(emailField, 'testuser@email.com');
       await tester.enterText(passwordField, 'Pass123!');
 
+      FocusManager.instance.primaryFocus?.unfocus();
+
+
       //Tap sign up button
+
       await tester.tap(signUpButton);
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
       //Enter full name in onboarding screen and tap next
       await tester.enterText(fullNameField, "First Last");
+      FocusManager.instance.primaryFocus?.unfocus();
       await tester.tap(onboardingButton);
-      await tester.pumpAndSettle(const Duration(seconds: 2));
+      await tester.pumpAndSettle(const Duration(seconds: 5));
       //Tap next on second onboarding screen
       expect(
           find.text('What professions are you interested in?'), findsOneWidget);
       await tester.tap(barberServiceButton);
       await tester.tap(carDetailerServiceButton);
       await tester.tap(onboardingButton);
-      await tester.pumpAndSettle(const Duration(seconds: 2));
+      await tester.pumpAndSettle(const Duration(seconds: 5));
       //Expect to see home screen with user's full name
       expect(find.text('Welcome, First Last!'), findsOneWidget);
     });
@@ -194,6 +199,8 @@ void main() {
       //Enter necessary data and sign in
       await tester.enterText(emailField, 'secondUser@email.com');
       await tester.enterText(passwordField, '123456');
+
+      FocusManager.instance.primaryFocus?.unfocus();
       await tester.tap(signInButton);
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
@@ -201,15 +208,16 @@ void main() {
       expect(find.text('Name and Profile Picture'), findsOneWidget);
       await tester.tap(imagePickerButton);
       await tester.enterText(fullNameField, "Second User");
+      FocusManager.instance.primaryFocus?.unfocus();
       await tester.tap(onboardingButton);
-      await tester.pumpAndSettle(const Duration(seconds: 2));
+      await tester.pumpAndSettle(const Duration(seconds: 5));
       //Tap Done! on second onboarding screen
       expect(
           find.text('What professions are you interested in?'), findsOneWidget);
       await tester.tap(barberServiceButton);
       await tester.tap(carDetailerServiceButton);
       await tester.tap(onboardingButton);
-      await tester.pumpAndSettle(const Duration(seconds: 2));
+      await tester.pumpAndSettle(const Duration(seconds: 5));
       //Expect to see home screen with user's full name
       expect(find.text('Welcome, Second User!'), findsOneWidget);
     });
@@ -223,6 +231,7 @@ void main() {
       //Sign In with the correct credentials
       await tester.enterText(emailField, 'secondUser@email.com');
       await tester.enterText(passwordField, '123456');
+      FocusManager.instance.primaryFocus?.unfocus();
 
       //Tap Sign In and wait
       await tester.tap(signInButton);
@@ -232,7 +241,7 @@ void main() {
       expect(find.text('Welcome, Second User!'), findsOneWidget);
 
       await tester.tap(profileTabButton);
-      await tester.pumpAndSettle(const Duration(seconds: 2));
+      await tester.pumpAndSettle(const Duration(seconds: 5));
       expect(find.text('Second User'), findsOneWidget);
       expect(find.text('secondUser@email.com'), findsOneWidget);
     });
@@ -246,6 +255,8 @@ void main() {
       //Sign In with the correct credentials
       await tester.enterText(emailField, 'firstUser@email.com');
       await tester.enterText(passwordField, '123456');
+      FocusManager.instance.primaryFocus?.unfocus();
+
 
       //Tap Sign In and wait
       await tester.tap(signInButton);
@@ -255,7 +266,7 @@ void main() {
       expect(find.text('Welcome, First User!'), findsOneWidget);
 
       await tester.tap(profileTabButton);
-      await tester.pumpAndSettle(const Duration(seconds: 2));
+      await tester.pumpAndSettle(const Duration(seconds: 5));
       expect(find.text('First User'), findsOneWidget);
       expect(find.text('Barber'), findsOneWidget);
       expect(find.text('Barber Portfolio'), findsOneWidget);
@@ -272,6 +283,8 @@ void main() {
       //Sign In with the correct credentials
       await tester.enterText(emailField, 'secondUser@email.com');
       await tester.enterText(passwordField, '123456');
+      FocusManager.instance.primaryFocus?.unfocus();
+
 
       //Tap Sign In and wait
       await tester.tap(signInButton);
@@ -281,21 +294,21 @@ void main() {
       expect(find.text('Welcome, Second User!'), findsOneWidget);
 
       await tester.tap(profileTabButton);
-      await tester.pumpAndSettle(const Duration(seconds: 2));
+      await tester.pumpAndSettle(const Duration(seconds: 5));
       expect(find.text('Second User'), findsOneWidget);
       expect(find.text('secondUser@email.com'), findsOneWidget);
 
       await tester.tap(createPortfolioButton);
-      await tester.pumpAndSettle(const Duration(seconds: 2));
+      await tester.pumpAndSettle(const Duration(seconds: 5));
       await tester.tap(barberServiceButton);
       await tester.tap(createPortfolioNextButton);
-      await tester.pumpAndSettle(const Duration(seconds: 2));
+      await tester.pumpAndSettle(const Duration(seconds: 5));
       await tester.tap(createPortfolioNextButton);
-      await tester.pumpAndSettle(const Duration(seconds: 2));
+      await tester.pumpAndSettle(const Duration(seconds: 5));
       await tester.tap(imagePickerButton);
-      await tester.pumpAndSettle(const Duration(seconds: 2));
+      await tester.pumpAndSettle(const Duration(seconds: 5));
       await tester.tap(createPortfolioNextButton);
-      await tester.pumpAndSettle(const Duration(seconds: 2));
+      await tester.pumpAndSettle(const Duration(seconds: 5));
       await tester.tap(createPortfolioNextButton);
       await tester.pumpAndSettle(const Duration(seconds: 30));
 
@@ -322,8 +335,14 @@ void main() {
       await tester.enterText(usernameField, 'testUser2');
       await tester.enterText(emailField, 'invalidemail');
       await tester.enterText(passwordField, 'Pass123!');
-
+      FocusManager.instance.primaryFocus?.unfocus();
       //Tap sign up button
+      final scrollable = find.byType(Scrollable);
+    await tester.scrollUntilVisible(
+      signUpButton,
+      500.0, // Scroll amount per attempt
+      scrollable: scrollable.first
+    );
       await tester.tap(signUpButton);
       await tester.pumpAndSettle(const Duration(seconds: 1));
       //Expect to see error for invalid email address
@@ -343,8 +362,15 @@ void main() {
       await tester.enterText(usernameField, 'testUser3');
       await tester.enterText(emailField, 'testuser@email.com');
       await tester.enterText(passwordField, 'Pass123!');
+      FocusManager.instance.primaryFocus?.unfocus();
 
       //Tap sign up button
+final scrollable = find.byType(Scrollable);
+    await tester.scrollUntilVisible(
+      signUpButton,
+      500.0, // Scroll amount per attempt
+      scrollable: scrollable.first
+    );
       await tester.tap(signUpButton);
       await tester.pumpAndSettle(const Duration(seconds: 1));
       //Expect to see error for taken email
@@ -364,8 +390,15 @@ void main() {
       await tester.enterText(usernameField, 'weakUser');
       await tester.enterText(emailField, 'weakUser@email.com');
       await tester.enterText(passwordField, '1');
+      FocusManager.instance.primaryFocus?.unfocus();
 
       //Tap sign up button
+final scrollable = find.byType(Scrollable);
+    await tester.scrollUntilVisible(
+      signUpButton,
+      500.0, // Scroll amount per attempt
+      scrollable: scrollable.first
+    );
       await tester.tap(signUpButton);
       await tester.pumpAndSettle(const Duration(seconds: 1));
       //Expect to see error for taken username
@@ -385,8 +418,15 @@ void main() {
       await tester.enterText(usernameField, 'testUser');
       await tester.enterText(emailField, 'testuser@email.com');
       await tester.enterText(passwordField, 'Pass123!');
+      FocusManager.instance.primaryFocus?.unfocus();
 
       //Tap sign up button
+final scrollable = find.byType(Scrollable);
+    await tester.scrollUntilVisible(
+      signUpButton,
+      500.0, // Scroll amount per attempt
+      scrollable: scrollable.first
+    );
       await tester.tap(signUpButton);
       await tester.pumpAndSettle(const Duration(seconds: 1));
       //Expect to see error for taken username
@@ -405,10 +445,17 @@ void main() {
       //Enter necessary data, but using the an unexisting email
       await tester.enterText(emailField, 'testusernotexisting@email.com');
       await tester.enterText(passwordField, 'incorrect');
+      FocusManager.instance.primaryFocus?.unfocus();
 
       //Tap log in button
+      final scrollable = find.byType(Scrollable);
+    await tester.scrollUntilVisible(
+      signInButton,
+      500.0, // Scroll amount per attempt
+      scrollable: scrollable.first
+    );
       await tester.tap(signInButton);
-      await tester.pumpAndSettle(const Duration(seconds: 1));
+      await tester.pumpAndSettle(const Duration(seconds: 5));
       //Expect to see error for incorrect credentials
       expect(
           find.textContaining(
@@ -425,10 +472,17 @@ void main() {
       //Enter necessary data, but using the incorrect password
       await tester.enterText(emailField, 'testuser@email.com');
       await tester.enterText(passwordField, 'incorrect');
+      FocusManager.instance.primaryFocus?.unfocus();
 
       //Tap log in button
+      final scrollable = find.byType(Scrollable);
+    await tester.scrollUntilVisible(
+      signInButton,
+      500.0, // Scroll amount per attempt
+      scrollable: scrollable.first
+    );
       await tester.tap(signInButton);
-      await tester.pumpAndSettle(const Duration(seconds: 1));
+      await tester.pumpAndSettle(const Duration(seconds: 5));
       //Expect to see error for incorrect credentials
       expect(
           find.textContaining(
@@ -444,6 +498,13 @@ void main() {
       //Enter necessary data and sign in
       await tester.enterText(emailField, 'thirdUser@email.com');
       await tester.enterText(passwordField, '123456');
+      FocusManager.instance.primaryFocus?.unfocus();
+      final scrollable = find.byType(Scrollable);
+    await tester.scrollUntilVisible(
+      signInButton,
+      500.0, // Scroll amount per attempt
+      scrollable: scrollable.first
+    );
       await tester.tap(signInButton);
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
@@ -455,6 +516,7 @@ void main() {
       //Expect to see error
       expect(find.text('Please enter your full name.'), findsOneWidget);
       await tester.enterText(fullNameField, 'Third User');
+      FocusManager.instance.primaryFocus?.unfocus();
       await tester.tap(onboardingButton);
       await tester.pumpAndSettle();
 
@@ -480,6 +542,13 @@ void main() {
       //Enter necessary data and sign in
       await tester.enterText(emailField, 'thirdUser@email.com');
       await tester.enterText(passwordField, '123456');
+      FocusManager.instance.primaryFocus?.unfocus();
+      final scrollable = find.byType(Scrollable);
+    await tester.scrollUntilVisible(
+      signInButton,
+      500.0, // Scroll amount per attempt
+      scrollable: scrollable.first
+    );
       await tester.tap(signInButton);
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
