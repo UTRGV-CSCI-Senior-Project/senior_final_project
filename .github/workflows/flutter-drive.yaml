@@ -4,7 +4,6 @@ name: Unit and Integration tests
 on: [pull_request]
 # A workflow run is made up of one or more jobs.
 jobs:
-
   unit-tests:
     runs-on: ubuntu-latest
     steps:
@@ -29,7 +28,15 @@ jobs:
     steps:
       - name: Clone Repository
         uses: actions/checkout@v3
-      
+
+      - name: Cache firebase emulators
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/firebase/emulators
+          key: ${{ runner.os }}-firebase-emulators-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-firebase-emulators-
+
       - name: Set Up Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -54,10 +61,8 @@ jobs:
       - name: "Set up simulator"
         uses: futureware-tech/simulator-action@v3
         with:
-          model: "iPhone 15"
+          model: "iPhone 14"
           os_version: ">=13.0"
-          erase_before_boot: true
-          shutdown_after_job: true
       - name: "Run Integration Tests"
         run: firebase emulators:exec --token '${{ secrets.FIREBASE_TOKEN }}' 'flutter test integration_test' --import=./data
 
