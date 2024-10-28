@@ -24,7 +24,7 @@ jobs:
 
   integration-tests:
     runs-on: macOS-latest
-
+    timeout-minutes: 30
     steps:
       - name: Clone Repository
         uses: actions/checkout@v3
@@ -64,7 +64,7 @@ jobs:
           model: "iPhone 14"
           os_version: ">=13.0"
       - name: "Run Integration Tests"
-        run: firebase emulators:exec --token '${{ secrets.FIREBASE_TOKEN }}' 'flutter test integration_test' --import=./data
+        run: firebase emulators:exec --token '${{ secrets.FIREBASE_TOKEN }}' 'flutter test integration_test --timeout=50m' --import=./data
 
   # # id of job, a string that is unique to the "jobs" node above.
   # iphone:

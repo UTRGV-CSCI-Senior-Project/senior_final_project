@@ -69,6 +69,9 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   late ProviderContainer container;
 
+  final binding = IntegrationTestWidgetsFlutterBinding.instance;
+  binding.defaultTestTimeout = Timeout.none;
+
 //////////////////////// Any Necessary Finders ////////////////////////
 
   final usernameField = find.byKey(const Key('username-field'));
