@@ -4,7 +4,8 @@ name: Unit and Integration tests
 on: [pull_request]
 # A workflow run is made up of one or more jobs.
 jobs:
-  set-up-flutter:
+
+  unit-tests:
     runs-on: ubuntu-latest
     steps:
       - name: Clone Repository
@@ -16,13 +17,6 @@ jobs:
           channel: "stable"
           cache: true
 
-  unit-tests:
-    runs-on: ubuntu-latest
-    needs: set-up-flutter
-    steps:
-      - name: Clone Repository
-        uses: actions/checkout@v3
-
       - name: Write firebase_options.dart
         run: echo '${{ secrets.FIREBASE_OPTIONS }}' > lib/firebase_options.dart
 
@@ -31,11 +25,16 @@ jobs:
 
   integration-tests:
     runs-on: ubuntu-latest
-    needs: set-up-flutter
 
     steps:
       - name: Clone Repository
         uses: actions/checkout@v3
+      
+      - name: Set Up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+          cache: true
 
       - name: Write firebase_options.dart
         run: echo '${{ secrets.FIREBASE_OPTIONS }}' > lib/firebase_options.dart
