@@ -59,7 +59,7 @@ jobs:
           erase_before_boot: true
           shutdown_after_job: true
       - name: "Run Integration Tests"
-        run: firebase emulators:exec --token '${{ secrets.FIREBASE_TOKEN }}' 'flutter test integration_test'
+        run: firebase emulators:exec --token '${{ secrets.FIREBASE_TOKEN }}' 'flutter test integration_test' --import=./data
 
   # # id of job, a string that is unique to the "jobs" node above.
   # iphone:
