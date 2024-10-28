@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:folio/core/service_locator.dart';
 import 'package:folio/views/welcome_screen.dart';
+import 'package:folio/core/user_location_controller.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -12,6 +13,7 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     double Phonewidth = MediaQuery.sizeOf(context).width;
     double Phoneheight = MediaQuery.sizeOf(context).height;
+    Future<String> userAddress = currentAddress();
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(

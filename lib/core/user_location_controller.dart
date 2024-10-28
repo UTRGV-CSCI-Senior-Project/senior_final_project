@@ -42,4 +42,11 @@ Future<Position> _determinePosition() async {
   return await Geolocator.getCurrentPosition();
 }
 
-String _currentAddress() {}
+Future<String> currentAddress() async {
+  Position userLongLat = _determinePosition() as Position;
+
+  List<Placemark> placemarks = await placemarkFromCoordinates(
+      userLongLat.latitude, userLongLat.longitude);
+  Placemark place = placemarks[0];
+  return "${place.locality}";
+}
