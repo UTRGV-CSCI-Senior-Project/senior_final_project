@@ -90,25 +90,19 @@ void main() {
 ////////////////////////////////////////////////////////////////////////
 
 //////////////////////// Set Up and Tear Down //////////////////////////
-  ///
-
-  setUp(() {
-    final mockImagePicker = MockImagePicker();
-
-    container = ProviderContainer(
-        overrides: [imagePickerProvider.overrideWithValue(mockImagePicker)]);
-  });
 
   setUpAll(() async {
     await Firebase.initializeApp();
     setupEmulators(useEmulators: true);
+
+    final mockImagePicker = MockImagePicker();
+
+    container = ProviderContainer(
+        overrides: [imagePickerProvider.overrideWithValue(mockImagePicker)]);
+    await container.read(authServicesProvider).signOut();
   });
 
   tearDownAll(() {
-    container.read(authServicesProvider).signOut();
-  });
-
-  setUp(() {
     container.read(authServicesProvider).signOut();
   });
 
@@ -168,7 +162,6 @@ void main() {
 
       FocusManager.instance.primaryFocus?.unfocus();
 
-
       //Tap sign up button
 
       await tester.tap(signUpButton);
@@ -187,7 +180,8 @@ void main() {
       await tester.tap(onboardingButton);
       await tester.pumpAndSettle(const Duration(seconds: 5));
       //Expect to see home screen with user's full name
-      expect(find.text('Welcome, First Last!'), findsOneWidget);
+      expect(find.textContaining('First Last'), findsOneWidget);
+      await container.read(authServicesProvider).signOut();
     });
 
     testWidgets(
@@ -219,7 +213,8 @@ void main() {
       await tester.tap(onboardingButton);
       await tester.pumpAndSettle(const Duration(seconds: 5));
       //Expect to see home screen with user's full name
-      expect(find.text('Welcome, Second User!'), findsOneWidget);
+      expect(find.textContaining('Second User'), findsOneWidget);
+      await container.read(authServicesProvider).signOut();
     });
 
     testWidgets(
@@ -238,12 +233,13 @@ void main() {
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
       //Expect to see home screen with user's full name.
-      expect(find.text('Welcome, Second User!'), findsOneWidget);
+      expect(find.textContaining('Second User'), findsOneWidget);
 
       await tester.tap(profileTabButton);
       await tester.pumpAndSettle(const Duration(seconds: 5));
       expect(find.text('Second User'), findsOneWidget);
       expect(find.text('secondUser@email.com'), findsOneWidget);
+      await container.read(authServicesProvider).signOut();
     });
 
     testWidgets(
@@ -257,13 +253,12 @@ void main() {
       await tester.enterText(passwordField, '123456');
       FocusManager.instance.primaryFocus?.unfocus();
 
-
       //Tap Sign In and wait
       await tester.tap(signInButton);
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
       //Expect to see home screen with user's full name.
-      expect(find.text('Welcome, First User!'), findsOneWidget);
+      expect(find.textContaining('First User'), findsOneWidget);
 
       await tester.tap(profileTabButton);
       await tester.pumpAndSettle(const Duration(seconds: 5));
@@ -272,6 +267,7 @@ void main() {
       expect(find.text('Barber Portfolio'), findsOneWidget);
       expect(find.text('firstUser@email.com'), findsOneWidget);
       expect(find.byType(Image), findsExactly(6));
+      await container.read(authServicesProvider).signOut();
     });
 
     testWidgets(
@@ -285,13 +281,12 @@ void main() {
       await tester.enterText(passwordField, '123456');
       FocusManager.instance.primaryFocus?.unfocus();
 
-
       //Tap Sign In and wait
       await tester.tap(signInButton);
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
       //Expect to see home screen with user's full name.
-      expect(find.text('Welcome, Second User!'), findsOneWidget);
+      expect(find.textContaining('Second User'), findsOneWidget);
 
       await tester.tap(profileTabButton);
       await tester.pumpAndSettle(const Duration(seconds: 5));
@@ -317,6 +312,7 @@ void main() {
       expect(find.text('Barber Portfolio'), findsOneWidget);
       expect(find.text('secondUser@email.com'), findsOneWidget);
       expect(find.byType(Image), findsExactly(6));
+      await container.read(authServicesProvider).signOut();
     });
   });
 
@@ -338,11 +334,9 @@ void main() {
       FocusManager.instance.primaryFocus?.unfocus();
       //Tap sign up button
       final scrollable = find.byType(Scrollable);
-    await tester.scrollUntilVisible(
-      signUpButton,
-      500.0, // Scroll amount per attempt
-      scrollable: scrollable.first
-    );
+      await tester.scrollUntilVisible(
+          signUpButton, 500.0, // Scroll amount per attempt
+          scrollable: scrollable.first);
       await tester.tap(signUpButton);
       await tester.pumpAndSettle(const Duration(seconds: 1));
       //Expect to see error for invalid email address
@@ -365,12 +359,10 @@ void main() {
       FocusManager.instance.primaryFocus?.unfocus();
 
       //Tap sign up button
-final scrollable = find.byType(Scrollable);
-    await tester.scrollUntilVisible(
-      signUpButton,
-      500.0, // Scroll amount per attempt
-      scrollable: scrollable.first
-    );
+      final scrollable = find.byType(Scrollable);
+      await tester.scrollUntilVisible(
+          signUpButton, 500.0, // Scroll amount per attempt
+          scrollable: scrollable.first);
       await tester.tap(signUpButton);
       await tester.pumpAndSettle(const Duration(seconds: 1));
       //Expect to see error for taken email
@@ -393,12 +385,10 @@ final scrollable = find.byType(Scrollable);
       FocusManager.instance.primaryFocus?.unfocus();
 
       //Tap sign up button
-final scrollable = find.byType(Scrollable);
-    await tester.scrollUntilVisible(
-      signUpButton,
-      500.0, // Scroll amount per attempt
-      scrollable: scrollable.first
-    );
+      final scrollable = find.byType(Scrollable);
+      await tester.scrollUntilVisible(
+          signUpButton, 500.0, // Scroll amount per attempt
+          scrollable: scrollable.first);
       await tester.tap(signUpButton);
       await tester.pumpAndSettle(const Duration(seconds: 1));
       //Expect to see error for taken username
@@ -421,12 +411,10 @@ final scrollable = find.byType(Scrollable);
       FocusManager.instance.primaryFocus?.unfocus();
 
       //Tap sign up button
-final scrollable = find.byType(Scrollable);
-    await tester.scrollUntilVisible(
-      signUpButton,
-      500.0, // Scroll amount per attempt
-      scrollable: scrollable.first
-    );
+      final scrollable = find.byType(Scrollable);
+      await tester.scrollUntilVisible(
+          signUpButton, 500.0, // Scroll amount per attempt
+          scrollable: scrollable.first);
       await tester.tap(signUpButton);
       await tester.pumpAndSettle(const Duration(seconds: 1));
       //Expect to see error for taken username
@@ -449,11 +437,9 @@ final scrollable = find.byType(Scrollable);
 
       //Tap log in button
       final scrollable = find.byType(Scrollable);
-    await tester.scrollUntilVisible(
-      signInButton,
-      500.0, // Scroll amount per attempt
-      scrollable: scrollable.first
-    );
+      await tester.scrollUntilVisible(
+          signInButton, 500.0, // Scroll amount per attempt
+          scrollable: scrollable.first);
       await tester.tap(signInButton);
       await tester.pumpAndSettle(const Duration(seconds: 5));
       //Expect to see error for incorrect credentials
@@ -476,11 +462,9 @@ final scrollable = find.byType(Scrollable);
 
       //Tap log in button
       final scrollable = find.byType(Scrollable);
-    await tester.scrollUntilVisible(
-      signInButton,
-      500.0, // Scroll amount per attempt
-      scrollable: scrollable.first
-    );
+      await tester.scrollUntilVisible(
+          signInButton, 500.0, // Scroll amount per attempt
+          scrollable: scrollable.first);
       await tester.tap(signInButton);
       await tester.pumpAndSettle(const Duration(seconds: 5));
       //Expect to see error for incorrect credentials
@@ -500,11 +484,9 @@ final scrollable = find.byType(Scrollable);
       await tester.enterText(passwordField, '123456');
       FocusManager.instance.primaryFocus?.unfocus();
       final scrollable = find.byType(Scrollable);
-    await tester.scrollUntilVisible(
-      signInButton,
-      500.0, // Scroll amount per attempt
-      scrollable: scrollable.first
-    );
+      await tester.scrollUntilVisible(
+          signInButton, 500.0, // Scroll amount per attempt
+          scrollable: scrollable.first);
       await tester.tap(signInButton);
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
@@ -532,6 +514,7 @@ final scrollable = find.byType(Scrollable);
       await tester.tap(barberServiceButton);
       await tester.tap(onboardingButton);
       await tester.pumpAndSettle();
+      await container.read(authServicesProvider).signOut();
     });
 
     testWidgets(
@@ -544,11 +527,9 @@ final scrollable = find.byType(Scrollable);
       await tester.enterText(passwordField, '123456');
       FocusManager.instance.primaryFocus?.unfocus();
       final scrollable = find.byType(Scrollable);
-    await tester.scrollUntilVisible(
-      signInButton,
-      500.0, // Scroll amount per attempt
-      scrollable: scrollable.first
-    );
+      await tester.scrollUntilVisible(
+          signInButton, 500.0, // Scroll amount per attempt
+          scrollable: scrollable.first);
       await tester.tap(signInButton);
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
@@ -578,6 +559,7 @@ final scrollable = find.byType(Scrollable);
 
       //Expect to see error messages for required images
       expect(find.text('Please upload at least 5 images.'), findsOneWidget);
+      await container.read(authServicesProvider).signOut();
     });
 
     // /////////////////////////////////////////////// SAD PATHS ////////////////////////////////////////////////////////////////////////

@@ -40,7 +40,7 @@ jobs:
       run: flutter test
     - name: Install firebase tools
       run: npm install -g firebase-tools
-    - name: Authenticate firebaes
+    - name: Authenticate firebase
       run: firebase use --token '${{ secrets.FIREBASE_TOKEN }}'
     # Set up IOS simulator and run integration tests
     - name: "Set up simulator"

@@ -25,7 +25,7 @@ class HomeScreen extends ConsumerWidget {
             String getTitle() {
               switch (selectedIndex) {
                 case 0:
-                  return 'Welcome, ${userModel.fullName?.trim()}!';
+                  return 'Welcome, ${userModel.fullName}!';
                 case 1:
                   return 'Discover';
                 case 2:
