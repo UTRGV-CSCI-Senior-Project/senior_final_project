@@ -24,8 +24,6 @@ jobs:
 
   android-integration-tests:
     runs-on: ubuntu-latest
-    timeout-minutes: 50
-
     steps:
       - name: Clone Repository
         uses: actions/checkout@v4
@@ -36,7 +34,7 @@ jobs:
           channel: "stable"
           cache: true
       - name: Enabling KVM -1
-        uses: DeterminateSystems/nix-installer-action@main     
+        uses: DeterminateSystems/nix-installer-action@main
 
       - name: Enabling KVM -2
         run: |
@@ -99,17 +97,16 @@ jobs:
           script: firebase emulators:exec "flutter test integration_test --timeout none" --import=./data
 
   iphone-integration-tests:
-    runs-on: ubuntu-latest
-    timeout-minutes: 50
+    runs-on: macOS-latest
     steps:
       - name: Clone Repository
         uses: actions/checkout@v4
 
-      - name: Shutdown all simulators
-        run: xcrun simctl shutdown all
-
       - name: Erase all simulators
         run: xcrun simctl erase all
+
+      - name: Shutdown all simulators
+        run: xcrun simctl shutdown all
 
       - name: Clean Xcode Derived Data
         run: rm -rf ~/Library/Developer/Xcode/DerivedData/*
@@ -118,7 +115,7 @@ jobs:
         run: rm -rf ~/Library/Caches/com.apple.dt.Xcode/*
 
       - name: Cache CocoaPods
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ios/Pods
           key: ${{ runner.os }}-pods-${{ hashFiles('ios/Podfile.lock') }}
@@ -152,12 +149,15 @@ jobs:
           model: "iPhone 14"
           os_version: ">=13.0"
           wait_for_boot: true
-      - name: Get Flutter Dependencies
-        run: flutter pub get
+      - name: Clean and Get Flutter Dependencies
+        run: |
+          flutter clean
+          flutter pub get
       - name: Pod Install
         run: |
           cd ios
-          pod install
+          pod install --verbose
           cd ..
       - name: "Run Integration Tests"
+        timeout-minutes: 50
         run: firebase emulators:exec --token "${{ secrets.FIREBASE_TOKEN }}" "flutter test integration_test --timeout none" --import=./data
