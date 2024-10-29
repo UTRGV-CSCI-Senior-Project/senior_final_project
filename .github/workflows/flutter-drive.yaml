@@ -160,4 +160,4 @@ jobs:
           cd ..
       - name: "Run Integration Tests"
         timeout-minutes: 50
-        run: firebase emulators:exec --token "${{ secrets.FIREBASE_TOKEN }}" "flutter test integration_test --timeout none" --import=./data
+        run: firebase emulators:exec --token "${{ secrets.FIREBASE_TOKEN }}" "flutter test integration_test --verbose" --import=./data
