@@ -23,7 +23,7 @@ jobs:
         run: flutter test
 
   android-integration-tests:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - name: Clone Repository
         uses: actions/checkout@v4
@@ -41,18 +41,6 @@ jobs:
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
-
-      - name: Gradle cache
-        uses: gradle/actions/setup-gradle@v3
-
-      - name: AVD cache
-        uses: actions/cache@v4
-        id: avd-cache
-        with:
-          path: |
-            ~/.android/avd/*
-            ~/.android/adb*
-          key: avd-23
 
       - name: Write firebase_options.dart
         run: echo '${{ secrets.FIREBASE_OPTIONS }}' > lib/firebase_options.dart
@@ -72,32 +60,14 @@ jobs:
       - name: Get Flutter Dependencies
         run: flutter pub get
 
-      - name: create AVD and generate snapshot for caching
-        if: steps.avd-cache.outputs.cache-hit != 'true'
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: 23
-          arch: x86_64
-          profile: pixel_3a
-          force-avd-creation: false
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-          disable-animations: false
-          script: echo "Generated AVD snapshot for caching."
-
       - name: Run Integration Tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 23
-          arch: x86_64
-          profile: pixel_3a
-          force-avd-creation: false
-          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-          disable-animations: true
-          emulator-boot-timeout: 2000
           script: firebase emulators:exec "flutter test integration_test --timeout none" --import=./data
 
   iphone-integration-tests:
-    runs-on: self-hosted
+    runs-on: macOS-latest
     steps:
       - name: Clone Repository
         uses: actions/checkout@v4
@@ -118,7 +88,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ios/Pods
-          key: ${{ runner.os }}-pods-${{ hashFiles('ios/Podfile.lock') }}
+          key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
           restore-keys: |
             ${{ runner.os }}-pods-
 
@@ -158,6 +128,8 @@ jobs:
           os: iOS
           model: "iPhone 14"
           os_version: ">=13.0"
+          wait_for_boot: true
+
 
       - name: Grant permission
         run: |
@@ -168,4 +140,4 @@ jobs:
       - name: "Run Integration Tests"
         timeout-minutes: 50
         continue-on-error: true
-        run: firebase emulators:exec --token "${{ secrets.FIREBASE_TOKEN }}" "flutter test integration_test" --import=./data
+        run: firebase emulators:exec --token "${{ secrets.FIREBASE_TOKEN }}" "flutter test integration_test --timeout none" --import=./data
