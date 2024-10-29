@@ -99,7 +99,7 @@ jobs:
           script: firebase emulators:exec "flutter test integration_test --timeout none" --import=./data
 
   iphone-integration-tests:
-    runs-on: macOS-latest
+    runs-on: ubuntu-latest
     timeout-minutes: 50
     steps:
       - name: Clone Repository
@@ -116,7 +116,7 @@ jobs:
 
       - name: Clean Xcode cache
         run: rm -rf ~/Library/Caches/com.apple.dt.Xcode/*
-        
+
       - name: Cache CocoaPods
         uses: actions/cache@v3
         with:
