@@ -24,6 +24,8 @@ jobs:
 
   android-integration-tests:
     runs-on: ubuntu-latest
+    timeout-minutes: 50
+
     steps:
       - name: Clone Repository
         uses: actions/checkout@v4
@@ -52,7 +54,10 @@ jobs:
       - name: Run Integration Tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 29
+          api-level: 23
+          arch: x86_64
+          profile: Nexus 6
+          emulator-boot-timeout: 1500
           script: firebase emulators:exec "flutter test integration_test --timeout none" --import=./data
 
   iphone-integration-tests:
