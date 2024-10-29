@@ -116,6 +116,14 @@ jobs:
 
       - name: Clean Xcode cache
         run: rm -rf ~/Library/Caches/com.apple.dt.Xcode/*
+        
+      - name: Cache CocoaPods
+        uses: actions/cache@v3
+        with:
+          path: ios/Pods
+          key: ${{ runner.os }}-pods-${{ hashFiles('ios/Podfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pods-
 
       - name: Set Up Flutter
         uses: subosito/flutter-action@v2
@@ -152,4 +160,4 @@ jobs:
           pod install
           cd ..
       - name: "Run Integration Tests"
-        run: firebase emulators:exec "flutter test integration_test --timeout none" --import=./data
+        run: firebase emulators:exec --token "${{ secrets.FIREBASE_TOKEN }}" "flutter test integration_test --timeout none" --import=./data
