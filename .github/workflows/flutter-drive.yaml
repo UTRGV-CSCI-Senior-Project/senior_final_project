@@ -23,7 +23,7 @@ jobs:
         run: flutter test
 
   android-integration-tests:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - name: Clone Repository
         uses: actions/checkout@v4
@@ -97,7 +97,7 @@ jobs:
           script: firebase emulators:exec "flutter test integration_test --timeout none" --import=./data
 
   iphone-integration-tests:
-    runs-on: macOS-latest
+    runs-on: self-hosted
     steps:
       - name: Clone Repository
         uses: actions/checkout@v4
