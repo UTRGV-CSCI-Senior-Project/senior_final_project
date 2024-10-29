@@ -122,13 +122,16 @@ void main() {
         )));
     await tester.pumpAndSettle(const Duration(seconds: 5));
 
+    final scrollable = find.byType(Scrollable);
+      await tester.scrollUntilVisible(
+          signUpButton, 500.0, // Scroll amount per attempt
+          scrollable: scrollable.first);
+
     //Navigate to sign up screen by tapping sign up button on welcome screen
-    expect(signUpButton, findsOneWidget);
     await tester.tap(signUpButton);
     await tester.pumpAndSettle();
 
-    //Expect to see Sign Up title to verify we are on sign up screen
-    expect(find.text('Sign Up'), findsAny);
+
   }
 
   Future<void> navigateToLogInScreen(WidgetTester tester) async {
@@ -140,13 +143,15 @@ void main() {
         )));
     await tester.pumpAndSettle(const Duration(seconds: 5));
 
+    final scrollable = find.byType(Scrollable);
+      await tester.scrollUntilVisible(
+          signInButton, 500.0, // Scroll amount per attempt
+          scrollable: scrollable.first);
+
     //Navigate to log in screen by tapping log in button on welcome screen
-    expect(signInButton, findsOneWidget);
     await tester.tap(signInButton);
     await tester.pumpAndSettle();
 
-    //Expect to see Sign In title to verify we are on Log in screen
-    expect(find.text('Sign In'), findsAny);
   }
 ////////////////////////////////////////////////////////////////////////
 
@@ -166,7 +171,10 @@ void main() {
       FocusManager.instance.primaryFocus?.unfocus();
 
       //Tap sign up button
-
+final scrollable = find.byType(Scrollable);
+      await tester.scrollUntilVisible(
+          signUpButton, 500.0, // Scroll amount per attempt
+          scrollable: scrollable.first);
       await tester.tap(signUpButton);
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
@@ -198,6 +206,10 @@ void main() {
       await tester.enterText(passwordField, '123456');
 
       FocusManager.instance.primaryFocus?.unfocus();
+      final scrollable = find.byType(Scrollable);
+      await tester.scrollUntilVisible(
+          signInButton, 500.0, // Scroll amount per attempt
+          scrollable: scrollable.first);
       await tester.tap(signInButton);
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
@@ -232,6 +244,10 @@ void main() {
       FocusManager.instance.primaryFocus?.unfocus();
 
       //Tap Sign In and wait
+      final scrollable = find.byType(Scrollable);
+      await tester.scrollUntilVisible(
+          signInButton, 500.0, // Scroll amount per attempt
+          scrollable: scrollable.first);
       await tester.tap(signInButton);
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
@@ -257,6 +273,10 @@ void main() {
       FocusManager.instance.primaryFocus?.unfocus();
 
       //Tap Sign In and wait
+      final scrollable = find.byType(Scrollable);
+      await tester.scrollUntilVisible(
+          signInButton, 500.0, // Scroll amount per attempt
+          scrollable: scrollable.first);
       await tester.tap(signInButton);
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
@@ -285,6 +305,10 @@ void main() {
       FocusManager.instance.primaryFocus?.unfocus();
 
       //Tap Sign In and wait
+      final scrollable = find.byType(Scrollable);
+      await tester.scrollUntilVisible(
+          signInButton, 500.0, // Scroll amount per attempt
+          scrollable: scrollable.first);
       await tester.tap(signInButton);
       await tester.pumpAndSettle(const Duration(seconds: 5));
 

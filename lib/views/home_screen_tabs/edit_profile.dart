@@ -44,15 +44,26 @@ class _EditProfileState extends ConsumerState<EditProfile> {
                                 width: 125,
                                 height: 125,
                                 fit: BoxFit.cover,
-                                loadingBuilder: (context, child, loadingProgress){
-                                            if(loadingProgress == null) return child;
-                                            return Center(child: CircularProgressIndicator(
-                                              value: loadingProgress.expectedTotalBytes != null ? loadingProgress.cumulativeBytesLoaded /loadingProgress.expectedTotalBytes! : null
-                                            ),);
-                                          }, errorBuilder: (context, error, stackTrace) => Container(
-                                            color: Colors.grey[300],
-                                            child: const Icon(Icons.broken_image, color: Colors.grey)
-                                          ),
+                                loadingBuilder:
+                                    (context, child, loadingProgress) {
+                                  if (loadingProgress == null) return child;
+                                  return Center(
+                                    child: CircularProgressIndicator(
+                                        value: loadingProgress
+                                                    .expectedTotalBytes !=
+                                                null
+                                            ? loadingProgress
+                                                    .cumulativeBytesLoaded /
+                                                loadingProgress
+                                                    .expectedTotalBytes!
+                                            : null),
+                                  );
+                                },
+                                errorBuilder: (context, error, stackTrace) =>
+                                    Container(
+                                        color: Colors.grey[300],
+                                        child: const Icon(Icons.broken_image,
+                                            color: Colors.grey)),
                               )
                             : Container(
                                 width: 125,
@@ -151,26 +162,24 @@ class _EditProfileState extends ConsumerState<EditProfile> {
                                       for (var image in images) {
                                         selectedImages.add(File(image.path));
                                       }
-                                      try{
-
-                                      final portfolioRepository = ref
-                                          .watch(portfolioRepositoryProvider);
-                                      await portfolioRepository.updatePortfolio(
-                                          images: selectedImages);
-                                      }catch(e){
-                                        if(e is AppException){
+                                      try {
+                                        final portfolioRepository = ref
+                                            .watch(portfolioRepositoryProvider);
+                                        await portfolioRepository
+                                            .updatePortfolio(
+                                                images: selectedImages);
+                                      } catch (e) {
+                                        if (e is AppException) {
                                           setState(() {
-                                            
-                                          errorMessage = e.message;
+                                            errorMessage = e.message;
                                           });
-                                        }else{
+                                        } else {
                                           setState(() {
-                                            
-                                          errorMessage = "Changes to your portfolio could not be saved. Please try again.";
+                                            errorMessage =
+                                                "Changes to your portfolio could not be saved. Please try again.";
                                           });
                                         }
                                       }
-
                                     }
                                   },
                                   child: Container(
@@ -190,29 +199,41 @@ class _EditProfileState extends ConsumerState<EditProfile> {
                                   ),
                                 );
                               } else {
-                                final imageIndex =
-                                    userPortfolio.images.length -
-                                        (index - 1) -
-                                        1;
+                                final imageIndex = userPortfolio.images.length -
+                                    (index - 1) -
+                                    1;
 
                                 return Stack(
                                   children: [
                                     Positioned.fill(
                                       child: ClipRRect(
                                         child: Image.network(
-                                          userPortfolio
-                                              .images[imageIndex]['downloadUrl'],
+                                          userPortfolio.images[imageIndex]
+                                              ['downloadUrl'],
                                           fit: BoxFit.cover,
-                                          loadingBuilder: (context, child, loadingProgress){
-                                            if(loadingProgress == null) return child;
-                                            return Center(child: CircularProgressIndicator(
-                                              value: loadingProgress.expectedTotalBytes != null ? loadingProgress.cumulativeBytesLoaded /loadingProgress.expectedTotalBytes! : null
-                                            ),);
+                                          loadingBuilder: (context, child,
+                                              loadingProgress) {
+                                            if (loadingProgress == null)
+                                              return child;
+                                            return Center(
+                                              child: CircularProgressIndicator(
+                                                  value: loadingProgress
+                                                              .expectedTotalBytes !=
+                                                          null
+                                                      ? loadingProgress
+                                                              .cumulativeBytesLoaded /
+                                                          loadingProgress
+                                                              .expectedTotalBytes!
+                                                      : null),
+                                            );
                                           },
-                                          errorBuilder: (context, error, stackTrace) => Container(
-                                            color: Colors.grey[300],
-                                            child: const Icon(Icons.broken_image, color: Colors.grey)
-                                          ),
+                                          errorBuilder:
+                                              (context, error, stackTrace) =>
+                                                  Container(
+                                                      color: Colors.grey[300],
+                                                      child: const Icon(
+                                                          Icons.broken_image,
+                                                          color: Colors.grey)),
                                         ),
                                       ),
                                     ),
@@ -222,18 +243,26 @@ class _EditProfileState extends ConsumerState<EditProfile> {
                                         icon: const Icon(Icons.delete,
                                             color: Colors.red),
                                         onPressed: () async {
-                                          try{
-
-                                          await ref.read(portfolioRepositoryProvider).deletePortfolioImage(userPortfolio.images[imageIndex]['filePath'], userPortfolio.images[imageIndex]['downloadUrl']);
-                                          }catch(e){
-                                            if(e is AppException){
+                                          try {
+                                            await ref
+                                                .read(
+                                                    portfolioRepositoryProvider)
+                                                .deletePortfolioImage(
+                                                    userPortfolio
+                                                            .images[imageIndex]
+                                                        ['filePath'],
+                                                    userPortfolio
+                                                            .images[imageIndex]
+                                                        ['downloadUrl']);
+                                          } catch (e) {
+                                            if (e is AppException) {
                                               setState(() {
-                                                
-                                              errorMessage = e.message;
+                                                errorMessage = e.message;
                                               });
-                                            }else{
+                                            } else {
                                               setState(() {
-                                                errorMessage = "Failed to remove portfolio image. Please try again later.";
+                                                errorMessage =
+                                                    "Failed to remove portfolio image. Please try again later.";
                                               });
                                             }
                                           }
@@ -256,44 +285,53 @@ class _EditProfileState extends ConsumerState<EditProfile> {
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: ElevatedButton(
-                      key: const Key('create-portfolio-button'),
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    const CreatePortfolioScreen()));
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        elevation: 0,
-                        alignment: Alignment.center,
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.create_new_folder_outlined,
-                              size: 30),
-                          const SizedBox(width: 16),
-                          Text(
-                            'Become a Professional',
-                            style: GoogleFonts.poppins(
-                                fontSize: 18, fontWeight: FontWeight.bold),
+                        key: const Key('create-portfolio-button'),
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      const CreatePortfolioScreen()));
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.black,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
                           ),
-                        ],
-                      ),
-                    ),
+                          elevation: 0,
+                          alignment: Alignment.center,
+                        ),
+                        child: LayoutBuilder(builder: (context, constraints) {
+                          return Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.create_new_folder_outlined,
+                                  size: 30),
+                              const SizedBox(width: 16),
+                              Flexible(
+                                child: Text(
+                                  'Become a Professional',
+                                  softWrap: true,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: GoogleFonts.poppins(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              )
+                            ],
+                          );
+                        })),
                   ),
-
-                  ErrorBox(errorMessage: errorMessage, onDismiss: () {setState(() {
-                    errorMessage = "";
-                  });})
+                ErrorBox(
+                    errorMessage: errorMessage,
+                    onDismiss: () {
+                      setState(() {
+                        errorMessage = "";
+                      });
+                    })
               ],
             ),
           );
@@ -302,7 +340,10 @@ class _EditProfileState extends ConsumerState<EditProfile> {
         }
       },
       loading: () => const LoadingView(),
-      error: (error, stack) => const ErrorView(bigText: 'Something went wrong!', smallText: 'Try restarting the app',),
+      error: (error, stack) => const ErrorView(
+        bigText: 'Something went wrong!',
+        smallText: 'Try restarting the app',
+      ),
     );
   }
 }

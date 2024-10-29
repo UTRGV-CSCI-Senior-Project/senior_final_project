@@ -10,13 +10,11 @@ class WelcomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       backgroundColor: Colors.white,
-      body: ListView(
-        shrinkWrap: true,
-        children: [
-          Column(
+      body: SafeArea(child: SingleChildScrollView(
+        child: Padding(padding: const EdgeInsets.all(20),
+        child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
@@ -34,7 +32,7 @@ class WelcomeScreen extends StatelessWidget {
               const SizedBox(height: 50,),
               
               Container(
-                width: screenWidth - 40,
+                width: double.infinity,
                 height: 60,
                 decoration: BoxDecoration(
                     color:  const Color.fromRGBO(0, 111, 253, 1),
@@ -58,7 +56,7 @@ class WelcomeScreen extends StatelessWidget {
               ), 
               const SizedBox(height: 20,),
               Container(
-                  width: screenWidth - 40,
+                width: double.infinity,
                   decoration: BoxDecoration(
                     color:  const Color.fromRGBO(0, 111, 253, 1),
                     border: Border.all(
@@ -85,9 +83,9 @@ class WelcomeScreen extends StatelessWidget {
                         );
                   }))
             ],
-          )
-        ],
-      ),
+          )),
+      ))
+      
     );
   }
 }
