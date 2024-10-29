@@ -36,6 +36,25 @@ jobs:
           channel: "stable"
           cache: true
 
+      - name: Enabling KVM
+        uses: DeterminateSystems/nix-installer-action@main
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Gradle cache
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: AVD cache
+        uses: actions/cache@v4
+        id: avd-cache
+        with:
+          path: |
+            ~/.android/avd/*
+            ~/.android/adb*
+          key: avd-${{ matrix.api-level }}
+
       - name: Write firebase_options.dart
         run: echo '${{ secrets.FIREBASE_OPTIONS }}' > lib/firebase_options.dart
       - name: Write GoogleService-info.plist
@@ -51,13 +70,31 @@ jobs:
       - name: Authenticate firebase
         run: firebase use --token '${{ secrets.FIREBASE_TOKEN }}'
 
+      - name: Get Flutter Dependencies
+        run: flutter pub get
+
+      - name: create AVD and generate snapshot for caching
+        if: steps.avd-cache.outputs.cache-hit != 'true'
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 23
+          arch: x86_64
+          profile: pixel_3a
+          force-avd-creation: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: false
+          script: echo "Generated AVD snapshot for caching."
+
       - name: Run Integration Tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 23
           arch: x86_64
-          profile: Nexus 6
-          emulator-boot-timeout: 1500
+          profile: pixel_3a
+          force-avd-creation: false
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: true
+          emulator-boot-timeout: 2000
           script: firebase emulators:exec "flutter test integration_test --timeout none" --import=./data
 
   iphone-integration-tests:
@@ -66,7 +103,7 @@ jobs:
     steps:
       - name: Clone Repository
         uses: actions/checkout@v4
-      
+
       - name: Shutdown all simulators
         run: xcrun simctl shutdown all
 
