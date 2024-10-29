@@ -53,7 +53,7 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 29
-          script: firebase emulators:exec --token "${{ secrets.FIREBASE_TOKEN }}" "flutter test integration_test --timeout none" --import=./data
+          script: firebase emulators:exec "flutter test integration_test --timeout none" --import=./data
 
   iphone-integration-tests:
     runs-on: macOS-latest
@@ -61,6 +61,18 @@ jobs:
     steps:
       - name: Clone Repository
         uses: actions/checkout@v4
+      
+      - name: Shutdown all simulators
+        run: xcrun simctl shutdown all
+
+      - name: Erase all simulators
+        run: xcrun simctl erase all
+
+      - name: Clean Xcode Derived Data
+        run: rm -rf ~/Library/Developer/Xcode/DerivedData/*
+
+      - name: Clean Xcode cache
+        run: rm -rf ~/Library/Caches/com.apple.dt.Xcode/*
 
       - name: Set Up Flutter
         uses: subosito/flutter-action@v2
@@ -97,4 +109,4 @@ jobs:
           pod install
           cd ..
       - name: "Run Integration Tests"
-        run: firebase emulators:exec --token "${{ secrets.FIREBASE_TOKEN }}" "flutter test integration_test --timeout none" --import=./data
+        run: firebase emulators:exec "flutter test integration_test --timeout none" --import=./data
