@@ -4,11 +4,10 @@ import 'package:geocoding/geocoding.dart';
 /// Determine the current position of the device.
 ///
 /// When the location services are not enabled or permissions
-/// are denied the `Future` will return an error.
-Future<Position> _determinePosition() async {
-  bool serviceEnabled;
-  LocationPermission permission;
+/// are denied the `Future` will return an error.\
 
+Future<bool> checkService() async {
+ bool serviceEnabled;
   // Test if location services are enabled.
   serviceEnabled = await Geolocator.isLocationServiceEnabled();
   if (!serviceEnabled) {
@@ -17,6 +16,22 @@ Future<Position> _determinePosition() async {
     // App to enable the location services.
     return Future.error('Location services are disabled.');
   }
+return serviceEnabled;
+}
+
+Future<LocationPermission> checkPerm() async {
+  LocationPermission permission;
+  permission = await Geolocator.checkPermission();
+  return permission;
+}
+
+Future<Position> _determinePosition() async {
+  bool serviceEnabled;
+  LocationPermission permission;
+
+  // Test if location services are enabled.
+ // serviceEnabled = checkService() as bool;
+
 
   permission = await Geolocator.checkPermission();
   if (permission == LocationPermission.denied) {
@@ -48,7 +63,7 @@ Future<String> currentAddress(double lati,double long) async {
   List<Placemark> placemarks = await placemarkFromCoordinates(
       lati,long);
   Placemark place = placemarks[0];
-  return "${place.locality}";
+  return "${place.street}";
 }
 
 Future<String> curretCity(double lati,double long ) async {
