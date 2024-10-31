@@ -1,4 +1,3 @@
-import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 
@@ -9,7 +8,7 @@ class LoadingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return  Scaffold(
-      backgroundColor: Color.fromRGBO(0, 111, 253, 1),
+      backgroundColor: const Color.fromRGBO(0, 111, 253, 1),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

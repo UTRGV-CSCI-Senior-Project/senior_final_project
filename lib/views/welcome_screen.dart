@@ -10,13 +10,11 @@ class WelcomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       backgroundColor: Colors.white,
-      body: ListView(
-        shrinkWrap: true,
-        children: [
-          Column(
+      body: SafeArea(child: SingleChildScrollView(
+        child: Padding(padding: const EdgeInsets.all(20),
+        child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
@@ -28,13 +26,13 @@ class WelcomeScreen extends StatelessWidget {
                 ),
               Image.asset("assets/Explore.png",width: 250,height: 250,color: const Color.fromRGBO(0, 111, 253, 1),),
               const SizedBox(height: 50,),
-              const Text("Discover Local Talent,",style: tempTextstlye.customTextstyle,),
-              const Text("Book with Ease ",style: tempTextstlye.customTextstyle,),
-              //const Text("App Name",style: tempTextstlye.customTextstyle,),
+              const Text("Discover Local Talent,",style: TempTextStyle.customTextstyle,),
+              const Text("Book with Ease ",style: TempTextStyle.customTextstyle,),
+              //const Text("App Name",style: TempTextStyle.customTextstyle,),
               const SizedBox(height: 50,),
               
               Container(
-                width: screenWidth - 40,
+                width: double.infinity,
                 height: 60,
                 decoration: BoxDecoration(
                     color:  const Color.fromRGBO(0, 111, 253, 1),
@@ -44,7 +42,7 @@ class WelcomeScreen extends StatelessWidget {
                     ),
                     borderRadius: const BorderRadius.all(Radius.circular(10))),
                 child: TextButton(
-                  key: const Key('login-button'),
+                  key: const Key('signin-button'),
                     onPressed: () {
                       Navigator.push(
                           context,
@@ -54,11 +52,11 @@ class WelcomeScreen extends StatelessWidget {
                                   )));
                     },
                     child: const Text('Login',
-                    style: tempTextstlye.customButtonTextstyle,)),
+                    style: TempTextStyle.customButtonTextstyle,)),
               ), 
               const SizedBox(height: 20,),
               Container(
-                  width: screenWidth - 40,
+                width: double.infinity,
                   decoration: BoxDecoration(
                     color:  const Color.fromRGBO(0, 111, 253, 1),
                     border: Border.all(
@@ -80,18 +78,18 @@ class WelcomeScreen extends StatelessWidget {
                         },
                         child: const Text(
                           'Sign up',
-                          style: tempTextstlye.customButtonTextstyle,
+                          style: TempTextStyle.customButtonTextstyle,
                           )
                         );
                   }))
             ],
-          )
-        ],
-      ),
+          )),
+      ))
+      
     );
   }
 }
-class tempTextstlye{
+class TempTextStyle{
    static const customTextstyle = TextStyle(
       fontSize: 24,
       fontWeight: FontWeight.w500,

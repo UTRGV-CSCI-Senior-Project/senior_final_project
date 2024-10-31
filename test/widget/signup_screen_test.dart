@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:folio/core/app_exception.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:folio/core/service_locator.dart';
@@ -60,7 +61,7 @@ void main() {
       await tester.pumpAndSettle();
 
       //Expect to find error for empty fields
-      expect(find.text('Please fill in all of the fields.'), findsOneWidget);
+      expect(find.text('Please fill in all required fields to continue.'), findsOneWidget);
     });
 
     testWidgets('Calls createUser when username, email, password, are entered',
@@ -80,7 +81,6 @@ void main() {
       //Tap sign up button
       await tester.ensureVisible(signUpButton);
       await tester.tap(signUpButton);
-      await tester.pumpAndSettle();
 
       //Verify that the createUser (from userrepository) was called
       verify(mockUserRepository.createUser(username, email, password))
@@ -95,7 +95,7 @@ void main() {
       const password = 'Pass123!';
       //when createUser is called, throw the username-taken
       when(mockUserRepository.createUser(username, email, password))
-          .thenThrow('username-taken');
+          .thenThrow(AppException('username-taken'));
       final container = createProviderContainer();
       await tester.pumpWidget(createSignUpWidget(container));
 
@@ -110,10 +110,9 @@ void main() {
       await tester.pumpAndSettle();
 
       //Expect to see error with taken username message
-      expect(find.byType(SnackBar), findsOneWidget);
       expect(
           find.textContaining(
-              'This username is already taken. Please try another one.'),
+              'This username is already taken. Please try a different one.'),
           findsOneWidget);
     });
 
@@ -125,7 +124,7 @@ void main() {
       const password = 'Pass123!';
       //When createUser is called, throw an unexpected error
       when(mockUserRepository.createUser(username, email, password))
-          .thenThrow('unexpected-error');
+          .thenThrow(AppException('sign-up-error'));
       //Wait for sign up screen to laod
       final container = createProviderContainer();
       await tester.pumpWidget(createSignUpWidget(container));
@@ -141,10 +140,9 @@ void main() {
       await tester.pumpAndSettle();
 
       //Expect to see error message for generic exception
-      expect(find.byType(SnackBar), findsOneWidget);
       expect(
           find.textContaining(
-              'An unknown error ocurred. Please try again later.'),
+              'Unable to complete registration. Please try again or contact support.'),
           findsOneWidget);
     });
     testWidgets('shows error when the password is weak',
@@ -155,7 +153,7 @@ void main() {
       const password = '1';
       //When createuser is called, throw weak-password
       when(mockUserRepository.createUser(username, email, password))
-          .thenThrow('weak-password');
+          .thenThrow(AppException('weak-password'));
       //Load sign up screen
       final container = createProviderContainer();
       await tester.pumpWidget(createSignUpWidget(container));
@@ -170,8 +168,7 @@ void main() {
       await tester.tap(signUpButton);
       await tester.pumpAndSettle();
       //Expect to see error for weak password
-      expect(find.byType(SnackBar), findsOneWidget);
-      expect(find.textContaining('The password provided is too weak.'),
+      expect(find.textContaining('Password must be at least 8 characters long and include numbers, letters, and special characters.'),
           findsOneWidget);
     });
     testWidgets('shows error when the email is taken',
@@ -182,7 +179,7 @@ void main() {
       const password = '1';
       //When createuser is called, throw email-already-in-use
       when(mockUserRepository.createUser(username, email, password))
-          .thenThrow('email-already-in-use');
+          .thenThrow(AppException('email-already-in-use'));
       //Load sign up screen
       final container = createProviderContainer();
       await tester.pumpWidget(createSignUpWidget(container));
@@ -198,7 +195,6 @@ void main() {
       await tester.pumpAndSettle();
 
       //Expect to see error message for email-already-in-use
-      expect(find.byType(SnackBar), findsOneWidget);
       expect(
           find.textContaining(
               'This email is already associated with another account.'),
@@ -212,7 +208,7 @@ void main() {
       const password = '1';
       //When createuser is called throw an unexpected error
       when(mockUserRepository.createUser(username, email, password))
-          .thenThrow('unexpected-error');
+          .thenThrow(AppException('sign-up-error'));
       //load sign up screen
       final container = createProviderContainer();
       await tester.pumpWidget(createSignUpWidget(container));
@@ -227,10 +223,9 @@ void main() {
       await tester.tap(signUpButton);
       await tester.pumpAndSettle();
       //Expect to see error message for general exception.
-      expect(find.byType(SnackBar), findsOneWidget);
       expect(
           find.textContaining(
-              'An unknown error ocurred. Please try again later.'),
+              'Unable to complete registration. Please try again or contact support.'),
           findsOneWidget);
     });
   });

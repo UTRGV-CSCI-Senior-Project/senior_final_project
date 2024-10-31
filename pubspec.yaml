@@ -41,9 +41,11 @@ dependencies:
   cloud_firestore: ^5.4.2
   riverpod: ^2.5.1
   flutter_riverpod: ^2.5.1
+  image_picker: ^1.0.0
   geolocator: ^13.0.1
+  firebase_storage: ^12.3.3
   google_fonts: ^6.2.1
-  geocoding: ^3.0.0
+  rxdart: ^0.28.0
 
 dev_dependencies:
   flutter_test:
@@ -73,6 +75,12 @@ flutter:
   assets:
     - assets/Explore.png
     - assets/Error.png
+    - integration_test/assets/pfp.jpg
+    - integration_test/assets/folio1.jpg
+    - integration_test/assets/folio2.jpg
+    - integration_test/assets/folio3.jpg
+    - integration_test/assets/folio4.jpg
+    - integration_test/assets/folio5.jpg
 
   # To add assets to your application, add an assets section, like this:
   # assets:

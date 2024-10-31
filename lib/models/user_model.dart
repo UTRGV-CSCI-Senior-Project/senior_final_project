@@ -4,18 +4,27 @@ class UserModel {
   final String? _fullName;
   final String _email;
   final bool _isProfessional;
+  final bool _completedOnboarding;
+  final List<String> _preferredServices;
+  final String? _profilePictureUrl;
 
-  UserModel(
-      {required String uid,
-      required String username,
-      String? fullName,
-      required String email,
-      required bool isProfessional})
-      : _uid = uid,
+  UserModel({
+    required String uid,
+    required String username,
+    String? fullName,
+    required String email,
+    required bool isProfessional,
+    bool completedOnboarding = false,
+    List<String> preferredServices = const [],
+    String? profilePictureUrl,
+  })  : _uid = uid,
         _username = username,
         _fullName = fullName,
         _email = email,
-        _isProfessional = isProfessional {
+        _isProfessional = isProfessional,
+        _completedOnboarding = completedOnboarding,
+        _preferredServices = preferredServices,
+        _profilePictureUrl = profilePictureUrl {
     if (_uid.isEmpty) {
       throw ArgumentError('UID cannot be empty');
     }
@@ -32,6 +41,9 @@ class UserModel {
   String? get fullName => _fullName;
   String get email => _email;
   bool get isProfessional => _isProfessional;
+  bool get completedOnboarding => _completedOnboarding;
+  List<String> get preferredServices => _preferredServices;
+  String? get profilePictureUrl => _profilePictureUrl;
 
   toJson() {
     return {
@@ -39,7 +51,10 @@ class UserModel {
       "username": username,
       "fullName": fullName,
       "email": email,
-      "isProfessional": isProfessional
+      "isProfessional": isProfessional,
+      "completedOnboarding": completedOnboarding,
+      "preferredServices": preferredServices,
+      "profilePictureUrl": profilePictureUrl,
     };
   }
 
@@ -62,6 +77,12 @@ class UserModel {
         username: json['username'] as String,
         fullName: json['fullName'] as String?,
         email: json['email'] as String,
-        isProfessional: json['isProfessional'] as bool);
+        isProfessional: json['isProfessional'] as bool,
+        completedOnboarding: json['completedOnboarding'] ?? false,
+        preferredServices: (json['preferredServices'] as List<dynamic>?)
+                ?.map((e) => e as String)
+                .toList() ??
+            [],
+        profilePictureUrl: json['profilePictureUrl'] as String?);
   }
 }
