@@ -6,14 +6,14 @@ class LoadingView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    return  Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           CircularProgressIndicator(
-            color: Colors.black, // Match your app's theme color
+            color: Theme.of(context).colorScheme.primary,
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
         ],
       ),
     );
@@ -38,9 +38,9 @@ class ErrorView extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
+             Icon(
               Icons.error_outline,
-              color: Colors.red,
+              color: Theme.of(context).colorScheme.error,
               size: 100,
             ),
             const SizedBox(height: 16),
@@ -50,7 +50,7 @@ class ErrorView extends StatelessWidget {
               style: GoogleFonts.poppins(
                 fontSize: 30,
                 fontWeight: FontWeight.bold,
-                color: Colors.red
+                color: Theme.of(context).colorScheme.error
               ),
             ),
             const SizedBox(height: 8),
@@ -60,7 +60,6 @@ class ErrorView extends StatelessWidget {
               style: GoogleFonts.inter(
                 fontSize: 18,
                 fontWeight: FontWeight.w500,
-                color: Colors.black54
               ),
             ),
           ],

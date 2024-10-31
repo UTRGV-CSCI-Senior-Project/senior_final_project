@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 
 class SplashScreen extends StatelessWidget {
@@ -6,20 +7,19 @@ class SplashScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      backgroundColor: Color.fromRGBO(0, 111, 253, 1),
+    return  Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.primary,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
               "Folio",
-              style: TextStyle(
-                fontWeight: FontWeight.w400,
-                fontSize: 60,
-                color: Color(0xFFFFFFFF),
-                letterSpacing: 0.1, // 10% letterSpacing
-              ),
+              style: GoogleFonts.poppins(
+                  fontSize: 60, fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.onPrimary,
+                  letterSpacing: 0.5
+                  )
             ),
           ],
         ),

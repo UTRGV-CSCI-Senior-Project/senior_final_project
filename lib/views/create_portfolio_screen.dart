@@ -62,8 +62,7 @@ class _CreatePortfolioScreenState extends ConsumerState<CreatePortfolioScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        leading: IconButton(
+                leading: IconButton(
             key: const Key('close-button'),
             onPressed: () {
               Navigator.of(context).pop();
@@ -77,10 +76,9 @@ class _CreatePortfolioScreenState extends ConsumerState<CreatePortfolioScreen> {
               const EdgeInsets.only(right: 16.0), // Add padding on the right
           child: LinearProgressIndicator(
             value: (_currentPage + 1) / 4,
-            color: Colors.blue,
-            minHeight: 6,
+color: Theme.of(context).colorScheme.primary,
+                backgroundColor: Colors.grey[300],            minHeight: 6,
             borderRadius: BorderRadius.circular(4),
-            backgroundColor: const Color.fromARGB(255, 234, 242, 255),
           ),
         ),
         titleSpacing: 0,
@@ -112,7 +110,7 @@ class _CreatePortfolioScreenState extends ConsumerState<CreatePortfolioScreen> {
               ],
             )),
             Container(
-              color: Colors.white,
+              width: double.infinity,
               padding: const EdgeInsets.only(
                   top: 24), // Add padding above the error box
               child: Column(
@@ -207,18 +205,13 @@ class _CreatePortfolioScreenState extends ConsumerState<CreatePortfolioScreen> {
                             },
                       style: TextButton.styleFrom(
                           minimumSize: const Size.fromHeight(50),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20)),
-                          backgroundColor: _isLoading
-                              ? Colors.grey
-                              : const Color.fromARGB(255, 0, 111, 253),
-                          padding: const EdgeInsets.symmetric(vertical: 16)),
+                         ),
                       child: _isLoading
-                          ? const SizedBox(
+                          ?  SizedBox(
                               height: 24,
                               width: 24,
                               child: CircularProgressIndicator(
-                                color: Colors.white,
+                                color: Theme.of(context).colorScheme.onPrimary,
                                 strokeWidth: 5,
                               ),
                             )
@@ -227,7 +220,7 @@ class _CreatePortfolioScreenState extends ConsumerState<CreatePortfolioScreen> {
                               style: GoogleFonts.poppins(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                                color: Theme.of(context).colorScheme.onPrimary,
                               ),
                             )),
                 ],

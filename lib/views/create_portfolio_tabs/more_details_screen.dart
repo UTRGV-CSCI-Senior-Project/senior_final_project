@@ -23,35 +23,28 @@ class _MoreDetailsScreenState extends State<MoreDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
+    return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 "Let's get your profile ready!",
                 style: GoogleFonts.poppins(
-                    fontSize: 22, fontWeight: FontWeight.w500),
+                    fontSize: 20, fontWeight: FontWeight.w500),
               ),
               const SizedBox(height: 8.0),
               Text(
                 "Write any details for potential clients.",
                 style: GoogleFonts.poppins(
-                    fontSize: 18, fontWeight: FontWeight.w300),
+                    fontSize: 16, fontWeight: FontWeight.w300),
               ),
               const SizedBox(height: 16.0),
               Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.black)
-                  ),
+                child: SizedBox(
                   child: TextField(
+                    textAlignVertical: TextAlignVertical.top,
+                    textAlign: TextAlign.start,
                     key: const Key('details-field'),
-                    cursorColor: Colors.black,
+                    cursorColor: Theme.of(context).colorScheme.primary,
                     onChanged: (value){
                       widget.onDetailsEntered(value);
                     },
@@ -66,9 +59,6 @@ class _MoreDetailsScreenState extends State<MoreDetailsScreen> {
                 ),
               ),
             ],
-          ),
-        ),
-      ),
-    );
+          );
   }
 }

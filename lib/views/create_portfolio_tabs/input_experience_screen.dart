@@ -29,10 +29,7 @@ class _InputExperienceState extends State<InputExperience> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
+    return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             const SizedBox(height: 20.0),
@@ -61,9 +58,7 @@ class _InputExperienceState extends State<InputExperience> {
               ),
             ),
           ],
-        ),
-      ),
-    );
+        );
   }
 
   Widget _buildInputColumn(String label, TextEditingController controller) {
@@ -77,14 +72,10 @@ class _InputExperienceState extends State<InputExperience> {
           alignment: Alignment.center,
           height: 90,
           width: 90,
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: Colors.black,
-              )),
+          
           child: TextField(
+            cursorColor: Theme.of(context).colorScheme.primary,
             key:  Key('$label-field'),
-            cursorColor: Colors.black,
             style: GoogleFonts.poppins(
                 fontSize: 30, fontWeight: FontWeight.w300),
             textAlign: TextAlign.center,
@@ -103,7 +94,6 @@ class _InputExperienceState extends State<InputExperience> {
             inputFormatters: <TextInputFormatter>[
               FilteringTextInputFormatter.digitsOnly,
             ],
-            decoration: null,
           ),
         ),
       ],

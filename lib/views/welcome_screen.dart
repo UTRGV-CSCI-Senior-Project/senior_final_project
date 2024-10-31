@@ -11,7 +11,6 @@ class WelcomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       body: SafeArea(child: SingleChildScrollView(
         child: Padding(padding: const EdgeInsets.all(20),
         child: Column(
@@ -24,10 +23,10 @@ class WelcomeScreen extends StatelessWidget {
                   fontSize: 60,
                 ),
                 ),
-              Image.asset("assets/Explore.png",width: 250,height: 250,color: const Color.fromRGBO(0, 111, 253, 1),),
+              Image.asset("assets/Explore.png",width: 250,height: 250,color: Theme.of(context).colorScheme.primary,),
               const SizedBox(height: 50,),
-              const Text("Discover Local Talent,",style: TempTextStyle.customTextstyle,),
-              const Text("Book with Ease ",style: TempTextStyle.customTextstyle,),
+              Text("Discover Local Talent,",style: TempTextStyle.customTextstyle,),
+               Text("Book with Ease ",style: TempTextStyle.customTextstyle,),
               //const Text("App Name",style: TempTextStyle.customTextstyle,),
               const SizedBox(height: 50,),
               
@@ -35,9 +34,9 @@ class WelcomeScreen extends StatelessWidget {
                 width: double.infinity,
                 height: 60,
                 decoration: BoxDecoration(
-                    color:  const Color.fromRGBO(0, 111, 253, 1),
+                    color:  Theme.of(context).colorScheme.primary,
                     border: Border.all(
-                      color: const Color.fromRGBO(0, 111, 253, 1),
+                      color: Theme.of(context).colorScheme.primary,
                       width: 3,
                     ),
                     borderRadius: const BorderRadius.all(Radius.circular(10))),
@@ -51,16 +50,16 @@ class WelcomeScreen extends StatelessWidget {
                                     isLogin: true,
                                   )));
                     },
-                    child: const Text('Login',
+                    child:  Text('Login',
                     style: TempTextStyle.customButtonTextstyle,)),
               ), 
               const SizedBox(height: 20,),
               Container(
                 width: double.infinity,
                   decoration: BoxDecoration(
-                    color:  const Color.fromRGBO(0, 111, 253, 1),
+                    color:  Theme.of(context).colorScheme.primary,
                     border: Border.all(
-                      color:  const Color.fromRGBO(0, 111, 253, 1),
+                      color:  Theme.of(context).colorScheme.primary,
                         width: 3,
                       ),
                       borderRadius:
@@ -76,7 +75,7 @@ class WelcomeScreen extends StatelessWidget {
                                         isLogin: false,
                                       )));
                         },
-                        child: const Text(
+                        child:  Text(
                           'Sign up',
                           style: TempTextStyle.customButtonTextstyle,
                           )
@@ -90,13 +89,15 @@ class WelcomeScreen extends StatelessWidget {
   }
 }
 class TempTextStyle{
-   static const customTextstyle = TextStyle(
+   static  TextStyle customTextstyle = GoogleFonts.inter(
       fontSize: 24,
       fontWeight: FontWeight.w500,
       
       );
-   static const customButtonTextstyle = TextStyle(
-      fontSize: 20,
-      color: Colors.white,
-      );
+   static TextStyle customButtonTextstyle = GoogleFonts.inter(
+    fontSize: 20,
+    fontWeight: FontWeight.bold
+   );
+   
+
 }

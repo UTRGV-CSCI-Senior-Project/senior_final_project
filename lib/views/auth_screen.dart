@@ -7,6 +7,7 @@ import 'package:folio/repositories/user_repository.dart';
 import 'package:folio/widgets/error_widget.dart';
 import 'package:folio/widgets/input_field_widget.dart';
 import 'package:folio/views/home_screen.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class AuthScreen extends ConsumerStatefulWidget {
   final bool isLogin;
@@ -35,14 +36,13 @@ class AuthScreenState extends ConsumerState<AuthScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
             onPressed: () {
               Navigator.pop(context);
             },
             icon: const Icon(Icons.arrow_back_ios,
-                color: Color.fromARGB(255, 0, 111, 253), size: 28)),
+                size: 28)),
         toolbarHeight: 60,
       ),
       body: SafeArea(
@@ -61,12 +61,12 @@ class AuthScreenState extends ConsumerState<AuthScreen> {
                     "assets/Explore.png",
                     width: 45,
                     height: 45,
-                    color: const Color.fromRGBO(0, 111, 253, 1),
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                   const Padding(padding: EdgeInsets.only(right: 12)),
-                  const Text(
+                   Text(
                     "Folio",
-                    style: TextStyle(fontSize: 32, fontWeight: FontWeight.w700),
+                    style: GoogleFonts.poppins(fontSize: 32, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
@@ -101,19 +101,19 @@ class AuthScreenState extends ConsumerState<AuthScreen> {
                   setState(() {
                     errorMessage = "";
                   });
-                }),
+                }, context),
               inputField('email-field', 'Email', 'Enter your email',
                   TextInputType.emailAddress, _emailController, (value) {
                 setState(() {
                   errorMessage = "";
                 });
-              }),
+              }, context),
               inputField('password-field', 'Password', 'Enter your password',
                   TextInputType.text, _passwordController, (value) {
                 setState(() {
                   errorMessage = "";
                 });
-              }, isPassword: true),
+              }, context, isPassword: true),
               const SizedBox(
                 height: 25,
               ),
@@ -184,33 +184,31 @@ class AuthScreenState extends ConsumerState<AuthScreen> {
                             }
                           }
                         },
-                  style: TextButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(26)),
-                      backgroundColor: const Color.fromARGB(255, 0, 111, 253),
-                      padding: const EdgeInsets.symmetric(vertical: 12)),
+                  
                   child: _isLoading
-                      ? const SizedBox(
+                      ?  SizedBox(
                           height: 25,
                           width: 25,
                           child: CircularProgressIndicator(
-                            color: Colors.white,
+                            color: Theme.of(context).colorScheme.onPrimary,
                             strokeWidth: 5,
                           ),
                         )
                       : Text(
                           _isLogin ? 'Sign In' : 'Sign Up',
-                          style: const TextStyle(
-                              color: Colors.white,
+                          style:  GoogleFonts.poppins(
+                              color: Theme.of(context).colorScheme.onPrimary,
                               fontSize: 20,
                               fontWeight: FontWeight.bold),
                         ),
                 ),
               ),
-              SizedBox(
+              Container(
+                margin: const EdgeInsets.only(top: 20),
+                alignment: Alignment.center,
                 width: double.infinity,
-                child: TextButton(
-                  onPressed: () {
+                child: GestureDetector(
+                  onTap: () {
                     setState(() {
                       _isLogin = !_isLogin;
                     });
@@ -220,15 +218,18 @@ class AuthScreenState extends ConsumerState<AuthScreen> {
                           text: _isLogin
                               ? "Don't have an account?  "
                               : "Already have an account?  ",
-                          style: const TextStyle(
+                          style: GoogleFonts.poppins(
                               fontWeight: FontWeight.normal,
-                              color: Colors.black),
+                              fontSize: 15,
+                              color: Theme.of(context).textTheme.bodyLarge?.color
+                             ),
                           children: [
                         TextSpan(
                             text: _isLogin ? "Sign Up" : "Sign In",
-                            style: const TextStyle(
+                            style:  GoogleFonts.poppins(
                                 fontWeight: FontWeight.bold,
-                                color: Color.fromARGB(255, 0, 111, 253)))
+                                fontSize: 15,
+                                color: Theme.of(context).colorScheme.primary))
                       ])),
                 ),
               ),

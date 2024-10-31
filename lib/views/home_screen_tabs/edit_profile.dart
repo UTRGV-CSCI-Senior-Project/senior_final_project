@@ -41,8 +41,8 @@ class _EditProfileState extends ConsumerState<EditProfile> {
                         child: userModel.profilePictureUrl != null
                             ? Image.network(
                                 userModel.profilePictureUrl,
-                                width: 125,
-                                height: 125,
+                                width: 115,
+                                height: 115,
                                 fit: BoxFit.cover,
                                 loadingBuilder:
                                     (context, child, loadingProgress) {
@@ -62,15 +62,15 @@ class _EditProfileState extends ConsumerState<EditProfile> {
                                 errorBuilder: (context, error, stackTrace) =>
                                     Container(
                                         color: Colors.grey[300],
-                                        child: const Icon(Icons.broken_image,
-                                            color: Colors.grey)),
+                                        child:  Icon(Icons.broken_image,
+                                            color: Colors.grey[800])),
                               )
                             : Container(
-                                width: 125,
-                                height: 125,
+                                width: 115,
+                                height: 115,
                                 color: Colors.grey[300],
-                                child: const Icon(Icons.image,
-                                    size: 40, color: Colors.grey),
+                                child:  Icon(Icons.image,
+                                    size: 40, color: Colors.grey[800]),
                               ),
                       ),
                     ),
@@ -94,31 +94,31 @@ class _EditProfileState extends ConsumerState<EditProfile> {
                             userModel.email,
                             style: const TextStyle(fontSize: 16),
                           ),
-                          const Row(
-                            children: [
-                              Icon(
-                                Icons.facebook,
-                                color: Colors.blue,
-                                size: 35.0,
-                              ),
-                              SizedBox(
-                                width: 5.0,
-                              ),
-                              Icon(
-                                Icons.tiktok,
-                                color: Colors.black,
-                                size: 35.0,
-                              ),
-                              SizedBox(
-                                width: 5.0,
-                              ),
-                              Icon(
-                                Icons.message,
-                                color: Colors.green,
-                                size: 35.0,
-                              ),
-                            ],
-                          )
+                          // const Row(
+                          //   children: [
+                          //     Icon(
+                          //       Icons.facebook,
+                          //       color: Colors.blue,
+                          //       size: 35.0,
+                          //     ),
+                          //     SizedBox(
+                          //       width: 5.0,
+                          //     ),
+                          //     Icon(
+                          //       Icons.tiktok,
+                          //       color: Colors.black,
+                          //       size: 35.0,
+                          //     ),
+                          //     SizedBox(
+                          //       width: 5.0,
+                          //     ),
+                          //     Icon(
+                          //       Icons.message,
+                          //       color: Colors.green,
+                          //       size: 35.0,
+                          //     ),
+                          //   ],
+                          // )
                         ],
                       ),
                     )
@@ -187,13 +187,13 @@ class _EditProfileState extends ConsumerState<EditProfile> {
                                     height: 50,
                                     decoration: BoxDecoration(
                                       border: Border.all(
-                                          color: Colors.blue.withOpacity(0.1),
+                                          color: Theme.of(context).colorScheme.secondary.withOpacity(0.3),
                                           width: 0),
-                                      color: Colors.blue.withOpacity(0.1),
+                                      color: Theme.of(context).colorScheme.secondary.withOpacity(0.3),
                                     ),
-                                    child: const Center(
+                                    child:  Center(
                                       child: Icon(Icons.add_rounded,
-                                          color: Color.fromRGBO(0, 111, 253, 1),
+                                          color: Theme.of(context).colorScheme.secondary,
                                           size: 50),
                                     ),
                                   ),
@@ -232,17 +232,17 @@ class _EditProfileState extends ConsumerState<EditProfile> {
                                               (context, error, stackTrace) =>
                                                   Container(
                                                       color: Colors.grey[300],
-                                                      child: const Icon(
+                                                      child:  Icon(
                                                           Icons.broken_image,
-                                                          color: Colors.grey)),
+                                                          color: Colors.grey[800])),
                                         ),
                                       ),
                                     ),
                                     Positioned(
                                       right: 0,
                                       child: IconButton(
-                                        icon: const Icon(Icons.delete,
-                                            color: Colors.red),
+                                        icon:  Icon(Icons.delete,
+                                            color: Theme.of(context).colorScheme.error),
                                         onPressed: () async {
                                           try {
                                             await ref
@@ -295,15 +295,7 @@ class _EditProfileState extends ConsumerState<EditProfile> {
                                       const CreatePortfolioScreen()));
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.black,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                          elevation: 0,
-                          alignment: Alignment.center,
+                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16)
                         ),
                         child: LayoutBuilder(builder: (context, constraints) {
                           return Row(

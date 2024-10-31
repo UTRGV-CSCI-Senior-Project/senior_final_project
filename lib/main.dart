@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:folio/constants/theme_constants.dart';
 import 'package:folio/core/service_locator.dart';
 import 'package:folio/views/home_screen.dart';
 import 'package:folio/views/loading_screen.dart';
@@ -25,11 +26,8 @@ class MyApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp(
         title: 'Folio',
-        theme: ThemeData(
-          scaffoldBackgroundColor: Colors.white,
-          primarySwatch: Colors.blue,
-          visualDensity: VisualDensity.adaptivePlatformDensity,
-        ),
+        theme: lightTheme,
+        darkTheme: darkTheme,
         home: FutureBuilder(
             future: Future.delayed(duration, () {
               return ref.watch(authStateProvider);

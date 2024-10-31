@@ -7,6 +7,7 @@ import 'package:folio/views/onboarding_screen.dart';
 import 'package:folio/views/home_screen_tabs/discover_tab.dart';
 import 'package:folio/views/home_screen_tabs/home_tab.dart';
 import 'package:folio/views/welcome_screen.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 final selectedIndexProvider = StateProvider<int>((ref) => 0);
 
@@ -39,12 +40,19 @@ class HomeScreen extends ConsumerWidget {
 
             return Scaffold(
               appBar: AppBar(
-                backgroundColor: Colors.white,
                 centerTitle: false,
+                leading: null,
+                automaticallyImplyLeading: false,
                 title: Text(getTitle(),
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w900,
-                    )),
+                style: GoogleFonts.inter(
+                  fontSize: 20, 
+                  fontWeight: FontWeight.bold
+                  
+                ),
+                    ),
+                    actions: selectedIndex == 3 ? [IconButton(onPressed: (){
+                      ref.watch(userRepositoryProvider).signOut();
+                    }, icon: const Icon(Icons.settings))] : null,
               ),
               body: IndexedStack(
                 index: selectedIndex,
@@ -57,47 +65,46 @@ class HomeScreen extends ConsumerWidget {
                 ],
               ),
               bottomNavigationBar: NavigationBar(
-                backgroundColor: Colors.grey.shade50,
                 selectedIndex: selectedIndex,
                 onDestinationSelected: (index) {
                   // Update the selected index when a destination is tapped
                   ref.read(selectedIndexProvider.notifier).state = index;
                 },
-                destinations: const [
+                destinations:  [
                   NavigationDestination(
-                    key:  Key('home-button'),
-                    icon: Icon(Icons.home),
+                    key:  const Key('home-button'),
+                    icon: const Icon(Icons.home, size: 25,),
                     selectedIcon: Icon(
                       Icons.home,
-                      color: Color.fromRGBO(0, 111, 253, 100),
+                      color: Theme.of(context).colorScheme.primary,size: 30
                     ),
                     label: 'Home',
                   ),
                   NavigationDestination(
-                    key:  Key('discover-button'),
-                    icon: Icon(Icons.explore),
+                    key:  const Key('discover-button'),
+                    icon: const Icon(Icons.explore , size: 25),
                     selectedIcon: Icon(
                       Icons.explore,
-                      color: Color.fromRGBO(0, 111, 253, 100),
+                      color: Theme.of(context).colorScheme.primary,size: 30
                     ),
                     label: 'Discover',
                   ),
                   NavigationDestination(
-                    key:  Key('inbox-button'),
-                    icon: Icon(Icons.bookmark_border),
+                    key:  const Key('inbox-button'),
+                    icon: const Icon(Icons.bookmark_border, size: 25),
                     enabled: false,
                     selectedIcon: Icon(
                       Icons.bookmark_border,
-                      color: Color.fromRGBO(0, 111, 253, 100),
+                      color: Theme.of(context).colorScheme.primary,size: 30
                     ),
                     label: 'Inbox',
                   ),
                   NavigationDestination(
-                    key:  Key('profile-button'),
-                    icon: Icon(Icons.person),
+                    key:  const Key('profile-button'),
+                    icon: const Icon(Icons.person, size: 25),
                     selectedIcon: Icon(
                       Icons.person,
-                      color: Color.fromRGBO(0, 111, 253, 100),
+                      color: Theme.of(context).colorScheme.primary,size: 30
                     ),
                     label: 'Profile',
                   ),

@@ -6,6 +6,8 @@ import 'package:folio/core/app_exception.dart';
 import 'package:folio/core/service_locator.dart';
 import 'package:folio/views/home_screen.dart';
 import 'package:folio/views/state_screens.dart';
+import 'package:folio/widgets/error_widget.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 
 class OnboardingScreen extends ConsumerStatefulWidget {
@@ -79,16 +81,16 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const SizedBox(height: 20),
-          const Text(
+           Text(
             'Name and Profile Picture',
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
+            style: GoogleFonts.poppins(fontSize: 22, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 4),
-          const Text(
+           Text(
             'This is how others will see you.',
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w400),
+            style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w500),
           ),
           const SizedBox(height: 50),
           Padding(
@@ -99,8 +101,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   Container(
                     height: 200,
                     width: 200,
-                    decoration: const BoxDecoration(
-                      color: Color.fromARGB(255, 234, 242, 255),
+                    decoration:  BoxDecoration(
+                      color: Theme.of(context).colorScheme.secondary.withOpacity(0.4),
                       shape: BoxShape.circle,
                     ),
                     child: file != null
@@ -111,10 +113,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                               fit: BoxFit.cover,
                             ),
                           )
-                        : const Icon(
+                        :  Icon(
                             Icons.person,
                             size: 200,
-                            color: Color.fromARGB(255, 180, 219, 255),
+                            color: Theme.of(context).colorScheme.tertiary.withOpacity(0.3),
                           ),
                   ),
                   Positioned(
@@ -127,17 +129,17 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                         height: 50,
                         width: 50,
                         decoration: BoxDecoration(
-                          color: const Color.fromARGB(255, 0, 111, 253),
+                          color: Theme.of(context).colorScheme.primary,
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: Colors.white,
+                            color: Theme.of(context).colorScheme.primary,
                             width: 3,
                           ),
                         ),
-                        child: const Icon(
+                        child:  Icon(
                           Icons.create_rounded,
                           size: 30,
-                          color: Colors.white,
+                          color: Theme.of(context).colorScheme.onPrimary,
                         ),
                       ),
                     ),
@@ -150,19 +152,14 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: TextField(
+              style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w500),
+              textCapitalization: TextCapitalization.words,
               key: const Key('name-field'),
               controller: _fullNameController,
-              cursorColor: const Color.fromARGB(255, 0, 111, 253),
-              decoration: const InputDecoration(
+            
+              decoration: InputDecoration(
                 hintText: 'Full Name',
-                focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(8)),
-                    borderSide: BorderSide(
-                        color: Color.fromARGB(255, 0, 111, 253), width: 2.3)),
-                enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(8)),
-                    borderSide: BorderSide(
-                        color: Color.fromARGB(255, 104, 97, 97), width: 2)),
+                hintStyle: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w500)
               ),
             ),
           )
@@ -173,9 +170,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   Widget buildInterests(BuildContext context) {
     if (_servicesAreLoading) {
-      return const Center(
+      return  Center(
         child: CircularProgressIndicator(
-          color: Colors.blue,
+          color: Theme.of(context).colorScheme.primary
         ),
       );
     }
@@ -192,16 +189,16 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const SizedBox(height: 20),
-          const Text(
+           Text(
             'What professions are you interested in?',
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
+            style: GoogleFonts.poppins(fontSize: 22, fontWeight: FontWeight.w500),
           ),
           const SizedBox(height: 4),
-          const Text(
-            "Choose as many as you'd like",
+           Text(
+            "Choose at least one!",
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w400),
+            style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w400),
           ),
           const SizedBox(height: 50),
           ...services.map((service) {
@@ -215,13 +212,14 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     margin: const EdgeInsets.symmetric(vertical: 5),
                     decoration: BoxDecoration(
                       color: isSelected
-                          ? const Color.fromRGBO(229, 255, 200, 100)
+                          ? const Color.fromRGBO(229, 255, 200, 0.4)
                           : Colors
                               .transparent, // Change background color when selected
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
+                        width: 2,
                         color: isSelected
-                            ? const Color.fromRGBO(9, 195, 54, 100)
+                            ? const Color.fromRGBO(9, 195, 54, 1)
                             : Colors.grey,
                       ),
                     ),
@@ -231,14 +229,14 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                         children: [
                           Text(
                             service,
-                            style: const TextStyle(fontSize: 14),
+                            style:  GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold),
                           ),
                           const Spacer(),
                           isSelected
                               ? const Icon(
                                   Icons.check,
-                                  color: Color.fromRGBO(9, 195, 19, 100),
-                                  size: 20,
+                                  color: Color.fromRGBO(9, 195, 54, 1),
+                                  size: 25,
                                 )
                               : Container(),
                         ],
@@ -253,17 +251,29 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        toolbarHeight: 35,
+        leading: _currentPage == 1 ?  IconButton(onPressed: (){
+          if(_currentPage == 1){
+            _pageController.animateToPage(0, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+          }
+        }, icon: const Icon(Icons.arrow_back_ios),) : null,
+        centerTitle: true,
+        title: LinearProgressIndicator(
+                minHeight: 6,
+                borderRadius: BorderRadius.circular(5),
+                value: (_currentPage + 1) / 2,
+                color: Theme.of(context).colorScheme.primary,
+                backgroundColor: Colors.grey[300],
+              ),
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              LinearProgressIndicator(
-                value: (_currentPage + 1) / 2,
-                color: Colors.blue,
-                backgroundColor: const Color.fromARGB(255, 234, 242, 255),
-              ),
+              
               const SizedBox(height: 24),
               Expanded(
                 child: PageView(
@@ -279,34 +289,11 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 ),
               ),
               errorMessage.isNotEmpty
-                  ? Container(
-                      margin: const EdgeInsets.symmetric(vertical: 5),
-                      decoration: BoxDecoration(
-                        color:
-                            Colors.red.withOpacity(0.1), // Light red background
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.red),
-                      ),
-                      child: ListTile(
-                        leading: const Icon(Icons.error_outline,
-                            color: Colors.red), // Error icon
-                        title: Text(
-                          errorMessage,
-                          style: const TextStyle(
-                              color: Colors.red,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14),
-                        ),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.close, color: Colors.red),
-                          onPressed: () {
-                            setState(() {
-                              errorMessage = ""; // Dismiss error message
-                            });
-                          },
-                        ),
-                      ),
-                    )
+                  ? ErrorBox(errorMessage: errorMessage, onDismiss: (){
+                    setState(() {
+                      errorMessage = "";
+                    });
+                  })
                   : Container(),
               Padding(
                 padding: const EdgeInsets.all(12),
@@ -319,6 +306,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                             errorMessage = "Please enter your full name.";
                           });
                         } else {
+                          FocusManager.instance.primaryFocus?.unfocus();
                           _pageController.nextPage(
                             duration: const Duration(milliseconds: 300),
                             curve: Curves.easeInOut,
@@ -373,17 +361,16 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                         backgroundColor: const Color.fromARGB(255, 0, 111, 253),
                         padding: const EdgeInsets.symmetric(vertical: 12)),
                     child: _isLoading
-                        ? const SizedBox(
+                        ?  SizedBox(
                             height: 24,
                             width: 24,
                             child: CircularProgressIndicator(
-                              color: Colors.white,
+                              color: Theme.of(context).colorScheme.onPrimary,
                               strokeWidth: 5,
                             ),
                           )
                         : Text(_currentPage == 0 ? 'Next' : 'Done!',
                             style: const TextStyle(
-                                color: Colors.white,
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold))),
               )

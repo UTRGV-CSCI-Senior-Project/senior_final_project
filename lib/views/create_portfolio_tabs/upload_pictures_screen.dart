@@ -51,7 +51,6 @@ class _UploadPicturesState extends ConsumerState<UploadPictures> {
           ],
         ),
       ),
-      
     );
   }
 
@@ -88,11 +87,21 @@ class _UploadPicturesState extends ConsumerState<UploadPictures> {
                     width: 50,
                     height: 50,
                     decoration: BoxDecoration(
-                      border: Border.all(color: Colors.blue.withOpacity(0.1), width: 0),
-                      color: Colors.blue.withOpacity(0.1),
+                      border: Border.all(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .secondary
+                              .withOpacity(0.3),
+                          width: 0),
+                      color: Theme.of(context)
+                          .colorScheme
+                          .secondary
+                          .withOpacity(0.3),
                     ),
-                    child: const Center(
-                      child: Icon(Icons.add_rounded, color: Color.fromRGBO(0, 111, 253, 1), size: 50),
+                    child: Center(
+                      child: Icon(Icons.add_rounded,
+                          color: Theme.of(context).colorScheme.secondary,
+                          size: 50),
                     ),
                   ),
                 );
@@ -115,7 +124,7 @@ class _UploadPicturesState extends ConsumerState<UploadPictures> {
                       key: Key('remove-image-$index'),
                       right: 0,
                       child: IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red),
+                        icon:  Icon(Icons.delete, color: Theme.of(context).colorScheme.error),
                         onPressed: () {
                           setState(() {
                             _selectedImages.removeAt(imageIndex);

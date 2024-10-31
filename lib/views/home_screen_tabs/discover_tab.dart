@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 
 class DiscoverTab extends ConsumerWidget {
@@ -20,99 +21,36 @@ class DiscoverTab extends ConsumerWidget {
           children: [
             Container(
               decoration: BoxDecoration(
-                color: Colors.grey[200],
+                color: Colors.grey[500]!.withOpacity(0.2),
                 borderRadius: BorderRadius.circular(25),
               ),
               child: TextField(
-                cursorColor: Colors.black,
+                cursorColor: Theme.of(context).textTheme.displayLarge?.color,
                 controller: searchController,
                 decoration: InputDecoration(
                   hintText: 'Search Folio',
-                  prefixIcon: Icon(Icons.search, color: Colors.grey[600]),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: const BorderRadius.all(Radius.circular(50)),
+                    borderSide: BorderSide(
+                      width: 2,
+                      color: Colors.grey[400]!
+                    )
+                    ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: const BorderRadius.all(Radius.circular(50)),
+                    borderSide: BorderSide(
+                      width: 3,
+                      color: Colors.grey[400]!
+                    )
+                    ),
+                  hintStyle: GoogleFonts.inter(fontWeight: FontWeight.w500, color: Theme.of(context).textTheme.displayLarge?.color),
+                  prefixIcon: Icon(Icons.search, color: Theme.of(context).textTheme.displayLarge?.color),
                   border: InputBorder.none,
                   contentPadding: const EdgeInsets.symmetric(vertical: 15),
                 ),
               ),
             ),
             const SizedBox(height: 16),
-            // Expanded(
-            //   child: portfolios.when(
-            //     data: (ports) {
-            //       return ListView.separated(
-            //         itemCount: ports.length,
-            //         separatorBuilder: (context, index) => const Divider(
-            //           color: Colors.grey,
-            //           height: 1,
-            //           thickness: 0.5,
-            //         ),
-            //         itemBuilder: (context, index) {
-            //           final portfolio = ports[index];
-            //           final String firstImageUrl = portfolio['portfolio'].downloadUrls.isNotEmpty 
-            //             ? portfolio['portfolio'].downloadUrls[0] 
-            //             : '';
-                      
-            //           return Padding(
-            //             padding: const EdgeInsets.symmetric(vertical: 12.0),
-            //             child: InkWell(
-            //               onTap: () {
-            //                 // : Implement view portfolio action
-            //               },
-            //               child: Row(
-            //                 crossAxisAlignment: CrossAxisAlignment.center,
-            //                 children: [
-            //                   // Image
-            //                   ClipRRect(
-            //                     borderRadius: BorderRadius.circular(8),
-            //                     child: firstImageUrl.isNotEmpty
-            //                       ? Image.network(
-            //                           firstImageUrl,
-            //                           width: 80,
-            //                           height: 80,
-            //                           fit: BoxFit.cover,
-            //                         )
-            //                       : Container(
-            //                           width: 80,
-            //                           height: 80,
-            //                           color: Colors.grey[300],
-            //                           child: const Icon(Icons.image, size: 40, color: Colors.grey),
-            //                         ),
-            //                   ),
-            //                   const SizedBox(width: 16),
-            //                   // Name and Service
-            //                   Expanded(
-            //                     child: Column(
-            //                       mainAxisAlignment: MainAxisAlignment.center,
-            //                       crossAxisAlignment: CrossAxisAlignment.start,
-            //                       children: [
-            //                         Text(
-            //                           portfolio['user']?.fullName ?? portfolio['user'].username,
-            //                           style: const TextStyle(
-            //                             fontWeight: FontWeight.bold,
-            //                             fontSize: 16,
-            //                           ),
-            //                         ),
-            //                         Text(
-            //                           portfolio['portfolio']?.service,
-            //                           style: TextStyle(
-            //                             color: Colors.grey[600],
-            //                             fontSize: 14,
-            //                           ),
-            //                         ),
-            //                       ],
-            //                     ),
-            //                   ),
-            //                   IconButton(onPressed: (){}, icon: Icon(Icons.arrow_forward_ios),)
-            //                 ],
-            //               ),
-            //             ),
-            //           );
-            //         },
-            //       );
-            //     },
-            //     error: (_, __) => const Center(child: Text('Error loading data')),
-            //     loading: () => const Center(child: CircularProgressIndicator()),
-            //   ),
-            // ),
           ],
         ),
       ),
