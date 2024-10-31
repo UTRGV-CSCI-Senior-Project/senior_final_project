@@ -1,235 +1,114 @@
-//File just to navigate to after successful sign/log in
-//Can be changed
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:folio/core/service_locator.dart';
+import 'package:folio/views/home_screen_tabs/edit_profile.dart';
 import 'package:folio/views/loading_screen.dart';
 import 'package:folio/views/onboarding_screen.dart';
+import 'package:folio/views/home_screen_tabs/discover_tab.dart';
+import 'package:folio/views/home_screen_tabs/home_tab.dart';
 import 'package:folio/views/welcome_screen.dart';
+
+final selectedIndexProvider = StateProvider<int>((ref) => 0);
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    double Phonewidth = MediaQuery.sizeOf(context).width;
+    return ref.watch(userStreamProvider).when(
+        data: (userModel) {
+          if (userModel == null) {
+            return const WelcomeScreen();
+          }
+          if (userModel.completedOnboarding) {
+            final selectedIndex = ref.watch(selectedIndexProvider);
+            String getTitle() {
+              switch (selectedIndex) {
+                case 0:
+                  return 'Welcome, ${userModel.fullName}!';
+                case 1:
+                  return 'Discover';
+                case 2:
+                  return 'Inbox';
+                case 3:
+                  return 'Profile';
+                default:
+                  return 'Folio';
+              }
+            }
 
-    return ref.watch(userStreamProvider).when(data: (userModel){
-      if(userModel == null){
-        return const WelcomeScreen();
-      }
-
-      if(userModel.completedOnboarding){
-        return Scaffold(
-      resizeToAvoidBottomInset: false,
-      appBar: AppBar(
-          automaticallyImplyLeading: false,
-          title:  Text(
-            "Welcome, ${userModel.fullName ?? userModel.username}",
-            style: const TextStyle(
-              fontWeight: FontWeight.w900,
-            ), //change this to users name,
-          )),
-      body: ListView(children: [
-        Column(
-          children: [
-            Container(
-              //this part still needs work not done
-
-              width: Phonewidth - 10,
-              child: Column(
+            return Scaffold(
+              appBar: AppBar(
+                backgroundColor: Colors.white,
+                centerTitle: false,
+                title: Text(getTitle(),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w900,
+                    )),
+              ),
+              body: IndexedStack(
+                index: selectedIndex,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      const Text(
-                        "Prefences",
-                        style: TextStyle(
-                          fontWeight: FontWeight.w900,
-                        ),
-                      ),
-                      const SizedBox(
-                        width: 150,
-                      ),
-                      TextButton(
-                        key: const Key("Edit_Proffesion_Key"),
-                        onPressed: () {},
-                        child: const Text(
-                          "Edit",
-                          style:
-                              TextStyle(color: Color.fromRGBO(0, 111, 253, 1)),
-                        ),
-                      )
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  SizedBox(
-                      height: 30,
-                      child: CarouselView(
-                        itemExtent: 140,
-                        children: List.generate(
-                          10,
-                          (int index) {
-                            return ElevatedButton(
-                                key: Key("Proffesion_button_$index "),
-                                style: const ButtonStyle(
-                                  backgroundColor:
-                                      WidgetStatePropertyAll<Color>(
-                                          Color.fromRGBO(234, 242, 255, 1)),
-                                ),
-                                onPressed: () {},
-                                child: const Text(
-                                  "Proffesional",
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.w900,
-                                      color: Color.fromRGBO(0, 111, 253, 1)),
-                                ));
-                          },
-                        ),
-                      ))
+                  HomeTab(userModel: userModel),
+                  const DiscoverTab(),
+                  const EditProfile(),
+                  const EditProfile(),
+
                 ],
               ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                const Text(
-                  "Near You",
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(
-                  width: 150,
-                ),
-                TextButton(
-                  key: const Key("See_more_button"),
-                  onPressed: () {},
-                  child: const Text(
-                    "See more",
-                    style: TextStyle(color: Color.fromRGBO(0, 111, 253, 1)),
-                  ),
-                )
-              ],
-            ),
-            SizedBox(
-              height: 245,
-              child: CarouselView(
-                  itemExtent: 250,
-                  itemSnapping: true,
-                  children: List.generate(10, (int index) {
-                    return Container(
-                      key: Key("Near_You_Recommendation_Button_$index "),
-                      child: Stack(
-                        alignment: Alignment.bottomCenter,
-                        children: [
-                          Image.asset(
-                            "assets/Explore.png",
-                            width: 250,
-                            height: 245,
-                          ),
-                          const Column(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "First Last ",
-                                style: TextStyle(
-                                    fontSize: 14, fontWeight: FontWeight.bold),
-                              ),
-                              Text(
-                                "Proffesion",
-                                style: TextStyle(fontSize: 12),
-                              ),
-                            ],
-                          )
-                        ],
-                      ),
-                    );
-                  })),
-            ),
-            const SizedBox(
-              height: 20,
-            ),
-            const Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Text(
-                    "Recently Viewed",
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
+              bottomNavigationBar: NavigationBar(
+                backgroundColor: Colors.grey.shade50,
+                selectedIndex: selectedIndex,
+                onDestinationSelected: (index) {
+                  // Update the selected index when a destination is tapped
+                  ref.read(selectedIndexProvider.notifier).state = index;
+                },
+                destinations: const [
+                  NavigationDestination(
+                    key:  Key('home-button'),
+                    icon: Icon(Icons.home),
+                    selectedIcon: Icon(
+                      Icons.home,
+                      color: Color.fromRGBO(0, 111, 253, 100),
                     ),
+                    label: 'Home',
                   ),
-                  SizedBox(
-                    width: 200,
+                  NavigationDestination(
+                    key:  Key('discover-button'),
+                    icon: Icon(Icons.explore),
+                    selectedIcon: Icon(
+                      Icons.explore,
+                      color: Color.fromRGBO(0, 111, 253, 100),
+                    ),
+                    label: 'Discover',
                   ),
-                ]),
-            SizedBox(
-              height: 360,
-              child: CarouselView(
-                  scrollDirection: Axis.vertical,
-                  itemExtent: 70,
-                  itemSnapping: true,
-                  children: List.generate(2, (int index) {
-                    return Row(
-                      key: Key("Recenty_View_Button_$index "),
-                      children: [
-                        Image.asset(
-                          "assets/Explore.png",
-                          width: 80,
-                        ),
-                        const Column(children: [
-                          Text(
-                            "First Last ",
-                            style: TextStyle(
-                                fontSize: 14, fontWeight: FontWeight.bold),
-                          ),
-                          Text(
-                            "Proffesion",
-                            style: TextStyle(fontSize: 12),
-                          ),
-                        ]),
-                        const Spacer(),
-                        const Icon(Icons.arrow_forward_ios_sharp)
-                      ],
-                    );
-                  })),
-            )
-          ],
-        )
-      ]),
-      bottomNavigationBar: NavigationBar(
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.explore),
-            label: 'Discover',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.bookmark_border),
-            label: 'Inbox',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
-      ),
-    );
-      }else{
-        return const OnboardingScreen();
-      }
-
-    }, error: (s, p) => const LoadingScreen(), loading: () => const LoadingScreen());
-    
-    
-    
+                  NavigationDestination(
+                    key:  Key('inbox-button'),
+                    icon: Icon(Icons.bookmark_border),
+                    enabled: false,
+                    selectedIcon: Icon(
+                      Icons.bookmark_border,
+                      color: Color.fromRGBO(0, 111, 253, 100),
+                    ),
+                    label: 'Inbox',
+                  ),
+                  NavigationDestination(
+                    key:  Key('profile-button'),
+                    icon: Icon(Icons.person),
+                    selectedIcon: Icon(
+                      Icons.person,
+                      color: Color.fromRGBO(0, 111, 253, 100),
+                    ),
+                    label: 'Profile',
+                  ),
+                ],
+              ),
+            );
+          } else {
+            return const OnboardingScreen();
+          }
+        },
+        error: (s, p)  => const LoadingScreen(),
+        loading: () => const LoadingScreen());
   }
 }

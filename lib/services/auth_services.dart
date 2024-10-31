@@ -1,22 +1,24 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:folio/core/app_exception.dart';
 
 class AuthServices {
   final FirebaseAuth _firebaseAuth;
 
   AuthServices(this._firebaseAuth);
 
-  
   Future<String?> signUp(
-      {required String email, required String password, required String username}) async {
+      {required String email,
+      required String password,
+      required String username}) async {
     try {
       final credential = await _firebaseAuth.createUserWithEmailAndPassword(
           email: email, password: password);
       await credential.user?.updateDisplayName(username);
       return credential.user?.uid;
     } on FirebaseAuthException catch (e) {
-      throw e.code.toString();
+      throw AppException(e.code.toString());
     } catch (e) {
-      throw "unexpected-error";
+      throw AppException('sign-up-error');
     }
   }
 
@@ -25,9 +27,9 @@ class AuthServices {
       await _firebaseAuth.signInWithEmailAndPassword(
           email: email, password: password);
     } on FirebaseAuthException catch (e) {
-      throw e.code.toString();
+      throw AppException(e.code.toString());
     } catch (e) {
-      throw 'unexpected-error';
+      throw AppException('sign-in-error');
     }
   }
 
@@ -35,7 +37,7 @@ class AuthServices {
     try {
       await _firebaseAuth.signOut();
     } catch (e) {
-      throw 'sign-out-error';
+      throw AppException('sign-out-error');
     }
   }
 
@@ -47,31 +49,29 @@ class AuthServices {
     try {
       await _firebaseAuth.currentUser?.delete();
     } on FirebaseAuthException catch (e) {
-      throw e.code.toString();
+      throw AppException(e.code.toString());
     } catch (e) {
-      throw e.toString();
+      throw AppException('delete-user-error');
     }
   }
 
   Future<void> sendVerificationEmail() async {
-    try{
-      if(_firebaseAuth.currentUser == null)
-      {
-        throw 'no-user';
+    try {
+      if (_firebaseAuth.currentUser == null) {
+        throw AppException('no-user');
       }
-      if(_firebaseAuth.currentUser?.emailVerified == false){
+      if (_firebaseAuth.currentUser?.emailVerified == false) {
         await _firebaseAuth.currentUser?.sendEmailVerification();
-      }else{
-        throw 'already-verified';
+      } else {
+        throw AppException('already-verified');
       }
-    }catch (e){
-      if(e == 'already-verified' || e == 'no-user'){
+    } catch (e) {
+      if (e is AppException &&
+          (e.code == 'no-user' || e.code == 'already-verified')) {
         rethrow;
-      }
-      else{
-        throw 'email-verification-error';
+      } else {
+        throw AppException('email-verification-error');
       }
     }
   }
-
 }

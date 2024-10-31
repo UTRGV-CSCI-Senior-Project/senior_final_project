@@ -770,3 +770,33 @@ class MockTaskSnapshot extends _i1.Mock implements _i3.TaskSnapshot {
         returnValue: 0,
       ) as int);
 }
+
+/// A class which mocks [ListResult].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockListResult extends _i1.Mock implements _i3.ListResult {
+  MockListResult() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i3.FirebaseStorage get storage => (super.noSuchMethod(
+        Invocation.getter(#storage),
+        returnValue: _FakeFirebaseStorage_3(
+          this,
+          Invocation.getter(#storage),
+        ),
+      ) as _i3.FirebaseStorage);
+
+  @override
+  List<_i3.Reference> get items => (super.noSuchMethod(
+        Invocation.getter(#items),
+        returnValue: <_i3.Reference>[],
+      ) as List<_i3.Reference>);
+
+  @override
+  List<_i3.Reference> get prefixes => (super.noSuchMethod(
+        Invocation.getter(#prefixes),
+        returnValue: <_i3.Reference>[],
+      ) as List<_i3.Reference>);
+}

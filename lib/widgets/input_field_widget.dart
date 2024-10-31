@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 Widget inputField(String key, String label, String hintText, TextInputType keyboardType,
-    TextEditingController controller,
+    TextEditingController controller, Function(String) onChanged,
     {bool isPassword = false}) {
   return Padding(
     padding: const EdgeInsets.only(bottom: 20),
@@ -12,6 +12,7 @@ Widget inputField(String key, String label, String hintText, TextInputType keybo
       ),
       const Padding(padding: EdgeInsets.only(bottom: 5)),
       TextField(
+        onChanged: onChanged,
         key: Key(key),
         controller: controller,
         cursorColor: const Color.fromARGB(255, 0, 111, 253),

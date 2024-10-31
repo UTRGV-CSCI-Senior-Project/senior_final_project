@@ -1,30 +1,35 @@
-
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:folio/models/user_model.dart';
+import 'package:folio/repositories/portfolio_repository.dart';
 import 'package:folio/repositories/user_repository.dart';
 import 'package:folio/services/auth_services.dart';
 import 'package:folio/services/firestore_services.dart';
 import 'package:folio/services/storage_services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:rxdart/rxdart.dart';
+import 'dart:developer' as developer;
 
 final imagePickerProvider = Provider<ImagePicker>((ref) {
   final imagePicker = ImagePicker();
   return imagePicker;
 });
 
-final firebaseAuthProvider = Provider<FirebaseAuth>((ref){
+final userFirestoreServicesProvider = Provider<FirestoreServices>((ref) {
+  final firebaseFirestore = ref.watch(firebaseFirestoreProvider);
+  return FirestoreServices(firebaseFirestore, ref);
+});
+final firebaseAuthProvider = Provider<FirebaseAuth>((ref) {
   return FirebaseAuth.instance;
 });
 
-final firebaseFirestoreProvider = Provider<FirebaseFirestore>((ref){
+final firebaseFirestoreProvider = Provider<FirebaseFirestore>((ref) {
   return FirebaseFirestore.instance;
 });
 
-final firebaseStorageProvider = Provider<FirebaseStorage>((ref){
+final firebaseStorageProvider = Provider<FirebaseStorage>((ref) {
   return FirebaseStorage.instance;
 });
 
@@ -33,12 +38,12 @@ final authServicesProvider = Provider<AuthServices>((ref) {
   return AuthServices(firebaseAuth);
 });
 
-final firestoreServicesProvider = Provider<FirestoreServices>((ref){
+final firestoreServicesProvider = Provider<FirestoreServices>((ref) {
   final firebaseFirestore = ref.watch(firebaseFirestoreProvider);
   return FirestoreServices(firebaseFirestore, ref);
 });
 
-final storageServicesProvider = Provider<StorageServices>((ref){
+final storageServicesProvider = Provider<StorageServices>((ref) {
   final firebaseStorage = ref.watch(firebaseStorageProvider);
   return StorageServices(ref, firebaseStorage);
 });
@@ -47,21 +52,17 @@ final userRepositoryProvider = Provider<UserRepository>((ref) {
   final authServices = ref.watch(authServicesProvider);
   final firestoreServices = ref.watch(firestoreServicesProvider);
   final storageServices = ref.watch(storageServicesProvider);
-  return UserRepository(authServices, firestoreServices, storageServices, ref);
+  return UserRepository(authServices, firestoreServices, storageServices);
 });
 
-final authStateProvider = StreamProvider<User?>((ref){
+final portfolioRepositoryProvider = Provider<PortfolioRepository>((ref) {
+  final firestoreServices = ref.watch(firestoreServicesProvider);
+  final storageServices = ref.watch(storageServicesProvider);
+  return PortfolioRepository(firestoreServices, storageServices);
+});
+
+final authStateProvider = StreamProvider<User?>((ref) {
   return ref.watch(authServicesProvider).authStateChanges();
-});
-
-
-final userModelProvider = FutureProvider<UserModel?>((ref) async {
-  final authState = await ref.watch(authStateProvider.future);
-  if (authState != null) {
-    final firestoreServices = ref.read(firestoreServicesProvider);
-    return await firestoreServices.getUser(authState.uid);
-  }
-  return null;
 });
 
 final userStreamProvider = StreamProvider<UserModel?>((ref) {
@@ -75,16 +76,40 @@ final userStreamProvider = StreamProvider<UserModel?>((ref) {
   }
 });
 
+final userDataStreamProvider = StreamProvider<Map<String, dynamic>?>((ref) {
+  final authState = ref.watch(authStateProvider).value;
+
+  if (authState != null) {
+    final firestoreServices = ref.watch(firestoreServicesProvider);
+    final userStream = firestoreServices.getUserStream(authState.uid);
+    final portfolioStream = firestoreServices.getPortfolioStream(authState.uid);
+    return Rx.combineLatest2(userStream, portfolioStream,
+        (userData, portfolio) => {'user': userData, 'portfolio': portfolio});
+  }
+  return Stream.value(null);
+});
+
 void setupEmulators({bool useEmulators = false}) {
-  if(useEmulators){
+  if (useEmulators) {
     try {
       FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
       FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
       FirebaseStorage.instance.useStorageEmulator('localhost', 9199);
       // Add other emulators as needed
-    } catch (e) {
-      print(e);
+
+      developer.log(
+        'Firebase emulators initialized successfully',
+        name: 'EmulatorSetup',
+        level: 1, // Info level
+      );
+    } catch (e, stackTrace) {
+      developer.log(
+        'Failed to initialize Firebase emulators',
+        name: 'EmulatorSetup',
+        error: e,
+        stackTrace: stackTrace,
+        level: 900, // Error level
+      );
     }
   }
-
 }

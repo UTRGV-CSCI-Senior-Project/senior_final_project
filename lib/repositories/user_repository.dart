@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:folio/core/app_exception.dart';
 import 'package:folio/models/user_model.dart';
 import 'package:folio/services/auth_services.dart';
 import 'package:folio/services/firestore_services.dart';
@@ -10,9 +10,9 @@ class UserRepository {
   final AuthServices _authServices;
   final FirestoreServices _firestoreServices;
   final StorageServices _storageServices;
-  final Ref _ref;
 
-  UserRepository(this._authServices, this._firestoreServices, this._storageServices, this._ref);
+  UserRepository(this._authServices, this._firestoreServices,
+      this._storageServices);
 
   Future<void> createUser(
       String username, String email, String password) async {
@@ -20,29 +20,29 @@ class UserRepository {
       bool usernameIsUnique =
           await _firestoreServices.isUsernameUnique(username);
       if (!usernameIsUnique) {
-        throw 'username-taken';
+        throw AppException('username-taken');
       }
-      final result =
-          await _authServices.signUp(email: email, password: password, username: username);
-      if (result != null) {
-        final user = UserModel(
-            uid: result,
-            username: username,
-            email: email,
-            isProfessional: false);
+      final result = await _authServices.signUp(
+          email: email, password: password, username: username);
 
-        try {
-          await _firestoreServices.addUser(user);
-
-        } catch (e) {
-          await _authServices.deleteUser();
-          throw 'firestore-add-fail';
-        }
-
-        _authServices.sendVerificationEmail();
+      if (result == null) {
+        throw AppException('sign-up-error');
       }
+      final user = UserModel(
+          uid: result, username: username, email: email, isProfessional: false);
+
+      await _firestoreServices.addUser(user);
+
+      await _authServices.sendVerificationEmail();
     } catch (e) {
-      rethrow;
+      if (e is AppException) {
+        if (e.code == "add-user-error") {
+          await _authServices.deleteUser();
+        }
+        rethrow;
+      } else {
+        throw AppException('create-user-error');
+      }
     }
   }
 
@@ -50,36 +50,52 @@ class UserRepository {
     try {
       await _authServices.signIn(email: email, password: password);
     } catch (e) {
-      rethrow;
+      if (e is AppException) {
+        rethrow; // Let AppExceptions propagate
+      } else {
+        throw AppException('sign-in-error');
+      }
     }
   }
 
   Future<void> signOut() async {
-    await _authServices.signOut();
+    try {
+      await _authServices.signOut();
+    } catch (e) {
+      if (e is AppException) {
+        rethrow;
+      } else {
+        throw AppException('sign-out-error');
+      }
+    }
   }
 
-  Future<void> updateProfile({File? profilePicture, Map<String, dynamic>? fields}) async {
-    try{
+  Future<void> updateProfile(
+      {File? profilePicture, Map<String, dynamic>? fields}) async {
+    try {
       final fieldsToUpdate = <String, dynamic>{};
 
-      if(fields != null && fields.isNotEmpty){
+      if (fields != null && fields.isNotEmpty) {
         fieldsToUpdate.addAll(fields);
       }
 
-      if(profilePicture != null){
-        final downloadUrl = await _storageServices.uploadProfilePicture(profilePicture);
-        if(downloadUrl != null){
+      if (profilePicture != null) {
+        final downloadUrl =
+            await _storageServices.uploadProfilePicture(profilePicture);
+        if (downloadUrl != null) {
           fieldsToUpdate['profilePictureUrl'] = downloadUrl;
         }
       }
 
-      if(fieldsToUpdate.isNotEmpty){
+      if (fieldsToUpdate.isNotEmpty) {
         await _firestoreServices.updateUser(fieldsToUpdate);
       }
-
-    }catch (e) {
-      rethrow;
+    } catch (e) {
+      if (e is AppException) {
+        rethrow;
+      } else {
+        throw AppException('update-profile-error');
+      }
     }
-
   }
 }

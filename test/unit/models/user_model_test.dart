@@ -1,3 +1,4 @@
+
 import 'package:folio/models/user_model.dart';
 import 'package:test/test.dart';
 
@@ -11,6 +12,9 @@ void main() {
         fullName: 'Test User',
         email: 'test@example.com',
         isProfessional: true,
+        completedOnboarding: true,
+        preferredServices: ['Barber', 'Nail Tech'],
+        profilePictureUrl: 'imageurl.com'
       );
 
       //Expect the user to have all the correct information
@@ -19,6 +23,9 @@ void main() {
       expect(user.email, 'test@example.com');
       expect(user.isProfessional, true);
       expect(user.fullName, 'Test User');
+      expect(user.completedOnboarding, true);
+      expect(user.preferredServices, ['Barber', 'Nail Tech']);
+      expect(user.profilePictureUrl, 'imageurl.com');
     });
 
     test('throws an error when uid is empty', () {
@@ -67,6 +74,7 @@ void main() {
         fullName: 'Test User',
         email: 'test@example.com',
         isProfessional: true,
+        completedOnboarding: true
       );
 
       //Check that the toJson returns the correct JSON
@@ -76,6 +84,9 @@ void main() {
       expect(json['fullName'], 'Test User');
       expect(json['email'], 'test@example.com');
       expect(json['isProfessional'], true);
+      expect(json['completedOnboarding'], true);
+      expect(json['preferredServices'], []);
+      expect(json['profilePictureUrl'], null);
     });
   });
 
@@ -85,7 +96,9 @@ void main() {
         'uid': 'testUid',
         'username': 'testUsername',
         'email': 'email@email.com',
-        'isProfessional': true
+        'isProfessional': true,
+        'completedOnboarding': false,
+        'preferredServices': ['Barber'],
       };
 
       final user = UserModel.fromJson(jsonUser);
@@ -95,6 +108,9 @@ void main() {
       expect(user.fullName, null);
       expect(user.email, 'email@email.com');
       expect(user.isProfessional, true);
+      expect(user.completedOnboarding, false);
+      expect(user.preferredServices, ['Barber']);
+      expect(user.profilePictureUrl, null);
     });
 
     test('should return a valid user model with a fullName', () {
@@ -113,6 +129,9 @@ void main() {
       expect(user.fullName, 'test name');
       expect(user.email, 'email@email.com');
       expect(user.isProfessional, true);
+      expect(user.completedOnboarding, false);
+      expect(user.preferredServices, []);
+      expect(user.profilePictureUrl, null);
     });
 
     test('should throw an error when uid is missing', () {

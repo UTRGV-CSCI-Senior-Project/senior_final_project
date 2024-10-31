@@ -51,7 +51,7 @@ void main() {
       expect(find.text('Next'), findsOneWidget);
     });
 
-    testWidgets('shows error when trying to continue without name and image',
+    testWidgets('shows error when trying to continue without name',
         (WidgetTester tester) async {
       final container = createProviderContainer();
       await tester.pumpWidget(createOnboardingWidget(container));
@@ -166,7 +166,7 @@ void main() {
 
       await tester.tap(find.text("Done!"));
       await tester.pumpAndSettle();
-      expect(find.text('An unknown error ocurred. Please try again later.'),
+      expect(find.text('Failed to update profile information. Please try again.'),
           findsOneWidget);
     });
   });
