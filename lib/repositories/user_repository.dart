@@ -15,7 +15,7 @@ class UserRepository {
       this._storageServices);
 
   Future<void> createUser(
-      String username, String email, String password) async {
+      String username, String email, String password,String city) async {
     try {
       bool usernameIsUnique =
           await _firestoreServices.isUsernameUnique(username);
@@ -29,7 +29,7 @@ class UserRepository {
         throw AppException('sign-up-error');
       }
       final user = UserModel(
-          uid: result, username: username, email: email, isProfessional: false);
+          uid: result, username: username, email: email, isProfessional: false,city: city);
 
       await _firestoreServices.addUser(user);
 

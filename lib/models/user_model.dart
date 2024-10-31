@@ -7,6 +7,9 @@ class UserModel {
   final bool _completedOnboarding;
   final List<String> _preferredServices;
   final String? _profilePictureUrl;
+  String _city;
+  double? _lati;
+  double? _long;
 
   UserModel({
     required String uid,
@@ -17,6 +20,9 @@ class UserModel {
     bool completedOnboarding = false,
     List<String> preferredServices = const [],
     String? profilePictureUrl,
+    required String city,
+    double? lati,
+    double? long,
   })  : _uid = uid,
         _username = username,
         _fullName = fullName,
@@ -24,7 +30,10 @@ class UserModel {
         _isProfessional = isProfessional,
         _completedOnboarding = completedOnboarding,
         _preferredServices = preferredServices,
-        _profilePictureUrl = profilePictureUrl {
+        _profilePictureUrl = profilePictureUrl,
+        _city = city,
+        _lati = lati,
+        _long = long {
     if (_uid.isEmpty) {
       throw ArgumentError('UID cannot be empty');
     }
@@ -33,6 +42,9 @@ class UserModel {
     }
     if (_email.isEmpty) {
       throw ArgumentError('Email cannot be empty');
+    }
+    if (_city.isEmpty) {
+      throw ArgumentError('You must choose a city');
     }
   }
 
@@ -44,6 +56,9 @@ class UserModel {
   bool get completedOnboarding => _completedOnboarding;
   List<String> get preferredServices => _preferredServices;
   String? get profilePictureUrl => _profilePictureUrl;
+  String get city => _city;
+  double? get lati => _lati;
+  double? get long => _long;
 
   toJson() {
     return {
@@ -55,6 +70,9 @@ class UserModel {
       "completedOnboarding": completedOnboarding,
       "preferredServices": preferredServices,
       "profilePictureUrl": profilePictureUrl,
+      "city": city,
+      "latitude": lati,
+      "longitude": long,
     };
   }
 
@@ -83,6 +101,10 @@ class UserModel {
                 ?.map((e) => e as String)
                 .toList() ??
             [],
-        profilePictureUrl: json['profilePictureUrl'] as String?);
+        profilePictureUrl: json['profilePictureUrl'] as String?,
+        city:json['city'] as String,
+        lati: json["latitude"] as double?,
+        long: json["longitude"] as double?,
+        );
   }
 }
