@@ -7,6 +7,7 @@ import 'package:folio/core/service_locator.dart';
 import 'package:folio/views/home_screen.dart';
 import 'package:folio/views/state_screens.dart';
 import 'package:folio/widgets/error_widget.dart';
+import 'package:folio/widgets/service_selection_widget.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -184,68 +185,55 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       );
     }
 
-    return SingleChildScrollView(
-      child: Column(
+    return  Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const SizedBox(height: 20),
            Text(
-            'What professions are you interested in?',
-            textAlign: TextAlign.center,
+            'Select the services you\'re interested in',
+            textAlign: TextAlign.start,
             style: GoogleFonts.poppins(fontSize: 22, fontWeight: FontWeight.w500),
           ),
-          const SizedBox(height: 4),
            Text(
             "Choose at least one!",
-            textAlign: TextAlign.center,
-            style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w400),
+            textAlign: TextAlign.start,
+            style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w400),
           ),
-          const SizedBox(height: 50),
-          ...services.map((service) {
-            bool isSelected = selectedServices[service] ?? false;
-            return GestureDetector(
-                key: Key('$service-button'),
-                onTap: () => setState(() {
-                      selectedServices[service] = !isSelected;
-                    }),
-                child: Container(
-                    margin: const EdgeInsets.symmetric(vertical: 5),
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? const Color.fromRGBO(229, 255, 200, 0.4)
-                          : Colors
-                              .transparent, // Change background color when selected
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        width: 2,
-                        color: isSelected
-                            ? const Color.fromRGBO(9, 195, 54, 1)
-                            : Colors.grey,
-                      ),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Row(
-                        children: [
-                          Text(
-                            service,
-                            style:  GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold),
-                          ),
-                          const Spacer(),
-                          isSelected
-                              ? const Icon(
-                                  Icons.check,
-                                  color: Color.fromRGBO(9, 195, 54, 1),
-                                  size: 25,
-                                )
-                              : Container(),
-                        ],
-                      ),
-                    )));
-          })
+           Container(
+          margin: const EdgeInsets.only(top: 14),
+          decoration: BoxDecoration(
+            color: Colors.grey[500]!.withOpacity(0.2),
+            borderRadius: BorderRadius.circular(25),
+          ),
+          child: TextField(
+            cursorColor: Theme.of(context).textTheme.displayLarge?.color,
+            decoration: InputDecoration(
+              hintText: 'Search Folio',
+              enabledBorder: OutlineInputBorder(
+                  borderRadius: const BorderRadius.all(Radius.circular(50)),
+                  borderSide: BorderSide(width: 2, color: Colors.grey[400]!)),
+              focusedBorder: OutlineInputBorder(
+                  borderRadius: const BorderRadius.all(Radius.circular(50)),
+                  borderSide: BorderSide(width: 3, color: Colors.grey[400]!)),
+              hintStyle: GoogleFonts.inter(
+                  fontWeight: FontWeight.w500,
+                  color: Theme.of(context).textTheme.displayLarge?.color),
+              prefixIcon: Icon(Icons.search,
+                  color: Theme.of(context).textTheme.displayLarge?.color),
+              border: InputBorder.none,
+              contentPadding: const EdgeInsets.symmetric(vertical: 15),
+            ),
+          ),
+        ),
+        const SizedBox(height: 10,),
+          Expanded(child: ServiceSelectionWidget(services: services, initialSelectedServices: selectedServices, onServicesSelected: (newServices){
+            setState(() {
+              selectedServices.clear();
+              selectedServices.addAll(newServices);
+            });
+          }, isLoading: _isLoading))
+          
         ],
-      ),
-    );
+      );
   }
 
   @override

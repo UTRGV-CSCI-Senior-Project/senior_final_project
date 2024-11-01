@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:folio/views/update_services_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class HomeTab extends StatelessWidget {
@@ -29,7 +30,9 @@ class HomeTab extends StatelessWidget {
                               ),
                               GestureDetector(
                                 key: const Key("Edit_Proffesion_Key"),
-                                onTap: () {},
+                                onTap: () {
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) => UpdateServicesScreen(selectedServices: userModel.preferredServices,)));
+                                },
                                 child:  Text(
                                   "Edit",
                style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.tertiary),
