@@ -29,7 +29,7 @@ class HomeTab extends StatelessWidget {
                                     fontWeight: FontWeight.w900, fontSize: 16),
                               ),
                               GestureDetector(
-                                key: const Key("Edit_Proffesion_Key"),
+                                key: const Key("edit-services-button"),
                                 onTap: () {
                                   Navigator.push(context, MaterialPageRoute(builder: (context) => UpdateServicesScreen(selectedServices: userModel.preferredServices,)));
                                 },

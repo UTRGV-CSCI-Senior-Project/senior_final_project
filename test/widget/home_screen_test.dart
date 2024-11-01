@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -18,8 +20,13 @@ void main() {
   setUp(() {
     mockUserRepository = MockUserRepository();
     mockFirestoreServices = MockFirestoreServices();
-    when(mockFirestoreServices.getServices()).thenAnswer(
-        (_) async => ['Nail Tech', 'Barber', 'Tattoo Artist', 'Car Detailer']);
+    when(mockFirestoreServices.getServices()).thenAnswer((_) async => [
+          'Nail Tech',
+          'Barber',
+          'Tattoo Artist',
+          'Car Detailer',
+          'Hair Stylist'
+        ]);
   });
 
   ProviderContainer createProviderContainer({UserModel? userModel}) {
@@ -92,7 +99,7 @@ void main() {
       expect(find.byIcon(Icons.person), findsOneWidget);
     });
 
-     testWidgets('navigation works correctly', (WidgetTester tester) async {
+    testWidgets('navigation works correctly', (WidgetTester tester) async {
       final userModel = UserModel(
         uid: 'testuid',
         username: 'username',
@@ -101,7 +108,7 @@ void main() {
         fullName: 'Test User',
         completedOnboarding: true,
       );
-      
+
       final container = createProviderContainer(userModel: userModel);
       await tester.pumpWidget(createHomeScreen(container));
       await tester.pumpAndSettle();
@@ -119,7 +126,8 @@ void main() {
       expect(find.text('Profile'), findsExactly(2));
     });
 
-    testWidgets('shows loading screen when stream is loading', (WidgetTester tester) async {
+    testWidgets('shows loading screen when stream is loading',
+        (WidgetTester tester) async {
       final container = ProviderContainer(
         overrides: [
           userStreamProvider.overrideWith(
@@ -127,9 +135,48 @@ void main() {
           ),
         ],
       );
-      
+
       await tester.pumpWidget(createHomeScreen(container));
       expect(find.byType(LoadingScreen), findsOneWidget);
+    });
+
+    testWidgets('can go to update services screen and update services',
+        (WidgetTester tester) async {
+      final userModel = UserModel(
+          uid: 'testuid',
+          username: 'username',
+          email: 'email@email.com',
+          isProfessional: false,
+          fullName: 'Test User',
+          completedOnboarding: true,
+          preferredServices: ['Nail Tech', 'Hair Stylist']);
+
+      when(mockUserRepository.updateProfile(fields: {
+        'preferredServices': ['Nail Tech', 'Barber', 'Hair Stylist']
+      })).thenAnswer((_) async {});
+
+      final container = createProviderContainer(userModel: userModel);
+      await tester.pumpWidget(createHomeScreen(container));
+      await tester.pumpAndSettle();
+
+      expect(find.text("NAIL TECH"), findsOneWidget);
+      expect(find.text("HAIR STYLIST"), findsOneWidget);
+      expect(find.text("Edit"), findsOneWidget);
+
+      await tester.tap(find.text('Edit'));
+      await tester.pumpAndSettle();
+      expect(find.text('Update Your Interests!'), findsOneWidget);
+
+      expect(find.byIcon(Icons.check), findsExactly(2));
+      await tester.tap(find.text('Barber'));
+      await tester.pumpAndSettle();
+      expect(find.byIcon(Icons.check), findsExactly(3));
+      await tester.tap(find.text('Update!'));
+      await tester.pumpAndSettle();
+      // Verify the update was called
+      verify(mockUserRepository.updateProfile(fields: {
+        'preferredServices': ['Nail Tech', 'Barber', 'Hair Stylist']
+      })).called(1);
     });
   });
 }

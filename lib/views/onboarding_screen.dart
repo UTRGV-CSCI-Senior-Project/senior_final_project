@@ -189,7 +189,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
            Text(
-            'Select the services you\'re interested in',
+            'Select the services you\'re interested in.',
             textAlign: TextAlign.start,
             style: GoogleFonts.poppins(fontSize: 22, fontWeight: FontWeight.w500),
           ),

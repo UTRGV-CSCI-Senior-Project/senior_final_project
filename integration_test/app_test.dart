@@ -87,7 +87,9 @@ void main() {
       find.byKey(const Key('create-portfolio-button'));
   final createPortfolioNextButton =
       find.byKey(const Key('portfolio-next-button'));
-
+  final editServicesButton = find.byKey(const Key('edit-services-button'));
+  final updateServicesButton = find.byKey(const Key('update-services-button'));
+  final homeTabButton = find.byKey(const Key('home-button'));
 ////////////////////////////////////////////////////////////////////////
 
 //////////////////////// Set Up and Tear Down //////////////////////////
@@ -183,7 +185,7 @@ final scrollable = find.byType(Scrollable);
       await tester.pumpAndSettle(const Duration(seconds: 5));
       //Tap next on second onboarding screen
       expect(
-          find.text('What professions are you interested in?'), findsOneWidget);
+          find.text('Select the services you\'re interested in.'), findsOneWidget);
       await tester.tap(barberServiceButton);
       await tester.tap(carDetailerServiceButton);
       await tester.tap(onboardingButton);
@@ -220,7 +222,7 @@ final scrollable = find.byType(Scrollable);
       await tester.pumpAndSettle(const Duration(seconds: 5));
       //Tap Done! on second onboarding screen
       expect(
-          find.text('What professions are you interested in?'), findsOneWidget);
+          find.text('Select the services you\'re interested in.'), findsOneWidget);
       await tester.tap(barberServiceButton);
       await tester.tap(carDetailerServiceButton);
       await tester.tap(onboardingButton);
@@ -277,7 +279,7 @@ final scrollable = find.byType(Scrollable);
           scrollable: scrollable.first);
       await tester.tap(signInButton);
       await tester.pumpAndSettle(const Duration(seconds: 5));
-
+      
       //Expect to see home screen with user's full name.
       expect(find.textContaining('First User'), findsOneWidget);
 
@@ -290,6 +292,48 @@ final scrollable = find.byType(Scrollable);
       expect(find.byType(Image), findsExactly(6));
       await container.read(authServicesProvider).signOut();
     });
+
+    testWidgets('As an existing user, I can sign in and update my preferred services from the home screen', (WidgetTester tester) async {
+       await navigateToLogInScreen(tester);
+      await tester.enterText(emailField, 'secondUser@email.com');
+      await tester.enterText(passwordField, '123456');
+      FocusManager.instance.primaryFocus?.unfocus();
+
+      final scrollable = find.byType(Scrollable);
+      await tester.scrollUntilVisible(
+          signInButton, 500.0,
+          scrollable: scrollable.first);
+      await tester.tap(signInButton);
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.tap(homeTabButton);
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+      // Verify initial services are displayed
+      expect(find.text('BARBER'), findsOneWidget);
+      expect(find.text('CAR DETAILER'), findsOneWidget);
+
+      // Tap edit button to update services
+      await tester.tap(editServicesButton);
+      await tester.pumpAndSettle();
+
+      // Verify we're on the update services screen
+      expect(find.text('Update Your Interests!'), findsOneWidget);
+
+      await tester.tap(find.text('Hair Stylist'));
+      await tester.tap(find.text('Barber'));
+
+      await tester.pumpAndSettle();
+
+       // Update services
+      await tester.tap(updateServicesButton);
+      await tester.pumpAndSettle();
+
+      // Verify new services are displayed
+      expect(find.text('HAIR STYLIST'), findsOneWidget);
+      expect(find.text('BARBER'), findsNothing);
+      await container.read(authServicesProvider).signOut();
+    });
+
+     
 
     testWidgets(
         'As an existing normal user I can sign in, go to the profile tab and create a portfolio ',
@@ -500,6 +544,41 @@ final scrollable = find.byType(Scrollable);
     });
 
     testWidgets(
+        'As a user updating services, I should see an error if I try to update with no services selected',
+        (WidgetTester tester) async {
+      await navigateToLogInScreen(tester);
+      await tester.enterText(emailField, 'secondUser@email.com');
+      await tester.enterText(passwordField, '123456');
+      FocusManager.instance.primaryFocus?.unfocus();
+
+      final scrollable = find.byType(Scrollable);
+      await tester.scrollUntilVisible(
+          signInButton, 500.0,
+          scrollable: scrollable.first);
+      await tester.tap(signInButton);
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.tap(homeTabButton);
+      await tester.pumpAndSettle(const Duration(seconds: 3));
+      // Tap edit button
+      await tester.tap(editServicesButton);
+      await tester.pumpAndSettle();
+
+      // Deselect all services
+      await tester.tap(find.text('Hair Stylist'));
+      await tester.tap(carDetailerServiceButton);
+      await tester.pumpAndSettle();
+
+      // Try to update with no services selected
+      await tester.tap(updateServicesButton);
+      await tester.pumpAndSettle();
+
+      // Expect to see error message
+      expect(find.text('Please select at least one.'), findsOneWidget);
+
+      await container.read(authServicesProvider).signOut();
+    });
+
+    testWidgets(
         "As a user completing the onboarding, if I dont't enter my name I should see an error, and if I don't select at least one service, I should see an error.",
         (WidgetTester tester) async {
       await navigateToLogInScreen(tester);
@@ -529,7 +608,7 @@ final scrollable = find.byType(Scrollable);
 
       //Tap Done! on second onboarding screen without choosing service
       expect(
-          find.text('What professions are you interested in?'), findsOneWidget);
+          find.text('Select the services you\'re interested in.'), findsOneWidget);
       await tester.tap(onboardingButton);
       await tester.pumpAndSettle();
 
@@ -587,6 +666,6 @@ final scrollable = find.byType(Scrollable);
       await container.read(authServicesProvider).signOut();
     });
 
-    // /////////////////////////////////////////////// SAD PATHS ////////////////////////////////////////////////////////////////////////
+  //   // /////////////////////////////////////////////// SAD PATHS ////////////////////////////////////////////////////////////////////////
   });
 }

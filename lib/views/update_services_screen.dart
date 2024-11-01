@@ -52,26 +52,32 @@ class _UpdateServicesScreenState extends ConsumerState<UpdateServicesScreen> {
   }
 
   Future<void> updateServices() async {
+    if (!selectedServices.values.any((selected) => selected)) {
+      setState(() {
+        errorMessage = "Please select at least one.";
+      });
+      return;
+    }
     setState(() {
       isSaving = true;
       errorMessage = "";
     });
-    try{
+    try {
       final selectedServicesList = selectedServices.entries
           .where((entry) => entry.value)
           .map((entry) => entry.key)
           .toList();
 
-        await ref.read(userRepositoryProvider).updateProfile(
-        fields: {'preferredServices': selectedServicesList}
-      );
+      await ref
+          .read(userRepositoryProvider)
+          .updateProfile(fields: {'preferredServices': selectedServicesList});
 
       if (!mounted) return;
       Navigator.pop(context);
-    }catch(e){
+    } catch (e) {
       setState(() {
-        errorMessage = e is AppException 
-            ? e.message 
+        errorMessage = e is AppException
+            ? e.message
             : "Failed to update interests. Please try again.";
       });
     } finally {
@@ -79,7 +85,6 @@ class _UpdateServicesScreenState extends ConsumerState<UpdateServicesScreen> {
         isSaving = false;
       });
     }
-    
   }
 
   @override
@@ -89,15 +94,25 @@ class _UpdateServicesScreenState extends ConsumerState<UpdateServicesScreen> {
     }
 
     if (services.isEmpty) {
-      return const ErrorView(bigText: 'Error fetching services!', smallText: 'Please check your connection, or try again later.');
+      return const ErrorView(
+          bigText: 'Error fetching services!',
+          smallText: 'Please check your connection, or try again later.');
     }
 
     return Scaffold(
         appBar: AppBar(
-
-          leading: IconButton(padding: EdgeInsets.zero, onPressed: (){Navigator.pop(context);}, icon: const Icon(Icons.close, size: 30,)),),
-        body: SafeArea(child: 
-        Padding(
+          leading: IconButton(
+              padding: EdgeInsets.zero,
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              icon: const Icon(
+                Icons.close,
+                size: 30,
+              )),
+        ),
+        body: SafeArea(
+            child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -158,36 +173,36 @@ class _UpdateServicesScreenState extends ConsumerState<UpdateServicesScreen> {
               ),
               const Padding(padding: EdgeInsets.all(5)),
               errorMessage.isNotEmpty
-                  ? ErrorBox(errorMessage: errorMessage, onDismiss: (){
-                    setState(() {
-                      errorMessage = "";
-                    });
-                  })
+                  ? ErrorBox(
+                      errorMessage: errorMessage,
+                      onDismiss: () {
+                        setState(() {
+                          errorMessage = "";
+                        });
+                      })
                   : Container(),
               TextButton(
-                  key: const Key('onboarding-button'),
+                  key: const Key('update-services-button'),
                   onPressed: updateServices,
                   style: TextButton.styleFrom(
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20)),
                       backgroundColor: const Color.fromARGB(255, 0, 111, 253),
                       padding: const EdgeInsets.symmetric(vertical: 12)),
-                  child: isSaving ?
-                    SizedBox(
-                   height: 30,
-                        width: 30,
-                        child: CircularProgressIndicator(
-                          color: Theme.of(context).colorScheme.onPrimary,
-                          strokeWidth: 5,
-                        ),
-                  ) :
-                  Text('Update!',
-                      style: GoogleFonts.poppins(
-                          fontSize: 20, fontWeight: FontWeight.bold))),
+                  child: isSaving
+                      ? SizedBox(
+                          height: 30,
+                          width: 30,
+                          child: CircularProgressIndicator(
+                            color: Theme.of(context).colorScheme.onPrimary,
+                            strokeWidth: 5,
+                          ),
+                        )
+                      : Text('Update!',
+                          style: GoogleFonts.poppins(
+                              fontSize: 20, fontWeight: FontWeight.bold))),
             ],
           ),
-        )
-        )
-        );
+        )));
   }
 }
