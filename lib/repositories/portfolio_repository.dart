@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:folio/core/app_exception.dart';
 import 'package:folio/services/firestore_services.dart';
 import 'package:folio/services/storage_services.dart';
+import 'package:social_share/social_share.dart';
 
 class PortfolioRepository {
   final FirestoreServices _firestoreServices;
@@ -58,11 +59,21 @@ class PortfolioRepository {
 
       await _storageServices.deleteImage(filePath);
     } catch (e) {
-      if(e is AppException){
+      if (e is AppException) {
         rethrow;
-      }else{
+      } else {
         throw AppException('delete-image-error');
       }
     }
+  }
+
+  void shareMessageOnFacebook() {
+    const String message =
+        "Hello everyone! \nI invite you to check out my profile on the Folio App, \nwhere I showcase my car detailing services. You'll find a variety of photos \nthat highlight the quality of my work. The Folio App is available for download on both the App Store and Google Play Store.";
+    SocialShare.shareOptions(message).then((result) {
+      print(result);
+    }).catchError((error) {
+      print("Error sharing: $error");
+    });
   }
 }

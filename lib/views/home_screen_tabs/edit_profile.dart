@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:folio/core/app_exception.dart';
 import 'package:folio/core/service_locator.dart';
+import 'package:folio/repositories/portfolio_repository.dart';
 import 'package:folio/views/create_portfolio_screen.dart';
 import 'package:folio/views/state_screens.dart';
 import 'package:folio/views/welcome_screen.dart';
 import 'package:folio/widgets/error_widget.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:social_share/social_share.dart';
@@ -20,6 +22,7 @@ class EditProfile extends ConsumerStatefulWidget {
 
 class _EditProfileState extends ConsumerState<EditProfile> {
   String errorMessage = "";
+
   @override
   Widget build(BuildContext context) {
     final userData = ref.watch(userDataStreamProvider);
@@ -28,6 +31,18 @@ class _EditProfileState extends ConsumerState<EditProfile> {
         if (userData != null) {
           final userModel = userData['user'];
           final userPortfolio = userData['portfolio'];
+
+          void shareMessage() {
+            String service = userPortfolio.service;
+            String message =
+                "Hello everyone! \nI invite you to check out my profile on the Folio App, \nwhere I showcase my $service services. You'll find a variety of photos \nthat highlight the quality of my work. The Folio App is available for download on both the App Store and Google Play Store.";
+            SocialShare.shareOptions(message).then((result) {
+              print(result);
+            }).catchError((error) {
+              print("Error sharing: $error");
+            });
+          }
+
           return Padding(
             padding: const EdgeInsets.all(20.0),
             child: Column(
@@ -95,28 +110,33 @@ class _EditProfileState extends ConsumerState<EditProfile> {
                             userModel.email,
                             style: const TextStyle(fontSize: 16),
                           ),
-                          const Row(
+                          Row(
                             children: [
-                              Icon(
-                                Icons.facebook,
-                                color: Colors.blue,
-                                size: 35.0,
+                              GestureDetector(
+                                onTap: shareMessage,
+                                child: const Icon(
+                                  Icons.facebook,
+                                  color: Colors.blue,
+                                  size: 35.0,
+                                ),
                               ),
-                              SizedBox(
-                                width: 5.0,
+                              const SizedBox(width: 5.0),
+                              GestureDetector(
+                                onTap: shareMessage,
+                                child: const Icon(
+                                  FontAwesomeIcons.twitter,
+                                  color: Colors.black,
+                                  size: 35.0,
+                                ),
                               ),
-                              Icon(
-                                Icons.tiktok,
-                                color: Colors.black,
-                                size: 35.0,
-                              ),
-                              SizedBox(
-                                width: 5.0,
-                              ),
-                              Icon(
-                                Icons.message,
-                                color: Colors.green,
-                                size: 35.0,
+                              const SizedBox(width: 5.0),
+                              GestureDetector(
+                                onTap: shareMessage,
+                                child: const Icon(
+                                  FontAwesomeIcons.whatsapp,
+                                  color: Colors.green,
+                                  size: 35.0,
+                                ),
                               ),
                             ],
                           )
