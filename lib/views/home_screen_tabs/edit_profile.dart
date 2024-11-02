@@ -9,6 +9,7 @@ import 'package:folio/views/welcome_screen.dart';
 import 'package:folio/widgets/error_widget.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:social_share/social_share.dart';
 
 class EditProfile extends ConsumerStatefulWidget {
   const EditProfile({super.key});
