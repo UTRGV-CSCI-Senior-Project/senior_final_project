@@ -106,6 +106,16 @@ class _EditProfileState extends ConsumerState<EditProfile> {
                               userPortfolio.service!,
                               style: const TextStyle(fontSize: 16),
                             ),
+                          if (userPortfolio.years != 0 &&
+                              userPortfolio.months != null)
+                            if (userPortfolio.months == 0)
+                              Text("${userPortfolio.years} yrs")
+                            else
+                              Text(
+                                  "${userPortfolio.years} yrs and ${userPortfolio.months} months")
+                          else if (userPortfolio.years == 0 &&
+                              userPortfolio.months != 0)
+                            Text("${userPortfolio.months} months"),
                           Text(
                             userModel.email,
                             style: const TextStyle(fontSize: 16),
