@@ -106,50 +106,57 @@ class _EditProfileState extends ConsumerState<EditProfile> {
                               userPortfolio.service!,
                               style: const TextStyle(fontSize: 16),
                             ),
-                          if (userPortfolio.years != 0 &&
-                              userPortfolio.months != null)
-                            if (userPortfolio.months == 0)
-                              Text("${userPortfolio.years} yrs")
-                            else
+                          if (userPortfolio?.years != null &&
+                              userPortfolio?.months != null)
+                            if (userPortfolio.years == 0 &&
+                                userPortfolio.months != 0)
+                              Text("${userPortfolio.months} months")
+                            else if (userPortfolio.years == 0 &&
+                                userPortfolio.months == 0)
+                              const Text(" ")
+                            else if (userPortfolio.years != 0 &&
+                                userPortfolio.months != 0)
                               Text(
-                                  "${userPortfolio.years} yrs and ${userPortfolio.months} months")
-                          else if (userPortfolio.years == 0 &&
-                              userPortfolio.months != 0)
-                            Text("${userPortfolio.months} months"),
+                                  "${userPortfolio.years} yrs ${userPortfolio.months} months")
+                            else if (userPortfolio.years != 0 &&
+                                userPortfolio.months == 0)
+                              Text("${userPortfolio.years} yrs"),
                           Text(
                             userModel.email,
                             style: const TextStyle(fontSize: 16),
                           ),
-                          Row(
-                            children: [
-                              GestureDetector(
-                                onTap: shareMessage,
-                                child: const Icon(
-                                  Icons.facebook,
-                                  color: Colors.blue,
-                                  size: 35.0,
+                          if (userPortfolio?.years != null &&
+                              userPortfolio?.months != null)
+                            Row(
+                              children: [
+                                GestureDetector(
+                                  onTap: shareMessage,
+                                  child: const Icon(
+                                    Icons.facebook,
+                                    color: Colors.blue,
+                                    size: 35.0,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(width: 5.0),
-                              GestureDetector(
-                                onTap: shareMessage,
-                                child: const Icon(
-                                  FontAwesomeIcons.twitter,
-                                  color: Colors.black,
-                                  size: 35.0,
+                                const SizedBox(width: 5.0),
+                                GestureDetector(
+                                  onTap: shareMessage,
+                                  child: const Icon(
+                                    FontAwesomeIcons.twitter,
+                                    color: Colors.black,
+                                    size: 35.0,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(width: 5.0),
-                              GestureDetector(
-                                onTap: shareMessage,
-                                child: const Icon(
-                                  FontAwesomeIcons.whatsapp,
-                                  color: Colors.green,
-                                  size: 35.0,
+                                const SizedBox(width: 5.0),
+                                GestureDetector(
+                                  onTap: shareMessage,
+                                  child: const Icon(
+                                    FontAwesomeIcons.whatsapp,
+                                    color: Colors.green,
+                                    size: 35.0,
+                                  ),
                                 ),
-                              ),
-                            ],
-                          )
+                              ],
+                            ),
                         ],
                       ),
                     )
