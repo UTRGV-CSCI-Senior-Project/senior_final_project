@@ -6,6 +6,8 @@ import 'package:geocoding/geocoding.dart';
 /// When the location services are not enabled or permissions
 /// are denied the `Future` will return an error.\
 
+
+
 Future<bool> checkService() async {
  bool serviceEnabled;
   // Test if location services are enabled.
@@ -19,52 +21,59 @@ Future<bool> checkService() async {
 return serviceEnabled;
 }
 
-Future<LocationPermission> checkPerm() async {
+Future<bool> checkPerm() async {
   LocationPermission permission;
   permission = await Geolocator.checkPermission();
-  return permission;
-}
-
-Future<Position> _determinePosition() async {
-  bool serviceEnabled;
-  LocationPermission permission;
-
-  // Test if location services are enabled.
- // serviceEnabled = checkService() as bool;
-
-
-  permission = await Geolocator.checkPermission();
-  if (permission == LocationPermission.denied) {
-    permission = await Geolocator.requestPermission();
+    if (permission==LocationPermission.whileInUse|| permission==LocationPermission.always){
+      return true;
+    }
     if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+    }
+    if (permission == LocationPermission.denied||permission == LocationPermission.deniedForever||permission == LocationPermission.unableToDetermine) {
       // Permissions are denied, next time you could try
       // requesting permissions again (this is also where
       // Android's shouldShowRequestPermissionRationale
       // returned true. According to Android guidelines
       // your App should show an explanatory UI now.
-      return Future.error('Location permissions are denied');
+      return false;
     }
-  }
+  
 
-  if (permission == LocationPermission.deniedForever) {
-    // Permissions are denied forever, handle appropriately.
-    return Future.error(
-        'Location permissions are permanently denied, we cannot request permissions.');
-  }
+  return true;
+}
 
-  // When we reach here, permissions are granted and we can
-  // continue accessing the position of the device.
-  return await Geolocator.getCurrentPosition();
+Future<Position> currentLocation() async {
+  Future<bool> serviceEnabled;
+  Future<bool> permission;
+  try {
+    serviceEnabled=checkService();
+    permission=checkPerm();
+  } catch (e) {
+   return Future.error('could not get current location');
+  }
+  
+
+  if (serviceEnabled==true&&permission==true){
+    return await Geolocator.getCurrentPosition( );
+  }
+  
+  
+}
+
+double distanceInMiles(Position p1,Position p2){
+  return 0.000621*Geolocator.distanceBetween(p1.latitude, p1.longitude,p2.latitude , p2.longitude);
 }
 
 Future<String> currentAddress(double lati,double long) async {
   
-
   List<Placemark> placemarks = await placemarkFromCoordinates(
       lati,long);
   Placemark place = placemarks[0];
   return "${place.street}";
 }
+
+
 
 Future<String> curretCity(double lati,double long ) async {
 
