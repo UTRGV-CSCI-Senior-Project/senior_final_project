@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:folio/views/auth_screen.dart';
+import 'package:folio/views/auth_onboarding_welcome/auth_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 

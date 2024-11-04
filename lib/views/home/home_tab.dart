@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:folio/models/user_model.dart';
-import 'package:folio/views/update_services_screen.dart';
+import 'package:folio/views/home/update_services_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class HomeTab extends StatelessWidget {

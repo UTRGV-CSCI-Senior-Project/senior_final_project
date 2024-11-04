@@ -6,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:folio/repositories/user_repository.dart';
 import 'package:folio/widgets/error_widget.dart';
 import 'package:folio/widgets/input_field_widget.dart';
-import 'package:folio/views/home_screen.dart';
+import 'package:folio/views/home/home_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AuthScreen extends ConsumerStatefulWidget {

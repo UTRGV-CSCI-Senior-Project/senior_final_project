@@ -326,6 +326,7 @@ class _EditProfileSheetState extends ConsumerState<EditProfileSheet> {
             SizedBox(
               width: double.infinity,
               child: TextButton(
+                key: Key('update-button'),
                 style: TextButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(

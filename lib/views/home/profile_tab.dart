@@ -5,7 +5,7 @@ import 'package:folio/core/app_exception.dart';
 import 'package:folio/core/service_locator.dart';
 import 'package:folio/models/portfolio_model.dart';
 import 'package:folio/models/user_model.dart';
-import 'package:folio/views/create_portfolio_screen.dart';
+import 'package:folio/views/create_portfolio_tabs/create_portfolio_screen.dart';
 import 'package:folio/widgets/error_widget.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:folio/core/service_locator.dart';
-import 'package:folio/views/onboarding_screen.dart';
+import 'package:folio/views/auth_onboarding_welcome/onboarding_screen.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mockito/mockito.dart';
 

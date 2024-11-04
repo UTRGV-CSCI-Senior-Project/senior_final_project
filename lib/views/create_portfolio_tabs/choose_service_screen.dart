@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:folio/core/service_locator.dart';
-import 'package:folio/views/state_screens.dart';
+import 'package:folio/views/auth_onboarding_welcome/state_screens.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class ChooseService extends ConsumerStatefulWidget {

@@ -4,11 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:folio/core/service_locator.dart';
+import 'package:folio/models/portfolio_model.dart';
 import 'package:folio/models/user_model.dart';
-import 'package:folio/views/home_screen.dart';
-import 'package:folio/views/loading_screen.dart';
-import 'package:folio/views/onboarding_screen.dart';
-import 'package:folio/views/welcome_screen.dart';
+import 'package:folio/views/home/home_screen.dart';
+import 'package:folio/views/auth_onboarding_welcome/loading_screen.dart';
+import 'package:folio/views/auth_onboarding_welcome/onboarding_screen.dart';
+import 'package:folio/views/auth_onboarding_welcome/welcome_screen.dart';
 import 'package:mockito/mockito.dart';
 import '../mocks/login_screen_test.mocks.dart';
 import '../mocks/user_repository_test.mocks.dart';
@@ -29,11 +30,11 @@ void main() {
         ]);
   });
 
-  ProviderContainer createProviderContainer({UserModel? userModel}) {
+  ProviderContainer createProviderContainer({UserModel? userModel, PortfolioModel? portfolioModel}) {
     return ProviderContainer(
       overrides: [
         firestoreServicesProvider.overrideWithValue(mockFirestoreServices),
-        userStreamProvider.overrideWith((ref) => Stream.value(userModel)),
+        userDataStreamProvider.overrideWith((ref) => Stream.value({'user': userModel, 'portfolio': portfolioModel})),
         userRepositoryProvider.overrideWithValue(mockUserRepository),
       ],
     );
@@ -130,7 +131,7 @@ void main() {
         (WidgetTester tester) async {
       final container = ProviderContainer(
         overrides: [
-          userStreamProvider.overrideWith(
+          userDataStreamProvider.overrideWith(
             (ref) => const Stream.empty(),
           ),
         ],
@@ -139,8 +140,10 @@ void main() {
       await tester.pumpWidget(createHomeScreen(container));
       expect(find.byType(LoadingScreen), findsOneWidget);
     });
+  });
 
-    testWidgets('can go to update services screen and update services',
+  group('home tab', () {
+        testWidgets('can go to update services screen and update services',
         (WidgetTester tester) async {
       final userModel = UserModel(
           uid: 'testuid',
@@ -177,6 +180,46 @@ void main() {
       verify(mockUserRepository.updateProfile(fields: {
         'preferredServices': ['Nail Tech', 'Barber', 'Hair Stylist']
       })).called(1);
+    });
+  });
+
+  group('profile tab', () {
+    testWidgets('can edit user information from profile tab',  (WidgetTester tester) async{
+         final userModel = UserModel(
+        uid: 'testuid',
+        username: 'username',
+        email: 'email@email.com',
+        isProfessional: false,
+        fullName: 'Test User',
+        completedOnboarding: true,
+        profilePictureUrl: 'url'
+      );
+      when(mockFirestoreServices.isUsernameUnique(any)).thenAnswer((_) => Future.value(true));
+      when(mockUserRepository.updateProfile(profilePicture: null, fields: {'fullName': 'New Name', 'username': 'newusername', 'profilePictureUrl': null})).thenAnswer((_) async {});
+
+      final container = createProviderContainer(userModel: userModel);
+      await tester.pumpWidget(createHomeScreen(container));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byIcon(Icons.person));
+      await tester.pumpAndSettle();
+      expect(find.text('Test User'), findsOneWidget);
+
+      await tester.tap(find.byIcon(Icons.more_vert));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Edit Profile'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(TextField), findsExactly(2));
+      await tester.tap(find.byIcon(Icons.delete));
+      await tester.enterText(find.byKey(const Key('name-field')), 'New Name');
+      await tester.enterText(find.byKey(const Key('username-field')), 'newusername');
+
+      await tester.tap(find.byKey(const Key('update-button')));
+      await tester.pumpAndSettle();
+      expect(find.byType(BottomSheet), findsNothing);
+      verify(mockUserRepository.updateProfile(profilePicture: null, fields: {'fullName': 'New Name', 'username': 'newusername', 'profilePictureUrl': null})).called(1);
     });
   });
 }
