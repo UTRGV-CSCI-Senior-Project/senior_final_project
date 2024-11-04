@@ -1,11 +1,16 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:folio/core/service_locator.dart';
-import 'package:folio/views/home_screen_tabs/edit_profile.dart';
+import 'package:folio/views/home_screen_tabs/profile_tab.dart';
 import 'package:folio/views/loading_screen.dart';
 import 'package:folio/views/onboarding_screen.dart';
 import 'package:folio/views/home_screen_tabs/discover_tab.dart';
 import 'package:folio/views/home_screen_tabs/home_tab.dart';
+import 'package:folio/views/settings_tabs/edit_profile_sheet.dart';
+import 'package:folio/views/settings_tabs/settings_screen.dart';
+import 'package:folio/views/state_screens.dart';
 import 'package:folio/views/welcome_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -16,8 +21,10 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ref.watch(userStreamProvider).when(
-        data: (userModel) {
+    return ref.watch(userDataStreamProvider).when(
+        data: (userData) {
+          final userModel = userData?['user'];
+          final userPortfolio = userData?['portfolio'];
           if (userModel == null) {
             return const WelcomeScreen();
           }
@@ -42,26 +49,102 @@ class HomeScreen extends ConsumerWidget {
               appBar: AppBar(
                 centerTitle: false,
                 leading: null,
-                automaticallyImplyLeading: false,
-                title: Text(getTitle(),
-                style: GoogleFonts.inter(
-                  fontSize: 20, 
-                  fontWeight: FontWeight.bold
-                  
-                ),
+                actions: [
+                  SpeedDial(
+                    direction: SpeedDialDirection.down,
+                    overlayColor: Theme.of(context).colorScheme.tertiary,
+                    overlayOpacity: 0.7,
+                    spacing: 8,
+                    spaceBetweenChildren: 8,
+                    childMargin: const EdgeInsets.all(0),
+                    elevation: 0,
+                    backgroundColor: Colors.transparent,
+                    foregroundColor: Colors.transparent,
+                    activeBackgroundColor:
+                        Theme.of(context).colorScheme.tertiary.withOpacity(0.7),
+                    activeForegroundColor:
+                        Theme.of(context).colorScheme.tertiary.withOpacity(0.7),
+                    activeChild: Icon(
+                      Icons.clear_rounded,
+                      size: 26,
+                      color: Theme.of(context).colorScheme.onTertiary,
                     ),
-                    actions: selectedIndex == 3 ? [IconButton(onPressed: (){
-                      ref.watch(userRepositoryProvider).signOut();
-                    }, icon: const Icon(Icons.settings))] : null,
+                    visible: selectedIndex == 3,
+                    children: [
+                      SpeedDialChild(
+                          onTap: () => showEditProfileSheet(context, userModel),
+                          label: 'Edit Profile',
+                          labelBackgroundColor: Colors.transparent,
+                          labelShadow: [],
+                          labelStyle: GoogleFonts.inter(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.onTertiary,
+                          ),
+                          elevation: 0,
+                          child: Icon(
+                            Icons.edit,
+                            color: Theme.of(context).colorScheme.onTertiary,
+                          ),
+                          backgroundColor: Colors.transparent),
+                      SpeedDialChild(
+                          onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      const SettingsScreen())),
+                          label: 'Settings',
+                          labelBackgroundColor: Colors.transparent,
+                          labelShadow: [],
+                          labelStyle: GoogleFonts.inter(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.onTertiary,
+                          ),
+                          elevation: 0,
+                          child: Icon(
+                            Icons.settings,
+                            color: Theme.of(context).colorScheme.onTertiary,
+                          ),
+                          backgroundColor: Colors.transparent),
+                      SpeedDialChild(
+                          label: 'Share Profile',
+                          labelBackgroundColor: Colors.transparent,
+                          labelShadow: [],
+                          labelStyle: GoogleFonts.inter(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).colorScheme.onTertiary),
+                          elevation: 0,
+                          child: Icon(
+                            Icons.ios_share,
+                            color: Theme.of(context).colorScheme.onTertiary,
+                          ),
+                          backgroundColor: Colors.transparent),
+                    ],
+                    child: Icon(
+                      color: Theme.of(context).colorScheme.tertiary,
+                      Icons.more_vert,
+                      size: 26,
+                    ),
+                  ),
+                ],
+                automaticallyImplyLeading: false,
+                title: Text(
+                  getTitle(),
+                  style: GoogleFonts.inter(
+                      fontSize: 20, fontWeight: FontWeight.bold),
+                ),
               ),
               body: IndexedStack(
                 index: selectedIndex,
                 children: [
                   HomeTab(userModel: userModel),
                   const DiscoverTab(),
-                  const EditProfile(),
-                  const EditProfile(),
-
+                  EditProfile(
+                      userModel: userModel, portfolioModel: userPortfolio),
+                  EditProfile(
+                      userModel: userModel, portfolioModel: userPortfolio),
                 ],
               ),
               bottomNavigationBar: NavigationBar(
@@ -70,42 +153,37 @@ class HomeScreen extends ConsumerWidget {
                   // Update the selected index when a destination is tapped
                   ref.read(selectedIndexProvider.notifier).state = index;
                 },
-                destinations:  [
+                destinations: [
                   NavigationDestination(
-                    key:  const Key('home-button'),
-                    icon: const Icon(Icons.home, size: 25,),
-                    selectedIcon: Icon(
+                    key: const Key('home-button'),
+                    icon: const Icon(
                       Icons.home,
-                      color: Theme.of(context).colorScheme.primary,size: 30
+                      size: 25,
                     ),
+                    selectedIcon: Icon(Icons.home,
+                        color: Theme.of(context).colorScheme.primary, size: 30),
                     label: 'Home',
                   ),
                   NavigationDestination(
-                    key:  const Key('discover-button'),
-                    icon: const Icon(Icons.explore , size: 25),
-                    selectedIcon: Icon(
-                      Icons.explore,
-                      color: Theme.of(context).colorScheme.primary,size: 30
-                    ),
+                    key: const Key('discover-button'),
+                    icon: const Icon(Icons.explore, size: 25),
+                    selectedIcon: Icon(Icons.explore,
+                        color: Theme.of(context).colorScheme.primary, size: 30),
                     label: 'Discover',
                   ),
                   NavigationDestination(
-                    key:  const Key('inbox-button'),
+                    key: const Key('inbox-button'),
                     icon: const Icon(Icons.bookmark_border, size: 25),
                     enabled: false,
-                    selectedIcon: Icon(
-                      Icons.bookmark_border,
-                      color: Theme.of(context).colorScheme.primary,size: 30
-                    ),
+                    selectedIcon: Icon(Icons.bookmark_border,
+                        color: Theme.of(context).colorScheme.primary, size: 30),
                     label: 'Inbox',
                   ),
                   NavigationDestination(
-                    key:  const Key('profile-button'),
+                    key: const Key('profile-button'),
                     icon: const Icon(Icons.person, size: 25),
-                    selectedIcon: Icon(
-                      Icons.person,
-                      color: Theme.of(context).colorScheme.primary,size: 30
-                    ),
+                    selectedIcon: Icon(Icons.person,
+                        color: Theme.of(context).colorScheme.primary, size: 30),
                     label: 'Profile',
                   ),
                 ],
@@ -115,7 +193,10 @@ class HomeScreen extends ConsumerWidget {
             return const OnboardingScreen();
           }
         },
-        error: (s, p)  => const LoadingScreen(),
+        error: (s, p) => const ErrorView(
+              bigText: 'There was an error!',
+              smallText: 'Please check your connection, or restart the app!',
+            ),
         loading: () => const LoadingScreen());
   }
 }

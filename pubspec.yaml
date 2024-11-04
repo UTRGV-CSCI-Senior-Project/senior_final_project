@@ -46,6 +46,7 @@ dependencies:
   firebase_storage: ^12.3.3
   google_fonts: ^6.2.1
   rxdart: ^0.28.0
+  flutter_speed_dial: ^7.0.0
 
 dev_dependencies:
   flutter_test:

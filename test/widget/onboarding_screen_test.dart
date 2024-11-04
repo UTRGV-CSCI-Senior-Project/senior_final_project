@@ -78,7 +78,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(
-          find.text("Select the services you\'re interested in."), findsOneWidget);
+          find.text("Select the services you're interested in."), findsOneWidget);
     });
 
     testWidgets('loads and displays services', (WidgetTester tester) async {

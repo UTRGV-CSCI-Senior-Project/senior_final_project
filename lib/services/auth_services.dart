@@ -74,4 +74,9 @@ class AuthServices {
       }
     }
   }
+
+  Future<String?> currentUserUid() async {
+    return _firebaseAuth.currentUser?.uid;
+}
+
 }

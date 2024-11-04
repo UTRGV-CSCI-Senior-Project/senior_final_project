@@ -75,10 +75,16 @@ class UserRepository {
     try {
       final fieldsToUpdate = <String, dynamic>{};
 
-      if (fields != null && fields.isNotEmpty) {
+      if (fields != null && fields.containsKey('profilePictureUrl') && fields['profilePictureUrl'] == null) {
+        final currentUserUid = await _authServices.currentUserUid();
+
+         await _storageServices.deleteImage('profile_pictures/$currentUserUid'); 
+         fieldsToUpdate.addAll(fields);
+        
+      } else if(fields != null && fields.isNotEmpty){
         fieldsToUpdate.addAll(fields);
       }
-
+      
       if (profilePicture != null) {
         final downloadUrl =
             await _storageServices.uploadProfilePicture(profilePicture);

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:folio/models/user_model.dart';
 import 'package:folio/views/update_services_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class HomeTab extends StatelessWidget {
-  final dynamic userModel;
+  final UserModel? userModel;
 
   const HomeTab({
     super.key,
@@ -31,7 +32,7 @@ class HomeTab extends StatelessWidget {
                               GestureDetector(
                                 key: const Key("edit-services-button"),
                                 onTap: () {
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) => UpdateServicesScreen(selectedServices: userModel.preferredServices,)));
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) => UpdateServicesScreen(selectedServices: userModel!.preferredServices,)));
                                 },
                                 child:  Text(
                                   "Edit",
@@ -44,11 +45,11 @@ class HomeTab extends StatelessWidget {
                             height: 50,
                             child:ListView.builder(
                                 scrollDirection: Axis.horizontal,
-                                itemCount: userModel.preferredServices.length,
+                                itemCount: userModel!.preferredServices.length,
                                 itemBuilder: (context, index) {
                                   return Padding(padding: const EdgeInsets.only(right: 8), child: ActionChip(
                                     onPressed: (){},
-                                    label: Text(userModel.preferredServices[index].toUpperCase(),
+                                    label: Text(userModel!.preferredServices[index].toUpperCase(),
                                     style: GoogleFonts.inter(
                                       fontSize: 14, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.tertiary
                                     ),
