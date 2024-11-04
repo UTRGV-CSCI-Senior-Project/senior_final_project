@@ -70,7 +70,7 @@ class _EditProfileSheetState extends ConsumerState<EditProfileSheet> {
   void _updateProfile() async {
     if (usernameController.text.isEmpty || nameController.text.isEmpty) {
       setState(() {
-        errorMessage = "Please fill in all necessary fields";
+        errorMessage = "Please fill in all necessary fields.";
       });
       return;
     }
@@ -326,7 +326,7 @@ class _EditProfileSheetState extends ConsumerState<EditProfileSheet> {
             SizedBox(
               width: double.infinity,
               child: TextButton(
-                key: Key('update-button'),
+                key: const Key('update-button'),
                 style: TextButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(

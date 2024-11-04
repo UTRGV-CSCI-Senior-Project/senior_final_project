@@ -90,6 +90,9 @@ void main() {
   final editServicesButton = find.byKey(const Key('edit-services-button'));
   final updateServicesButton = find.byKey(const Key('update-services-button'));
   final homeTabButton = find.byKey(const Key('home-button'));
+  final speedDialButton = find.byKey(const Key('speeddial-button'));
+  final editProfileButton = find.byKey(const Key('editprofile-button'));
+  final updateProfileButton = find.byKey(const Key('update-button'));
 ////////////////////////////////////////////////////////////////////////
 
 //////////////////////// Set Up and Tear Down //////////////////////////
@@ -333,7 +336,43 @@ final scrollable = find.byType(Scrollable);
       await container.read(authServicesProvider).signOut();
     });
 
-     
+    testWidgets('As an existing user, I can sign in, go to the profile tab, and update my profile.', (WidgetTester tester) async {
+      //Navigate to sign up screen
+      await navigateToLogInScreen(tester);
+
+      //Sign In with the correct credentials
+      await tester.enterText(emailField, 'testuser@email.com');
+      await tester.enterText(passwordField, 'Pass123!');
+      FocusManager.instance.primaryFocus?.unfocus();
+
+      //Tap Sign In and wait
+      final scrollable = find.byType(Scrollable);
+      await tester.scrollUntilVisible(
+          signInButton, 500.0, // Scroll amount per attempt
+          scrollable: scrollable.first);
+      await tester.tap(signInButton);
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+
+      await tester.tap(profileTabButton);
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.tap(speedDialButton);
+      await tester.pumpAndSettle(const Duration(seconds: 2));
+      await tester.tap(editProfileButton);
+      await tester.pumpAndSettle(const Duration(seconds: 2));
+      await tester.enterText(fullNameField, 'New Name');
+      await tester.enterText(usernameField, 'newusername');
+
+      final scrollable2 = find.byType(Scrollable);
+      await tester.scrollUntilVisible(
+          updateProfileButton, 500.0, // Scroll amount per attempt
+          scrollable: scrollable2.first);
+      await tester.tap(updateProfileButton);
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(find.textContaining('New Name'), findsOneWidget);
+      await container.read(authServicesProvider).signOut();
+    });
 
     testWidgets(
         'As an existing normal user I can sign in, go to the profile tab and create a portfolio ',
@@ -663,6 +702,44 @@ final scrollable = find.byType(Scrollable);
 
       //Expect to see error messages for required images
       expect(find.text('Please upload at least 5 images.'), findsOneWidget);
+      await container.read(authServicesProvider).signOut();
+    });
+
+    testWidgets('As an existing user, I can sign in, go to the profile tab, and I see an error if i update my profile with empty fields', (WidgetTester tester) async {
+      //Navigate to sign up screen
+      await navigateToLogInScreen(tester);
+
+      //Sign In with the correct credentials
+      await tester.enterText(emailField, 'testuser@email.com');
+      await tester.enterText(passwordField, 'Pass123!');
+      FocusManager.instance.primaryFocus?.unfocus();
+
+      //Tap Sign In and wait
+      final scrollable = find.byType(Scrollable);
+      await tester.scrollUntilVisible(
+          signInButton, 500.0, // Scroll amount per attempt
+          scrollable: scrollable.first);
+      await tester.tap(signInButton);
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+
+      await tester.tap(profileTabButton);
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.tap(speedDialButton);
+      await tester.pumpAndSettle(const Duration(seconds: 2));
+      await tester.tap(editProfileButton);
+      await tester.pumpAndSettle(const Duration(seconds: 2));
+      await tester.enterText(fullNameField, '');
+      await tester.enterText(usernameField, '');
+
+      final scrollable2 = find.byType(Scrollable);
+      await tester.scrollUntilVisible(
+          updateProfileButton, 500.0, // Scroll amount per attempt
+          scrollable: scrollable2.first);
+      await tester.tap(updateProfileButton);
+      await tester.pumpAndSettle(const Duration(seconds: 3));
+
+      expect(find.textContaining('Please fill in all necessary fields.'), findsOneWidget);
       await container.read(authServicesProvider).signOut();
     });
 

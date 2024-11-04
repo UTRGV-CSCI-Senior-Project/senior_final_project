@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
@@ -51,6 +50,7 @@ class HomeScreen extends ConsumerWidget {
                 leading: null,
                 actions: [
                   SpeedDial(
+                    key: const Key('speeddial-button'),
                     direction: SpeedDialDirection.down,
                     overlayColor: Theme.of(context).colorScheme.tertiary,
                     overlayOpacity: 0.7,
@@ -72,6 +72,7 @@ class HomeScreen extends ConsumerWidget {
                     visible: selectedIndex == 3,
                     children: [
                       SpeedDialChild(
+                          key: const Key('editprofile-button'),
                           onTap: () => showEditProfileSheet(context, userModel),
                           label: 'Edit Profile',
                           labelBackgroundColor: Colors.transparent,
