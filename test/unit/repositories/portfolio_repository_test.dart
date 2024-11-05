@@ -35,7 +35,7 @@ void main() {
         'details': 'Professional photography',
         'years': 2,
         'months': 6,
-        'images': imageData
+        'images': imageData,
       };
 
       when(mockStorageServices.uploadFilesForUser(images))
@@ -52,7 +52,7 @@ void main() {
 
       // Assert
       verify(mockStorageServices.uploadFilesForUser(images)).called(1);
-      verify(mockFirestoreServices.savePortfolioDetails(portfolioData))
+      verify(mockFirestoreServices.savePortfolioDetails(any))
           .called(1);
       verify(mockFirestoreServices.updateUser({'isProfessional': true}))
           .called(1);

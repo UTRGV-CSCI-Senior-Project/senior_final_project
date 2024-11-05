@@ -5,6 +5,7 @@ import 'package:folio/views/create_portfolio_tabs/create_portfolio_screen.dart';
 import 'package:folio/views/settings/account_screen.dart';
 import 'package:folio/views/auth_onboarding_welcome/state_screens.dart';
 import 'package:folio/views/auth_onboarding_welcome/welcome_screen.dart';
+import 'package:folio/widgets/settings_item_widget.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class SettingsScreen extends ConsumerWidget {
@@ -41,16 +42,16 @@ class SettingsScreen extends ConsumerWidget {
                           fontSize: 14, fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(height: 15),
-                    _SettingsItem(
+                    SettingsItem(
                       title: 'Account',
                       leading: const Icon(Icons.person_outline),
                       onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const AccountScreen())),
+                              builder: (context) =>  AccountScreen(user: user))),
                     ),
                     if (!user.isProfessional)
-                      _SettingsItem(
+                      SettingsItem(
                         title: 'Become a professional',
                         leading: const Icon(Icons.create_new_folder_outlined),
                         onTap: () {
@@ -62,17 +63,17 @@ class SettingsScreen extends ConsumerWidget {
                         },
                       ),
                     if (user.isProfessional)
-                      _SettingsItem(
+                      SettingsItem(
                         title: 'Manage portfolio',
                         leading: const Icon(Icons.folder_open_outlined),
                         onTap: () {},
                       ),
-                    _SettingsItem(
+                    SettingsItem(
                       title: 'Notifications',
                       leading: const Icon(Icons.notifications_none_outlined),
                       onTap: () {},
                     ),
-                    _SettingsItem(
+                    SettingsItem(
                       title: 'Log Out',
                       leading:  Icon(Icons.logout_outlined, color: Theme.of(context).colorScheme.error,),
                       color: Theme.of(context).colorScheme.error,
@@ -152,12 +153,12 @@ class SettingsScreen extends ConsumerWidget {
                         style: GoogleFonts.inter(
                             fontSize: 14, fontWeight: FontWeight.w600)),
                     const SizedBox(height: 15),
-                    _SettingsItem(
+                    SettingsItem(
                       title: 'Report a bug',
                       leading: const Icon(Icons.bug_report_outlined),
                       onTap: () {},
                     ),
-                    _SettingsItem(
+                    SettingsItem(
                       title: 'Send feedback',
                       leading: const Icon(Icons.feedback_outlined),
                       onTap: () {},
@@ -176,41 +177,4 @@ class SettingsScreen extends ConsumerWidget {
   }
 }
 
-class _SettingsItem extends StatelessWidget {
-  final String title;
-  final VoidCallback onTap;
-  final Icon leading;
-  final Color? color;
 
-  const _SettingsItem({
-    required this.title,
-    required this.leading,
-    required this.onTap,
-    this.color
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final effectiveColor = color ?? Theme.of(context).textTheme.displayLarge?.color;
-    return Column(
-      children: [
-        ListTile(
-          title: Text(
-            title,
-            style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w400, color:  effectiveColor),
-          ),
-          leading: leading,
-          trailing: Icon(
-            Icons.arrow_forward_ios,
-            size: 20,
-            color: Theme.of(context).textTheme.displayLarge?.color,
-          ),
-          onTap: onTap,
-        ),
-        Divider(
-          color: Theme.of(context).textTheme.displayLarge?.color,
-        ),
-      ],
-    );
-  }
-}

@@ -14,9 +14,11 @@ class PortfolioRepository {
     try {
       final imageData = await _storageServices.uploadFilesForUser(images);
 
+      final initialDate = DateTime.now();
       await _firestoreServices.savePortfolioDetails({
         'service': service,
         'details': details,
+        'experienceStartDate': initialDate,
         'years': years,
         'months': months,
         'images': imageData
@@ -40,6 +42,10 @@ class PortfolioRepository {
       if (images != null && images.isNotEmpty) {
         final imageData = await _storageServices.uploadFilesForUser(images);
         updateFields['images'] = imageData;
+      }
+
+      if(updateFields.containsKey('years') || updateFields.containsKey('months')){
+        updateFields['experienceStartDate'] = DateTime.now();
       }
 
       await _firestoreServices.savePortfolioDetails(updateFields);

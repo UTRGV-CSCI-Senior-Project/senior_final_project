@@ -104,4 +104,12 @@ class UserRepository {
       }
     }
   }
+
+    Future<void> reauthenticateUser(String password) async {
+    await _authServices.reauthenticateUser(password);
+  }
+
+  Future<void> changeUserEmail(String newEmail) async {
+    await _authServices.updateEmail(newEmail);
+  }
 }

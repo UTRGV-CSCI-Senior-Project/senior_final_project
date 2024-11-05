@@ -142,7 +142,7 @@ class _EditProfileSheetState extends ConsumerState<EditProfileSheet> {
     return SingleChildScrollView(child: 
     Padding(
       padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 16,
       ),
       child: Container(
         padding: const EdgeInsets.all(20),
@@ -156,9 +156,9 @@ class _EditProfileSheetState extends ConsumerState<EditProfileSheet> {
               children: [
                 Text(
                   'Edit Profile',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                  style: GoogleFonts.inter(
+                    fontSize: 22, fontWeight: FontWeight.bold
+                  )
                 ),
                 IconButton(
                   icon: const Icon(Icons.close),

@@ -77,6 +77,48 @@ class AuthServices {
 
   Future<String?> currentUserUid() async {
     return _firebaseAuth.currentUser?.uid;
-}
+  }
 
+  Future<void> reauthenticateUser(String password) async {
+    try {
+      final user = _firebaseAuth.currentUser;
+
+      if (user == null) {
+        throw AppException('no-user');
+      }
+
+      final currentEmail = user.email;
+      if (currentEmail == null) {
+        throw AppException('no-email');
+      }
+
+      final credential = EmailAuthProvider.credential(email: currentEmail, password: password);
+
+      await user.reauthenticateWithCredential(credential);
+    } on FirebaseAuthException catch (e) {
+      throw AppException(e.code.toString());
+    } catch (e) {
+      if (e is AppException) {
+        rethrow;
+      }
+      throw AppException('reauthenticate-user-error');
+    }
+  }
+
+  Future<void> updateEmail(String newEmail) async {
+    try {
+      final user = _firebaseAuth.currentUser;
+      if (user == null) {
+        throw AppException('no-user');
+      }
+      await user.verifyBeforeUpdateEmail(newEmail);
+    } on FirebaseAuthException catch (e) {
+      throw AppException(e.code.toString());
+    } catch (e) {
+      if (e is AppException) {
+        rethrow;
+      }
+      throw AppException('update-email-error');
+    }
+  }
 }

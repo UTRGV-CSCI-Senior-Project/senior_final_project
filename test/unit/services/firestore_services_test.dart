@@ -337,6 +337,7 @@ void main() {
             'downloadUrl': 'http://example.com/image2'
           }
         ],
+        'experienceStartDate': null
       };
 
       when(mockFirebaseFirestore.collection('portfolios'))

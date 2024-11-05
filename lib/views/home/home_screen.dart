@@ -53,7 +53,7 @@ class HomeScreen extends ConsumerWidget {
                     key: const Key('speeddial-button'),
                     direction: SpeedDialDirection.down,
                     overlayColor: Theme.of(context).colorScheme.tertiary,
-                    overlayOpacity: 0.7,
+                    overlayOpacity: 0.9,
                     spacing: 8,
                     spaceBetweenChildren: 8,
                     childMargin: const EdgeInsets.all(0),

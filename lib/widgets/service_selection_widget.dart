@@ -8,6 +8,8 @@ class ServiceSelectionWidget extends ConsumerStatefulWidget {
   final bool isLoading;
   final List<String> services;
   final Function onServicesSelected;
+  final bool singleSelectionMode; // New parameter
+
 
   const ServiceSelectionWidget({
     super.key,
@@ -15,6 +17,7 @@ class ServiceSelectionWidget extends ConsumerStatefulWidget {
     required this.initialSelectedServices,
     required this.onServicesSelected,
     required this.isLoading,
+    this.singleSelectionMode = false
   });
 
   @override
@@ -54,8 +57,16 @@ final service = widget.services[index];
             key: Key('$service-button'),
             onTap: () {
               setState(() {
+                if(widget.singleSelectionMode){
+                    // In single selection mode, clear other selections first
+                selectedServices.updateAll((key, value) => false);
                 selectedServices[service] = !isSelected;
+
+                widget.onServicesSelected(service);
+                }else{
+                  selectedServices[service] = !isSelected;
                 widget.onServicesSelected(selectedServices);
+                }
               });
             },
             child: Container(
