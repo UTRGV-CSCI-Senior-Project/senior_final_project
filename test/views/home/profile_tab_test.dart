@@ -65,7 +65,7 @@ void main() {
       );
 
       expect(find.text('Become a Professional'), findsOneWidget);
-      expect(find.byKey(Key('create-portfolio-button')), findsOneWidget);
+      expect(find.byKey(const Key('create-portfolio-button')), findsOneWidget);
     });
   });
 }

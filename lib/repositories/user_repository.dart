@@ -112,4 +112,8 @@ class UserRepository {
   Future<void> changeUserEmail(String newEmail) async {
     await _authServices.updateEmail(newEmail);
   }
+
+  Future<void> updateUserPassword(String newPassword) async {
+    await _authServices.updatePassword(newPassword);
+  }
 }

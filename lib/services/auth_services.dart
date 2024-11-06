@@ -92,7 +92,8 @@ class AuthServices {
         throw AppException('no-email');
       }
 
-      final credential = EmailAuthProvider.credential(email: currentEmail, password: password);
+      final credential =
+          EmailAuthProvider.credential(email: currentEmail, password: password);
 
       await user.reauthenticateWithCredential(credential);
     } on FirebaseAuthException catch (e) {
@@ -119,6 +120,24 @@ class AuthServices {
         rethrow;
       }
       throw AppException('update-email-error');
+    }
+  }
+
+  Future<void> updatePassword(String newPassword) async {
+    try {
+      final user = _firebaseAuth.currentUser;
+      if (user == null) {
+        throw AppException('no-user');
+      }
+
+      await user.updatePassword(newPassword);
+    } on FirebaseAuthException catch (e) {
+      throw AppException(e.code.toString());
+    } catch (e) {
+      if (e is AppException) {
+        rethrow;
+      }
+      throw AppException('update-password-error');
     }
   }
 }

@@ -81,7 +81,7 @@ class SettingsScreen extends ConsumerWidget {
                       onTap: () {
                         showDialog(
                             context: context,
-                            builder: (BuildContext  context) => LogoutDialog() );
+                            builder: (BuildContext  context) => const LogoutDialog() );
                       },
                     ),
                     const SizedBox(height: 30),

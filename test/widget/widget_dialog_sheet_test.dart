@@ -278,7 +278,7 @@ void main() {
             builder: (context) {
               return TextButton(
                 onPressed: () {
-                  updateEmailDialog(context, title, description, value, onFinish);
+                  updateAccountDialog(context, title, description, value, onFinish);
                 },
                 child: const Text('Open Dialog'),
               );
@@ -317,7 +317,7 @@ void main() {
             builder: (context) {
               return TextButton(
                 onPressed: () {
-                  updateEmailDialog(context, title, description, value, onFinish);
+                  updateAccountDialog(context, title, description, value, onFinish);
                 },
                 child: const Text('Open Dialog'),
               );

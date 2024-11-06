@@ -27,12 +27,19 @@ class AccountScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              accountItem(title: 'Username', context: context, value: user.username, onTap:() => showEditProfileSheet(context, user)),
+              accountItem(
+                  title: 'Username',
+                  context: context,
+                  value: user.username,
+                  onTap: () => showEditProfileSheet(context, user)),
               const SizedBox(
                 height: 12,
               ),
-              accountItem(title: 'Full Name', context: context, value: user.fullName ?? '', onTap:() => showEditProfileSheet(context, user)),
-
+              accountItem(
+                  title: 'Full Name',
+                  context: context,
+                  value: user.fullName ?? '',
+                  onTap: () => showEditProfileSheet(context, user)),
               const SizedBox(
                 height: 12,
               ),
@@ -50,59 +57,67 @@ class AccountScreen extends ConsumerWidget {
                                 .reauthenticateUser(password);
 
                             // If reauthentication successful, show email update dialog
-                            updateEmailDialog(
-                              context,
-                              'Change Email',
-                              'What would you like to change your email to?\n\nA verification link will be sent to the new email. The update will not be processed until you have verified that email.',
-                              user.email,
-                              (newEmail) async {
-                                try {
-                                  await ref
-                                      .read(userRepositoryProvider)
-                                      .changeUserEmail(newEmail);
-
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      backgroundColor: Colors.green[300],
-                                      showCloseIcon: true,
-                                      behavior: SnackBarBehavior.floating,
-                                      content: Text(
-                                        'Verification email sent to $newEmail',
-                                        style: GoogleFonts.inter(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w600,
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .onPrimary),
-                                      ),
-                                    ),
-                                  );
-                                  Navigator.of(context)
-                                      .popUntil((route) => route.isFirst);
-                                } catch (e) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      backgroundColor:
-                                          Theme.of(context).colorScheme.error,
-                                      showCloseIcon: true,
-                                      behavior: SnackBarBehavior.floating,
-                                      content: Text(
-                                          e is AppException
-                                              ? e.message
-                                              : 'Error sending the verification email.',
-                                          style: GoogleFonts.inter(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w600,
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .onPrimary)),
-                                    ),
-                                  );
-                                }
-                              },
-                            );
+                            if (context.mounted) {
+                              updateAccountDialog(
+                                context,
+                                'Change Email',
+                                'What would you like to change your email to?\n\nA verification link will be sent to the new email. The update will not be processed until you have verified that email.',
+                                user.email,
+                                (newEmail) async {
+                                  try {
+                                    await ref
+                                        .read(userRepositoryProvider)
+                                        .changeUserEmail(newEmail);
+                                    if (context.mounted) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        SnackBar(
+                                          backgroundColor: Colors.green[300],
+                                          showCloseIcon: true,
+                                          behavior: SnackBarBehavior.floating,
+                                          content: Text(
+                                            'Verification email sent to $newEmail',
+                                            style: GoogleFonts.inter(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w600,
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .onPrimary),
+                                          ),
+                                        ),
+                                      );
+                                      Navigator.of(context).popUntil((route) => route.isFirst);
+                                    }
+                                  } catch (e) {
+                                    if (context.mounted) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        SnackBar(
+                                          backgroundColor: Theme.of(context)
+                                              .colorScheme
+                                              .error,
+                                          showCloseIcon: true,
+                                          behavior: SnackBarBehavior.floating,
+                                          content: Text(
+                                              e is AppException
+                                                  ? e.message
+                                                  : 'Error sending the verification email.',
+                                              style: GoogleFonts.inter(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .onPrimary)),
+                                        ),
+                                      );
+                                    }
+                                  }
+                                },
+                              );
+                            }
                           } catch (e) {
-                            ScaffoldMessenger.of(context).showSnackBar(
+                            if(context.mounted){
+ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                   backgroundColor:
                                       Theme.of(context).colorScheme.error,
@@ -119,6 +134,7 @@ class AccountScreen extends ConsumerWidget {
                                               .colorScheme
                                               .onPrimary))),
                             );
+                            }
                           }
                         })
                       }),
@@ -129,7 +145,89 @@ class AccountScreen extends ConsumerWidget {
                 title: 'Password',
                 context: context,
                 value: '',
-                onTap: () {},
+                onTap: () {
+                  verifyPasswordDialog(context, 'Verify Password',
+                      (newPassword) async {
+                    try {
+                      await ref
+                          .read(userRepositoryProvider)
+                          .reauthenticateUser(newPassword);
+                      if (context.mounted) {
+                        updateAccountDialog(
+                          context,
+                          'Update Password',
+                          'Create a new password.\n\nYour password should be at least 8 characters long and include a mix of letters, numbers, and special characters',
+                          '', (newPassword) async {
+                        try {
+                          await ref
+                              .read(userRepositoryProvider)
+                              .updateUserPassword(newPassword);
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              backgroundColor: Colors.green[300],
+                              showCloseIcon: true,
+                              behavior: SnackBarBehavior.floating,
+                              content: Text(
+                                'Your password was successfully updated!',
+                                style: GoogleFonts.inter(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onPrimary),
+                              ),
+                            ),
+                          );
+                          Navigator.of(context)
+                              .popUntil((route) => route.isFirst);
+                          }
+                        } catch (e) {
+                          if(context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                                backgroundColor:
+                                    Theme.of(context).colorScheme.error,
+                                showCloseIcon: true,
+                                behavior: SnackBarBehavior.floating,
+                                content: Text(
+                                    e is AppException
+                                        ? e.message
+                                        : 'Password update failed, try again later, or contact support.',
+                                    style: GoogleFonts.inter(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onPrimary))),
+                          );
+                          }
+                        }
+                      });
+                      }
+                    } catch (e) {
+                      if(context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                            backgroundColor:
+                                Theme.of(context).colorScheme.error,
+                            showCloseIcon: true,
+                            behavior: SnackBarBehavior.floating,
+                            content: Text(
+                                e is AppException
+                                    ? e.message
+                                    : 'Authentication Failed',
+                                style: GoogleFonts.inter(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onPrimary))),
+                      );
+                      }
+                    }
+                  });
+                },
               ),
               const Spacer(),
               TextButton(

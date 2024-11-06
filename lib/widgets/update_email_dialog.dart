@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:folio/widgets/input_field_widget.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-void updateEmailDialog(BuildContext context, String title, String description,
+void updateAccountDialog(BuildContext context, String title, String description,
       String value, Function(String) onFinish) {
     final TextEditingController dialogController = TextEditingController();
     bool isLoading = false;

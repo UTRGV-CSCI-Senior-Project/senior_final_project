@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:folio/core/service_locator.dart';
 import 'package:folio/models/user_model.dart';
-import 'package:folio/repositories/user_repository.dart';
 import 'package:folio/views/settings/settings_screen.dart';
 import 'package:mockito/mockito.dart';
 
