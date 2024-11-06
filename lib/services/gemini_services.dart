@@ -2,13 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:folio/core/service_locator.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
-import 'package:folio/services/firestore_services.dart';
 
 class GeminiServices {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  late GenerativeModel _model;
 
-  @override
   Future<String?> fetchApiKey() async {
     try {
       DocumentSnapshot doc =
@@ -16,43 +13,68 @@ class GeminiServices {
       if (doc.exists) {
         return doc['key'] as String;
       } else {
-        return "Error";
+        return null;
       }
     } catch (e) {
-      return "Error";
+      print('Error fetching API key: $e');
+      return null;
     }
   }
 
   Future<List<String>> useGemini(WidgetRef ref, String promptUser) async {
     String? apiKey = await fetchApiKey();
+    if (apiKey == null) {
+      print('API key is null');
+      return [];
+    }
+
     List<String> allServices = [];
 
     try {
       final firestoreServices = ref.read(firestoreServicesProvider);
-      final fetchedServices = await firestoreServices.getServices();
-      allServices = fetchedServices; // Fetch all services
+      allServices = await firestoreServices.getServices();
     } catch (e) {
-      allServices = []; // Handle error by assigning an empty list
+      print('Error fetching services: $e');
+      return [];
+    }
+
+    if (promptUser.isEmpty) {
+      return allServices;
     }
 
     final model = GenerativeModel(
       model: 'gemini-1.5-flash-latest',
-      apiKey: apiKey ?? '',
+      apiKey: apiKey,
     );
 
-    final prompt =
-        """You are a professional in searching for recommended careers from the list I am going to give to you. 
-      Only give me the parts of the list that are relevant to the search. 
-      ##List: ${allServices.join(', ')}. 
-      ##Search: $promptUser
-      """;
+    final prompt = """
+    You are a professional in searching for careers based on a user's description. 
+    Here is a list of services that are available. Based on the user's search, filter out the services that are not relevant.
+
+    Available services: ${allServices.join(', ')}.
+    User search: $promptUser
+
+    Please respond only with the relevant services, separated by commas. 
+    """;
 
     final content = [Content.text(prompt)];
-    final response = await model.generateContent(content);
 
-    List<String> filteredServices =
-        response.text!.split(',').map((service) => service.trim()).toList();
+    try {
+      final response = await model.generateContent(content);
 
-    return filteredServices;
+      print('AI Response: ${response.text}');
+
+      if (response.text != null && response.text!.isNotEmpty) {
+        List<String> filteredServices =
+            response.text!.split(',').map((service) => service.trim()).toList();
+        return filteredServices;
+      } else {
+        print('No relevant services found from AI response.');
+        return [];
+      }
+    } catch (e) {
+      print('Error during AI processing: $e');
+      return [];
+    }
   }
 }

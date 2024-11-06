@@ -1,31 +1,78 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:folio/services/gemini_services.dart';
 
-
-class DiscoverTab extends ConsumerWidget {
-  
+class DiscoverTab extends ConsumerStatefulWidget {
   const DiscoverTab({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    // final portfolios = ref.watch(portfoliosProvider);
-    final searchController = TextEditingController();
+  _DiscoverTabState createState() => _DiscoverTabState();
+}
 
+class _DiscoverTabState extends ConsumerState<DiscoverTab> {
+  String _promptUser = '';
+  List<String> _filteredServices = [];
+  bool _isLoading = false;
+  late TextEditingController _searchController;
 
+  @override
+  void initState() {
+    super.initState();
+    _searchController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _searchController
+        .dispose(); // Dispose the controller when the widget is disposed
+    super.dispose();
+  }
+
+  // Async method to search services
+  Future<void> _searchServices() async {
+    setState(() {
+      _isLoading = true; // Show loading indicator
+    });
+
+    final geminiServices = GeminiServices();
+
+    try {
+      List<String> services = await geminiServices.useGemini(ref, _promptUser);
+
+      setState(() {
+        _filteredServices = services;
+        _isLoading = false; // Hide loading indicator
+      });
+    } catch (e) {
+      print("Error occurred: $e");
+      setState(() {
+        _isLoading = false; // Hide loading indicator even on error
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Search TextField
             Container(
               decoration: BoxDecoration(
                 color: Colors.grey[200],
                 borderRadius: BorderRadius.circular(25),
               ),
               child: TextField(
+                controller: _searchController,
+                onChanged: (value) {
+                  setState(() {
+                    _promptUser = value;
+                  });
+                },
                 cursorColor: Colors.black,
-                controller: searchController,
                 decoration: InputDecoration(
                   hintText: 'Search Folio',
                   prefixIcon: Icon(Icons.search, color: Colors.grey[600]),
@@ -35,84 +82,34 @@ class DiscoverTab extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 16),
-            // Expanded(
-            //   child: portfolios.when(
-            //     data: (ports) {
-            //       return ListView.separated(
-            //         itemCount: ports.length,
-            //         separatorBuilder: (context, index) => const Divider(
-            //           color: Colors.grey,
-            //           height: 1,
-            //           thickness: 0.5,
-            //         ),
-            //         itemBuilder: (context, index) {
-            //           final portfolio = ports[index];
-            //           final String firstImageUrl = portfolio['portfolio'].downloadUrls.isNotEmpty 
-            //             ? portfolio['portfolio'].downloadUrls[0] 
-            //             : '';
-                      
-            //           return Padding(
-            //             padding: const EdgeInsets.symmetric(vertical: 12.0),
-            //             child: InkWell(
-            //               onTap: () {
-            //                 // : Implement view portfolio action
-            //               },
-            //               child: Row(
-            //                 crossAxisAlignment: CrossAxisAlignment.center,
-            //                 children: [
-            //                   // Image
-            //                   ClipRRect(
-            //                     borderRadius: BorderRadius.circular(8),
-            //                     child: firstImageUrl.isNotEmpty
-            //                       ? Image.network(
-            //                           firstImageUrl,
-            //                           width: 80,
-            //                           height: 80,
-            //                           fit: BoxFit.cover,
-            //                         )
-            //                       : Container(
-            //                           width: 80,
-            //                           height: 80,
-            //                           color: Colors.grey[300],
-            //                           child: const Icon(Icons.image, size: 40, color: Colors.grey),
-            //                         ),
-            //                   ),
-            //                   const SizedBox(width: 16),
-            //                   // Name and Service
-            //                   Expanded(
-            //                     child: Column(
-            //                       mainAxisAlignment: MainAxisAlignment.center,
-            //                       crossAxisAlignment: CrossAxisAlignment.start,
-            //                       children: [
-            //                         Text(
-            //                           portfolio['user']?.fullName ?? portfolio['user'].username,
-            //                           style: const TextStyle(
-            //                             fontWeight: FontWeight.bold,
-            //                             fontSize: 16,
-            //                           ),
-            //                         ),
-            //                         Text(
-            //                           portfolio['portfolio']?.service,
-            //                           style: TextStyle(
-            //                             color: Colors.grey[600],
-            //                             fontSize: 14,
-            //                           ),
-            //                         ),
-            //                       ],
-            //                     ),
-            //                   ),
-            //                   IconButton(onPressed: (){}, icon: Icon(Icons.arrow_forward_ios),)
-            //                 ],
-            //               ),
-            //             ),
-            //           );
-            //         },
-            //       );
-            //     },
-            //     error: (_, __) => const Center(child: Text('Error loading data')),
-            //     loading: () => const Center(child: CircularProgressIndicator()),
-            //   ),
-            // ),
+
+            // Button to trigger the search
+            ElevatedButton(
+              onPressed: _searchServices,
+              child: Text('Search Services'),
+            ),
+
+            const SizedBox(height: 20),
+
+            // Display loading indicator while searching
+            if (_isLoading) const Center(child: CircularProgressIndicator()),
+
+            // Display filtered services if any
+            if (!_isLoading && _filteredServices.isNotEmpty)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Filtered Services:',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  ..._filteredServices.map((service) => Text(service)).toList(),
+                ],
+              ),
+
+            // If no services were found
+            if (!_isLoading &&
+                _filteredServices.isEmpty &&
+                _promptUser.isNotEmpty)
+              const Center(child: Text('No relevant services found')),
           ],
         ),
       ),

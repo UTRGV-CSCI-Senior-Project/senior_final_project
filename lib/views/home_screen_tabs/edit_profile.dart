@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:folio/core/app_exception.dart';
 import 'package:folio/core/service_locator.dart';
 import 'package:folio/repositories/portfolio_repository.dart';
+import 'package:folio/services/gemini_services.dart';
 import 'package:folio/views/create_portfolio_screen.dart';
 import 'package:folio/views/state_screens.dart';
 import 'package:folio/views/welcome_screen.dart';
