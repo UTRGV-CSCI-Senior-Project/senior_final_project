@@ -26,7 +26,7 @@ class WelcomeScreen extends StatelessWidget {
               Image.asset("assets/Explore.png",width: 250,height: 250,color: Theme.of(context).colorScheme.primary,),
               const SizedBox(height: 50,),
               Text("Discover Local Talent,",style: TempTextStyle.customTextstyle,),
-               Text("Book with Ease ",style: TempTextStyle.customTextstyle,),
+               Text("Book with Ease",style: TempTextStyle.customTextstyle,),
               //const Text("App Name",style: TempTextStyle.customTextstyle,),
               const SizedBox(height: 50,),
               

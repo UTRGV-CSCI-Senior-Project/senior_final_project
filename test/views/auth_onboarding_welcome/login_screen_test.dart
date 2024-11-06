@@ -9,15 +9,14 @@ import 'package:folio/repositories/user_repository.dart';
 import 'package:folio/views/auth_onboarding_welcome/auth_screen.dart';
 
 @GenerateMocks([UserRepository])
-import '../mocks/signup_screen_test.mocks.dart';
+import '../../mocks/signup_screen_test.mocks.dart';
 
 void main() {
   //Create necessary mocks and keys for necessary fields
   late MockUserRepository mockUserRepository;
-  final usernameField = find.byKey(const Key('username-field'));
   final emailField = find.byKey(const Key('email-field'));
   final passwordField = find.byKey(const Key('password-field'));
-  final signUpButton = find.byKey(const Key('signup-button'));
+  final logInButton = find.byKey(const Key('signin-button'));
 
   setUp(() {
     mockUserRepository = MockUserRepository();
@@ -29,203 +28,190 @@ void main() {
     );
   }
 
-  Widget createSignUpWidget(ProviderContainer container) {
+  Widget createLogInWidget(ProviderContainer container) {
     return UncontrolledProviderScope(
         container: container,
         child: const MaterialApp(
-          home: AuthScreen(isLogin: false),
+          home: AuthScreen(isLogin: true),
         ));
   }
 
-  group('sign up page', () {
+  group('log in page', () {
     testWidgets('shows all necessary fields', (WidgetTester tester) async {
-      //Load the sign up screen
+      //Load the log in screen
       final container = createProviderContainer();
-      await tester.pumpWidget(createSignUpWidget(container));
+      await tester.pumpWidget(createLogInWidget(container));
 
       //Expect all the fields to be found
-      expect(usernameField, findsOneWidget);
       expect(emailField, findsOneWidget);
       expect(passwordField, findsOneWidget);
-      expect(signUpButton, findsOneWidget);
+      expect(logInButton, findsOneWidget);
     });
 
     testWidgets('Shows error on empty fields', (WidgetTester tester) async {
-      //Load the sign up screen
+      //Load the log in screen
       final container = createProviderContainer();
-      await tester.pumpWidget(createSignUpWidget(container));
+      await tester.pumpWidget(createLogInWidget(container));
 
-      //Tap sign up button without entering necessary data
-      await tester.ensureVisible(signUpButton);
-      await tester.tap(signUpButton);
+      //Tap log in button without entering necessary data
+      await tester.ensureVisible(logInButton);
+      await tester.tap(logInButton);
       await tester.pumpAndSettle();
 
       //Expect to find error for empty fields
       expect(find.text('Please fill in all required fields to continue.'), findsOneWidget);
     });
 
-    testWidgets('Calls createUser when username, email, password, are entered',
+    testWidgets('Calls signIn when email and password are entered',
         (WidgetTester tester) async {
-      //Create necessary data for user and load sign up screen
-      const username = 'username';
+      //Create necessary data for user and load log in screen
       const email = 'email@email.com';
       const password = 'Pass123!';
       final container = createProviderContainer();
-      await tester.pumpWidget(createSignUpWidget(container));
+      await tester.pumpWidget(createLogInWidget(container));
 
       //Enter all data into corresponding fields
-      await tester.enterText(usernameField, username);
       await tester.enterText(emailField, email);
       await tester.enterText(passwordField, password);
 
-      //Tap sign up button
-      await tester.ensureVisible(signUpButton);
-      await tester.tap(signUpButton);
+      //Tap log in button
+      await tester.ensureVisible(logInButton);
+      await tester.tap(logInButton);
 
-      //Verify that the createUser (from userrepository) was called
-      verify(mockUserRepository.createUser(username, email, password))
+      //Verify that the signIn (from user repository) was called
+      verify(mockUserRepository.signIn(email, password))
           .called(1);
     });
 
-    testWidgets('Shows error when username is taken',
+    testWidgets('Shows error when credentials are incorrect',
         (WidgetTester tester) async {
-      //Create neccessary data, and load sign up screen
-      const username = 'takenUsername';
+      //Create neccessary data, and load log in screen
       const email = 'email@email.com';
       const password = 'Pass123!';
-      //when createUser is called, throw the username-taken
-      when(mockUserRepository.createUser(username, email, password))
-          .thenThrow(AppException('username-taken'));
+      //when signIn is called, throw the username-taken
+      when(mockUserRepository.signIn(email, password))
+          .thenThrow(AppException('invalid-credential'));
       final container = createProviderContainer();
-      await tester.pumpWidget(createSignUpWidget(container));
+      await tester.pumpWidget(createLogInWidget(container));
 
-      //Enter necessary data to corresponding fields (using a taken username)
-      await tester.enterText(usernameField, username);
+      //Enter necessary data to corresponding fields
       await tester.enterText(emailField, email);
       await tester.enterText(passwordField, password);
 
-      //Tap sign up button
-      await tester.ensureVisible(signUpButton);
-      await tester.tap(signUpButton);
+      //Tap log in button
+      await tester.ensureVisible(logInButton);
+      await tester.tap(logInButton);
       await tester.pumpAndSettle();
 
       //Expect to see error with taken username message
       expect(
           find.textContaining(
-              'This username is already taken. Please try a different one.'),
+              'Invalid login credentials. Please check your email and password.'),
           findsOneWidget);
     });
 
     testWidgets('shows error when a generic firestore exception ocurrs',
         (WidgetTester tester) async {
       //Create necessary information for a user
-      const username = 'username';
       const email = 'email@email.com';
       const password = 'Pass123!';
-      //When createUser is called, throw an unexpected error
-      when(mockUserRepository.createUser(username, email, password))
-          .thenThrow(AppException('sign-up-error'));
-      //Wait for sign up screen to laod
+      //When signIn is called, throw an unexpected error
+      when(mockUserRepository.signIn(email, password))
+          .thenThrow(AppException('sign-in-error'));
+      //Wait for log in screen to laod
       final container = createProviderContainer();
-      await tester.pumpWidget(createSignUpWidget(container));
+      await tester.pumpWidget(createLogInWidget(container));
 
       //Enter data to corresponding fields
-      await tester.enterText(usernameField, username);
       await tester.enterText(emailField, email);
       await tester.enterText(passwordField, password);
 
-      //Tap sign up button
-      await tester.ensureVisible(signUpButton);
-      await tester.tap(signUpButton);
+      //Tap log in button
+      await tester.ensureVisible(logInButton);
+      await tester.tap(logInButton);
       await tester.pumpAndSettle();
 
       //Expect to see error message for generic exception
       expect(
           find.textContaining(
-              'Unable to complete registration. Please try again or contact support.'),
+              'Unable to sign in. Please check your credentials and try again.'),
           findsOneWidget);
     });
-    testWidgets('shows error when the password is weak',
+    testWidgets('shows error when the account has been disabled',
         (WidgetTester tester) async {
       //Create necessary information for a user
-      const username = 'username';
       const email = 'email@email.com';
       const password = '1';
-      //When createuser is called, throw weak-password
-      when(mockUserRepository.createUser(username, email, password))
-          .thenThrow(AppException('weak-password'));
-      //Load sign up screen
+      //When signIn is called, throw user-disabled
+      when(mockUserRepository.signIn( email, password))
+          .thenThrow(AppException('user-disabled'));
+      //Load log in screen
       final container = createProviderContainer();
-      await tester.pumpWidget(createSignUpWidget(container));
+      await tester.pumpWidget(createLogInWidget(container));
 
       //Enter data to necessary fields
-      await tester.enterText(usernameField, username);
       await tester.enterText(emailField, email);
       await tester.enterText(passwordField, password);
 
-      //Tap signup button
-      await tester.ensureVisible(signUpButton);
-      await tester.tap(signUpButton);
+      //Tap login button
+      await tester.ensureVisible(logInButton);
+      await tester.tap(logInButton);
       await tester.pumpAndSettle();
-      //Expect to see error for weak password
-      expect(find.textContaining('Password must be at least 8 characters long and include numbers, letters, and special characters.'),
+      //Expect to see error for user disabled
+      expect(find.textContaining('This account has been disabled. Please contact support for assistance.'),
           findsOneWidget);
     });
-    testWidgets('shows error when the email is taken',
+    testWidgets('shows error when there is no account for the credentials',
         (WidgetTester tester) async {
       //Create necessary information for user
-      const username = 'username';
       const email = 'taken@email.com';
       const password = '1';
-      //When createuser is called, throw email-already-in-use
-      when(mockUserRepository.createUser(username, email, password))
-          .thenThrow(AppException('email-already-in-use'));
-      //Load sign up screen
+      //When signIn is called, throw user-not-found
+      when(mockUserRepository.signIn(email, password))
+          .thenThrow(AppException('user-not-found'));
+      //Load log in screen
       final container = createProviderContainer();
-      await tester.pumpWidget(createSignUpWidget(container));
+      await tester.pumpWidget(createLogInWidget(container));
 
       //Enter data into corresponding fields
-      await tester.enterText(usernameField, username);
       await tester.enterText(emailField, email);
       await tester.enterText(passwordField, password);
 
-      //Tap sign up button
-      await tester.ensureVisible(signUpButton);
-      await tester.tap(signUpButton);
+      //Tap log in button
+      await tester.ensureVisible(logInButton);
+      await tester.tap(logInButton);
       await tester.pumpAndSettle();
 
-      //Expect to see error message for email-already-in-use
+      //Expect to see error message for user-not-found
       expect(
           find.textContaining(
-              'This email is already associated with another account.'),
+              'No account found with this email address. Please check the email or create a new account.'),
           findsOneWidget);
     });
     testWidgets('shows error when a generic firebase auth exception ocurrs',
         (WidgetTester tester) async {
       //Create necessary data for user
-      const username = 'username';
       const email = 'email@email.com';
       const password = '1';
-      //When createuser is called throw an unexpected error
-      when(mockUserRepository.createUser(username, email, password))
-          .thenThrow(AppException('sign-up-error'));
-      //load sign up screen
+      //When signIn is called throw an unexpected error
+      when(mockUserRepository.signIn(email, password))
+          .thenThrow(AppException('unexpected-error'));
+      //load log in screen
       final container = createProviderContainer();
-      await tester.pumpWidget(createSignUpWidget(container));
+      await tester.pumpWidget(createLogInWidget(container));
 
       //Enter data into corresponding fields
-      await tester.enterText(usernameField, username);
       await tester.enterText(emailField, email);
       await tester.enterText(passwordField, password);
 
-      //Tap sign up button
-      await tester.ensureVisible(signUpButton);
-      await tester.tap(signUpButton);
+      //Tap log in button
+      await tester.ensureVisible(logInButton);
+      await tester.tap(logInButton);
       await tester.pumpAndSettle();
       //Expect to see error message for general exception.
       expect(
           find.textContaining(
-              'Unable to complete registration. Please try again or contact support.'),
+              'An unexpected error occurred. Please try again later or contact support if the problem persists.'),
           findsOneWidget);
     });
   });

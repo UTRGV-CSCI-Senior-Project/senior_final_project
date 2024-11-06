@@ -4,6 +4,7 @@ import 'package:folio/core/app_exception.dart';
 import 'package:folio/core/service_locator.dart';
 import 'package:folio/models/user_model.dart';
 import 'package:folio/widgets/account_item_widget.dart';
+import 'package:folio/widgets/edit_profile_sheet.dart';
 import 'package:folio/widgets/update_email_dialog.dart';
 import 'package:folio/widgets/verify_password_dialog.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -26,105 +27,12 @@ class AccountScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              GestureDetector(
-                onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text(
-                      'To edit your username, go to the profile tab.',
-                      style: GoogleFonts.inter(
-                          fontSize: 14,
-                          color: Theme.of(context).colorScheme.onTertiary,
-                          fontWeight: FontWeight.bold),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 8.0, vertical: 12),
-                    behavior: SnackBarBehavior.floating,
-                    action: SnackBarAction(
-                      label: 'GO',
-                      onPressed: () {
-                        Navigator.pop(context);
-                        Navigator.pop(context);
-                      },
-                      textColor: Theme.of(context).colorScheme.onSecondary,
-                      backgroundColor: Theme.of(context)
-                          .colorScheme
-                          .secondary
-                          .withOpacity(0.3),
-                    ),
-                    backgroundColor: Theme.of(context).colorScheme.tertiary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                  ));
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 12.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Username',
-                        style: GoogleFonts.inter(
-                            fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-                      const Spacer(),
-                      Text(user.username,
-                          style: GoogleFonts.inter(fontSize: 16)),
-                    ],
-                  ),
-                ),
-              ),
+              accountItem(title: 'Username', context: context, value: user.username, onTap:() => showEditProfileSheet(context, user)),
               const SizedBox(
                 height: 12,
               ),
-              GestureDetector(
-                onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text(
-                      'To edit your name, go to the profile tab.',
-                      style: GoogleFonts.inter(
-                          fontSize: 14,
-                          color: Theme.of(context).colorScheme.onTertiary,
-                          fontWeight: FontWeight.bold),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 8.0, vertical: 12),
-                    behavior: SnackBarBehavior.floating,
-                    action: SnackBarAction(
-                      label: 'GO',
-                      onPressed: () {
-                        Navigator.pop(context);
-                        Navigator.pop(context);
-                      },
-                      textColor: Theme.of(context).colorScheme.onSecondary,
-                      backgroundColor: Theme.of(context)
-                          .colorScheme
-                          .secondary
-                          .withOpacity(0.3),
-                    ),
-                    backgroundColor: Theme.of(context).colorScheme.tertiary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                  ));
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 12.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Full Name',
-                        style: GoogleFonts.inter(
-                            fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-                      const Spacer(),
-                      Text(user.fullName ?? '',
-                          style: GoogleFonts.inter(fontSize: 16)),
-                    ],
-                  ),
-                ),
-              ),
+              accountItem(title: 'Full Name', context: context, value: user.fullName ?? '', onTap:() => showEditProfileSheet(context, user)),
+
               const SizedBox(
                 height: 12,
               ),

@@ -6,9 +6,9 @@ import 'package:folio/views/auth_onboarding_welcome/onboarding_screen.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mockito/mockito.dart';
 
-import '../mocks/login_screen_test.mocks.dart';
-import '../mocks/onboarding_screen_test.mocks.dart';
-import '../mocks/user_repository_test.mocks.dart';
+import '../../mocks/login_screen_test.mocks.dart';
+import '../../mocks/onboarding_screen_test.mocks.dart';
+import '../../mocks/user_repository_test.mocks.dart';
 
 void main() {
   late MockUserRepository mockUserRepository;

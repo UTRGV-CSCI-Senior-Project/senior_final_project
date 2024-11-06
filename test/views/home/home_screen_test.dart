@@ -11,8 +11,8 @@ import 'package:folio/views/auth_onboarding_welcome/loading_screen.dart';
 import 'package:folio/views/auth_onboarding_welcome/onboarding_screen.dart';
 import 'package:folio/views/auth_onboarding_welcome/welcome_screen.dart';
 import 'package:mockito/mockito.dart';
-import '../mocks/login_screen_test.mocks.dart';
-import '../mocks/user_repository_test.mocks.dart';
+import '../../mocks/login_screen_test.mocks.dart';
+import '../../mocks/user_repository_test.mocks.dart';
 
 void main() {
   late MockUserRepository mockUserRepository;
@@ -220,6 +220,37 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byType(BottomSheet), findsNothing);
       verify(mockUserRepository.updateProfile(profilePicture: null, fields: {'fullName': 'New Name', 'username': 'newusername', 'profilePictureUrl': null})).called(1);
+    });
+
+     testWidgets('shows speed dial menu on profile tab', (WidgetTester tester) async {
+      final userModel = UserModel(
+        uid: 'testuid',
+        username: 'username',
+        email: 'email@email.com',
+        isProfessional: false,
+        fullName: 'Test User',
+        completedOnboarding: true,
+        profilePictureUrl: 'url'
+      );
+       final container = createProviderContainer(userModel: userModel);
+      await tester.pumpWidget(createHomeScreen(container));
+      await tester.pumpAndSettle();
+
+      // Navigate to profile tab
+      await tester.tap(find.byIcon(Icons.person));
+      await tester.pumpAndSettle();
+
+      // Verify speed dial exists
+      expect(find.byKey(const Key('speeddial-button')), findsOneWidget);
+
+      // Open speed dial menu
+      await tester.tap(find.byKey(const Key('speeddial-button')));
+      await tester.pumpAndSettle();
+
+      // Verify menu items
+      expect(find.text('Edit Profile'), findsOneWidget);
+      expect(find.text('Settings'), findsOneWidget);
+      expect(find.text('Share Profile'), findsOneWidget);
     });
   });
 }

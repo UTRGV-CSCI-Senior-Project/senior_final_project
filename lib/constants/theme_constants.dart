@@ -73,7 +73,6 @@ enabledBorder: const OutlineInputBorder(
     navigationBarTheme: const NavigationBarThemeData(
       backgroundColor: lightBackgroundColor,
       elevation: 0,
-      height: 30,
       indicatorColor: lightBackgroundColor,
       labelBehavior: NavigationDestinationLabelBehavior.alwaysHide
       

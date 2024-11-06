@@ -93,4 +93,24 @@ class MockUserRepository extends _i1.Mock implements _i2.UserRepository {
         returnValue: _i3.Future<void>.value(),
         returnValueForMissingStub: _i3.Future<void>.value(),
       ) as _i3.Future<void>);
+
+  @override
+  _i3.Future<void> reauthenticateUser(String? password) => (super.noSuchMethod(
+        Invocation.method(
+          #reauthenticateUser,
+          [password],
+        ),
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
+
+  @override
+  _i3.Future<void> changeUserEmail(String? newEmail) => (super.noSuchMethod(
+        Invocation.method(
+          #changeUserEmail,
+          [newEmail],
+        ),
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
 }

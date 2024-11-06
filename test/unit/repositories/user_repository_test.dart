@@ -217,4 +217,46 @@ void main() {
   )));
     });
   });
+
+  group('reauthenticateUser', () {
+test('reauthenticates user successfully', () async {
+      when(mockAuthServices.reauthenticateUser('password123')).thenAnswer((_) async => {});
+
+      final userRepository = container.read(userRepositoryProvider);
+      await userRepository.reauthenticateUser('password123');
+
+      verify(mockAuthServices.reauthenticateUser('password123')).called(1);
+    });
+
+    test('throws reauthenticate-user-error on reauthentication failure', () async {
+      when(mockAuthServices.reauthenticateUser('password123')).thenThrow(AppException('reauthenticate-user-error'));
+
+      final userRepository = container.read(userRepositoryProvider);
+      expect(
+        () => userRepository.reauthenticateUser('password123'),
+        throwsA(predicate((e) => e is AppException && e.code == 'reauthenticate-user-error')),
+      );
+    });
+  });
+
+  group('changeUserEmail', () {
+    test('changes user email successfully', () async {
+      when(mockAuthServices.updateEmail('new@example.com')).thenAnswer((_) async => {});
+
+      final userRepository = container.read(userRepositoryProvider);
+      await userRepository.changeUserEmail('new@example.com');
+
+      verify(mockAuthServices.updateEmail('new@example.com')).called(1);
+    });
+
+    test('throws update-email-error on email update failure', () async {
+      when(mockAuthServices.updateEmail('new@example.com')).thenThrow(AppException('update-email-error'));
+
+      final userRepository = container.read(userRepositoryProvider);
+      expect(
+        () => userRepository.changeUserEmail('new@example.com'),
+        throwsA(predicate((e) => e is AppException && e.code == 'update-email-error')),
+      );
+    });
+  });
 }

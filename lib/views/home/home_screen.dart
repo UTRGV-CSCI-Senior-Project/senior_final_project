@@ -7,7 +7,7 @@ import 'package:folio/views/auth_onboarding_welcome/loading_screen.dart';
 import 'package:folio/views/auth_onboarding_welcome/onboarding_screen.dart';
 import 'package:folio/views/home/discover_tab.dart';
 import 'package:folio/views/home/home_tab.dart';
-import 'package:folio/views/settings/edit_profile_sheet.dart';
+import 'package:folio/widgets/edit_profile_sheet.dart';
 import 'package:folio/views/settings/settings_screen.dart';
 import 'package:folio/views/auth_onboarding_welcome/state_screens.dart';
 import 'package:folio/views/auth_onboarding_welcome/welcome_screen.dart';
@@ -149,6 +149,7 @@ class HomeScreen extends ConsumerWidget {
                 ],
               ),
               bottomNavigationBar: NavigationBar(
+                height: MediaQuery.of(context).viewInsets.bottom + 50,
                 selectedIndex: selectedIndex,
                 onDestinationSelected: (index) {
                   // Update the selected index when a destination is tapped

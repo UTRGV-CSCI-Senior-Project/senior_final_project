@@ -5,6 +5,7 @@ import 'package:folio/views/create_portfolio_tabs/create_portfolio_screen.dart';
 import 'package:folio/views/settings/account_screen.dart';
 import 'package:folio/views/auth_onboarding_welcome/state_screens.dart';
 import 'package:folio/views/auth_onboarding_welcome/welcome_screen.dart';
+import 'package:folio/widgets/logout_dialog.dart';
 import 'package:folio/widgets/settings_item_widget.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -80,72 +81,7 @@ class SettingsScreen extends ConsumerWidget {
                       onTap: () {
                         showDialog(
                             context: context,
-                            builder: (BuildContext context) => AlertDialog(
-                                  actionsAlignment: MainAxisAlignment.center,
-                                  backgroundColor:
-                                      Theme.of(context).colorScheme.tertiary,
-                                  title: Text(
-                                    'Log out',
-                                    style: GoogleFonts.poppins(
-                                        fontSize: 25,
-                                        fontWeight: FontWeight.bold,
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .onTertiary),
-                                  ),
-                                  content: Text(
-                                      "Are you sure you want to log out? You'll need to login again to use the app.",
-                                      style: GoogleFonts.poppins(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w500,
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .onTertiary)),
-                                  actions: [
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: TextButton(
-                                            onPressed: () =>
-                                                Navigator.pop(context),
-                                            style: TextButton.styleFrom(
-                                              backgroundColor:
-                                                  Colors.transparent,
-                                              side: BorderSide(
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .primary,
-                                                  width: 3),
-                                            ),
-                                            child: Text('Cancel',
-                                                style: GoogleFonts.poppins(
-                                                    fontSize: 18,
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Theme.of(context)
-                                                        .colorScheme
-                                                        .primary)),
-                                          ),
-                                        ),
-                                        const SizedBox(width: 6,),
-                                        Expanded(
-                                          child: TextButton(
-                                              onPressed: () {
-                                                ref
-                                                    .watch(
-                                                        userRepositoryProvider)
-                                                    .signOut();
-                                                Navigator.pop(context);
-                                              },
-                                              child: Text('LOGOUT',
-                                                  style: GoogleFonts.poppins(
-                                                      fontSize: 18,
-                                                      fontWeight:
-                                                          FontWeight.bold))),
-                                        )
-                                      ],
-                                    )
-                                  ],
-                                ));
+                            builder: (BuildContext  context) => LogoutDialog() );
                       },
                     ),
                     const SizedBox(height: 30),
