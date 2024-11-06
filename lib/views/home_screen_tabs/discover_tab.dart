@@ -23,15 +23,13 @@ class _DiscoverTabState extends ConsumerState<DiscoverTab> {
 
   @override
   void dispose() {
-    _searchController
-        .dispose(); // Dispose the controller when the widget is disposed
+    _searchController.dispose();
     super.dispose();
   }
 
-  // Async method to search services
   Future<void> _searchServices() async {
     setState(() {
-      _isLoading = true; // Show loading indicator
+      _isLoading = true;
     });
 
     final geminiServices = GeminiServices();
@@ -41,12 +39,12 @@ class _DiscoverTabState extends ConsumerState<DiscoverTab> {
 
       setState(() {
         _filteredServices = services;
-        _isLoading = false; // Hide loading indicator
+        _isLoading = false;
       });
     } catch (e) {
       print("Error occurred: $e");
       setState(() {
-        _isLoading = false; // Hide loading indicator even on error
+        _isLoading = false;
       });
     }
   }
@@ -59,7 +57,6 @@ class _DiscoverTabState extends ConsumerState<DiscoverTab> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Search TextField
             Container(
               decoration: BoxDecoration(
                 color: Colors.grey[200],
@@ -82,30 +79,21 @@ class _DiscoverTabState extends ConsumerState<DiscoverTab> {
               ),
             ),
             const SizedBox(height: 16),
-
-            // Button to trigger the search
             ElevatedButton(
               onPressed: _searchServices,
-              child: Text('Search Services'),
+              child: const Text('Search Services'),
             ),
-
             const SizedBox(height: 20),
-
-            // Display loading indicator while searching
             if (_isLoading) const Center(child: CircularProgressIndicator()),
-
-            // Display filtered services if any
             if (!_isLoading && _filteredServices.isNotEmpty)
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Filtered Services:',
+                  const Text('Filtered Services:',
                       style: TextStyle(fontWeight: FontWeight.bold)),
                   ..._filteredServices.map((service) => Text(service)).toList(),
                 ],
               ),
-
-            // If no services were found
             if (!_isLoading &&
                 _filteredServices.isEmpty &&
                 _promptUser.isNotEmpty)
