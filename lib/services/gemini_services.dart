@@ -3,49 +3,64 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:folio/core/service_locator.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 
-class GeminiServices {
+Future<String?> fetchApiKey() async {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  try {
+    DocumentSnapshot doc =
+        await _firestore.collection('api').doc('gemini').get();
+    if (doc.exists) {
+      return doc['key'] as String;
+    } else {
+      return null;
+    }
+  } catch (e) {
+    print('Error fetching API key: $e');
+    return null;
+  }
+}
 
-  Future<String?> fetchApiKey() async {
+Future<List<String>> getAllServices(WidgetRef ref) async {
+  try {
+    final firestoreServices = ref.read(firestoreServicesProvider);
+    return await firestoreServices.getServices();
+  } catch (e) {
+    print('Error fetching services: $e');
+    return [];
+  }
+}
+
+class GeminiServices {
+  final String modelId = 'gemini-1.5-flash-latest';
+
+  Future<String?> _generateContent(String prompt, String apiKey) async {
+    final model = GenerativeModel(
+      model: modelId,
+      apiKey: apiKey,
+    );
+
+    final content = [Content.text(prompt)];
+
     try {
-      DocumentSnapshot doc =
-          await _firestore.collection('api').doc('gemini').get();
-      if (doc.exists) {
-        return doc['key'] as String;
-      } else {
-        return null;
-      }
+      final response = await model.generateContent(content);
+      return response.text;
     } catch (e) {
-      print('Error fetching API key: $e');
+      print('Error during AI processing: $e');
       return null;
     }
   }
 
-  Future<List<String>> useGemini(WidgetRef ref, String promptUser) async {
-    String? apiKey = await fetchApiKey();
+  Future<List<String>> aiSearch(WidgetRef ref, String promptUser) async {
+    final apiKey = await fetchApiKey();
     if (apiKey == null) {
       print('API key is null');
       return [];
     }
 
-    List<String> allServices = [];
-
-    try {
-      final firestoreServices = ref.read(firestoreServicesProvider);
-      allServices = await firestoreServices.getServices();
-    } catch (e) {
-      print('Error fetching services: $e');
-      return [];
-    }
+    List<String> allServices = await getAllServices(ref);
 
     if (promptUser.isEmpty) {
       return allServices;
     }
-
-    final model = GenerativeModel(
-      model: 'gemini-1.5-flash-latest',
-      apiKey: apiKey,
-    );
 
     final prompt = """
     You are a professional in searching for careers based on a user's description. 
@@ -54,27 +69,97 @@ class GeminiServices {
     Available services: ${allServices.join(', ')}.
     User search: $promptUser
 
-    Please respond only with the relevant services, separated by commas. 
+    Please respond only with the relevant services, separated by commas.
     """;
 
-    final content = [Content.text(prompt)];
-
-    try {
-      final response = await model.generateContent(content);
-
-      print('AI Response: ${response.text}');
-
-      if (response.text != null && response.text!.isNotEmpty) {
-        List<String> filteredServices =
-            response.text!.split(',').map((service) => service.trim()).toList();
-        return filteredServices;
-      } else {
-        print('No relevant services found from AI response.');
-        return [];
-      }
-    } catch (e) {
-      print('Error during AI processing: $e');
+    final aiResponse = await _generateContent(prompt, apiKey);
+    if (aiResponse != null && aiResponse.isNotEmpty) {
+      return aiResponse.split(',').map((service) => service.trim()).toList();
+    } else {
+      print('No relevant services found from AI response.');
       return [];
+    }
+  }
+
+  Future<bool> aiEvaluator(WidgetRef ref, String userPrompt) async {
+    final apiKey = await fetchApiKey();
+    if (apiKey == null) {
+      print('API key is null');
+      return false;
+    }
+
+    List<String> allServices = await getAllServices(ref);
+
+    final prompt = """
+      You are an expert in evaluating service names for a platform that connects professionals with clients.
+      Check the Valid Services List if its the service that is going to be evaluate is in the list it should get false. 
+      ### Valid Services List: ${allServices.join(', ')}
+
+      Please evaluate the service name input by the user according to the following criteria:
+
+      ### Can be Allowed:
+      1. **Common Professional Services**: 
+        Certain well-known and professional service names that are **commonly accepted** should **never** be flagged, 
+        even if they contain words that might seem suspicious in isolation. These include typical professions like  "Software Developer", "Landscaper", and other established service titles. These terms are widely recognized and understood to be legitimate professions or services.
+
+      ### Should Not Be Allowed:
+      1. **Misspellings**: 
+        If the service name contains significant misspellings (e.g., "Mechnic" instead of "Mechanic").
+
+      2. **Illegal Services**: 
+        Services offering illegal activities, such as fraud, hacking, or prohibited substances.
+
+        *Example:*
+        - "Illegal Drugs Dealer" or "Hacking Service"
+
+      3. **Discriminatory or Hate-Focused Services**: 
+        Services that promote discrimination or hatred against any group of people based on race, gender, religion, sexual orientation, etc., should be flagged as false.
+
+        *Example:*
+        - "Racist Content Moderator"
+
+      4. **Violence or Harmful Activities**: 
+        Services promoting or engaging in physical harm, violence, or illegal activities that endanger people should be flagged as false.
+
+        *Example:*
+        - "Hitman Service"
+
+      5. **Adult or Sexual Content**: 
+        Services that involve explicit adult content or services of a sexual nature should be flagged as false.
+
+        *Example:*
+        - "Adult Entertainment"
+
+      6. **Exploitative or Manipulative Practices**: 
+        Services that deceive, exploit, or manipulate customers for unfair gain should be flagged as false.
+
+        *Example:*
+        - "Fake Investment Schemes"
+
+      7. **Deceptive or Misleading Services**: 
+        Services that falsely represent their offerings or capabilities to deceive clients should be flagged as false.
+
+        *Example:*
+        - "Miracle Weight Loss Products"
+
+      8. **Political or Religious Extremism**: 
+        Services promoting extreme or radical political or religious ideologies should be flagged as false.
+
+        *Example:*
+        - "Extremist Religious Services"
+
+      ### Service Name to Evaluate: $userPrompt
+
+      Please respond with **"true"** if the service name meets the above criteria and is a valid service name, or **"false"** if it violates any of the rules listed above.
+
+        """;
+    ;
+
+    final response = await _generateContent(prompt, apiKey);
+    if (response != null) {
+      return response.trim().toLowerCase() == 'true';
+    } else {
+      return false;
     }
   }
 }

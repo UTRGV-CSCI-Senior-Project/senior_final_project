@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:folio/core/service_locator.dart';
-import 'package:folio/views/state_screens.dart';
+import 'package:folio/services/firestore_services.dart'; // Import FirestoreServices
+import 'package:folio/services/gemini_services.dart';
+import 'package:folio/views/state_screens.dart'; // For error handling
 import 'package:google_fonts/google_fonts.dart';
 
 class ChooseService extends ConsumerStatefulWidget {
@@ -79,13 +81,6 @@ class _ChooseServiceState extends ConsumerState<ChooseService> {
       );
     }
 
-    if (services.isEmpty && !searchController.text.isEmpty) {
-      return const ErrorView(
-        bigText: 'No services found!',
-        smallText: 'Try a different search term.',
-      );
-    }
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -117,6 +112,73 @@ class _ChooseServiceState extends ConsumerState<ChooseService> {
           ),
         ),
         const SizedBox(height: 30.0),
+        if (services.isEmpty && searchController.text.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const ErrorView(
+                  bigText: 'No services found!',
+                  smallText: 'Try a different search term.',
+                ),
+                const SizedBox(height: 20.0),
+                Text(
+                  'It looks like you may have entered a new service name.',
+                  style: GoogleFonts.poppins(
+                      fontSize: 16, fontWeight: FontWeight.w300),
+                ),
+                const SizedBox(height: 8.0),
+                ElevatedButton(
+                  onPressed: () async {
+                    final serviceName =
+                        capitalizeEachWord(searchController.text.trim());
+
+                    try {
+                      final isValidService =
+                          await GeminiServices().aiEvaluator(ref, serviceName);
+                      if (isValidService) {
+                        try {
+                          final firestoreServices =
+                              ref.read(firestoreServicesProvider);
+                          await firestoreServices.addService(serviceName);
+                          setState(() {
+                            services.add(serviceName);
+                            allServices.add(serviceName);
+                            searchController.clear();
+                          });
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text('Service added successfully!')),
+                          );
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Error adding service: $e')),
+                          );
+                        }
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text(
+                                  'Invalid service name! Please check the name and try again.')),
+                        );
+                      }
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                            content: Text('Error evaluating service name: $e')),
+                      );
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 40, vertical: 12),
+                  ),
+                  child: const Text('Add this service'),
+                ),
+              ],
+            ),
+          ),
         Expanded(
           child: ListView.builder(
             itemCount: services.length,
@@ -188,5 +250,14 @@ class _ChooseServiceState extends ConsumerState<ChooseService> {
         ),
       ),
     );
+  }
+
+  String capitalizeEachWord(String text) {
+    return text
+        .split(' ')
+        .map((word) => word.isNotEmpty
+            ? word[0].toUpperCase() + word.substring(1).toLowerCase()
+            : '')
+        .join(' ');
   }
 }

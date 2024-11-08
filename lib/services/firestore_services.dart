@@ -19,6 +19,16 @@ class FirestoreServices {
     }
   }
 
+  Future<void> addService(String service) async {
+    try {
+      await _firestore.collection('services').doc(service).set({
+        'service': service,
+      });
+    } catch (e) {
+      throw AppException('add-service-error');
+    }
+  }
+
   Stream<UserModel> getUserStream(String uid) {
     return _firestore.collection('users').doc(uid).snapshots().map((snapshot) {
       if (!snapshot.exists) {
