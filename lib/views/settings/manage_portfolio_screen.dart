@@ -142,7 +142,7 @@ class _ManagePortfolioScreenState extends ConsumerState<ManagePortfolioScreen> {
                                 )
                               : Text(
                                   'Update',
-                                  style: GoogleFonts.poppins(
+                                  style: GoogleFonts.inter(
                                     color:
                                         Theme.of(context).colorScheme.onPrimary,
                                     fontSize: 20,

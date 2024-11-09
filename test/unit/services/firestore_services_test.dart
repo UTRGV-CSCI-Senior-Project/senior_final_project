@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:folio/core/app_exception.dart';
 import 'package:folio/core/service_locator.dart';
+import 'package:folio/models/feedback_model.dart';
 import 'package:folio/models/portfolio_model.dart';
 import 'package:folio/services/auth_services.dart';
 import 'package:mockito/annotations.dart';
@@ -806,6 +807,64 @@ void main() {
           'delete-user-error',
         )),
       );
+    });
+  });
+
+  group('addFeedback', ()  {
+ test('adds feedback successfuly', () async {
+      //Create necessary information for creating a feedback
+      final now = DateTime.now();
+      final feedback = FeedbackModel(
+        id: '123',
+        subject: 'Test Subject',
+        message: 'Test Message',
+        type: 'bug',
+        deviceInfo: 'Test Device',
+        appVersion: '1.0.0',
+        createdAt: now,
+        userId: 'user123',
+      );
+      //When accessing feedback collection and storing a feedback, return successfully
+      when(mockFirebaseFirestore.collection('feedback'))
+          .thenReturn(mockCollectionReference);
+      when(mockCollectionReference.doc(feedback.id))
+          .thenReturn(mockDocumentReference);
+      when(mockDocumentReference.set(feedback.toJson()))
+          .thenAnswer((_) async => {});
+     
+      //Expect the addFeedback to return successfully
+      expect(() => firestoreServices.addFeedback(feedback), returnsNormally);
+      //Expect all necessary function to add a feedback to be called
+      verify(mockFirebaseFirestore.collection('feedback')).called(1);
+      verify(mockCollectionReference.doc(feedback.id)).called(1);
+    });
+
+    test('fails with generic exception', () async {
+      //Create necessary information for creating a feedback
+      final now = DateTime.now();
+      final feedback = FeedbackModel(
+        id: '123',
+        subject: 'Test Subject',
+        message: 'Test Message',
+        type: 'bug',
+        deviceInfo: 'Test Device',
+        appVersion: '1.0.0',
+        createdAt: now,
+        userId: 'user123',
+      );
+      //When accessing feedback collection and storing a feedback, throw a general exception
+      when(mockFirebaseFirestore.collection('feedback'))
+          .thenReturn(mockCollectionReference);
+      when(mockCollectionReference.doc(feedback.id))
+          .thenReturn(mockDocumentReference);
+      when(mockDocumentReference.set(feedback.toJson()))
+          .thenThrow(Exception('failed'));
+      
+      //Expect a general exception to be caught
+      expect(
+          () => firestoreServices.addFeedback(feedback),
+          throwsA(predicate((e) =>
+              e is AppException && e.toString().contains('add-feedback-error'))));
     });
   });
 }

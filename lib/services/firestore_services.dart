@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:folio/core/app_exception.dart';
 import 'package:folio/core/service_locator.dart';
+import 'package:folio/models/feedback_model.dart';
 import 'package:folio/models/portfolio_model.dart';
 import 'package:folio/models/user_model.dart';
 
@@ -12,6 +13,8 @@ class FirestoreServices {
   final Ref _ref;
 
   FirestoreServices(this._firestore, this._ref);
+
+  ///////////////////////// USER COLLECTION /////////////////////////
 
   Future<void> addUser(UserModel user) async {
     try {
@@ -49,6 +52,76 @@ class FirestoreServices {
     }
   }
 
+  Stream<UserModel> getUserStream(String uid) {
+    return _firestore.collection('users').doc(uid).snapshots().map((snapshot) {
+      if (!snapshot.exists) {
+        throw AppException('no-user-doc');
+      }
+      try {
+        return UserModel.fromJson(snapshot.data()!);
+      } catch (e) {
+        throw AppException('invalid-user-data');
+      }
+    }).handleError((error) {
+      if (error is AppException) {
+        throw error;
+      } else {
+        throw AppException('user-stream-error');
+      }
+    });
+  }
+
+  Future<bool> isUsernameUnique(String username) async {
+    try {
+      final querySnapshot = await _firestore
+          .collection('users')
+          .where('username', isEqualTo: username)
+          .get();
+      return querySnapshot.docs.isEmpty;
+    } catch (e) {
+      throw AppException('username-unique-error');
+    }
+  }
+
+  Future<void> updateUser(Map<String, dynamic> fieldsToUpdate) async {
+    try {
+      final uid = await _ref.read(authServicesProvider).currentUserUid();
+      await _firestore.collection('users').doc(uid).update(fieldsToUpdate);
+    } catch (e) {
+      throw AppException('update-user-error');
+    }
+  }
+
+  Future<void> deleteUser() async {
+    try {
+      final uid = await _ref.read(authServicesProvider).currentUserUid();
+
+      if (uid == null) {
+        throw AppException('no-user');
+      }
+      final documentRef = _firestore.collection('users').doc(uid);
+
+      await documentRef.update({
+        'completedOnboarding': FieldValue.delete(),
+        'email': FieldValue.delete(),
+        'fullName': FieldValue.delete(),
+        'isProfessional': FieldValue.delete(),
+        'preferredServices': FieldValue.delete(),
+        'profilePictureUrl': FieldValue.delete(),
+        'uid': FieldValue.delete(),
+        'username': FieldValue.delete(),
+      });
+    } catch (e) {
+      if (e is AppException && e.code == "no-user") {
+        rethrow;
+      } else {
+        throw AppException('delete-user-error');
+      }
+    }
+  }
+
+  ///////////////////////// PORTFOLIO COLLECTION /////////////////////////
+
   Future<PortfolioModel?> getPortfolio() async {
     try {
       final uid = await _ref.read(authServicesProvider).currentUserUid();
@@ -78,25 +151,6 @@ class FirestoreServices {
     }
   }
 
-  Stream<UserModel> getUserStream(String uid) {
-    return _firestore.collection('users').doc(uid).snapshots().map((snapshot) {
-      if (!snapshot.exists) {
-        throw AppException('no-user-doc');
-      }
-      try {
-        return UserModel.fromJson(snapshot.data()!);
-      } catch (e) {
-        throw AppException('invalid-user-data');
-      }
-    }).handleError((error) {
-      if (error is AppException) {
-        throw error;
-      } else {
-        throw AppException('user-stream-error');
-      }
-    });
-  }
-
   Stream<PortfolioModel?> getPortfolioStream(String uid) {
     return _firestore
         .collection('portfolios')
@@ -118,41 +172,6 @@ class FirestoreServices {
         throw AppException('portfolio-stream-error');
       }
     });
-  }
-
-  Future<bool> isUsernameUnique(String username) async {
-    try {
-      final querySnapshot = await _firestore
-          .collection('users')
-          .where('username', isEqualTo: username)
-          .get();
-      return querySnapshot.docs.isEmpty;
-    } catch (e) {
-      throw AppException('username-unique-error');
-    }
-  }
-
-  Future<void> updateUser(Map<String, dynamic> fieldsToUpdate) async {
-    try {
-      final uid = await _ref.read(authServicesProvider).currentUserUid();
-      await _firestore.collection('users').doc(uid).update(fieldsToUpdate);
-    } catch (e) {
-      throw AppException('update-user-error');
-    }
-  }
-
-  Future<List<String>> getServices() async {
-    try {
-      final QuerySnapshot servicesSnapshot =
-          await _firestore.collection('services').get();
-
-      List<String> servicesList = servicesSnapshot.docs
-          .map((doc) => doc.get('service') as String)
-          .toList();
-      return servicesList;
-    } catch (e) {
-      throw AppException('get-services-error');
-    }
   }
 
   Future<void> savePortfolioDetails(Map<String, dynamic> fieldsToUpdate) async {
@@ -179,7 +198,6 @@ class FirestoreServices {
       if (e is AppException && e.code == "no-user") {
         rethrow;
       } else {
-
         throw AppException('update-portfolio-error');
       }
     }
@@ -230,31 +248,31 @@ class FirestoreServices {
     }
   }
 
-  Future<void> deleteUser() async {
-    try {
-      final uid = await _ref.read(authServicesProvider).currentUserUid();
-      
-      if (uid == null) {
-        throw AppException('no-user');
-      }
-      final documentRef = _firestore.collection('users').doc(uid);
+  ///////////////////////// SERVICE COLLECTION /////////////////////////
 
-      await documentRef.update({
-        'completedOnboarding': FieldValue.delete(),
-        'email': FieldValue.delete(),
-        'fullName': FieldValue.delete(),
-        'isProfessional': FieldValue.delete(),
-        'preferredServices': FieldValue.delete(),
-        'profilePictureUrl': FieldValue.delete(),
-        'uid': FieldValue.delete(),
-        'username': FieldValue.delete(),
-      });
+  Future<List<String>> getServices() async {
+    try {
+      final QuerySnapshot servicesSnapshot =
+          await _firestore.collection('services').get();
+
+      List<String> servicesList = servicesSnapshot.docs
+          .map((doc) => doc.get('service') as String)
+          .toList();
+      return servicesList;
     } catch (e) {
-      if (e is AppException && e.code == "no-user") {
-        rethrow;
-      } else {
-        throw AppException('delete-user-error');
-      }
+      throw AppException('get-services-error');
+    }
+  }
+
+  ///////////////////////// FEEDBACK COLLECTION /////////////////////////
+  Future<void> addFeedback(FeedbackModel feedbackModel) async {
+    try {
+      await _firestore
+          .collection('feedback')
+          .doc(feedbackModel.id)
+          .set(feedbackModel.toJson());
+    } catch (e) {
+      throw AppException('add-feedback-error');
     }
   }
 }

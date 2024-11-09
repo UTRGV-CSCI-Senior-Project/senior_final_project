@@ -5,6 +5,7 @@ import 'package:folio/views/create_portfolio_tabs/create_portfolio_screen.dart';
 import 'package:folio/views/settings/account_screen.dart';
 import 'package:folio/views/auth_onboarding_welcome/state_screens.dart';
 import 'package:folio/views/auth_onboarding_welcome/welcome_screen.dart';
+import 'package:folio/views/settings/feedback_screen.dart';
 import 'package:folio/views/settings/manage_portfolio_screen.dart';
 import 'package:folio/widgets/logout_dialog.dart';
 import 'package:folio/widgets/settings_item_widget.dart';
@@ -99,12 +100,16 @@ class SettingsScreen extends ConsumerWidget {
                     SettingsItem(
                       title: 'Report a bug',
                       leading: const Icon(Icons.bug_report_outlined),
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => FeedbackScreen(type: 'bug', userId: user.uid)));
+                      },
                     ),
                     SettingsItem(
-                      title: 'Send feedback',
+                      title: 'Get Help',
                       leading: const Icon(Icons.feedback_outlined),
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => FeedbackScreen(type: 'help', userId: user.uid)));
+                      },
                     ),
                   ],
                 ),

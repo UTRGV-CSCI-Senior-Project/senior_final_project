@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:folio/models/user_model.dart';
+import 'package:folio/repositories/feedback_repository.dart';
 import 'package:folio/repositories/portfolio_repository.dart';
 import 'package:folio/repositories/user_repository.dart';
 import 'package:folio/services/auth_services.dart';
@@ -17,10 +18,9 @@ final imagePickerProvider = Provider<ImagePicker>((ref) {
   return imagePicker;
 });
 
-final userFirestoreServicesProvider = Provider<FirestoreServices>((ref) {
-  final firebaseFirestore = ref.watch(firebaseFirestoreProvider);
-  return FirestoreServices(firebaseFirestore, ref);
-});
+
+////////////////// FIREBASE SERVICES //////////////////
+
 final firebaseAuthProvider = Provider<FirebaseAuth>((ref) {
   return FirebaseAuth.instance;
 });
@@ -32,6 +32,11 @@ final firebaseFirestoreProvider = Provider<FirebaseFirestore>((ref) {
 final firebaseStorageProvider = Provider<FirebaseStorage>((ref) {
   return FirebaseStorage.instance;
 });
+
+////////////////// FIREBASE SERVICES //////////////////
+
+
+////////////////// SERVICE FILES //////////////////
 
 final authServicesProvider = Provider<AuthServices>((ref) {
   final firebaseAuth = ref.watch(firebaseAuthProvider);
@@ -48,6 +53,10 @@ final storageServicesProvider = Provider<StorageServices>((ref) {
   return StorageServices(ref, firebaseStorage);
 });
 
+////////////////// SERVICE FILES //////////////////
+
+////////////////// REPOSITORIES //////////////////
+
 final userRepositoryProvider = Provider<UserRepository>((ref) {
   final authServices = ref.watch(authServicesProvider);
   final firestoreServices = ref.watch(firestoreServicesProvider);
@@ -60,6 +69,16 @@ final portfolioRepositoryProvider = Provider<PortfolioRepository>((ref) {
   final storageServices = ref.watch(storageServicesProvider);
   return PortfolioRepository(firestoreServices, storageServices);
 });
+
+final feedbackRepositoryProvider = Provider<FeedbackRepository>((ref){
+  final firestoreServices = ref.watch(firestoreServicesProvider);
+  return FeedbackRepository(firestoreServices);
+});
+
+////////////////// REPOSITORIES //////////////////
+
+
+////////////////// USER STREAMS //////////////////
 
 final authStateProvider = StreamProvider<User?>((ref) {
   return ref.watch(authServicesProvider).authStateChanges();
@@ -88,6 +107,9 @@ final userDataStreamProvider = StreamProvider<Map<String, dynamic>?>((ref) {
   }
   return Stream.value(null);
 });
+
+////////////////// USER STREAMS //////////////////
+
 
 void setupEmulators({bool useEmulators = false}) {
   if (useEmulators) {

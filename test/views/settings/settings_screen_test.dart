@@ -49,7 +49,7 @@ void main() {
       expect(find.text('Log Out'), findsOneWidget);
       expect(find.text('FEEDBACK'), findsOneWidget);
       expect(find.text('Report a bug'), findsOneWidget);
-      expect(find.text('Send feedback'), findsOneWidget);
+      expect(find.text('Get Help'), findsOneWidget);
     });
 
     testWidgets('shows logout confirmation dialog',
@@ -185,47 +185,89 @@ void main() {
       expect(find.text('5 years, 5 months'), findsOneWidget);
       expect(find.text('I am a barber'), findsOneWidget);
     });
-  });
-
-  testWidgets('navigates to Account screen when clicked on Account',
-      (WidgetTester tester) async {
-    final professionalUserData = {
-      'user': UserModel(
-        uid: '123123',
-        username: 'testuser',
-        email: 'test@example.com',
-        fullName: 'Test User',
-        isProfessional: true,
-      ),
-      'portfolio': PortfolioModel(
-          service: 'Barber',
-          details: 'I am a barber',
-          years: 5,
-          months: 5,
-          images: [
-            {'filePath': 'image1/path', 'downloadUrl': 'image1.url'}
-          ])
-    };
-
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          userRepositoryProvider.overrideWithValue(mockUserRepository),
-          userDataStreamProvider
-              .overrideWith((ref) => Stream.value(professionalUserData)),
-        ],
-        child: const MaterialApp(
-          home: SettingsScreen(),
+    testWidgets('navigates to Account screen when clicked on Account',
+        (WidgetTester tester) async {
+      final professionalUserData = {
+        'user': UserModel(
+          uid: '123123',
+          username: 'testuser',
+          email: 'test@example.com',
+          fullName: 'Test User',
+          isProfessional: true,
         ),
-      ),
-    );
-    await tester.pumpAndSettle();
+        'portfolio': PortfolioModel(
+            service: 'Barber',
+            details: 'I am a barber',
+            years: 5,
+            months: 5,
+            images: [
+              {'filePath': 'image1/path', 'downloadUrl': 'image1.url'}
+            ])
+      };
 
-    await tester.tap(find.text('Account'));
-    await tester.pumpAndSettle();
-    expect(find.text('Settings'), findsNothing);
-    expect(find.text('testuser'), findsOneWidget);
-    expect(find.text('Test User'), findsOneWidget);
-    expect(find.text('test@example.com'), findsOneWidget);
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            userRepositoryProvider.overrideWithValue(mockUserRepository),
+            userDataStreamProvider
+                .overrideWith((ref) => Stream.value(professionalUserData)),
+          ],
+          child: const MaterialApp(
+            home: SettingsScreen(),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Account'));
+      await tester.pumpAndSettle();
+      expect(find.text('Settings'), findsNothing);
+      expect(find.text('testuser'), findsOneWidget);
+      expect(find.text('Test User'), findsOneWidget);
+      expect(find.text('test@example.com'), findsOneWidget);
+    });
+
+    testWidgets('navigates to report a bug screen when click on report a bug',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            userRepositoryProvider.overrideWithValue(mockUserRepository),
+            userDataStreamProvider
+                .overrideWith((ref) => Stream.value(testUserData)),
+          ],
+          child: const MaterialApp(
+            home: SettingsScreen(),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Report a bug'));
+      await tester.pumpAndSettle();
+      expect(find.textContaining("Found something not working correctly?\nLet us know and we\'ll fix it!"), findsOneWidget);
+      expect(find.text('Submit Bug Report'), findsOneWidget);
+    });
+
+testWidgets('navigates to get help screen when click on report a bug',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            userRepositoryProvider.overrideWithValue(mockUserRepository),
+            userDataStreamProvider
+                .overrideWith((ref) => Stream.value(testUserData)),
+          ],
+          child: const MaterialApp(
+            home: SettingsScreen(),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Get Help'));
+      await tester.pumpAndSettle();
+      expect(find.textContaining("Need assistance? We're here to help!"), findsOneWidget);
+      expect(find.text('Send'), findsOneWidget);
+    });
+
   });
 }
