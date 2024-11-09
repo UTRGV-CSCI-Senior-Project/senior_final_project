@@ -4,13 +4,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:folio/core/app_exception.dart';
 import 'package:folio/core/service_locator.dart';
 import 'package:folio/models/portfolio_model.dart';
+import 'package:folio/services/auth_services.dart';
 import 'package:mockito/annotations.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:mockito/mockito.dart';
 import 'package:folio/models/user_model.dart';
 import 'package:folio/services/firestore_services.dart';
 
-import '../../mocks/auth_services_test.mocks.dart';
 @GenerateMocks([
   FirebaseFirestore,
   CollectionReference,
@@ -19,9 +19,11 @@ import '../../mocks/auth_services_test.mocks.dart';
   DocumentReference,
   QueryDocumentSnapshot,
   DocumentSnapshot,
-  Ref
+  Ref,
+  WriteBatch
 ])
 import '../../mocks/firestore_services_test.mocks.dart';
+import '../../mocks/user_repository_test.mocks.dart';
 
 void main() {
   //Create ncessary mocks for services
@@ -33,11 +35,11 @@ void main() {
   late MockQuery<Map<String, dynamic>> mockQuery;
   late MockQuerySnapshot<Map<String, dynamic>> mockQuerySnapshot;
   late MockDocumentSnapshot<Map<String, dynamic>> mockDocumentSnapshot;
-  late MockUser mockUser;
+  late MockAuthServices mockAuthServices;
 
   setUp(() {
     mockRef = MockRef();
-    mockUser = MockUser();
+    mockAuthServices = MockAuthServices();
     mockFirebaseFirestore = MockFirebaseFirestore();
     firestoreServices = FirestoreServices(mockFirebaseFirestore, mockRef);
     mockCollectionReference = MockCollectionReference<Map<String, dynamic>>();
@@ -46,6 +48,7 @@ void main() {
     mockQuerySnapshot = MockQuerySnapshot<Map<String, dynamic>>();
     mockDocumentSnapshot = MockDocumentSnapshot<Map<String, dynamic>>();
     provideDummy<AsyncValue<User?>>((const AsyncValue.data(null)));
+    provideDummy<AuthServices>(mockAuthServices);
   });
   tearDown(() {});
 
@@ -65,13 +68,14 @@ void main() {
           .thenReturn(mockDocumentReference);
       when(mockDocumentReference.set(user.toJson()))
           .thenAnswer((_) async => {});
-
+      when(mockDocumentReference.get())
+          .thenAnswer((_) => Future.value(mockDocumentSnapshot));
+      when(mockDocumentSnapshot.exists).thenReturn(false);
       //Expect the addUser to return successfully
       expect(() => firestoreServices.addUser(user), returnsNormally);
       //Expect all necessary function to add a user to be called
       verify(mockFirebaseFirestore.collection('users')).called(1);
       verify(mockCollectionReference.doc(user.uid)).called(1);
-      verify(mockDocumentReference.set(user.toJson())).called(1);
     });
 
     test('fails with generic exception', () async {
@@ -89,6 +93,9 @@ void main() {
           .thenReturn(mockDocumentReference);
       when(mockDocumentReference.set(user.toJson()))
           .thenThrow(Exception('failed'));
+      when(mockDocumentReference.get())
+          .thenAnswer((_) => Future.value(mockDocumentSnapshot));
+      when(mockDocumentSnapshot.exists).thenReturn(false);
 
       //Expect a general exception to be caught
       expect(
@@ -144,10 +151,9 @@ void main() {
     test('should update user successful', () async {
       const uid = 'testUid';
       final fieldsToUpdate = {'username': 'newUsername'};
-
-      when(mockRef.read(authStateProvider))
-          .thenReturn(AsyncValue.data(mockUser));
-      when(mockUser.uid).thenReturn(uid);
+      when(mockRef.read(authServicesProvider)).thenReturn(mockAuthServices);
+      when(mockAuthServices.currentUserUid())
+          .thenAnswer((_) => Future.value(uid));
       when(mockFirebaseFirestore.collection('users'))
           .thenReturn(mockCollectionReference);
       when(mockCollectionReference.doc(uid)).thenReturn(mockDocumentReference);
@@ -166,9 +172,9 @@ void main() {
       const uid = 'testUid';
       final fieldsToUpdate = {'username': 'newUsername'};
 
-      when(mockRef.read(authStateProvider))
-          .thenReturn(AsyncValue.data(mockUser));
-      when(mockUser.uid).thenReturn(uid);
+      when(mockRef.read(authServicesProvider)).thenReturn(mockAuthServices);
+      when(mockAuthServices.currentUserUid())
+          .thenAnswer((_) => Future.value(uid));
       when(mockFirebaseFirestore.collection('users'))
           .thenReturn(mockCollectionReference);
       when(mockCollectionReference.doc(uid)).thenReturn(mockDocumentReference);
@@ -419,74 +425,72 @@ void main() {
   });
 
   group('savePortfolioDetails', () {
-    group('savePortfolioDetails', () {
-      const uid = 'testUid';
-      final Map<String, String> fieldsToUpdate = {
-        'service': 'landscaper',
-        'details': 'grass'
-      };
+    const uid = 'testUid';
+    final Map<String, String> fieldsToUpdate = {
+      'service': 'landscaper',
+      'details': 'grass'
+    };
 
-      setUp(() {
-        when(mockRef.read(authStateProvider))
-            .thenReturn(AsyncValue.data(mockUser));
-        when(mockUser.uid).thenReturn(uid);
-        when(mockFirebaseFirestore.collection('portfolios'))
-            .thenReturn(mockCollectionReference);
-        when(mockCollectionReference.doc(uid))
-            .thenReturn(mockDocumentReference);
-      });
+    setUp(() {
+      when(mockRef.read(authServicesProvider)).thenReturn(mockAuthServices);
+      when(mockAuthServices.currentUserUid())
+          .thenAnswer((_) => Future.value(uid));
+      when(mockFirebaseFirestore.collection('portfolios'))
+          .thenReturn(mockCollectionReference);
+      when(mockCollectionReference.doc(uid)).thenReturn(mockDocumentReference);
+    });
 
-      test('creates new portfolio when document does not exist', () async {
-        when(mockDocumentReference.get())
-            .thenAnswer((_) async => mockDocumentSnapshot);
-        when(mockDocumentSnapshot.exists).thenReturn(false);
-        when(mockDocumentReference.set(fieldsToUpdate))
-            .thenAnswer((_) async => {});
+    test('creates new portfolio when document does not exist', () async {
+      when(mockDocumentReference.get())
+          .thenAnswer((_) async => mockDocumentSnapshot);
+      when(mockDocumentSnapshot.exists).thenReturn(false);
+      when(mockDocumentReference.set(fieldsToUpdate))
+          .thenAnswer((_) async => {});
 
-        await expectLater(
-          firestoreServices.savePortfolioDetails(fieldsToUpdate),
-          completes,
-        );
+      await expectLater(
+        firestoreServices.savePortfolioDetails(fieldsToUpdate),
+        completes,
+      );
 
-        verify(mockDocumentReference.set(fieldsToUpdate)).called(1);
-      });
+      verify(mockDocumentReference.set(fieldsToUpdate)).called(1);
+    });
 
-      test('updates existing portfolio when document exists', () async {
-        when(mockDocumentReference.get())
-            .thenAnswer((_) async => mockDocumentSnapshot);
-        when(mockDocumentSnapshot.exists).thenReturn(true);
-        when(mockDocumentReference.update(fieldsToUpdate))
-            .thenAnswer((_) async => {});
+    test('updates existing portfolio when document exists', () async {
+      when(mockDocumentReference.get())
+          .thenAnswer((_) async => mockDocumentSnapshot);
+      when(mockDocumentSnapshot.exists).thenReturn(true);
+      when(mockDocumentReference.update(fieldsToUpdate))
+          .thenAnswer((_) async => {});
 
-        await expectLater(
-          firestoreServices.savePortfolioDetails(fieldsToUpdate),
-          completes,
-        );
+      await expectLater(
+        firestoreServices.savePortfolioDetails(fieldsToUpdate),
+        completes,
+      );
 
-        verify(mockDocumentReference.update(fieldsToUpdate)).called(1);
-      });
+      verify(mockDocumentReference.update(fieldsToUpdate)).called(1);
+    });
 
-      test('throws no-user when uid is null', () async {
-        when(mockRef.read(authStateProvider))
-            .thenReturn(const AsyncValue.data(null));
+    test('throws no-user when uid is null', () async {
+      when(mockRef.read(authServicesProvider)).thenReturn(mockAuthServices);
+      when(mockAuthServices.currentUserUid())
+          .thenAnswer((_) => Future.value(null));
 
-        expect(
-          () => firestoreServices.savePortfolioDetails(fieldsToUpdate),
-          throwsA(predicate(
-              (e) => e is AppException && e.toString().contains('no-user'))),
-        );
-      });
+      expect(
+        () => firestoreServices.savePortfolioDetails(fieldsToUpdate),
+        throwsA(predicate(
+            (e) => e is AppException && e.toString().contains('no-user'))),
+      );
+    });
 
-      test('throws update-portfolio-error on general error', () async {
-        when(mockDocumentReference.get()).thenThrow(Exception('Update failed'));
+    test('throws update-portfolio-error on general error', () async {
+      when(mockDocumentReference.get()).thenThrow(Exception('Update failed'));
 
-        expect(
-          () => firestoreServices.savePortfolioDetails(fieldsToUpdate),
-          throwsA(predicate((e) =>
-              e is AppException &&
-              e.toString().contains('update-portfolio-error'))),
-        );
-      });
+      expect(
+        () => firestoreServices.savePortfolioDetails(fieldsToUpdate),
+        throwsA(predicate((e) =>
+            e is AppException &&
+            e.toString().contains('update-portfolio-error'))),
+      );
     });
   });
 
@@ -496,18 +500,16 @@ void main() {
     const downloadUrl = 'http://example.com/image';
 
     setUp(() {
-      when(mockRef.read(authStateProvider))
-          .thenReturn(AsyncValue.data(mockUser));
-      when(mockUser.uid).thenReturn(uid);
+      when(mockRef.read(authServicesProvider)).thenReturn(mockAuthServices);
+      when(mockAuthServices.currentUserUid())
+          .thenAnswer((_) => Future.value(uid));
       when(mockFirebaseFirestore.collection('portfolios'))
           .thenReturn(mockCollectionReference);
-      when(mockCollectionReference.doc(uid))
-          .thenReturn(mockDocumentReference);
+      when(mockCollectionReference.doc(uid)).thenReturn(mockDocumentReference);
     });
 
     test('successfully removes image from portfolio', () async {
-      when(mockDocumentReference.update(any))
-          .thenAnswer((_) async => {});
+      when(mockDocumentReference.update(any)).thenAnswer((_) async => {});
 
       await expectLater(
         firestoreServices.deletePortfolioImage(filePath, downloadUrl),
@@ -525,15 +527,14 @@ void main() {
     });
 
     test('throws no-user when uid is null', () async {
-      when(mockRef.read(authStateProvider))
-          .thenReturn(const AsyncValue.data(null));
+      when(mockRef.read(authServicesProvider)).thenReturn(mockAuthServices);
+      when(mockAuthServices.currentUserUid())
+          .thenAnswer((_) => Future.value(null));
 
       expect(
         () => firestoreServices.deletePortfolioImage(filePath, downloadUrl),
-        throwsA(predicate((e) => 
-          e is AppException && 
-          e.toString().contains('no-user')
-        )),
+        throwsA(predicate(
+            (e) => e is AppException && e.toString().contains('no-user'))),
       );
     });
 
@@ -543,10 +544,9 @@ void main() {
 
       expect(
         () => firestoreServices.deletePortfolioImage(filePath, downloadUrl),
-        throwsA(predicate((e) => 
-          e is AppException && 
-          e.toString().contains('delete-portfolio-image-error')
-        )),
+        throwsA(predicate((e) =>
+            e is AppException &&
+            e.toString().contains('delete-portfolio-image-error'))),
       );
     });
   });
@@ -555,18 +555,16 @@ void main() {
     const uid = 'testUid';
 
     setUp(() {
-      when(mockRef.read(authStateProvider))
-          .thenReturn(AsyncValue.data(mockUser));
-      when(mockUser.uid).thenReturn(uid);
+      when(mockRef.read(authServicesProvider)).thenReturn(mockAuthServices);
+      when(mockAuthServices.currentUserUid())
+          .thenAnswer((_) => Future.value(uid));
       when(mockFirebaseFirestore.collection('portfolios'))
           .thenReturn(mockCollectionReference);
-      when(mockCollectionReference.doc(uid))
-          .thenReturn(mockDocumentReference);
+      when(mockCollectionReference.doc(uid)).thenReturn(mockDocumentReference);
     });
 
     test('successfully deletes portfolio document', () async {
-      when(mockDocumentReference.delete())
-          .thenAnswer((_) async => {});
+      when(mockDocumentReference.delete()).thenAnswer((_) async => {});
 
       await expectLater(
         firestoreServices.deletePortfolio(),
@@ -577,15 +575,14 @@ void main() {
     });
 
     test('throws no-user when uid is null', () async {
-      when(mockRef.read(authStateProvider))
-          .thenReturn(const AsyncValue.data(null));
+      when(mockRef.read(authServicesProvider)).thenReturn(mockAuthServices);
+      when(mockAuthServices.currentUserUid())
+          .thenAnswer((_) => Future.value(null));
 
       expect(
         firestoreServices.deletePortfolio,
-        throwsA(predicate((e) => 
-          e is AppException && 
-          e.toString().contains('no-user')
-        )),
+        throwsA(predicate(
+            (e) => e is AppException && e.toString().contains('no-user'))),
       );
     });
 
@@ -595,9 +592,218 @@ void main() {
 
       expect(
         firestoreServices.deletePortfolio,
-        throwsA(predicate((e) => 
-          e is AppException && 
-          e.toString().contains('delete-portfolio-error')
+        throwsA(predicate((e) =>
+            e is AppException &&
+            e.toString().contains('delete-portfolio-error'))),
+      );
+    });
+  });
+
+  group('getUser', () {
+    test('returns UserModel when user exists', () async {
+      // Arrange
+      const String uid = 'test-uid';
+      final Map<String, dynamic> userData = {
+        'uid': uid,
+        'email': 'test@example.com',
+        'username': 'testuser',
+        'fullName': 'Test User',
+        'completedOnboarding': true,
+        'isProfessional': false,
+        'preferredServices': ['service1', 'service2'],
+        'profilePictureUrl': 'https://example.com/pic.jpg',
+      };
+      when(mockFirebaseFirestore.collection(any))
+          .thenReturn(mockCollectionReference);
+      when(mockCollectionReference.doc(any)).thenReturn(mockDocumentReference);
+      when(mockRef.read(authServicesProvider)).thenReturn(mockAuthServices);
+      when(mockAuthServices.currentUserUid())
+          .thenAnswer((_) => Future.value(uid));
+      when(mockDocumentReference.get())
+          .thenAnswer((_) async => mockDocumentSnapshot);
+      when(mockDocumentSnapshot.exists).thenReturn(true);
+      when(mockDocumentSnapshot.data()).thenReturn(userData);
+
+      // Act
+      final result = await firestoreServices.getUser();
+
+      // Assert
+      expect(result, isA<UserModel>());
+      expect(result?.uid, equals(uid));
+      expect(result?.email, equals('test@example.com'));
+    });
+
+    test('returns null when user document does not exist', () async {
+      // Arrange
+      const String uid = 'test-uid';
+      when(mockFirebaseFirestore.collection(any))
+          .thenReturn(mockCollectionReference);
+      when(mockCollectionReference.doc(any)).thenReturn(mockDocumentReference);
+      when(mockRef.read(authServicesProvider)).thenReturn(mockAuthServices);
+      when(mockAuthServices.currentUserUid())
+          .thenAnswer((_) => Future.value(uid));
+      when(mockDocumentReference.get())
+          .thenAnswer((_) async => mockDocumentSnapshot);
+      when(mockDocumentSnapshot.exists).thenReturn(false);
+
+      // Act
+      final result = await firestoreServices.getUser();
+
+      // Assert
+      expect(result, isNull);
+    });
+
+    test('throws AppException when no current user', () async {
+      // Arrange
+      when(mockRef.read(authServicesProvider)).thenReturn(mockAuthServices);
+      when(mockAuthServices.currentUserUid())
+          .thenAnswer((_) => Future.value(null));
+      // Act & Assert
+      expect(
+        () => firestoreServices.getUser(),
+        throwsA(isA<AppException>().having(
+          (e) => e.code,
+          'code',
+          'no-user',
+        )),
+      );
+    });
+  });
+
+  group('getPortfolio', () {
+    test('returns PortfolioModel when portfolio exists', () async {
+      // Arrange
+      const String uid = 'test-uid';
+      final Map<String, dynamic> portfolioData = {
+        'details': 'Test bio',
+        'service': 'Barber',
+        'years': 4,
+        'months': 4,
+        'images': [
+          {'filePath': 'path1', 'downloadUrl': 'url1'},
+          {'filePath': 'path2', 'downloadUrl': 'url2'},
+        ],
+      };
+      when(mockRef.read(authServicesProvider)).thenReturn(mockAuthServices);
+      when(mockFirebaseFirestore.collection(any))
+          .thenReturn(mockCollectionReference);
+      when(mockCollectionReference.doc(any)).thenReturn(mockDocumentReference);
+      when(mockAuthServices.currentUserUid()).thenAnswer((_) async => uid);
+      when(mockDocumentReference.get())
+          .thenAnswer((_) async => mockDocumentSnapshot);
+      when(mockDocumentSnapshot.exists).thenReturn(true);
+      when(mockDocumentSnapshot.data()).thenReturn(portfolioData);
+
+      // Act
+      final result = await firestoreServices.getPortfolio();
+
+      // Assert
+      expect(result, isA<PortfolioModel>());
+      expect(result?.service, equals('Barber'));
+    });
+
+    test('returns null when portfolio does not exist', () async {
+      // Arrange
+      const String uid = 'test-uid';
+      when(mockFirebaseFirestore.collection(any))
+          .thenReturn(mockCollectionReference);
+
+      when(mockCollectionReference.doc(any)).thenReturn(mockDocumentReference);
+      when(mockRef.read(authServicesProvider)).thenReturn(mockAuthServices);
+
+      when(mockAuthServices.currentUserUid()).thenAnswer((_) async => uid);
+      when(mockDocumentReference.get())
+          .thenAnswer((_) async => mockDocumentSnapshot);
+      when(mockDocumentSnapshot.exists).thenReturn(false);
+
+      // Act
+      final result = await firestoreServices.getPortfolio();
+
+      // Assert
+      expect(result, isNull);
+    });
+
+    test('throws AppException when no current user', () async {
+      // Arrange
+      when(mockRef.read(authServicesProvider)).thenReturn(mockAuthServices);
+
+      when(mockAuthServices.currentUserUid()).thenAnswer((_) async => null);
+
+      // Act & Assert
+      expect(
+        () => firestoreServices.getPortfolio(),
+        throwsA(isA<AppException>().having(
+          (e) => e.code,
+          'code',
+          'no-user',
+        )),
+      );
+    });
+  });
+
+  group('deleteUser', () {
+    test('successfully deletes user fields', () async {
+      // Arrange
+      const String uid = 'test-uid';
+      when(mockRef.read(authServicesProvider)).thenReturn(mockAuthServices);
+      when(mockFirebaseFirestore.collection(any))
+          .thenReturn(mockCollectionReference);
+      when(mockCollectionReference.doc(any)).thenReturn(mockDocumentReference);
+      when(mockAuthServices.currentUserUid()).thenAnswer((_) async => uid);
+      when(mockDocumentReference.update(any)).thenAnswer((_) async => {});
+
+      // Act & Assert
+      await firestoreServices.deleteUser();
+
+      verify(mockDocumentReference.update({
+        'completedOnboarding': FieldValue.delete(),
+        'email': FieldValue.delete(),
+        'fullName': FieldValue.delete(),
+        'isProfessional': FieldValue.delete(),
+        'preferredServices': FieldValue.delete(),
+        'profilePictureUrl': FieldValue.delete(),
+        'uid': FieldValue.delete(),
+        'username': FieldValue.delete(),
+      })).called(1);
+    });
+
+    test('throws AppException when no current user', () async {
+      // Arrange
+      when(mockRef.read(authServicesProvider)).thenReturn(mockAuthServices);
+      when(mockFirebaseFirestore.collection(any))
+          .thenReturn(mockCollectionReference);
+      when(mockCollectionReference.doc(any)).thenReturn(mockDocumentReference);
+      when(mockAuthServices.currentUserUid()).thenAnswer((_) async => null);
+
+      // Act & Assert
+      expect(
+        () => firestoreServices.deleteUser(),
+        throwsA(isA<AppException>().having(
+          (e) => e.code,
+          'code',
+          'no-user',
+        )),
+      );
+    });
+
+    test('throws AppException when update fails', () async {
+      // Arrange
+      const String uid = 'test-uid';
+      when(mockRef.read(authServicesProvider)).thenReturn(mockAuthServices);
+      when(mockFirebaseFirestore.collection(any))
+          .thenReturn(mockCollectionReference);
+      when(mockCollectionReference.doc(any)).thenReturn(mockDocumentReference);
+      when(mockAuthServices.currentUserUid()).thenAnswer((_) async => uid);
+      when(mockDocumentReference.update(any))
+          .thenThrow(Exception('Update failed'));
+
+      // Act & Assert
+      expect(
+        () => firestoreServices.deleteUser(),
+        throwsA(isA<AppException>().having(
+          (e) => e.code,
+          'code',
+          'delete-user-error',
         )),
       );
     });

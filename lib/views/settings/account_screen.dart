@@ -4,6 +4,7 @@ import 'package:folio/core/app_exception.dart';
 import 'package:folio/core/service_locator.dart';
 import 'package:folio/models/user_model.dart';
 import 'package:folio/widgets/account_item_widget.dart';
+import 'package:folio/widgets/delete_account_dialog.dart';
 import 'package:folio/widgets/edit_profile_sheet.dart';
 import 'package:folio/widgets/update_email_dialog.dart';
 import 'package:folio/widgets/verify_password_dialog.dart';
@@ -55,7 +56,6 @@ class AccountScreen extends ConsumerWidget {
                             await ref
                                 .read(userRepositoryProvider)
                                 .reauthenticateUser(password);
-
                             // If reauthentication successful, show email update dialog
                             if (context.mounted) {
                               updateAccountDialog(
@@ -86,7 +86,8 @@ class AccountScreen extends ConsumerWidget {
                                           ),
                                         ),
                                       );
-                                      Navigator.of(context).popUntil((route) => route.isFirst);
+                                      Navigator.of(context)
+                                          .popUntil((route) => route.isFirst);
                                     }
                                   } catch (e) {
                                     if (context.mounted) {
@@ -116,24 +117,24 @@ class AccountScreen extends ConsumerWidget {
                               );
                             }
                           } catch (e) {
-                            if(context.mounted){
-ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                  backgroundColor:
-                                      Theme.of(context).colorScheme.error,
-                                  showCloseIcon: true,
-                                  behavior: SnackBarBehavior.floating,
-                                  content: Text(
-                                      e is AppException
-                                          ? e.message
-                                          : 'Authentication Failed',
-                                      style: GoogleFonts.inter(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w600,
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .onPrimary))),
-                            );
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                    backgroundColor:
+                                        Theme.of(context).colorScheme.error,
+                                    showCloseIcon: true,
+                                    behavior: SnackBarBehavior.floating,
+                                    content: Text(
+                                        e is AppException
+                                            ? e.message
+                                            : 'Authentication Failed',
+                                        style: GoogleFonts.inter(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onPrimary))),
+                              );
                             }
                           }
                         })
@@ -154,76 +155,76 @@ ScaffoldMessenger.of(context).showSnackBar(
                           .reauthenticateUser(newPassword);
                       if (context.mounted) {
                         updateAccountDialog(
-                          context,
-                          'Update Password',
-                          'Create a new password.\n\nYour password should be at least 8 characters long and include a mix of letters, numbers, and special characters',
-                          '', (newPassword) async {
-                        try {
-                          await ref
-                              .read(userRepositoryProvider)
-                              .updateUserPassword(newPassword);
-                          if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              backgroundColor: Colors.green[300],
-                              showCloseIcon: true,
-                              behavior: SnackBarBehavior.floating,
-                              content: Text(
-                                'Your password was successfully updated!',
-                                style: GoogleFonts.inter(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onPrimary),
-                              ),
-                            ),
-                          );
-                          Navigator.of(context)
-                              .popUntil((route) => route.isFirst);
-                          }
-                        } catch (e) {
-                          if(context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                                backgroundColor:
-                                    Theme.of(context).colorScheme.error,
-                                showCloseIcon: true,
-                                behavior: SnackBarBehavior.floating,
-                                content: Text(
-                                    e is AppException
-                                        ? e.message
-                                        : 'Password update failed, try again later, or contact support.',
+                            context,
+                            'Update Password',
+                            'Create a new password.\n\nYour password should be at least 8 characters long and include a mix of letters, numbers, and special characters',
+                            '', (newPassword) async {
+                          try {
+                            await ref
+                                .read(userRepositoryProvider)
+                                .updateUserPassword(newPassword);
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  backgroundColor: Colors.green[300],
+                                  showCloseIcon: true,
+                                  behavior: SnackBarBehavior.floating,
+                                  content: Text(
+                                    'Your password was successfully updated!',
                                     style: GoogleFonts.inter(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w600,
                                         color: Theme.of(context)
                                             .colorScheme
-                                            .onPrimary))),
-                          );
+                                            .onPrimary),
+                                  ),
+                                ),
+                              );
+                              Navigator.of(context)
+                                  .popUntil((route) => route.isFirst);
+                            }
+                          } catch (e) {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                    backgroundColor:
+                                        Theme.of(context).colorScheme.error,
+                                    showCloseIcon: true,
+                                    behavior: SnackBarBehavior.floating,
+                                    content: Text(
+                                        e is AppException
+                                            ? e.message
+                                            : 'Password update failed, try again later, or contact support.',
+                                        style: GoogleFonts.inter(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onPrimary))),
+                              );
+                            }
                           }
-                        }
-                      });
+                        });
                       }
                     } catch (e) {
-                      if(context.mounted) {
+                      if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                            backgroundColor:
-                                Theme.of(context).colorScheme.error,
-                            showCloseIcon: true,
-                            behavior: SnackBarBehavior.floating,
-                            content: Text(
-                                e is AppException
-                                    ? e.message
-                                    : 'Authentication Failed',
-                                style: GoogleFonts.inter(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onPrimary))),
-                      );
+                          SnackBar(
+                              backgroundColor:
+                                  Theme.of(context).colorScheme.error,
+                              showCloseIcon: true,
+                              behavior: SnackBarBehavior.floating,
+                              content: Text(
+                                  e is AppException
+                                      ? e.message
+                                      : 'Authentication Failed',
+                                  style: GoogleFonts.inter(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimary))),
+                        );
                       }
                     }
                   });
@@ -233,7 +234,11 @@ ScaffoldMessenger.of(context).showSnackBar(
               TextButton(
                   style: TextButton.styleFrom(
                       backgroundColor: Theme.of(context).colorScheme.error),
-                  onPressed: () {},
+                  onPressed: ()  {
+                    showDialog(
+                            context: context,
+                            builder: (BuildContext  context) => const DeleteAccountDialog() );
+                  },
                   child: Text(
                     'DELETE ACCOUNT',
                     style: GoogleFonts.inter(

@@ -240,6 +240,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         toolbarHeight: 35,
         leading: _currentPage == 1 ?  IconButton(onPressed: (){
           if(_currentPage == 1){

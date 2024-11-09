@@ -1,6 +1,7 @@
 import 'dart:io';
-
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:folio/core/app_exception.dart';
+import 'package:folio/core/service_locator.dart';
 import 'package:folio/models/user_model.dart';
 import 'package:folio/services/auth_services.dart';
 import 'package:folio/services/firestore_services.dart';
@@ -10,9 +11,10 @@ class UserRepository {
   final AuthServices _authServices;
   final FirestoreServices _firestoreServices;
   final StorageServices _storageServices;
+  final Ref _ref;
 
-  UserRepository(this._authServices, this._firestoreServices,
-      this._storageServices);
+  UserRepository(
+      this._authServices, this._firestoreServices, this._storageServices, this._ref);
 
   Future<void> createUser(
       String username, String email, String password) async {
@@ -49,9 +51,16 @@ class UserRepository {
   Future<void> signIn(String email, String password) async {
     try {
       await _authServices.signIn(email: email, password: password);
+
+      final userDoc = await _firestoreServices.getUser();
+      final userUID = await _authServices.currentUserUid();
+
+      if(userDoc == null && userUID != null){
+        await _firestoreServices.addUser(UserModel(uid: userUID, username: email.split('@')[0], email: email, isProfessional: false));
+      }
     } catch (e) {
       if (e is AppException) {
-        rethrow; // Let AppExceptions propagate
+        rethrow;
       } else {
         throw AppException('sign-in-error');
       }
@@ -75,16 +84,17 @@ class UserRepository {
     try {
       final fieldsToUpdate = <String, dynamic>{};
 
-      if (fields != null && fields.containsKey('profilePictureUrl') && fields['profilePictureUrl'] == null) {
+      if (fields != null &&
+          fields.containsKey('profilePictureUrl') &&
+          fields['profilePictureUrl'] == null) {
         final currentUserUid = await _authServices.currentUserUid();
 
-         await _storageServices.deleteImage('profile_pictures/$currentUserUid'); 
-         fieldsToUpdate.addAll(fields);
-        
-      } else if(fields != null && fields.isNotEmpty){
+        await _storageServices.deleteImage('profile_pictures/$currentUserUid');
+        fieldsToUpdate.addAll(fields);
+      } else if (fields != null && fields.isNotEmpty) {
         fieldsToUpdate.addAll(fields);
       }
-      
+
       if (profilePicture != null) {
         final downloadUrl =
             await _storageServices.uploadProfilePicture(profilePicture);
@@ -105,7 +115,7 @@ class UserRepository {
     }
   }
 
-    Future<void> reauthenticateUser(String password) async {
+  Future<void> reauthenticateUser(String password) async {
     await _authServices.reauthenticateUser(password);
   }
 
@@ -116,4 +126,35 @@ class UserRepository {
   Future<void> updateUserPassword(String newPassword) async {
     await _authServices.updatePassword(newPassword);
   }
+
+ Future<void> deleteUserAccount() async {
+    try {
+      final user = await _firestoreServices.getUser();
+
+      if (user == null) {
+        throw AppException('no-user');
+      }
+      if (user.isProfessional) {
+        await _ref.read(portfolioRepositoryProvider).deletePortfolio();
+      }
+      if (user.profilePictureUrl != null && user.profilePictureUrl!.isNotEmpty) {
+        await _storageServices.deleteImage('profile_pictures/${user.uid}');
+      }
+
+      await _firestoreServices.deleteUser();
+
+
+
+      await _authServices.deleteUser();
+
+      await _authServices.signOut();
+    } catch (e) {
+      if (e is AppException) {
+        rethrow;
+      } else {
+        throw AppException('delete-user-error');
+      }
+    }
+  }
+
 }

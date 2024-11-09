@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:folio/core/app_exception.dart';
@@ -19,10 +21,67 @@ class FirestoreServices {
     }
   }
 
+  Future<UserModel?> getUser() async {
+    try {
+      final uid = await _ref.read(authServicesProvider).currentUserUid();
+
+      if (uid == null) {
+        throw AppException('no-user');
+      }
+
+      final userDoc = await _firestore.collection('users').doc(uid).get();
+
+      if (!userDoc.exists) {
+        return null;
+      }
+
+      try {
+        return UserModel.fromJson(userDoc.data()!);
+      } catch (e) {
+        throw AppException('invalid-user-data');
+      }
+    } catch (e) {
+      if (e is AppException) {
+        rethrow;
+      } else {
+        throw AppException('get-user-error');
+      }
+    }
+  }
+
+  Future<PortfolioModel?> getPortfolio() async {
+    try {
+      final uid = await _ref.read(authServicesProvider).currentUserUid();
+
+      if (uid == null) {
+        throw AppException('no-user');
+      }
+
+      final portfolioDoc =
+          await _firestore.collection('portfolios').doc(uid).get();
+
+      if (!portfolioDoc.exists) {
+        return null;
+      }
+
+      try {
+        return PortfolioModel.fromJson(portfolioDoc.data()!);
+      } catch (e) {
+        throw AppException('invalid-portfolio-data');
+      }
+    } catch (e) {
+      if (e is AppException) {
+        rethrow;
+      } else {
+        throw AppException('get-portfolio-error');
+      }
+    }
+  }
+
   Stream<UserModel> getUserStream(String uid) {
     return _firestore.collection('users').doc(uid).snapshots().map((snapshot) {
       if (!snapshot.exists) {
-        throw AppException('no-user');
+        throw AppException('no-user-doc');
       }
       try {
         return UserModel.fromJson(snapshot.data()!);
@@ -30,8 +89,7 @@ class FirestoreServices {
         throw AppException('invalid-user-data');
       }
     }).handleError((error) {
-      if (error is AppException &&
-          (error.code == 'no-user' || error.code == 'invalid-user-data')) {
+      if (error is AppException) {
         throw error;
       } else {
         throw AppException('user-stream-error');
@@ -76,7 +134,7 @@ class FirestoreServices {
 
   Future<void> updateUser(Map<String, dynamic> fieldsToUpdate) async {
     try {
-      final uid = _ref.read(authStateProvider).value?.uid;
+      final uid = await _ref.read(authServicesProvider).currentUserUid();
       await _firestore.collection('users').doc(uid).update(fieldsToUpdate);
     } catch (e) {
       throw AppException('update-user-error');
@@ -99,7 +157,7 @@ class FirestoreServices {
 
   Future<void> savePortfolioDetails(Map<String, dynamic> fieldsToUpdate) async {
     try {
-      final uid = _ref.read(authStateProvider).value?.uid;
+      final uid = await _ref.read(authServicesProvider).currentUserUid();
 
       if (uid == null) {
         throw AppException('no-user');
@@ -121,6 +179,7 @@ class FirestoreServices {
       if (e is AppException && e.code == "no-user") {
         rethrow;
       } else {
+
         throw AppException('update-portfolio-error');
       }
     }
@@ -128,7 +187,7 @@ class FirestoreServices {
 
   Future<void> deletePortfolioImage(String filePath, String downloadUrl) async {
     try {
-      final uid = _ref.read(authStateProvider).value?.uid;
+      final uid = await _ref.read(authServicesProvider).currentUserUid();
 
       if (uid == null) {
         throw AppException('no-user');
@@ -155,7 +214,7 @@ class FirestoreServices {
 
   Future<void> deletePortfolio() async {
     try {
-      final uid = _ref.read(authStateProvider).value?.uid;
+      final uid = await _ref.read(authServicesProvider).currentUserUid();
 
       if (uid == null) {
         throw AppException('no-user');
@@ -167,6 +226,34 @@ class FirestoreServices {
         rethrow;
       } else {
         throw AppException('delete-portfolio-error');
+      }
+    }
+  }
+
+  Future<void> deleteUser() async {
+    try {
+      final uid = await _ref.read(authServicesProvider).currentUserUid();
+      
+      if (uid == null) {
+        throw AppException('no-user');
+      }
+      final documentRef = _firestore.collection('users').doc(uid);
+
+      await documentRef.update({
+        'completedOnboarding': FieldValue.delete(),
+        'email': FieldValue.delete(),
+        'fullName': FieldValue.delete(),
+        'isProfessional': FieldValue.delete(),
+        'preferredServices': FieldValue.delete(),
+        'profilePictureUrl': FieldValue.delete(),
+        'uid': FieldValue.delete(),
+        'username': FieldValue.delete(),
+      });
+    } catch (e) {
+      if (e is AppException && e.code == "no-user") {
+        rethrow;
+      } else {
+        throw AppException('delete-user-error');
       }
     }
   }

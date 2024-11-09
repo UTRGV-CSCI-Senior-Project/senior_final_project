@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:folio/core/app_exception.dart';
 import 'package:folio/core/service_locator.dart';
 import 'package:folio/views/home/profile_tab.dart';
 import 'package:folio/views/auth_onboarding_welcome/loading_screen.dart';
@@ -89,6 +90,7 @@ class HomeScreen extends ConsumerWidget {
                           ),
                           backgroundColor: Colors.transparent),
                       SpeedDialChild(
+                        key: const Key('settings-button'),
                           onTap: () => Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -195,10 +197,17 @@ class HomeScreen extends ConsumerWidget {
             return const OnboardingScreen();
           }
         },
-        error: (s, p) => const ErrorView(
-              bigText: 'There was an error!',
-              smallText: 'Please check your connection, or restart the app!',
-            ),
+        error: (e, s) {
+          if(e is AppException && e.code == 'no-user-doc'){
+            ref.read(userRepositoryProvider).signOut();
+
+          }else if (e is AppException && e.code == 'no-user'){
+            ref.read(userRepositoryProvider).signOut();
+          }
+          return const Scaffold(
+            body: ErrorView(bigText: 'There was an error!', smallText: 'Please check your connection, or restart the app!'),
+          );
+        },
         loading: () => const LoadingScreen());
   }
 }

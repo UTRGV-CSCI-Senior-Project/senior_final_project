@@ -67,6 +67,7 @@ void updateAccountDialog(BuildContext context, String title, String description,
                                       ),
                                     )
                                   : Text(
+                                    key: const Key('dialog-button'),
                                       'Update',
                                       style: GoogleFonts.inter(
                                           fontSize: 20,

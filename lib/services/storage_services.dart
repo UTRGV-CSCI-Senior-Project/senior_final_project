@@ -12,7 +12,7 @@ class StorageServices {
 
   Future<String?> uploadProfilePicture(File image) async {
     try {
-      final uid = _ref.read(authStateProvider).value?.uid;
+      final uid = await _ref.read(authServicesProvider).currentUserUid();
 
       if (uid == null) {
         throw AppException('no-user');
@@ -36,7 +36,7 @@ class StorageServices {
   Future<List<Map<String, String>>> uploadFilesForUser(List<File> files) async {
     final List<Map<String, String>> imageData = [];
     try {
-      final uid = _ref.read(authStateProvider).value?.uid;
+      final uid = await _ref.read(authServicesProvider).currentUserUid();
 
       if (uid == null) {
         throw AppException('no-user');
@@ -71,7 +71,7 @@ class StorageServices {
   // Fetch images from Firebase Storage
   Future<List<String>> fetchImagesForUser() async {
     try {
-      final uid = _ref.read(authStateProvider).value?.uid;
+      final uid = await _ref.read(authServicesProvider).currentUserUid();
 
       if (uid == null) {
         throw AppException('no-user');
@@ -108,30 +108,6 @@ Future<void> deleteImage(String imagePath) async {
     throw AppException('delete-image-error');
   }
 }
-
-  Future<void> deletePortfolio() async {
-    try{
-      final uid = _ref.read(authStateProvider).value?.uid;
-
-      if (uid == null) {
-        throw AppException('no-user');
-      }
-
-      final storageRef = _firebaseStorage.ref().child('portfolios/$uid/uploads');
-
-      final result = await storageRef.listAll();
-
-      for(var item in result.items){
-        await item.delete();
-      }
-    }catch (e){
-      if (e is AppException) {
-        rethrow;
-      } else {
-        throw AppException('delete-portfolio-error');
-      }
-    }
-  }
 
 
 }

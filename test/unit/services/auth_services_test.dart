@@ -418,4 +418,71 @@ void main() {
       );
     });
   });
+
+  group('currentUserUid', () {
+    test('returns uid when user is logged in', () async {
+      when(mockFirebaseAuth.currentUser).thenReturn(mockUser);
+      when(mockUser.uid).thenReturn('test-uid');
+
+      final result = await authServices.currentUserUid();
+      expect(result, 'test-uid');
+
+      verify(mockFirebaseAuth.currentUser).called(1);
+    });
+
+    test('returns null when no user is logged in', () async {
+      when(mockFirebaseAuth.currentUser).thenReturn(null);
+
+      final result = await authServices.currentUserUid();
+      expect(result, null);
+
+      verify(mockFirebaseAuth.currentUser).called(1);
+    });
+  });
+
+  group('updatePassword', () {
+    test('updates password successfully', () async {
+      when(mockFirebaseAuth.currentUser).thenReturn(mockUser);
+      when(mockUser.updatePassword('newPass123!'))
+          .thenAnswer((_) async => Future.value());
+
+      await authServices.updatePassword('newPass123!');
+
+      verify(mockFirebaseAuth.currentUser).called(1);
+      verify(mockUser.updatePassword('newPass123!')).called(1);
+    });
+
+    test('throws no-user error when current user is null', () async {
+      when(mockFirebaseAuth.currentUser).thenReturn(null);
+
+      expect(
+        () => authServices.updatePassword('newPass123!'),
+        throwsA(predicate((e) => e is AppException && e.code == 'no-user')),
+      );
+    });
+
+    test('throws FirebaseAuthException codes properly', () async {
+      when(mockFirebaseAuth.currentUser).thenReturn(mockUser);
+      when(mockUser.updatePassword('newPass123!'))
+          .thenThrow(FirebaseAuthException(code: 'weak-password'));
+
+      expect(
+        () => authServices.updatePassword('newPass123!'),
+        throwsA(predicate((e) =>
+            e is AppException && e.toString().contains('weak-password'))),
+      );
+    });
+
+    test('throws update-password-error on other exceptions', () async {
+      when(mockFirebaseAuth.currentUser).thenReturn(mockUser);
+      when(mockUser.updatePassword('newPass123!'))
+          .thenThrow(Exception('Unexpected error'));
+
+      expect(
+        () => authServices.updatePassword('newPass123!'),
+        throwsA(predicate(
+            (e) => e is AppException && e.code == 'update-password-error')),
+      );
+    });
+  });
 }

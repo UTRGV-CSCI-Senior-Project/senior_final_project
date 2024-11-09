@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:folio/constants/theme_constants.dart';
 import 'package:folio/core/service_locator.dart';
+import 'package:folio/views/auth_onboarding_welcome/state_screens.dart';
 import 'package:folio/views/home/home_screen.dart';
 import 'package:folio/views/auth_onboarding_welcome/loading_screen.dart';
 import 'package:folio/views/auth_onboarding_welcome/welcome_screen.dart';
@@ -28,6 +29,10 @@ class MyApp extends ConsumerWidget {
         title: 'Folio',
         theme: lightTheme,
         darkTheme: darkTheme,
+        initialRoute: '/',
+        routes: {
+          '/welcome': (context) => const WelcomeScreen()
+        },
         home: FutureBuilder(
             future: Future.delayed(duration, () {
               return ref.watch(authStateProvider);
@@ -41,7 +46,14 @@ class MyApp extends ConsumerWidget {
                         return const WelcomeScreen();
                       }
                     },
-                    error: (e, s) => const LoadingScreen(),
+                    error: (e, s) {
+                      return const Scaffold(
+                        body: ErrorView(
+                            bigText: 'There was an error!',
+                            smallText:
+                                'Please check your connection, or restart the app!'),
+                      );
+                    },
                     loading: () => const LoadingScreen(),
                   ) ??
                   const LoadingScreen();

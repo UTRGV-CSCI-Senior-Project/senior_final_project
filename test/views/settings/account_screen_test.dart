@@ -109,7 +109,7 @@ void main(){
       verify(mockUserRepository.changeUserEmail('newemail@email.com')).called(1);
     });
 
-    testWidgets('delete account button exists', (WidgetTester tester) async {
+        testWidgets('calls reauthenticateUser and updateUserPassword when click on Password and fill in the information', (WidgetTester tester) async {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
@@ -121,7 +121,48 @@ void main(){
         ),
       );
       await tester.pumpAndSettle();
-      expect(find.text('DELETE ACCOUNT'), findsOneWidget);
+
+      await tester.tap(find.text('Password'));
+      await tester.pumpAndSettle();
+      expect(find.text('Verify Password'), findsOneWidget);
+
+      await tester.enterText(find.byType(TextField), '123123');
+      await tester.tap(find.text('Verify'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Update Password'), findsOneWidget);
+      await tester.enterText(find.byType(TextField).last, '123456');
+      await tester.tap(find.text('Update'));
+
+      verify(mockUserRepository.reauthenticateUser('123123')).called(1);
+      verify(mockUserRepository.updateUserPassword('123456')).called(1);
+    });
+
+    testWidgets('delete account button shows dialog, calls reauthenticateUser, and calls deleteUserAccount', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            userRepositoryProvider.overrideWithValue(mockUserRepository),
+          ],
+          child: MaterialApp(
+            home: AccountScreen(user: testUser),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('DELETE ACCOUNT'));
+      await tester.pumpAndSettle();
+      expect(find.text('Are you sure you want delete your account? All your data will be lost.'), findsOneWidget);
+      await tester.tap(find.text('DELETE'));
+      await tester.pumpAndSettle();
+       expect(find.text('Verify Password'), findsOneWidget);
+
+      await tester.enterText(find.byType(TextField), '123123');
+      await tester.tap(find.text('Verify'));
+      await tester.pumpAndSettle();
+
+      verify(mockUserRepository.reauthenticateUser('123123')).called(1);
+      verify(mockUserRepository.deleteUserAccount()).called(1);
     });
   });
 }

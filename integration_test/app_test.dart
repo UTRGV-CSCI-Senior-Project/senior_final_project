@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:folio/views/home/profile_tab.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:folio/main.dart';
@@ -69,7 +70,6 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   late ProviderContainer container;
 
-
 //////////////////////// Any Necessary Finders ////////////////////////
 
   final usernameField = find.byKey(const Key('username-field'));
@@ -93,6 +93,11 @@ void main() {
   final speedDialButton = find.byKey(const Key('speeddial-button'));
   final editProfileButton = find.byKey(const Key('editprofile-button'));
   final updateProfileButton = find.byKey(const Key('update-button'));
+  final settingsButton = find.byKey(const Key('settings-button'));
+  final verifyPasswordField = find.byKey(const Key('password-verify-field'));
+  final verifyPasswordButton = find.byKey(const Key('verify-password-button'));
+  final dialogField = find.byKey(const Key('dialog-field'));
+  final dialogButton = find.byKey(const Key('dialog-button'));
 ////////////////////////////////////////////////////////////////////////
 
 //////////////////////// Set Up and Tear Down //////////////////////////
@@ -126,15 +131,13 @@ void main() {
     await tester.pumpAndSettle(const Duration(seconds: 5));
 
     final scrollable = find.byType(Scrollable);
-      await tester.scrollUntilVisible(
-          signUpButton, 500.0, // Scroll amount per attempt
-          scrollable: scrollable.first);
+    await tester.scrollUntilVisible(
+        signUpButton, 500.0, // Scroll amount per attempt
+        scrollable: scrollable.first);
 
     //Navigate to sign up screen by tapping sign up button on welcome screen
     await tester.tap(signUpButton);
     await tester.pumpAndSettle();
-
-
   }
 
   Future<void> navigateToLogInScreen(WidgetTester tester) async {
@@ -147,14 +150,13 @@ void main() {
     await tester.pumpAndSettle(const Duration(seconds: 5));
 
     final scrollable = find.byType(Scrollable);
-      await tester.scrollUntilVisible(
-          signInButton, 500.0, // Scroll amount per attempt
-          scrollable: scrollable.first);
+    await tester.scrollUntilVisible(
+        signInButton, 500.0, // Scroll amount per attempt
+        scrollable: scrollable.first);
 
     //Navigate to log in screen by tapping log in button on welcome screen
     await tester.tap(signInButton);
     await tester.pumpAndSettle();
-
   }
 ////////////////////////////////////////////////////////////////////////
 
@@ -174,7 +176,7 @@ void main() {
       FocusManager.instance.primaryFocus?.unfocus();
 
       //Tap sign up button
-final scrollable = find.byType(Scrollable);
+      final scrollable = find.byType(Scrollable);
       await tester.scrollUntilVisible(
           signUpButton, 500.0, // Scroll amount per attempt
           scrollable: scrollable.first);
@@ -187,8 +189,8 @@ final scrollable = find.byType(Scrollable);
       await tester.tap(onboardingButton);
       await tester.pumpAndSettle(const Duration(seconds: 5));
       //Tap next on second onboarding screen
-      expect(
-          find.text('Select the services you\'re interested in.'), findsOneWidget);
+      expect(find.text('Select the services you\'re interested in.'),
+          findsOneWidget);
       await tester.tap(barberServiceButton);
       await tester.tap(carDetailerServiceButton);
       await tester.tap(onboardingButton);
@@ -282,7 +284,7 @@ final scrollable = find.byType(Scrollable);
           scrollable: scrollable.first);
       await tester.tap(signInButton);
       await tester.pumpAndSettle(const Duration(seconds: 5));
-      
+
       //Expect to see home screen with user's full name.
       expect(find.textContaining('First User'), findsOneWidget);
 
@@ -353,7 +355,6 @@ final scrollable = find.byType(Scrollable);
       await tester.tap(signInButton);
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-
       await tester.tap(profileTabButton);
       await tester.pumpAndSettle(const Duration(seconds: 5));
       await tester.tap(speedDialButton);
@@ -371,6 +372,127 @@ final scrollable = find.byType(Scrollable);
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
       expect(find.textContaining('New Name'), findsOneWidget);
+      await container.read(authServicesProvider).signOut();
+    });
+
+    testWidgets('As an existing user, I can sign in, go to the account settings and view my information.', (WidgetTester tester) async {
+      //Navigate to sign up screen
+      await navigateToLogInScreen(tester);
+
+      //Sign In with the correct credentials
+      await tester.enterText(emailField, 'testuser@email.com');
+      await tester.enterText(passwordField, 'Pass123!');
+      FocusManager.instance.primaryFocus?.unfocus();
+
+      //Tap Sign In and wait
+      final scrollable = find.byType(Scrollable);
+      await tester.scrollUntilVisible(
+          signInButton, 500.0, // Scroll amount per attempt
+          scrollable: scrollable.first);
+      await tester.tap(signInButton);
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      await tester.tap(profileTabButton);
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.tap(speedDialButton);
+      await tester.pumpAndSettle(const Duration(seconds: 2));
+      await tester.tap(settingsButton);
+      await tester.pumpAndSettle(const Duration(seconds: 2));
+      await tester.tap(find.text('Account'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('New Name'), findsOneWidget);
+      expect(find.text('newusername'), findsOneWidget);
+      expect(find.text('testuser@email.com'), findsOneWidget);
+      await container.read(authServicesProvider).signOut();
+    });
+
+    testWidgets(
+        'As an existing user, I can sign in, go to the account settings and change my password.',
+        (WidgetTester tester) async {
+      //Navigate to sign up screen
+      await navigateToLogInScreen(tester);
+
+      //Sign In with the correct credentials
+      await tester.enterText(emailField, 'testuser@email.com');
+      await tester.enterText(passwordField, 'Pass123!');
+      FocusManager.instance.primaryFocus?.unfocus();
+
+      //Tap Sign In and wait
+      final scrollable = find.byType(Scrollable);
+      await tester.scrollUntilVisible(
+          signInButton, 500.0, // Scroll amount per attempt
+          scrollable: scrollable.first);
+      await tester.tap(signInButton);
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      await tester.tap(profileTabButton);
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.tap(speedDialButton);
+      await tester.pumpAndSettle(const Duration(seconds: 2));
+      await tester.tap(settingsButton);
+      await tester.pumpAndSettle(const Duration(seconds: 2));
+      await tester.tap(find.text('Account'));
+      await tester.pumpAndSettle(const Duration(seconds: 3));
+
+      await tester.tap(find.byKey(const Key('Password')));
+      await tester.pumpAndSettle(const Duration(seconds: 3));
+
+      await tester.enterText(verifyPasswordField, 'Pass123!');
+      await tester.scrollUntilVisible(verifyPasswordButton, 50);
+      await tester.tap(verifyPasswordButton);
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+      expect(find.text('Update Password'), findsOneWidget);
+      await tester.enterText(dialogField, '123456');
+      await tester.tap(dialogButton);
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(find.byType(EditProfile), findsOneWidget);
+      await container.read(authServicesProvider).signOut();
+    });
+
+    testWidgets(
+        'As an existing user, I can sign in, go to the account settings and change my email.',
+        (WidgetTester tester) async {
+      //Navigate to sign up screen
+      await navigateToLogInScreen(tester);
+
+      //Sign In with the correct credentials
+      await tester.enterText(emailField, 'testuser@email.com');
+      await tester.enterText(passwordField, '123456');
+      FocusManager.instance.primaryFocus?.unfocus();
+
+      //Tap Sign In and wait
+      final scrollable = find.byType(Scrollable);
+      await tester.scrollUntilVisible(
+          signInButton, 500.0, // Scroll amount per attempt
+          scrollable: scrollable.first);
+      await tester.tap(signInButton);
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      await tester.tap(profileTabButton);
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.tap(speedDialButton);
+      await tester.pumpAndSettle(const Duration(seconds: 2));
+      await tester.tap(settingsButton);
+      await tester.pumpAndSettle(const Duration(seconds: 2));
+      await tester.tap(find.text('Account'));
+      await tester.pumpAndSettle(const Duration(seconds: 3));
+
+      await tester.tap(find.byKey(const Key('Email')));
+      await tester.pumpAndSettle(const Duration(seconds: 3));
+
+      await tester.enterText(verifyPasswordField, '123456');
+      await tester.scrollUntilVisible(verifyPasswordButton, 50);
+      await tester.tap(verifyPasswordButton);
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(find.text('Change Email'), findsOneWidget);
+      await tester.enterText(dialogField, 'newemail@email.com');
+      await tester.tap(dialogButton);
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(find.byType(EditProfile), findsOneWidget);
       await container.read(authServicesProvider).signOut();
     });
 
@@ -722,7 +844,6 @@ final scrollable = find.byType(Scrollable);
       await tester.tap(signInButton);
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-
       await tester.tap(profileTabButton);
       await tester.pumpAndSettle(const Duration(seconds: 5));
       await tester.tap(speedDialButton);
@@ -743,6 +864,90 @@ final scrollable = find.byType(Scrollable);
       await container.read(authServicesProvider).signOut();
     });
 
-  //   // /////////////////////////////////////////////// SAD PATHS ////////////////////////////////////////////////////////////////////////
+    testWidgets(
+        'As an existing user, I cannot change my email if I enter incorrect verification password',
+        (WidgetTester tester) async {
+      //Navigate to sign up screen
+      await navigateToLogInScreen(tester);
+
+      //Sign In with the correct credentials
+      await tester.enterText(emailField, 'testuser@email.com');
+      await tester.enterText(passwordField, '123456');
+      FocusManager.instance.primaryFocus?.unfocus();
+
+      //Tap Sign In and wait
+      final scrollable = find.byType(Scrollable);
+      await tester.scrollUntilVisible(
+          signInButton, 500.0, // Scroll amount per attempt
+          scrollable: scrollable.first);
+      await tester.tap(signInButton);
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      await tester.tap(profileTabButton);
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.tap(speedDialButton);
+      await tester.pumpAndSettle(const Duration(seconds: 2));
+      await tester.tap(settingsButton);
+      await tester.pumpAndSettle(const Duration(seconds: 2));
+      await tester.tap(find.text('Account'));
+      await tester.pumpAndSettle(const Duration(seconds: 3));
+
+      await tester.tap(find.byKey(const Key('Email')));
+      await tester.pumpAndSettle(const Duration(seconds: 3));
+
+      // Enter incorrect password for verification
+      await tester.enterText(verifyPasswordField, 'wrongpassword');
+      await tester.scrollUntilVisible(verifyPasswordButton, 50);
+      await tester.tap(verifyPasswordButton);
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      // Expect to see error message and not proceed to email change dialog
+      expect(find.text('Change Email'), findsNothing);
+      await container.read(authServicesProvider).signOut();
+    });
+
+    testWidgets(
+        'As an existing user, I cannot change my password if I enter incorrect verification password',
+        (WidgetTester tester) async {
+      //Navigate to sign up screen
+      await navigateToLogInScreen(tester);
+
+      //Sign In with the correct credentials
+      await tester.enterText(emailField, 'testuser@email.com');
+      await tester.enterText(passwordField, '123456');
+      FocusManager.instance.primaryFocus?.unfocus();
+
+      //Tap Sign In and wait
+      final scrollable = find.byType(Scrollable);
+      await tester.scrollUntilVisible(
+          signInButton, 500.0, // Scroll amount per attempt
+          scrollable: scrollable.first);
+      await tester.tap(signInButton);
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      await tester.tap(profileTabButton);
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.tap(speedDialButton);
+      await tester.pumpAndSettle(const Duration(seconds: 2));
+      await tester.tap(settingsButton);
+      await tester.pumpAndSettle(const Duration(seconds: 2));
+      await tester.tap(find.text('Account'));
+      await tester.pumpAndSettle(const Duration(seconds: 3));
+
+      await tester.tap(find.byKey(const Key('Password')));
+      await tester.pumpAndSettle(const Duration(seconds: 3));
+
+      // Enter incorrect password for verification
+      await tester.enterText(verifyPasswordField, 'wrongpassword');
+      await tester.scrollUntilVisible(verifyPasswordButton, 50);
+      await tester.tap(verifyPasswordButton);
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      // Expect to see error message and not proceed to password change dialog
+      expect(find.text('Update Password'), findsNothing);
+      await container.read(authServicesProvider).signOut();
+    });
+
+    //   // /////////////////////////////////////////////// SAD PATHS ////////////////////////////////////////////////////////////////////////
   });
 }

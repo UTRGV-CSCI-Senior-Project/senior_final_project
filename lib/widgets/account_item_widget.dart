@@ -8,8 +8,12 @@ Widget accountItem({
     required VoidCallback onTap,
   }) {
     return GestureDetector(
+      key:  Key(title),
       onTap: onTap,
       child: Container(
+                width: double.infinity, // Makes container take full width
+
+        color: Colors.transparent,
         padding: const EdgeInsets.symmetric(vertical: 12.0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,

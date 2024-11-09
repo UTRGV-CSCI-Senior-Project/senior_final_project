@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:folio/core/app_exception.dart';
+import 'package:folio/core/service_locator.dart';
 import 'package:folio/models/user_model.dart';
 import 'package:folio/widgets/account_item_widget.dart';
+import 'package:folio/widgets/delete_account_dialog.dart';
 import 'package:folio/widgets/edit_profile_sheet.dart';
 import 'package:folio/widgets/error_widget.dart';
 import 'package:folio/widgets/input_field_widget.dart';
@@ -13,13 +16,32 @@ import 'package:folio/widgets/update_email_dialog.dart';
 import 'package:folio/widgets/verify_password_dialog.dart';
 import 'package:mockito/mockito.dart';
 
+import '../mocks/login_screen_test.mocks.dart';
+import '../mocks/onboarding_screen_test.mocks.dart';
+import '../mocks/user_repository_test.mocks.dart';
+
 class MockBuildContext extends Mock implements BuildContext {}
 
 void main() {
   late MockBuildContext mockBuildContext;
+  late MockUserRepository mockUserRepository;
+  late UserModel testUser;
+  late MockImagePicker mockImagePicker;
+  late MockFirestoreServices mockFirestoreServices;
+  late ProviderContainer container;
 
   setUp(() {
     mockBuildContext = MockBuildContext();
+    mockUserRepository = MockUserRepository();
+    mockImagePicker = MockImagePicker();
+    mockFirestoreServices = MockFirestoreServices();
+   container = ProviderContainer(
+      overrides: [
+        imagePickerProvider.overrideWithValue(mockImagePicker),
+        firestoreServicesProvider.overrideWithValue(mockFirestoreServices),
+        userRepositoryProvider.overrideWithValue(mockUserRepository),
+      ],
+    );
   });
 
   group('Account Item Widget', () {
@@ -41,34 +63,130 @@ void main() {
       expect(find.text('123'), findsOneWidget);
       expect(find.byIcon(Icons.arrow_forward_ios), findsOneWidget);
     });
-  });
-  group('Edit Profile Sheet', () {
-    testWidgets('shows correct information', (WidgetTester tester) async {
+
+    testWidgets('correctly calls onTap', (WidgetTester tester) async {
+      bool testBool = false;
       await tester.pumpWidget(
-        ProviderScope(
-          child: MaterialApp(
-            home: Scaffold(
-              body: EditProfileSheet(
-                userModel: UserModel(
-                  uid: '123123',
-                  email: 'testemail@email.com',
-                  isProfessional: false,
-                  fullName: 'John Doe',
-                  username: 'johndoe',
-                  profilePictureUrl: 'https://example.com/profile.jpg',
-                ),
-              ),
+        MaterialApp(
+          home: Scaffold(
+            body: accountItem(
+              title: 'Test Title',
+              context: mockBuildContext,
+              value: '123',
+              onTap: () {
+                testBool = true;
+              },
             ),
           ),
         ),
       );
 
+      await tester.tap(find.text('Test Title'));
+      await tester.pumpAndSettle();
+      expect(testBool, true);
+    });
+  });
+  group('Edit Profile Sheet', () {
+    Widget createEditProfileWidget() {
+      final testUser = UserModel(
+        uid: '123123',
+        email: 'testemail@email.com',
+        isProfessional: false,
+        fullName: 'John Doe',
+        username: 'johndoe',
+        profilePictureUrl: 'https://example.com/profile.jpg',
+      );
+      return UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(
+          home: Scaffold(
+            body: EditProfileSheet(userModel: testUser),
+          ),
+        ),
+      );
+    }
+
+    testWidgets('shows correct information', (WidgetTester tester) async {
+      await tester.pumpWidget(createEditProfileWidget());
+
       expect(find.text('Edit Profile'), findsOneWidget);
+      expect(find.byIcon(Icons.close), findsOneWidget);
       expect(find.text('John Doe'), findsOneWidget);
       expect(find.text('johndoe'), findsOneWidget);
       expect(find.byType(TextField), findsExactly(2));
       expect(find.byType(Image), findsOneWidget);
+      expect(find.text('Save Changes'), findsOneWidget);
     });
+
+    testWidgets('shows error when fields are empty',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(createEditProfileWidget());
+
+      // Clear the text fields
+      await tester.enterText(find.byKey(const Key('name-field')), '');
+      await tester.enterText(find.byKey(const Key('username-field')), '');
+
+      // Tap save button
+      await tester.tap(find.byKey(const Key('update-button')));
+      await tester.pump();
+
+      // Verify error message
+      expect(find.text('Please fill in all necessary fields.'), findsOneWidget);
+    });
+    testWidgets('handles username already taken error',
+        (WidgetTester tester) async {
+      when(mockFirestoreServices.isUsernameUnique(any))
+          .thenAnswer((_) => Future.value(false));
+
+      await tester.pumpWidget(createEditProfileWidget());
+
+      // Change username
+      await tester.enterText(find.byKey(const Key('username-field')), 'newusername');
+
+      // Tap save button
+      await tester.tap(find.byKey(const Key('update-button')));
+      await tester.pumpAndSettle();
+
+      // Verify error message
+      expect(
+          find.byType(ErrorBox),
+          findsOneWidget);
+    });
+
+    testWidgets('successfully updates profile', (WidgetTester tester) async {
+      when(mockFirestoreServices.isUsernameUnique(any))
+          .thenAnswer((_) => Future.value(true));
+      
+      when(mockUserRepository.updateProfile( fields: {
+          'fullName': 'New Name',
+          'username': 'newusername',
+        }
+      )).thenAnswer((_) async {});
+
+      await tester.pumpWidget(createEditProfileWidget());
+
+      // Change name and username
+      await tester.enterText(find.byKey(const Key('name-field')), 'New Name');
+      await tester.enterText(find.byKey(const Key('username-field')), 'newusername');
+
+
+      // Tap save button
+      await tester.tap(find.byKey(const Key('update-button')));
+      await tester.pumpAndSettle();
+
+      //Verify update was called with correct parameters
+      verify(mockUserRepository.updateProfile(
+        fields: {
+          'fullName': 'New Name',
+          'username': 'newusername',
+        },
+      )).called(1);
+
+      // Verify navigation
+      expect(find.byType(EditProfileSheet), findsNothing);
+    });
+
+
   });
 
   group('Error Widget', () {
@@ -117,15 +235,22 @@ void main() {
   });
 
   group('Log Out Dialog', () {
-    testWidgets('shows correct logout message', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        const ProviderScope(
-          child: MaterialApp(
-            home: Scaffold(
-              body: LogoutDialog(),
-            ),
+
+    Widget createLogOutDialog() {
+    
+      return UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(
+          home: Scaffold(
+            body: LogoutDialog(),
           ),
         ),
+      );
+    }
+
+    testWidgets('shows correct logout message', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        createLogOutDialog()
       );
 
       expect(find.text('Log out'), findsOneWidget);
@@ -135,6 +260,42 @@ void main() {
           findsOneWidget);
       expect(find.text('Cancel'), findsOneWidget);
       expect(find.text('LOGOUT'), findsOneWidget);
+    });
+
+    testWidgets('Cancel button dismisses dialog', (WidgetTester tester) async {
+      await tester.pumpWidget(createLogOutDialog());
+
+      // Verify dialog is shown
+      expect(find.byType(AlertDialog), findsOneWidget);
+
+      // Tap cancel button
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+
+      // Verify dialog is dismissed
+      expect(find.byType(AlertDialog), findsNothing);
+    });
+
+    testWidgets('Logout button triggers sign out and dismisses dialog',
+        (WidgetTester tester) async {
+      // Setup mock behavior
+      when(mockUserRepository.signOut())
+          .thenAnswer((_) async {});
+
+      await tester.pumpWidget(createLogOutDialog());
+
+      // Verify dialog is shown
+      expect(find.byType(AlertDialog), findsOneWidget);
+
+      // Tap logout button
+      await tester.tap(find.text('LOGOUT'));
+      await tester.pumpAndSettle();
+
+      // Verify signOut was called
+      verify(mockUserRepository.signOut()).called(1);
+
+      // Verify dialog is dismissed
+      expect(find.byType(AlertDialog), findsNothing);
     });
   });
 
@@ -241,7 +402,7 @@ void main() {
         tapped = true;
       }
 
-    await tester.pumpWidget(
+      await tester.pumpWidget(
         ProviderScope(
           child: MaterialApp(
             home: Scaffold(
@@ -266,151 +427,333 @@ void main() {
 
   group('Update Email Dialog', () {
     testWidgets('displays correctly', (WidgetTester tester) async {
-    const title = 'Update Email';
-    const description = 'Enter your new email address.';
-    const value = 'current@email.com';
-    onFinish(String newEmail) {}
+      const title = 'Update Email';
+      const description = 'Enter your new email address.';
+      const value = 'current@email.com';
+      onFinish(String newEmail) {}
 
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: Builder(
-            builder: (context) {
-              return TextButton(
-                onPressed: () {
-                  updateAccountDialog(context, title, description, value, onFinish);
-                },
-                child: const Text('Open Dialog'),
-              );
-            },
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Builder(
+              builder: (context) {
+                return TextButton(
+                  onPressed: () {
+                    updateAccountDialog(
+                        context, title, description, value, onFinish);
+                  },
+                  child: const Text('Open Dialog'),
+                );
+              },
+            ),
           ),
         ),
-      ),
-    );
+      );
 
-    // Open the dialog
-    await tester.tap(find.byType(TextButton));
-    await tester.pumpAndSettle();
+      // Open the dialog
+      await tester.tap(find.byType(TextButton));
+      await tester.pumpAndSettle();
 
-    // Verify that the dialog is displayed
-    expect(find.byType(Dialog), findsOneWidget);
+      // Verify that the dialog is displayed
+      expect(find.byType(Dialog), findsOneWidget);
 
-    // Verify that the title, description, and input field are displayed
-    expect(find.text(title), findsOneWidget);
-    expect(find.text(description), findsOneWidget);
-    expect(find.byType(TextField), findsOneWidget);
-  });
+      // Verify that the title, description, and input field are displayed
+      expect(find.text(title), findsOneWidget);
+      expect(find.text(description), findsOneWidget);
+      expect(find.byType(TextField), findsOneWidget);
+    });
 
-  testWidgets('calls onFinish correctly', (WidgetTester tester) async {
-    const title = 'Update Email';
-    const description = 'Enter your new email address.';
-    const value = 'current@email.com';
-    String newEmail = '';
-    onFinish(String email) {
-      newEmail = email;
-    }
+    testWidgets('calls onFinish correctly', (WidgetTester tester) async {
+      const title = 'Update Email';
+      const description = 'Enter your new email address.';
+      const value = 'current@email.com';
+      String newEmail = '';
+      onFinish(String email) {
+        newEmail = email;
+      }
 
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: Builder(
-            builder: (context) {
-              return TextButton(
-                onPressed: () {
-                  updateAccountDialog(context, title, description, value, onFinish);
-                },
-                child: const Text('Open Dialog'),
-              );
-            },
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Builder(
+              builder: (context) {
+                return TextButton(
+                  onPressed: () {
+                    updateAccountDialog(
+                        context, title, description, value, onFinish);
+                  },
+                  child: const Text('Open Dialog'),
+                );
+              },
+            ),
           ),
         ),
-      ),
-    );
+      );
 
-    // Open the dialog
-    await tester.tap(find.byType(TextButton));
-    await tester.pumpAndSettle();
+      // Open the dialog
+      await tester.tap(find.byType(TextButton));
+      await tester.pumpAndSettle();
 
-    // Enter a new email and tap the 'Update' button
-    await tester.enterText(find.byType(TextField), 'new@email.com');
-    await tester.tap(find.text('Update'));
-    await tester.pumpAndSettle();
+      // Enter a new email and tap the 'Update' button
+      await tester.enterText(find.byType(TextField), 'new@email.com');
+      await tester.tap(find.text('Update'));
+      await tester.pumpAndSettle();
 
-    // Verify that the onFinish callback was called with the new email
-    expect(newEmail, 'new@email.com');
-  });
+      // Verify that the onFinish callback was called with the new email
+      expect(newEmail, 'new@email.com');
+    });
   });
 
   group('Verify Password Dialog', () {
-testWidgets('displays correctly', (WidgetTester tester) async {
-    const title = 'Verify Password';
-    onVerified(String password) {}
+    testWidgets('displays correctly', (WidgetTester tester) async {
+      const title = 'Verify Password';
+      onVerified(String password) {}
 
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: Builder(
-            builder: (context) {
-              return TextButton(
-                onPressed: () {
-                  verifyPasswordDialog(context, title, onVerified);
-                },
-                child: const Text('Open Dialog'),
-              );
-            },
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Builder(
+              builder: (context) {
+                return TextButton(
+                  onPressed: () {
+                    verifyPasswordDialog(context, title, onVerified);
+                  },
+                  child: const Text('Open Dialog'),
+                );
+              },
+            ),
           ),
         ),
-      ),
-    );
+      );
 
-    // Open the dialog
-    await tester.tap(find.byType(TextButton));
-    await tester.pumpAndSettle();
+      // Open the dialog
+      await tester.tap(find.byType(TextButton));
+      await tester.pumpAndSettle();
 
-    // Verify that the dialog is displayed
-    expect(find.byType(Dialog), findsOneWidget);
+      // Verify that the dialog is displayed
+      expect(find.byType(Dialog), findsOneWidget);
 
-    // Verify that the title and input field are displayed
-    expect(find.text(title), findsOneWidget);
-    expect(find.byType(TextField), findsOneWidget);
-  });
+      // Verify that the title and input field are displayed
+      expect(find.text(title), findsOneWidget);
+      expect(find.byType(TextField), findsOneWidget);
+    });
 
-  testWidgets('calls onVerified correctly', (WidgetTester tester) async {
-    const title = 'Verify Password';
-    String password = '';
-    onVerified(String pass) {
-      password = pass;
-    }
+    testWidgets('calls onVerified correctly', (WidgetTester tester) async {
+      const title = 'Verify Password';
+      String password = '';
+      onVerified(String pass) {
+        password = pass;
+      }
 
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: Builder(
-            builder: (context) {
-              return TextButton(
-                onPressed: () {
-                  verifyPasswordDialog(context, title, onVerified);
-                },
-                child: const Text('Open Dialog'),
-              );
-            },
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Builder(
+              builder: (context) {
+                return TextButton(
+                  onPressed: () {
+                    verifyPasswordDialog(context, title, onVerified);
+                  },
+                  child: const Text('Open Dialog'),
+                );
+              },
+            ),
           ),
         ),
-      ),
-    );
+      );
 
-    // Open the dialog
-    await tester.tap(find.byType(TextButton));
-    await tester.pumpAndSettle();
+      // Open the dialog
+      await tester.tap(find.byType(TextButton));
+      await tester.pumpAndSettle();
 
-    // Enter a password and tap the 'Verify' button
-    await tester.enterText(find.byType(TextField), 'mypassword');
-    await tester.tap(find.text('Verify'));
-    await tester.pumpAndSettle();
+      // Enter a password and tap the 'Verify' button
+      await tester.enterText(find.byType(TextField), 'mypassword');
+      await tester.tap(find.text('Verify'));
+      await tester.pumpAndSettle();
 
-    // Verify that the onVerified callback was called with the entered password
-    expect(password, 'mypassword');
+      // Verify that the onVerified callback was called with the entered password
+      expect(password, 'mypassword');
+    });
   });
 
+  group('DeleteAccountDialog', () {
+    testWidgets('displays correctly', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            userRepositoryProvider.overrideWithValue(mockUserRepository),
+          ],
+          child: const MaterialApp(
+            home: Scaffold(
+              body: DeleteAccountDialog(),
+            ),
+          ),
+        ),
+      );
+
+      // Verify that the dialog title is displayed
+      expect(find.text('Delete Account'), findsOneWidget);
+
+      // Verify that the warning message is displayed
+      expect(
+        find.text(
+            'Are you sure you want delete your account? All your data will be lost.'),
+        findsOneWidget,
+      );
+
+      // Verify that both buttons are present
+      expect(find.text('Cancel'), findsOneWidget);
+      expect(find.text('DELETE'), findsOneWidget);
+    });
+
+    testWidgets('Cancel button closes the dialog', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            userRepositoryProvider.overrideWithValue(mockUserRepository),
+          ],
+          child: const MaterialApp(
+            home: Scaffold(
+              body: DeleteAccountDialog(),
+            ),
+          ),
+        ),
+      );
+
+      // Tap the Cancel button
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+
+      // Verify that the dialog is closed
+      expect(find.byType(DeleteAccountDialog), findsNothing);
+    });
+
+    testWidgets('DELETE button shows verify password dialog',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            userRepositoryProvider.overrideWithValue(mockUserRepository),
+          ],
+          child: const MaterialApp(
+            home: Scaffold(
+              body: DeleteAccountDialog(),
+            ),
+          ),
+        ),
+      );
+
+      // Tap the DELETE button
+      await tester.tap(find.text('DELETE'));
+      await tester.pumpAndSettle();
+
+      // Verify that the password verification dialog is shown
+      expect(find.text('Verify Password'), findsOneWidget);
+      expect(find.byType(TextField), findsOneWidget);
+    });
+
+    testWidgets('successful account deletion navigates to welcome screen',
+        (WidgetTester tester) async {
+      // Setup successful deletion
+      when(mockUserRepository.reauthenticateUser(any)).thenAnswer((_) async {});
+      when(mockUserRepository.deleteUserAccount()).thenAnswer((_) async {});
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            userRepositoryProvider.overrideWithValue(mockUserRepository),
+          ],
+          child: MaterialApp(
+            routes: {
+              '/welcome': (context) =>
+                  const Scaffold(body: Text('Welcome Screen')),
+            },
+            home: const Scaffold(
+              body: DeleteAccountDialog(),
+            ),
+          ),
+        ),
+      );
+
+      // Tap DELETE button
+      await tester.tap(find.text('DELETE'));
+      await tester.pumpAndSettle();
+
+      // Enter password in verification dialog
+      await tester.enterText(find.byType(TextField), 'password123');
+      await tester.tap(find.text('Verify'));
+      await tester.pumpAndSettle();
+
+      // Verify navigation to welcome screen
+      expect(find.text('Welcome Screen'), findsOneWidget);
+    });
+
+    testWidgets('shows error snackbar on authentication failure',
+        (WidgetTester tester) async {
+      // Setup authentication failure
+      when(mockUserRepository.reauthenticateUser(any)).thenThrow(
+        AppException('invalid-credential'),
+      );
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            userRepositoryProvider.overrideWithValue(mockUserRepository),
+          ],
+          child: const MaterialApp(
+            home: Scaffold(
+              body: DeleteAccountDialog(),
+            ),
+          ),
+        ),
+      );
+
+      // Tap DELETE button
+      await tester.tap(find.text('DELETE'));
+      await tester.pumpAndSettle();
+
+      // Enter password in verification dialog
+      await tester.enterText(find.byType(TextField), 'wrongpassword');
+      await tester.tap(find.text('Verify'));
+      await tester.pumpAndSettle();
+
+      // Verify error snackbar is shown
+      expect(
+          find.text(
+              'Invalid login credentials. Please check your email and password.'),
+          findsAny);
+    });
+
+    testWidgets('shows generic error snackbar on unknown failure',
+        (WidgetTester tester) async {
+      // Setup unknown failure
+      when(mockUserRepository.reauthenticateUser(any))
+          .thenThrow(Exception('Unknown error'));
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            userRepositoryProvider.overrideWithValue(mockUserRepository),
+          ],
+          child: const MaterialApp(
+            home: Scaffold(
+              body: DeleteAccountDialog(),
+            ),
+          ),
+        ),
+      );
+
+      // Tap DELETE button
+      await tester.tap(find.text('DELETE'));
+      await tester.pumpAndSettle();
+
+      // Enter password in verification dialog
+      await tester.enterText(find.byType(TextField), 'password123');
+      await tester.tap(find.text('Verify'));
+      await tester.pumpAndSettle();
+
+      // Verify generic error snackbar is shown
+      expect(find.text('Account deletion failed.'), findsAny);
+    });
   });
 }

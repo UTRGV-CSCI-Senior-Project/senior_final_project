@@ -70,6 +70,7 @@ void verifyPasswordDialog(
                                 ),
                               )
                             : Text(
+                                key: const Key('verify-password-button'),
                                 'Verify',
                                 style: GoogleFonts.inter(
                                     fontSize: 20, fontWeight: FontWeight.bold),

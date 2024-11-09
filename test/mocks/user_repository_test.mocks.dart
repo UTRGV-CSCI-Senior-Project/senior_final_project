@@ -139,6 +139,16 @@ class MockAuthServices extends _i1.Mock implements _i2.AuthServices {
         returnValue: _i3.Future<void>.value(),
         returnValueForMissingStub: _i3.Future<void>.value(),
       ) as _i3.Future<void>);
+
+  @override
+  _i3.Future<void> updatePassword(String? newPassword) => (super.noSuchMethod(
+        Invocation.method(
+          #updatePassword,
+          [newPassword],
+        ),
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
 }
 
 /// A class which mocks [FirestoreServices].
@@ -158,6 +168,24 @@ class MockFirestoreServices extends _i1.Mock implements _i5.FirestoreServices {
         returnValue: _i3.Future<void>.value(),
         returnValueForMissingStub: _i3.Future<void>.value(),
       ) as _i3.Future<void>);
+
+  @override
+  _i3.Future<_i6.UserModel?> getUser() => (super.noSuchMethod(
+        Invocation.method(
+          #getUser,
+          [],
+        ),
+        returnValue: _i3.Future<_i6.UserModel?>.value(),
+      ) as _i3.Future<_i6.UserModel?>);
+
+  @override
+  _i3.Future<_i7.PortfolioModel?> getPortfolio() => (super.noSuchMethod(
+        Invocation.method(
+          #getPortfolio,
+          [],
+        ),
+        returnValue: _i3.Future<_i7.PortfolioModel?>.value(),
+      ) as _i3.Future<_i7.PortfolioModel?>);
 
   @override
   _i3.Stream<_i6.UserModel> getUserStream(String? uid) => (super.noSuchMethod(
@@ -244,6 +272,16 @@ class MockFirestoreServices extends _i1.Mock implements _i5.FirestoreServices {
         returnValue: _i3.Future<void>.value(),
         returnValueForMissingStub: _i3.Future<void>.value(),
       ) as _i3.Future<void>);
+
+  @override
+  _i3.Future<void> deleteUser() => (super.noSuchMethod(
+        Invocation.method(
+          #deleteUser,
+          [],
+        ),
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
 }
 
 /// A class which mocks [StorageServices].
@@ -290,16 +328,6 @@ class MockStorageServices extends _i1.Mock implements _i8.StorageServices {
         Invocation.method(
           #deleteImage,
           [imagePath],
-        ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
-
-  @override
-  _i3.Future<void> deletePortfolio() => (super.noSuchMethod(
-        Invocation.method(
-          #deletePortfolio,
-          [],
         ),
         returnValue: _i3.Future<void>.value(),
         returnValueForMissingStub: _i3.Future<void>.value(),
