@@ -5,6 +5,7 @@ import 'package:folio/views/create_portfolio_tabs/create_portfolio_screen.dart';
 import 'package:folio/views/settings/account_screen.dart';
 import 'package:folio/views/auth_onboarding_welcome/state_screens.dart';
 import 'package:folio/views/auth_onboarding_welcome/welcome_screen.dart';
+import 'package:folio/views/settings/manage_portfolio_screen.dart';
 import 'package:folio/widgets/logout_dialog.dart';
 import 'package:folio/widgets/settings_item_widget.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -20,7 +21,7 @@ class SettingsScreen extends ConsumerWidget {
             return const WelcomeScreen();
           }
           final user = userData?['user'];
-
+          final portfolio = userData?['portfolio'];
           return Scaffold(
             appBar: AppBar(
               title: Text(
@@ -63,11 +64,17 @@ class SettingsScreen extends ConsumerWidget {
                                       const CreatePortfolioScreen()));
                         },
                       ),
-                    if (user.isProfessional)
+                    if (user.isProfessional && portfolio != null)
                       SettingsItem(
                         title: 'Manage portfolio',
                         leading: const Icon(Icons.folder_open_outlined),
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                       ManagePortfolioScreen(portfolioModel: portfolio,)));
+                        },
                       ),
                     SettingsItem(
                       title: 'Notifications',

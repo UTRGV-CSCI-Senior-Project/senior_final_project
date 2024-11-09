@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:folio/core/service_locator.dart';
+import 'package:folio/models/portfolio_model.dart';
 import 'package:folio/models/user_model.dart';
 import 'package:folio/views/settings/settings_screen.dart';
 import 'package:mockito/mockito.dart';
@@ -71,7 +72,10 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(AlertDialog), findsOneWidget);
-      expect(find.text("Are you sure you want to log out? You'll need to login again to use the app."), findsOneWidget);
+      expect(
+          find.text(
+              "Are you sure you want to log out? You'll need to login again to use the app."),
+          findsOneWidget);
       expect(find.text('Cancel'), findsOneWidget);
       expect(find.text('LOGOUT'), findsOneWidget);
     });
@@ -111,6 +115,14 @@ void main() {
           fullName: 'Test User',
           isProfessional: true,
         ),
+        'portfolio': PortfolioModel(
+            service: 'Barber',
+            details: 'I am a barber',
+            years: 5,
+            months: 5,
+            images: [
+              {'filePath': 'image1/path', 'downloadUrl': 'image1.url'}
+            ])
       };
 
       await tester.pumpWidget(
@@ -130,5 +142,90 @@ void main() {
       expect(find.text('Manage portfolio'), findsOneWidget);
       expect(find.text('Become a professional'), findsNothing);
     });
+
+    testWidgets(
+        'navigates to ManagePortfolio screen when clicked on Manage Portfolio',
+        (WidgetTester tester) async {
+      final professionalUserData = {
+        'user': UserModel(
+          uid: '123123',
+          username: 'testuser',
+          email: 'test@example.com',
+          fullName: 'Test User',
+          isProfessional: true,
+        ),
+        'portfolio': PortfolioModel(
+            service: 'Barber',
+            details: 'I am a barber',
+            years: 5,
+            months: 5,
+            images: [
+              {'filePath': 'image1/path', 'downloadUrl': 'image1.url'}
+            ])
+      };
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            userRepositoryProvider.overrideWithValue(mockUserRepository),
+            userDataStreamProvider
+                .overrideWith((ref) => Stream.value(professionalUserData)),
+          ],
+          child: const MaterialApp(
+            home: SettingsScreen(),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Manage portfolio'));
+      await tester.pumpAndSettle();
+      expect(find.text('Settings'), findsNothing);
+      expect(find.text('Barber'), findsOneWidget);
+      expect(find.text('5 years, 5 months'), findsOneWidget);
+      expect(find.text('I am a barber'), findsOneWidget);
+    });
+  });
+
+  testWidgets('navigates to Account screen when clicked on Account',
+      (WidgetTester tester) async {
+    final professionalUserData = {
+      'user': UserModel(
+        uid: '123123',
+        username: 'testuser',
+        email: 'test@example.com',
+        fullName: 'Test User',
+        isProfessional: true,
+      ),
+      'portfolio': PortfolioModel(
+          service: 'Barber',
+          details: 'I am a barber',
+          years: 5,
+          months: 5,
+          images: [
+            {'filePath': 'image1/path', 'downloadUrl': 'image1.url'}
+          ])
+    };
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          userRepositoryProvider.overrideWithValue(mockUserRepository),
+          userDataStreamProvider
+              .overrideWith((ref) => Stream.value(professionalUserData)),
+        ],
+        child: const MaterialApp(
+          home: SettingsScreen(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Account'));
+    await tester.pumpAndSettle();
+    expect(find.text('Settings'), findsNothing);
+    expect(find.text('testuser'), findsOneWidget);
+    expect(find.text('Test User'), findsOneWidget);
+    expect(find.text('test@example.com'), findsOneWidget);
   });
 }

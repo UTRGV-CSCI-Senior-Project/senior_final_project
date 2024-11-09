@@ -74,4 +74,59 @@ class PortfolioModel {
       experienceStartDate: experienceStartDate
     );
   }
+
+ Map<String, int> calculateTotalExperience() {
+    int totalYears = _years;
+    int totalMonths = _months;
+
+    
+    if (_experienceStartDate != null) {
+      final now = DateTime.now();
+      final difference = now.difference(_experienceStartDate);
+      
+      // Convert difference to years and months
+      int additionalMonths = (difference.inDays / 30.44).floor(); // Average days per month
+      int additionalYears = additionalMonths ~/ 12;
+      int remainingMonths = additionalMonths % 12;
+      
+      // Add the additional time to prior experience
+      totalMonths += remainingMonths;
+      totalYears += additionalYears;
+      
+     
+    }
+
+     // Handle month overflow
+      if (totalMonths >= 12) {
+        totalYears += totalMonths ~/ 12;
+        totalMonths = totalMonths % 12;
+      }
+
+    return {
+      'years': totalYears,
+      'months': totalMonths,
+    };
+  }
+
+  // Format total experience as string
+  String getFormattedTotalExperience() {
+    final experience = calculateTotalExperience();
+    final years = experience['years'] ?? 0;
+    final months = experience['months'] ?? 0;
+    
+    if (years == 0 && months == 0) {
+      return "Beginner";
+    }
+    
+    final yearText = years == 1 ? "year" : "years";
+    final monthText = months == 1 ? "month" : "months";
+    
+    if (years == 0) {
+      return "$months $monthText";
+    }
+    if (months == 0) {
+      return "$years $yearText";
+    }
+    return "$years $yearText, $months $monthText";
+  }
 }

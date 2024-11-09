@@ -152,7 +152,7 @@ void main(){
       await tester.pumpAndSettle();
       await tester.tap(find.text('DELETE ACCOUNT'));
       await tester.pumpAndSettle();
-      expect(find.text('Are you sure you want delete your account? All your data will be lost.'), findsOneWidget);
+      expect(find.text('Are you sure you want delete your account? All your account data will be lost.'), findsOneWidget);
       await tester.tap(find.text('DELETE'));
       await tester.pumpAndSettle();
        expect(find.text('Verify Password'), findsOneWidget);

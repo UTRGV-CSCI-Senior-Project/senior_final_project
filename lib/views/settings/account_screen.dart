@@ -234,10 +234,50 @@ class AccountScreen extends ConsumerWidget {
               TextButton(
                   style: TextButton.styleFrom(
                       backgroundColor: Theme.of(context).colorScheme.error),
-                  onPressed: ()  {
+                  onPressed: () {
                     showDialog(
-                            context: context,
-                            builder: (BuildContext  context) => const DeleteAccountDialog() );
+                        context: context,
+                        builder: (BuildContext context) => DeleteDialog(
+                            title: 'Account',
+                            onPressed: () {
+                              verifyPasswordDialog(context, 'Verify Password',
+                                  (password) async {
+                                try {
+                                  await ref
+                                      .watch(userRepositoryProvider)
+                                      .reauthenticateUser(password);
+
+                                  await ref
+                                      .watch(userRepositoryProvider)
+                                      .deleteUserAccount();
+                                  if (context.mounted) {
+                                    Navigator.pushNamedAndRemoveUntil(
+                                        context, '/welcome', (route) => false);
+                                  }
+                                } catch (e) {
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                          backgroundColor: Theme.of(context)
+                                              .colorScheme
+                                              .error,
+                                          showCloseIcon: true,
+                                          behavior: SnackBarBehavior.floating,
+                                          content: Text(
+                                              e is AppException
+                                                  ? e.message
+                                                  : 'Account deletion failed.',
+                                              style: GoogleFonts.inter(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .onPrimary))),
+                                    );
+                                  }
+                                }
+                              });
+                            }));
                   },
                   child: Text(
                     'DELETE ACCOUNT',

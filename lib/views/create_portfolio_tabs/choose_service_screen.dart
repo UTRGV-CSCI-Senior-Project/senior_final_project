@@ -6,9 +6,12 @@ import 'package:folio/widgets/service_selection_widget.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class ChooseService extends ConsumerStatefulWidget {
+  final String initialService;
   final Function(String) onServiceSelected;
+  final String? title; 
+  final String? subTitle;
 
-  const ChooseService({super.key, required this.onServiceSelected});
+  const ChooseService({super.key, required this.onServiceSelected, this.initialService = "", this.title, this.subTitle});
 
   @override
   ConsumerState<ChooseService> createState() => _ChooseServiceState();
@@ -72,11 +75,11 @@ class _ChooseServiceState extends ConsumerState<ChooseService> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        Text(widget.title ??
           "Let's get your profile ready!",
           style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.w500),
         ),
-        Text(
+        Text(widget.subTitle ??
           'What service do you offer?',
           style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w300),
         ),
@@ -111,7 +114,7 @@ class _ChooseServiceState extends ConsumerState<ChooseService> {
         Expanded(
             child: ServiceSelectionWidget(
           services: services,
-          initialSelectedServices: const {},
+          initialSelectedServices: widget.initialService.isNotEmpty ? {widget.initialService: true} : {},
           onServicesSelected: (service) {
             // Find the selected service (there should only be one)
             setState(() {

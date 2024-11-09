@@ -5,7 +5,11 @@ import 'package:google_fonts/google_fonts.dart';
 
 class InputExperience extends StatefulWidget {
   final Function(int, int) onExperienceEntered;
-  const InputExperience({super.key, required this.onExperienceEntered});
+  final int initialYears;
+  final int initialMonths;
+  final String? title;
+  final String? subTitle;
+  const InputExperience({super.key, required this.onExperienceEntered, this.initialYears = 0, this.initialMonths = 0, this.title, this.subTitle});
 
   @override
   State<InputExperience> createState() => _InputExperienceState();
@@ -18,6 +22,8 @@ class _InputExperienceState extends State<InputExperience> {
   @override
   void initState() {
     super.initState();
+    yrsController.text = '${widget.initialYears}';
+    monthController.text = '${widget.initialMonths}';
   }
 
   @override
@@ -33,13 +39,13 @@ class _InputExperienceState extends State<InputExperience> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             const SizedBox(height: 20.0),
-            Text(
+            Text(widget.title ??
               "Let's get your profile ready!",
               style: GoogleFonts.poppins(
                   fontSize: 22, fontWeight: FontWeight.w500),
             ),
             const SizedBox(height: 8.0),
-            Text(
+            Text(widget.subTitle ??
               'How much experience do you have?',
               style: GoogleFonts.poppins(
                   fontSize: 18, fontWeight: FontWeight.w300),
