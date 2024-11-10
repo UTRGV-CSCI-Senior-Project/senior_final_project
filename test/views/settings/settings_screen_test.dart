@@ -244,7 +244,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('Report a bug'));
       await tester.pumpAndSettle();
-      expect(find.textContaining("Found something not working correctly?\nLet us know and we\'ll fix it!"), findsOneWidget);
+      expect(find.textContaining("Found something not working correctly?\nLet us know and we'll fix it!"), findsOneWidget);
       expect(find.text('Submit Bug Report'), findsOneWidget);
     });
 

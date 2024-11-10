@@ -75,6 +75,25 @@ class _ManagePortfolioScreenState extends ConsumerState<ManagePortfolioScreen> {
                           onPressed: () async {
                             if (newService == widget.portfolioModel.service ||
                                 newService.isEmpty) {
+                                  if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      backgroundColor:
+                                          Theme.of(context).colorScheme.error,
+                                      showCloseIcon: true,
+                                      behavior: SnackBarBehavior.floating,
+                                      content: Text('Please choose the service you offer.',
+                                        style: GoogleFonts.inter(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onPrimary,
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                }
                               Navigator.pop(context);
                             } else {
                               setDialogState(() {

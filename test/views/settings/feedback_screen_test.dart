@@ -37,7 +37,7 @@ void main(){
 
       // Verify app bar title
       expect(find.text('Report a Bug'), findsOneWidget);
-      expect(find.text("Found something not working correctly?\nLet us know and we\'ll fix it!"), findsOneWidget);
+      expect(find.text("Found something not working correctly?\nLet us know and we'll fix it!"), findsOneWidget);
 
       // Verify hint texts
       expect(find.text('Briefly describe the issue'), findsOneWidget);
