@@ -25,7 +25,8 @@ class AccountScreen extends ConsumerWidget {
         body: SafeArea(
             child: Padding(
           padding: const EdgeInsets.all(20),
-          child: Column(
+          child: SingleChildScrollView(
+            child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               accountItem(
@@ -288,6 +289,7 @@ class AccountScreen extends ConsumerWidget {
                   )),
             ],
           ),
+          )
         )));
   }
 }

@@ -205,6 +205,7 @@ void main() {
   group('Input Field Widget', () {
     testWidgets('shows correct label, hint text, and functions',
         (WidgetTester tester) async {
+          final focusNode = FocusNode();
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -215,7 +216,7 @@ void main() {
                 TextInputType.text,
                 TextEditingController(),
                 (value) {},
-                mockBuildContext),
+                mockBuildContext, focusNode),
           ),
         ),
       );

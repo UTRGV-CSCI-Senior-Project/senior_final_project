@@ -21,6 +21,10 @@ class AuthScreenState extends ConsumerState<AuthScreen> {
   final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _scrollController = ScrollController();
+  final _usernameFocusNode = FocusNode();
+  final _emailFocusNode = FocusNode();
+  final _passwordFocusNode = FocusNode();
   late bool _isLogin;
   late UserRepository userRepository;
   bool _isLoading = false;
@@ -29,7 +33,21 @@ class AuthScreenState extends ConsumerState<AuthScreen> {
   @override
   void initState() {
     _isLogin = widget.isLogin;
+
+    _usernameFocusNode.addListener(() => _scrollToFocused(_usernameFocusNode));
+_emailFocusNode.addListener(() => _scrollToFocused(_emailFocusNode));
+_passwordFocusNode.addListener(() => _scrollToFocused(_usernameFocusNode));
     super.initState();
+  }
+
+  void _scrollToFocused(FocusNode focusNode){
+    if (focusNode.hasFocus) {
+      _scrollController.animateTo(
+        150.0, // Adjust this value based on your UI layout
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
   }
 
   @override
@@ -47,6 +65,7 @@ class AuthScreenState extends ConsumerState<AuthScreen> {
       ),
       body: SafeArea(
           child: SingleChildScrollView(
+            controller: _scrollController,
         child: Padding(
           padding: const EdgeInsets.all(20),
           child: Column(
@@ -101,19 +120,19 @@ class AuthScreenState extends ConsumerState<AuthScreen> {
                   setState(() {
                     errorMessage = "";
                   });
-                }, context),
+                }, context, _usernameFocusNode),
               inputField('email-field', 'Email', 'Enter your email',
                   TextInputType.emailAddress, _emailController, (value) {
                 setState(() {
                   errorMessage = "";
                 });
-              }, context),
+              }, context, _emailFocusNode),
               inputField('password-field', 'Password', 'Enter your password',
                   TextInputType.text, _passwordController, (value) {
                 setState(() {
                   errorMessage = "";
                 });
-              }, context, isPassword: true),
+              }, context, _passwordFocusNode, isPassword: true),
               const SizedBox(
                 height: 25,
               ),

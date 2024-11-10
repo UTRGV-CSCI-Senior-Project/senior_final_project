@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 Widget inputField(String key, String label, String hintText, TextInputType keyboardType,
     TextEditingController controller, Function(String) onChanged,
-BuildContext context,     {bool isPassword = false}) {
+BuildContext context, FocusNode focusNode ,{bool isPassword = false}) {
 
     bool isMultiline = keyboardType == TextInputType.multiline;
 
@@ -16,6 +16,7 @@ BuildContext context,     {bool isPassword = false}) {
       ),
       const Padding(padding: EdgeInsets.only(bottom: 5)),
       TextField(
+        focusNode: focusNode,
         onChanged: onChanged,
         key: Key(key),
         controller: controller,

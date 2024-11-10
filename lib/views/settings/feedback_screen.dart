@@ -23,7 +23,18 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
   final _formKey = GlobalKey<FormState>();
   final _subjectController = TextEditingController();
   final _messageController = TextEditingController();
+  final _subjectFocusNode = FocusNode();
+  final _messageFocusNode = FocusNode();
+  final  _scrollController = ScrollController();
   bool _isSubmitting = false;
+
+    @override
+  void initState(){
+    _subjectFocusNode.addListener(() => _scrollToFocused(_subjectFocusNode));
+    _messageFocusNode.addListener(() => _scrollToFocused(_messageFocusNode));
+
+    super.initState();
+  }
 
   // Get screen content based on type
   String get _screenTitle => widget.type == 'bug' ? 'Report a Bug' : 'Get Help';
@@ -106,6 +117,18 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
     }
   }
 
+ void _scrollToFocused(FocusNode focusNode){
+    if (focusNode.hasFocus) {
+      _scrollController.animateTo(
+        150.0, // Adjust this value based on your UI layout
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
+
+
   @override
   void dispose() {
     _subjectController.dispose();
@@ -122,6 +145,7 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
         ),
         body: SafeArea(
           child: SingleChildScrollView(
+            controller: _scrollController,
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Form(
@@ -144,7 +168,7 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
                         TextInputType.text,
                         _subjectController,
                         (value) {},
-                        context),
+                        context, _subjectFocusNode),
                     const SizedBox(height: 8),
                     inputField(
                         'message-field',
@@ -153,7 +177,7 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
                         TextInputType.multiline,
                         _messageController,
                         (value) {},
-                        context),
+                        context, _messageFocusNode),
                     // const Spacer(),
                     ElevatedButton(
                       onPressed: _isSubmitting ? null : _submitFeedback,

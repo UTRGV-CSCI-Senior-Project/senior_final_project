@@ -35,6 +35,10 @@ class EditProfileSheet extends ConsumerStatefulWidget {
 class _EditProfileSheetState extends ConsumerState<EditProfileSheet> {
   late final TextEditingController nameController;
   late final TextEditingController usernameController;
+  final _usernameFocusNode = FocusNode();
+  final _nameFocusNode = FocusNode();
+  final _scrollController = ScrollController();
+
   File? file;
   bool isLoading = false;
   String errorMessage = "";
@@ -42,9 +46,23 @@ class _EditProfileSheetState extends ConsumerState<EditProfileSheet> {
 
   @override
   void initState() {
-    super.initState();
     nameController = TextEditingController(text: widget.userModel.fullName);
     usernameController = TextEditingController(text: widget.userModel.username);
+
+    _usernameFocusNode.addListener(() => _scrollToFocused(_usernameFocusNode));
+    _nameFocusNode.addListener(() => _scrollToFocused(_nameFocusNode));
+
+    super.initState();
+  }
+
+  void _scrollToFocused(FocusNode focusNode){
+    if (focusNode.hasFocus) {
+      _scrollController.animateTo(
+        150.0, // Adjust this value based on your UI layout
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
   }
 
   @override
@@ -139,7 +157,10 @@ class _EditProfileSheetState extends ConsumerState<EditProfileSheet> {
             (widget.userModel.profilePictureUrl != null &&
                 widget.userModel.profilePictureUrl!.isNotEmpty));
 
-    return SingleChildScrollView(child: 
+    return SingleChildScrollView(
+      key: const Key('edit-profile-scrollable'),
+      controller: _scrollController,
+      child: 
     Padding(
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom + 16,
@@ -309,11 +330,11 @@ class _EditProfileSheetState extends ConsumerState<EditProfileSheet> {
               setState(() {
                 errorMessage = "";
               });
-            }, context),
+            }, context, _nameFocusNode),
             inputField('username-field', 'Username', 'Enter a unique username',
                 TextInputType.text, usernameController, (value) {
               errorMessage = "";
-            }, context),
+            }, context, _usernameFocusNode),
             const SizedBox(height: 16),
             if (errorMessage.isNotEmpty)
               ErrorBox(

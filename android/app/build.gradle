@@ -46,7 +46,7 @@ android {
 
         minSdkVersion 29       //change this so it could run in my device -diego
 
-        targetSdk = flutter.targetSdkVersion
+        targetSdkVersion 33
         versionCode = flutterVersionCode.toInteger()
         versionName = flutterVersionName
     }
