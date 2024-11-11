@@ -385,21 +385,21 @@ void main() {
 
         await tester.tap(fullNameField);
         await tester.pumpAndSettle(const Duration(seconds: 3));
-        await tester
-            .sendKeyEvent(LogicalKeyboardKey.backspace); // Clear existing text
+        await tester.sendKeyEvent(LogicalKeyboardKey.backspace); // Clear existing text
+        await tester.pumpAndSettle(const Duration(seconds: 2));
         await tester.enterText(fullNameField, 'New Name');
         await tester.pumpAndSettle(const Duration(seconds: 3));
 
         await tester.tap(usernameField);
         await tester.pumpAndSettle(const Duration(seconds: 3));
-        await tester
-            .sendKeyEvent(LogicalKeyboardKey.backspace); // Clear existing text
+        await tester.sendKeyEvent(LogicalKeyboardKey.backspace); // Clear existing text
+        await tester.pumpAndSettle(const Duration(seconds: 2));
         await tester.enterText(usernameField, 'newusername');
         await tester.pumpAndSettle(const Duration(seconds: 3));
 
         // Ensure the button is visible before tapping
         await tester.tap(updateProfileButton);
-        await tester.pumpAndSettle(const Duration(seconds: 3));
+        await tester.pumpAndSettle(const Duration(seconds: 5));
 
         expect(find.textContaining('New Name'), findsOneWidget);
         await container.read(authServicesProvider).signOut();
