@@ -140,4 +140,6 @@ class AuthServices {
       throw AppException('update-password-error');
     }
   }
+
+  
 }

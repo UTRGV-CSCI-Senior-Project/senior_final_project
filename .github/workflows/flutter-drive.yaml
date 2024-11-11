@@ -92,9 +92,6 @@ jobs:
       - name: Clean Xcode Derived Data
         run: rm -rf ~/Library/Developer/Xcode/DerivedData/*
 
-      - name: Clean Xcode cache
-        run: rm -rf ~/Library/Caches/com.apple.dt.Xcode/*
-
       - name: Cache CocoaPods
         uses: actions/cache@v4
         with:
@@ -123,9 +120,8 @@ jobs:
 
       - name: Authenticate firebase
         run: firebase use --token '${{ secrets.FIREBASE_TOKEN }}'
-      - name: Clean and Get Flutter Dependencies
+      - name: Get Flutter Dependencies
         run: |
-          flutter clean
           flutter pub get
       - name: Pod Install
         run: |
@@ -139,6 +135,7 @@ jobs:
           os: iOS
           model: "iPhone 14"
           os_version: ">=13.0"
+          shutdown_after_job: false
 
       - name: Check Simulator Status
         run: xcrun simctl list devices
@@ -150,5 +147,5 @@ jobs:
           applesimutils --booted --bundle com.example.folio --setPermissions photos=YES,camera=YES
 
       - name: "Run Integration Tests"
-        timeout-minutes: 90
+        timeout-minutes: 120
         run: firebase emulators:exec --token "${{ secrets.FIREBASE_TOKEN }}" "flutter test integration_test --timeout none" --import=./data
