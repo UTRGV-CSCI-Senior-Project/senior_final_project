@@ -134,7 +134,7 @@ jobs:
         uses: futureware-tech/simulator-action@v3
         with:
           os: iOS
-          model: "iPhone SE"
+          model: "iPhone SE (3rd generation)"
           os_version: ">=13.0"
           shutdown_after_job: false
 
