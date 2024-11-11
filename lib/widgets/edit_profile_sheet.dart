@@ -58,7 +58,7 @@ class _EditProfileSheetState extends ConsumerState<EditProfileSheet> {
   void _scrollToFocused(FocusNode focusNode){
     if (focusNode.hasFocus) {
       _scrollController.animateTo(
-        150.0, // Adjust this value based on your UI layout
+        50.0, // Adjust this value based on your UI layout
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );

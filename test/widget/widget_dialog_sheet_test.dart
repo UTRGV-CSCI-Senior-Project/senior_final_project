@@ -125,6 +125,7 @@ void main() {
       await tester.enterText(find.byKey(const Key('username-field')), '');
 
       // Tap save button
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key('update-button')));
       await tester.pump();
 
@@ -143,6 +144,8 @@ void main() {
           find.byKey(const Key('username-field')), 'newusername');
 
       // Tap save button
+      await tester.pumpAndSettle();
+
       await tester.tap(find.byKey(const Key('update-button')));
       await tester.pumpAndSettle();
 
@@ -167,6 +170,7 @@ void main() {
           find.byKey(const Key('username-field')), 'newusername');
 
       // Tap save button
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key('update-button')));
       await tester.pumpAndSettle();
 
@@ -205,7 +209,7 @@ void main() {
   group('Input Field Widget', () {
     testWidgets('shows correct label, hint text, and functions',
         (WidgetTester tester) async {
-          final focusNode = FocusNode();
+      final focusNode = FocusNode();
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -216,7 +220,8 @@ void main() {
                 TextInputType.text,
                 TextEditingController(),
                 (value) {},
-                mockBuildContext, focusNode),
+                mockBuildContext,
+                focusNode),
           ),
         ),
       );

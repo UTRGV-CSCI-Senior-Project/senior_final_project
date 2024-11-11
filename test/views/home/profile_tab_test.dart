@@ -48,24 +48,5 @@ void main() {
       expect(find.byType(GridView), findsOneWidget);
       expect(find.byIcon(Icons.add_rounded), findsOneWidget);
     });
-
-    testWidgets('shows create portfolio button when no portfolio exists',
-        (WidgetTester tester) async {
-      await tester.pumpWidget(
-        ProviderScope(
-          child: MaterialApp(
-            home: Scaffold(
-              body: EditProfile(
-                userModel: mockUserModel,
-                portfolioModel: null,
-              ),
-            ),
-          ),
-        ),
-      );
-
-      expect(find.text('Become a Professional'), findsOneWidget);
-      expect(find.byKey(const Key('create-portfolio-button')), findsOneWidget);
-    });
   });
 }

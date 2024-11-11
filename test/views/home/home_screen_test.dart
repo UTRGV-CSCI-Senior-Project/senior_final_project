@@ -215,7 +215,7 @@ void main() {
       await tester.tap(find.byIcon(Icons.delete));
       await tester.enterText(find.byKey(const Key('name-field')), 'New Name');
       await tester.enterText(find.byKey(const Key('username-field')), 'newusername');
-
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key('update-button')));
       await tester.pumpAndSettle();
       expect(find.byType(BottomSheet), findsNothing);

@@ -75,7 +75,7 @@ jobs:
           target: google_apis
           arch: x86_64
           profile: Nexus 6
-          script: firebase emulators:exec "flutter test integration_test --timeout none" --import=./data
+          script: firebase emulators:exec "flutter test integration_test --timeout none" --import=./android_emulator_data
 
   iphone-integration-tests:
     runs-on: macOS-latest
@@ -151,10 +151,4 @@ jobs:
 
       - name: "Run Integration Tests"
         timeout-minutes: 90
-        run: |
-          set -e
-          firebase emulators:exec --token "${{ secrets.FIREBASE_TOKEN }}" "flutter test integration_test --timeout none" --import=./data || {
-            echo "Integration tests failed"
-            flutter logs
-            exit 1
-          }
+        run: firebase emulators:exec --token "${{ secrets.FIREBASE_TOKEN }}" "flutter test integration_test --timeout none" --import=./data

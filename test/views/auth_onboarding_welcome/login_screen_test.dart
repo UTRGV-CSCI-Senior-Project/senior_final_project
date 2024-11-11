@@ -75,6 +75,7 @@ void main() {
       await tester.enterText(passwordField, password);
 
       //Tap log in button
+      await tester.pumpAndSettle();
       await tester.ensureVisible(logInButton);
       await tester.tap(logInButton);
 
@@ -99,6 +100,7 @@ void main() {
       await tester.enterText(passwordField, password);
 
       //Tap log in button
+      await tester.pumpAndSettle();
       await tester.ensureVisible(logInButton);
       await tester.tap(logInButton);
       await tester.pumpAndSettle();
@@ -127,6 +129,7 @@ void main() {
       await tester.enterText(passwordField, password);
 
       //Tap log in button
+      await tester.pumpAndSettle();
       await tester.ensureVisible(logInButton);
       await tester.tap(logInButton);
       await tester.pumpAndSettle();
@@ -154,6 +157,7 @@ void main() {
       await tester.enterText(passwordField, password);
 
       //Tap login button
+      await tester.pumpAndSettle();
       await tester.ensureVisible(logInButton);
       await tester.tap(logInButton);
       await tester.pumpAndSettle();
@@ -178,6 +182,7 @@ void main() {
       await tester.enterText(passwordField, password);
 
       //Tap log in button
+      await tester.pumpAndSettle();
       await tester.ensureVisible(logInButton);
       await tester.tap(logInButton);
       await tester.pumpAndSettle();
@@ -205,6 +210,7 @@ void main() {
       await tester.enterText(passwordField, password);
 
       //Tap log in button
+      await tester.pumpAndSettle();
       await tester.ensureVisible(logInButton);
       await tester.tap(logInButton);
       await tester.pumpAndSettle();

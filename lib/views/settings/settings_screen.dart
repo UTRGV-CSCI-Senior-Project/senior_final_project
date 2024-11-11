@@ -25,6 +25,13 @@ class SettingsScreen extends ConsumerWidget {
           final portfolio = userData?['portfolio'];
           return Scaffold(
             appBar: AppBar(
+              leading: IconButton(
+                key: const Key('settings-back-button'),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: const Icon(Icons.arrow_back_ios,
+                size: 24)),
               title: Text(
                 'Settings',
                 style: GoogleFonts.inter(
