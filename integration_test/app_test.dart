@@ -1063,15 +1063,15 @@ void main() {
 
         await tester.tap(fullNameField);
         await tester.pumpAndSettle(const Duration(seconds: 3));
-        await tester
-            .sendKeyEvent(LogicalKeyboardKey.backspace); // Clear existing text
+        await tester.sendKeyEvent(LogicalKeyboardKey.backspace); // Clear existing text
+        await tester.pumpAndSettle(const Duration(seconds: 2));
         await tester.enterText(fullNameField, '');
         await tester.pumpAndSettle(const Duration(seconds: 3));
 
         await tester.tap(usernameField);
         await tester.pumpAndSettle(const Duration(seconds: 3));
-        await tester
-            .sendKeyEvent(LogicalKeyboardKey.backspace); // Clear existing text
+        await tester.sendKeyEvent(LogicalKeyboardKey.backspace); // Clear existing text
+        await tester.pumpAndSettle(const Duration(seconds: 2));
         await tester.enterText(usernameField, '');
         await tester.pumpAndSettle(const Duration(seconds: 3));
 
