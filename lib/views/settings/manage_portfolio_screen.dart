@@ -75,25 +75,26 @@ class _ManagePortfolioScreenState extends ConsumerState<ManagePortfolioScreen> {
                           onPressed: () async {
                             if (newService == widget.portfolioModel.service ||
                                 newService.isEmpty) {
-                                  if (context.mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      backgroundColor:
-                                          Theme.of(context).colorScheme.error,
-                                      showCloseIcon: true,
-                                      behavior: SnackBarBehavior.floating,
-                                      content: Text('Please choose the service you offer.',
-                                        style: GoogleFonts.inter(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w600,
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .onPrimary,
-                                        ),
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    backgroundColor:
+                                        Theme.of(context).colorScheme.error,
+                                    showCloseIcon: true,
+                                    behavior: SnackBarBehavior.floating,
+                                    content: Text(
+                                      'Please choose the service you offer.',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onPrimary,
                                       ),
                                     ),
-                                  );
-                                }
+                                  ),
+                                );
+                              }
                               Navigator.pop(context);
                             } else {
                               setDialogState(() {
@@ -358,7 +359,8 @@ class _ManagePortfolioScreenState extends ConsumerState<ManagePortfolioScreen> {
                           },
                           initialDetails: widget.portfolioModel.details,
                           title: 'Update your work details!',
-                          subTitle: 'What would potential clients like to know?',
+                          subTitle:
+                              'What would potential clients like to know?',
                         )),
                         Container(
                           margin: const EdgeInsets.only(top: 12),
@@ -459,96 +461,100 @@ class _ManagePortfolioScreenState extends ConsumerState<ManagePortfolioScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text('Manage Portfolio',
-              style:
-                  GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.bold)),
+      appBar: AppBar(
+        title: Text('Manage Portfolio',
+            style:
+                GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.bold)),
+      ),
+      body: SafeArea(
+          child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            accountItem(
+                title: 'Service',
+                context: context,
+                value: widget.portfolioModel.service,
+                onTap: () => {_showServiceSelectionDialog(context)}),
+            const SizedBox(
+              height: 12,
+            ),
+            accountItem(
+                title: 'Experience',
+                context: context,
+                value: widget.portfolioModel.getFormattedTotalExperience(),
+                onTap: () => {_showExperienceUpdateDialog(context)}),
+            const SizedBox(
+              height: 12,
+            ),
+            accountItem(
+                title: 'Details',
+                context: context,
+                value: widget.portfolioModel.details,
+                onTap: () => {_showDetailsUpdateDialog(context)}),
+          ],
         ),
-        body: SafeArea(
-            child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              accountItem(
-                  title: 'Service',
+      )),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(10),
+        child: TextButton(
+            style: TextButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.error),
+            onPressed: () {
+              showDialog(
                   context: context,
-                  value: widget.portfolioModel.service,
-                  onTap: () => {_showServiceSelectionDialog(context)}),
-              const SizedBox(
-                height: 12,
-              ),
-              accountItem(
-                  title: 'Experience',
-                  context: context,
-                  value: widget.portfolioModel.getFormattedTotalExperience(),
-                  onTap: () => {_showExperienceUpdateDialog(context)}),
-              const SizedBox(
-                height: 12,
-              ),
-              accountItem(
-                  title: 'Details',
-                  context: context,
-                  value: widget.portfolioModel.details,
-                  onTap: () => {_showDetailsUpdateDialog(context)}),
-              const Spacer(),
-              TextButton(
-                  style: TextButton.styleFrom(
-                      backgroundColor: Theme.of(context).colorScheme.error),
-                  onPressed: () {
-                    showDialog(
-                        context: context,
-                        builder: (context) => DeleteDialog(
-                            title: 'Portfolio',
-                            onPressed: () {
-                              verifyPasswordDialog(context, 'Verify Password',
-                                  (password) async {
-                                try {
-                                  await ref
-                                      .watch(userRepositoryProvider)
-                                      .reauthenticateUser(password);
+                  builder: (context) => DeleteDialog(
+                      title: 'Portfolio',
+                      onPressed: () {
+                        verifyPasswordDialog(context, 'Verify Password',
+                            (password) async {
+                          try {
+                            await ref
+                                .watch(userRepositoryProvider)
+                                .reauthenticateUser(password);
 
-                                  await ref
-                                      .watch(portfolioRepositoryProvider)
-                                      .deletePortfolio();
-                                  if (context.mounted) {
-                                    Navigator.pushNamedAndRemoveUntil(
-                                        context, '/home', (route) => false);
-                                  }
-                                } catch (e) {
-                                  if (context.mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                          backgroundColor: Theme.of(context)
-                                              .colorScheme
-                                              .error,
-                                          showCloseIcon: true,
-                                          behavior: SnackBarBehavior.floating,
-                                          content: Text(
-                                              e is AppException
-                                                  ? e.message
-                                                  : 'Portfolio deletion failed.',
-                                              style: GoogleFonts.inter(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .onPrimary))),
-                                    );
-                                  }
-                                }
-                              });
-                            }));
-                  },
-                  child: Text(
-                    'DELETE PORTFOLIO',
-                    style: GoogleFonts.inter(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  )),
-            ],
-          ),
-        )));
+                            await ref
+                                .watch(portfolioRepositoryProvider)
+                                .deletePortfolio();
+                            if (context.mounted) {
+                              Navigator.pushNamedAndRemoveUntil(
+                                  context, '/home', (route) => false);
+                            }
+                          } catch (e) {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                    backgroundColor:
+                                        Theme.of(context).colorScheme.error,
+                                    showCloseIcon: true,
+                                    behavior: SnackBarBehavior.floating,
+                                    content: Text(
+                                        e is AppException
+                                            ? e.message
+                                            : 'Portfolio deletion failed.',
+                                        style: GoogleFonts.inter(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onPrimary))),
+                              );
+                            }
+                          }
+                        });
+                      }));
+            },
+            child: Text(
+              'DELETE PORTFOLIO',
+              style: GoogleFonts.inter(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            )),
+      ),
+    );
   }
 }

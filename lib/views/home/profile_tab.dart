@@ -280,43 +280,6 @@ class _EditProfileState extends ConsumerState<EditProfile> {
                 ],
               ),
             ),
-          if (portfolio == null) const Spacer(),
-          if (portfolio == null)
-            Container(
-              alignment: Alignment.bottomCenter,
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: ElevatedButton(
-                  key: const Key('create-portfolio-button'),
-                  onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) =>
-                                const CreatePortfolioScreen()));
-                  },
-                  style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 12, horizontal: 16)),
-                  child: LayoutBuilder(builder: (context, constraints) {
-                    return Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.create_new_folder_outlined, size: 30),
-                        const SizedBox(width: 16),
-                        Flexible(
-                          child: Text(
-                            'Become a Professional',
-                            softWrap: true,
-                            overflow: TextOverflow.ellipsis,
-                            style: GoogleFonts.poppins(
-                                fontSize: 16, fontWeight: FontWeight.bold),
-                          ),
-                        )
-                      ],
-                    );
-                  })),
-            ),
           ErrorBox(
               errorMessage: errorMessage,
               onDismiss: () {
