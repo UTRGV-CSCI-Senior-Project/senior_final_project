@@ -5,7 +5,6 @@ import 'package:folio/core/app_exception.dart';
 import 'package:folio/core/service_locator.dart';
 import 'package:folio/models/portfolio_model.dart';
 import 'package:folio/models/user_model.dart';
-import 'package:folio/views/create_portfolio_tabs/create_portfolio_screen.dart';
 import 'package:folio/widgets/error_widget.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
@@ -80,17 +79,17 @@ class _EditProfileState extends ConsumerState<EditProfile> {
                   children: [
                     Text(
                       user.fullName ?? user.username,
-                      style: const TextStyle(
+                      style: GoogleFonts.inter(
                           fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     if (portfolio != null)
                       Text(
                         portfolio.service,
-                        style: const TextStyle(fontSize: 16),
+                        style:  GoogleFonts.inter(fontSize: 16),
                       ),
                     Text(
                       user.email,
-                      style: const TextStyle(fontSize: 16),
+                      style:  GoogleFonts.inter(fontSize: 16),
                     ),
                     // const Row(
                     //   children: [

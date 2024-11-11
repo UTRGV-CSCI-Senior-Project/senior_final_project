@@ -77,7 +77,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   }
 
   Widget buildProfile(BuildContext context) {
-    final _nameFocusNode = FocusNode();
+    final nameFocusNode = FocusNode();
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -153,7 +153,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: TextField(
-              focusNode: _nameFocusNode,
+              focusNode: nameFocusNode,
               style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w500),
               textCapitalization: TextCapitalization.words,
               key: const Key('name-field'),
