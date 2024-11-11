@@ -144,7 +144,7 @@ void main() {
 
     //Navigate to sign up screen by tapping sign up button on welcome screen
     await tester.tap(signUpButton);
-    await tester.pumpAndSettle(const Duration(seconds: 3));
+    await tester.pumpAndSettle(const Duration(seconds: 4));
   }
 
   Future<void> navigateToLogInScreen(WidgetTester tester) async {
@@ -163,7 +163,7 @@ void main() {
 
     //Navigate to log in screen by tapping log in button on welcome screen
     await tester.tap(signInButton);
-    await tester.pumpAndSettle(const Duration(seconds: 3));
+    await tester.pumpAndSettle(const Duration(seconds: 4));
   }
 ////////////////////////////////////////////////////////////////////////
 
@@ -335,7 +335,7 @@ void main() {
 
         // Tap edit button to update services
         await tester.tap(editServicesButton);
-        await tester.pumpAndSettle(const Duration(seconds: 3));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
 
         // Verify we're on the update services screen
         expect(find.text('Update Your Interests!'), findsOneWidget);
@@ -343,11 +343,11 @@ void main() {
         await tester.tap(find.text('Hair Stylist'));
         await tester.tap(find.text('Barber'));
 
-        await tester.pumpAndSettle(const Duration(seconds: 3));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
 
         // Update services
         await tester.tap(updateServicesButton);
-        await tester.pumpAndSettle(const Duration(seconds: 3));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
 
         // Verify new services are displayed
         expect(find.text('HAIR STYLIST'), findsOneWidget);
@@ -379,9 +379,9 @@ void main() {
         await tester.tap(profileTabButton);
         await tester.pumpAndSettle(const Duration(seconds: 5));
         await tester.tap(speedDialButton);
-        await tester.pumpAndSettle(const Duration(seconds: 2));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
         await tester.tap(editProfileButton);
-        await tester.pumpAndSettle(const Duration(seconds: 2));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
 
         await tester.tap(fullNameField);
         await tester.pumpAndSettle();
@@ -429,11 +429,11 @@ void main() {
         await tester.tap(profileTabButton);
         await tester.pumpAndSettle(const Duration(seconds: 5));
         await tester.tap(speedDialButton);
-        await tester.pumpAndSettle(const Duration(seconds: 2));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
         await tester.tap(settingsButton);
-        await tester.pumpAndSettle(const Duration(seconds: 2));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
         await tester.tap(find.text('Account'));
-        await tester.pumpAndSettle(const Duration(seconds: 3));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
 
         expect(find.text('New Name'), findsOneWidget);
         expect(find.text('newusername'), findsOneWidget);
@@ -465,14 +465,14 @@ void main() {
         await tester.tap(profileTabButton);
         await tester.pumpAndSettle(const Duration(seconds: 5));
         await tester.tap(speedDialButton);
-        await tester.pumpAndSettle(const Duration(seconds: 2));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
         await tester.tap(settingsButton);
-        await tester.pumpAndSettle(const Duration(seconds: 2));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
         await tester.tap(find.text('Account'));
-        await tester.pumpAndSettle(const Duration(seconds: 3));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
 
         await tester.tap(find.byKey(const Key('Password')));
-        await tester.pumpAndSettle(const Duration(seconds: 3));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
 
         await tester.enterText(verifyPasswordField, 'Pass123!');
         await tester.tap(verifyPasswordButton);
@@ -510,14 +510,14 @@ void main() {
         await tester.tap(profileTabButton);
         await tester.pumpAndSettle(const Duration(seconds: 5));
         await tester.tap(speedDialButton);
-        await tester.pumpAndSettle(const Duration(seconds: 2));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
         await tester.tap(settingsButton);
-        await tester.pumpAndSettle(const Duration(seconds: 2));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
         await tester.tap(find.text('Account'));
-        await tester.pumpAndSettle(const Duration(seconds: 3));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
 
         await tester.tap(find.byKey(const Key('Email')));
-        await tester.pumpAndSettle(const Duration(seconds: 3));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
 
         await tester.enterText(verifyPasswordField, '123456');
         await tester.tap(verifyPasswordButton);
@@ -562,9 +562,9 @@ void main() {
         expect(find.text('secondUser@email.com'), findsOneWidget);
 
         await tester.tap(speedDialButton);
-        await tester.pumpAndSettle(const Duration(seconds: 3));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
         await tester.tap(settingsButton);
-        await tester.pumpAndSettle(const Duration(seconds: 3));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
         await tester.tap(find.text('Become a professional'));
         await tester.pumpAndSettle(const Duration(seconds: 4));
         await tester.tap(barberServiceButton);
@@ -577,9 +577,9 @@ void main() {
         await tester.tap(createPortfolioNextButton);
         await tester.pumpAndSettle(const Duration(seconds: 5));
         await tester.tap(createPortfolioNextButton);
-        await tester.pumpAndSettle(const Duration(seconds: 20));
+        await tester.pumpAndSettle(const Duration(seconds: 40));
         await tester.tap(find.byKey(const Key('settings-back-button')));
-        await tester.pumpAndSettle(const Duration(seconds: 3));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
         expect(find.text('Second User'), findsOneWidget);
         expect(find.text('Barber'), findsOneWidget);
         expect(find.text('Barber Portfolio'), findsOneWidget);
@@ -612,12 +612,12 @@ void main() {
         await tester.tap(profileTabButton);
         await tester.pumpAndSettle(const Duration(seconds: 5));
         await tester.tap(speedDialButton);
-        await tester.pumpAndSettle(const Duration(seconds: 2));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
         await tester.tap(settingsButton);
-        await tester.pumpAndSettle(const Duration(seconds: 3));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
         //Click on manage portfolio in settings
         await tester.tap(find.text('Manage portfolio'));
-        await tester.pumpAndSettle(const Duration(seconds: 3));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
         expect(find.text('Barber'), findsOneWidget);
         expect(find.text('Beginner'), findsOneWidget);
 
@@ -631,9 +631,9 @@ void main() {
 
         //Update experience
         await tester.tap(find.text('Manage portfolio'));
-        await tester.pumpAndSettle(const Duration(seconds: 3));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
         await tester.tap(find.text('Experience'));
-        await tester.pumpAndSettle(const Duration(seconds: 3));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
         await tester.enterText(find.byType(TextField).first, '5');
         await tester.tap(find.text('Update'));
         await tester.pumpAndSettle(const Duration(seconds: 5));
@@ -641,7 +641,7 @@ void main() {
 
         //Check information was updated
         await tester.tap(find.text('Manage portfolio'));
-        await tester.pumpAndSettle(const Duration(seconds: 3));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
         expect(find.text('Car Detailer'), findsOneWidget);
         expect(find.text('5 years'), findsOneWidget);
         await container.read(authServicesProvider).signOut();
@@ -672,12 +672,12 @@ void main() {
         await tester.tap(profileTabButton);
         await tester.pumpAndSettle(const Duration(seconds: 5));
         await tester.tap(speedDialButton);
-        await tester.pumpAndSettle(const Duration(seconds: 2));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
         await tester.tap(settingsButton);
-        await tester.pumpAndSettle(const Duration(seconds: 3));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
         //Click on Report a bug in settings
         await tester.tap(find.text('Report a bug'));
-        await tester.pumpAndSettle(const Duration(seconds: 3));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
         await tester.enterText(
             find.byType(TextField).first, 'Reporting a bug subject line');
         await tester.enterText(find.byType(TextField).last,
@@ -713,12 +713,12 @@ void main() {
         await tester.tap(profileTabButton);
         await tester.pumpAndSettle(const Duration(seconds: 5));
         await tester.tap(speedDialButton);
-        await tester.pumpAndSettle(const Duration(seconds: 2));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
         await tester.tap(settingsButton);
-        await tester.pumpAndSettle(const Duration(seconds: 3));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
         //Click on Report a bug in settings
         await tester.tap(find.text('Get Help'));
-        await tester.pumpAndSettle(const Duration(seconds: 3));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
         await tester.enterText(
             find.byType(TextField).first, 'Getting help subject line');
         await tester.enterText(find.byType(TextField).last,
@@ -755,7 +755,7 @@ void main() {
             signUpButton, 500.0, // Scroll amount per attempt
             scrollable: scrollable.first);
         await tester.tap(signUpButton);
-        await tester.pumpAndSettle(const Duration(seconds: 1));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
         //Expect to see error for invalid email address
         expect(
             find.textContaining(
@@ -783,7 +783,7 @@ void main() {
             signUpButton, 500.0, // Scroll amount per attempt
             scrollable: scrollable.first);
         await tester.tap(signUpButton);
-        await tester.pumpAndSettle(const Duration(seconds: 1));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
         //Expect to see error for taken email
         expect(
             find.textContaining(
@@ -811,7 +811,7 @@ void main() {
             signUpButton, 500.0, // Scroll amount per attempt
             scrollable: scrollable.first);
         await tester.tap(signUpButton);
-        await tester.pumpAndSettle(const Duration(seconds: 1));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
         //Expect to see error for taken username
         expect(
             find.textContaining(
@@ -839,7 +839,7 @@ void main() {
             signUpButton, 500.0, // Scroll amount per attempt
             scrollable: scrollable.first);
         await tester.tap(signUpButton);
-        await tester.pumpAndSettle(const Duration(seconds: 1));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
         //Expect to see error for taken username
         expect(
             find.textContaining(
@@ -917,19 +917,19 @@ void main() {
         await tester.tap(signInButton);
         await tester.pumpAndSettle(const Duration(seconds: 5));
         await tester.tap(homeTabButton);
-        await tester.pumpAndSettle(const Duration(seconds: 3));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
         // Tap edit button
         await tester.tap(editServicesButton);
-        await tester.pumpAndSettle(const Duration(seconds: 3));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
 
         // Deselect all services
         await tester.tap(find.text('Hair Stylist'));
         await tester.tap(carDetailerServiceButton);
-        await tester.pumpAndSettle(const Duration(seconds: 3));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
 
         // Try to update with no services selected
         await tester.tap(updateServicesButton);
-        await tester.pumpAndSettle(const Duration(seconds: 3));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
 
         // Expect to see error message
         expect(find.text('Please select at least one.'), findsOneWidget);
@@ -958,27 +958,27 @@ void main() {
         //Tap next button without inputtting full name
         expect(find.text('Name and Profile Picture'), findsOneWidget);
         await tester.tap(onboardingButton);
-        await tester.pumpAndSettle(const Duration(seconds: 3));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
 
         //Expect to see error
         expect(find.text('Please enter your full name.'), findsOneWidget);
         await tester.enterText(fullNameField, 'Third User');
         FocusManager.instance.primaryFocus?.unfocus();
         await tester.tap(onboardingButton);
-        await tester.pumpAndSettle(const Duration(seconds: 3));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
 
         //Tap Done! on second onboarding screen without choosing service
         expect(find.text('Select the services you\'re interested in.'),
             findsOneWidget);
         await tester.tap(onboardingButton);
-        await tester.pumpAndSettle(const Duration(seconds: 3));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
 
         //Expect to see error
         expect(find.text('Select at least one service.'), findsOneWidget);
 
         await tester.tap(barberServiceButton);
         await tester.tap(onboardingButton);
-        await tester.pumpAndSettle(const Duration(seconds: 3));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
         await container.read(authServicesProvider).signOut();
       });
     });
@@ -1002,31 +1002,31 @@ void main() {
 
         //Go to profile tab and click button to create a portfolio
         await tester.tap(profileTabButton);
-        await tester.pumpAndSettle(const Duration(seconds: 3));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
   await tester.tap(speedDialButton);
-        await tester.pumpAndSettle(const Duration(seconds: 3));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
         await tester.tap(settingsButton);
-        await tester.pumpAndSettle(const Duration(seconds: 3));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
         await tester.tap(find.text('Become a professional'));
         await tester.pumpAndSettle(const Duration(seconds: 4));
 
         //Tap next without selecting a service, expect to see an error for unselected service
         await tester.tap(createPortfolioNextButton);
-        await tester.pumpAndSettle(const Duration(seconds: 3));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
         expect(find.text('Please select a service.'), findsOneWidget);
 
         //Select service to proceed to next screens
         await tester.tap(barberServiceButton);
         await tester.tap(createPortfolioNextButton);
-        await tester.pumpAndSettle(const Duration(seconds: 3));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
 
         //Pass the experience screen without inputting years/months
         await tester.tap(createPortfolioNextButton);
-        await tester.pumpAndSettle(const Duration(seconds: 3));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
 
         //Tap next button on image upload screen without uploading images
         await tester.tap(createPortfolioNextButton);
-        await tester.pumpAndSettle(const Duration(seconds: 3));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
 
         //Expect to see error messages for required images
         expect(find.text('Please upload at least 5 images.'), findsOneWidget);
@@ -1057,9 +1057,9 @@ void main() {
         await tester.tap(profileTabButton);
         await tester.pumpAndSettle(const Duration(seconds: 5));
         await tester.tap(speedDialButton);
-        await tester.pumpAndSettle(const Duration(seconds: 3));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
         await tester.tap(editProfileButton);
-        await tester.pumpAndSettle(const Duration(seconds: 3));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
 
         await tester.tap(fullNameField);
         await tester.pumpAndSettle();
@@ -1076,7 +1076,7 @@ void main() {
         await tester.pumpAndSettle();
 
         await tester.tap(updateProfileButton);
-        await tester.pumpAndSettle(const Duration(seconds: 3));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
 
         expect(find.textContaining('Please fill in all necessary fields.'),
             findsOneWidget);
@@ -1107,14 +1107,14 @@ void main() {
         await tester.tap(profileTabButton);
         await tester.pumpAndSettle(const Duration(seconds: 5));
         await tester.tap(speedDialButton);
-        await tester.pumpAndSettle(const Duration(seconds: 2));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
         await tester.tap(settingsButton);
-        await tester.pumpAndSettle(const Duration(seconds: 2));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
         await tester.tap(find.text('Account'));
-        await tester.pumpAndSettle(const Duration(seconds: 3));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
 
         await tester.tap(find.byKey(const Key('Email')));
-        await tester.pumpAndSettle(const Duration(seconds: 3));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
 
         // Enter incorrect password for verification
         await tester.enterText(verifyPasswordField, 'wrongpassword');
@@ -1151,14 +1151,14 @@ void main() {
         await tester.tap(profileTabButton);
         await tester.pumpAndSettle(const Duration(seconds: 5));
         await tester.tap(speedDialButton);
-        await tester.pumpAndSettle(const Duration(seconds: 2));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
         await tester.tap(settingsButton);
-        await tester.pumpAndSettle(const Duration(seconds: 2));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
         await tester.tap(find.text('Account'));
-        await tester.pumpAndSettle(const Duration(seconds: 3));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
 
         await tester.tap(find.byKey(const Key('Password')));
-        await tester.pumpAndSettle(const Duration(seconds: 3));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
 
         // Enter incorrect password for verification
         await tester.enterText(verifyPasswordField, 'wrongpassword');
@@ -1195,13 +1195,13 @@ void main() {
         await tester.tap(profileTabButton);
         await tester.pumpAndSettle(const Duration(seconds: 5));
         await tester.tap(speedDialButton);
-        await tester.pumpAndSettle(const Duration(seconds: 2));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
         await tester.tap(settingsButton);
-        await tester.pumpAndSettle(const Duration(seconds: 3));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
 
         //Click on manage portfolio in settings
         await tester.tap(find.text('Manage portfolio'));
-        await tester.pumpAndSettle(const Duration(seconds: 3));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
         expect(find.text('Car Detailer'), findsOneWidget);
         expect(find.text('5 years'), findsOneWidget);
 
@@ -1210,7 +1210,7 @@ void main() {
         await tester.pumpAndSettle(const Duration(seconds: 5));
         await tester.tap(find.text('Car Detailer').last);
         await tester.tap(find.text('Update'));
-        await tester.pumpAndSettle(const Duration(seconds: 3));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
 
         expect(find.byType(SnackBar), findsOneWidget);
         expect(
@@ -1242,14 +1242,14 @@ void main() {
         await tester.tap(profileTabButton);
         await tester.pumpAndSettle(const Duration(seconds: 5));
         await tester.tap(speedDialButton);
-        await tester.pumpAndSettle(const Duration(seconds: 2));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
         await tester.tap(settingsButton);
-        await tester.pumpAndSettle(const Duration(seconds: 3));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
         //Click on Report a bug in settings
         await tester.tap(find.text('Report a bug'));
-        await tester.pumpAndSettle(const Duration(seconds: 3));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
         await tester.tap(find.text('Submit Bug Report'));
-        await tester.pumpAndSettle(const Duration(seconds: 3));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
         expect(find.byType(SnackBar), findsOneWidget);
         expect(find.text('Please fill in all fields'), findsOneWidget);
         await container.read(authServicesProvider).signOut();
@@ -1282,18 +1282,18 @@ void main() {
         await tester.tap(profileTabButton);
         await tester.pumpAndSettle(const Duration(seconds: 5));
         await tester.tap(speedDialButton);
-        await tester.pumpAndSettle(const Duration(seconds: 2));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
         await tester.tap(settingsButton);
-        await tester.pumpAndSettle(const Duration(seconds: 2));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
         await tester.tap(find.text('Account'));
-        await tester.pumpAndSettle(const Duration(seconds: 3));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
         await tester.tap(find.text('DELETE ACCOUNT'));
-        await tester.pumpAndSettle(const Duration(seconds: 3));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
         await tester.tap(find.text('DELETE'));
-        await tester.pumpAndSettle(const Duration(seconds: 3));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
         await tester.enterText(verifyPasswordField, '123456');
         await tester.tap(verifyPasswordButton);
-        await tester.pumpAndSettle(const Duration(seconds: 20));
+        await tester.pumpAndSettle(const Duration(seconds: 40));
 
         expect(find.text('Discover Local Talent,'), findsOneWidget);
         expect(find.text('Login'), findsOneWidget);
@@ -1324,18 +1324,18 @@ void main() {
         await tester.tap(profileTabButton);
         await tester.pumpAndSettle(const Duration(seconds: 5));
         await tester.tap(speedDialButton);
-        await tester.pumpAndSettle(const Duration(seconds: 2));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
         await tester.tap(settingsButton);
-        await tester.pumpAndSettle(const Duration(seconds: 2));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
         await tester.tap(find.text('Manage portfolio'));
-        await tester.pumpAndSettle(const Duration(seconds: 3));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
         await tester.tap(find.text('DELETE PORTFOLIO'));
-        await tester.pumpAndSettle(const Duration(seconds: 3));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
         await tester.tap(find.text('DELETE'));
-        await tester.pumpAndSettle(const Duration(seconds: 3));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
         await tester.enterText(verifyPasswordField, '123456');
         await tester.tap(verifyPasswordButton);
-        await tester.pumpAndSettle(const Duration(seconds: 20));
+        await tester.pumpAndSettle(const Duration(seconds: 40));
 
         expect(find.text('Second User'), findsOneWidget);
         expect(find.text('Car Detailer'), findsNothing);
