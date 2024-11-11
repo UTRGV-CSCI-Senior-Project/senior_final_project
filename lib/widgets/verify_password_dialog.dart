@@ -57,38 +57,41 @@ void verifyPasswordDialog(
                                 ),
                               ],
                             ),
-                            TextButton(
-                              onPressed: () async {
-                                setState(() {
-                                  isLoading = true;
-                                });
-                                await onVerified(passwordController.text);
-                                setState(() {
-                                  isLoading = false;
-                                });
-                              },
-                              child: isLoading
-                                  ? SizedBox(
-                                      height: 25,
-                                      width: 25,
-                                      child: CircularProgressIndicator(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .onPrimary,
-                                        strokeWidth: 5,
-                                      ),
-                                    )
-                                  : Text(
-                                      key: const Key('verify-password-button'),
-                                      'Verify',
-                                      style: GoogleFonts.inter(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                            )
                           ],
                         ),
                       ))),
+              floatingActionButtonLocation:
+                  FloatingActionButtonLocation.centerFloat,
+              floatingActionButton: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: TextButton(
+                  onPressed: () async {
+                    setState(() {
+                      isLoading = true;
+                    });
+                    await onVerified(passwordController.text);
+                    setState(() {
+                      isLoading = false;
+                    });
+                  },
+                  child: isLoading
+                      ? SizedBox(
+                          height: 25,
+                          width: 25,
+                          child: CircularProgressIndicator(
+                            color: Theme.of(context).colorScheme.onPrimary,
+                            strokeWidth: 5,
+                          ),
+                        )
+                      : Text(
+                          key: const Key('verify-password-button'),
+                          'Verify',
+                          style: GoogleFonts.inter(
+                              fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
+                ),
+              ),
             ),
           );
         });

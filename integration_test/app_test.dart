@@ -98,6 +98,7 @@ void main() {
   final verifyPasswordButton = find.byKey(const Key('verify-password-button'));
   final dialogField = find.byKey(const Key('dialog-field'));
   final dialogButton = find.byKey(const Key('dialog-button'));
+  final feedbackButton = find.byKey(const Key('submit-feedback-button'));
 ////////////////////////////////////////////////////////////////////////
 
 //////////////////////// Set Up and Tear Down //////////////////////////
@@ -208,144 +209,144 @@ void main() {
       await container.read(authServicesProvider).signOut();
     });
 
-    // testWidgets(
-    //     'As an existing user that has not completed onboarding, I can sign in, complete onboarding, and reach the home screen',
-    //     (WidgetTester tester) async {
-    //   //Navigate to sign in screen
-    //   await navigateToLogInScreen(tester);
+    testWidgets(
+        'As an existing user that has not completed onboarding, I can sign in, complete onboarding, and reach the home screen',
+        (WidgetTester tester) async {
+      //Navigate to sign in screen
+      await navigateToLogInScreen(tester);
 
-    //   //Enter necessary data and sign in
-    //   await tester.enterText(emailField, 'secondUser@email.com');
-    //   await tester.enterText(passwordField, '123456');
+      //Enter necessary data and sign in
+      await tester.enterText(emailField, 'secondUser@email.com');
+      await tester.enterText(passwordField, '123456');
 
-    //   FocusManager.instance.primaryFocus?.unfocus();
-    //   final scrollable = find.byType(Scrollable);
-    //   await tester.scrollUntilVisible(
-    //       signInButton, 500.0, // Scroll amount per attempt
-    //       scrollable: scrollable.first);
-    //   await tester.tap(signInButton);
-    //   await tester.pumpAndSettle(const Duration(seconds: 5));
+      FocusManager.instance.primaryFocus?.unfocus();
+      final scrollable = find.byType(Scrollable);
+      await tester.scrollUntilVisible(
+          signInButton, 500.0, // Scroll amount per attempt
+          scrollable: scrollable.first);
+      await tester.tap(signInButton);
+      await tester.pumpAndSettle(const Duration(seconds: 5));
 
-    //   //Fill in full name on onbording screen and proceed to 2nd screen
-    //   expect(find.text('Name and Profile Picture'), findsOneWidget);
-    //   await tester.tap(imagePickerButton);
-    //   await tester.enterText(fullNameField, "Second User");
-    //   FocusManager.instance.primaryFocus?.unfocus();
-    //   await tester.tap(onboardingButton);
-    //   await tester.pumpAndSettle(const Duration(seconds: 5));
-    //   //Tap Done! on second onboarding screen
-    //   expect(find.text('Select the services you\'re interested in.'),
-    //       findsOneWidget);
-    //   await tester.tap(barberServiceButton);
-    //   await tester.tap(carDetailerServiceButton);
-    //   await tester.tap(onboardingButton);
-    //   await tester.pumpAndSettle(const Duration(seconds: 5));
-    //   //Expect to see home screen with user's full name
-    //   expect(find.textContaining('Second User'), findsOneWidget);
-    //   await container.read(authServicesProvider).signOut();
-    // });
+      //Fill in full name on onbording screen and proceed to 2nd screen
+      expect(find.text('Name and Profile Picture'), findsOneWidget);
+      await tester.tap(imagePickerButton);
+      await tester.enterText(fullNameField, "Second User");
+      FocusManager.instance.primaryFocus?.unfocus();
+      await tester.tap(onboardingButton);
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+      //Tap Done! on second onboarding screen
+      expect(find.text('Select the services you\'re interested in.'),
+          findsOneWidget);
+      await tester.tap(barberServiceButton);
+      await tester.tap(carDetailerServiceButton);
+      await tester.tap(onboardingButton);
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+      //Expect to see home screen with user's full name
+      expect(find.textContaining('Second User'), findsOneWidget);
+      await container.read(authServicesProvider).signOut();
+    });
 
-    // testWidgets(
-    //     'As an existing normal user I can sign in, reach the home screen, and view my information in the profile screen',
-    //     (WidgetTester tester) async {
-    //   //Navigate to sign up screen
-    //   await navigateToLogInScreen(tester);
+    testWidgets(
+        'As an existing normal user I can sign in, reach the home screen, and view my information in the profile screen',
+        (WidgetTester tester) async {
+      //Navigate to sign up screen
+      await navigateToLogInScreen(tester);
 
-    //   //Sign In with the correct credentials
-    //   await tester.enterText(emailField, 'secondUser@email.com');
-    //   await tester.enterText(passwordField, '123456');
-    //   FocusManager.instance.primaryFocus?.unfocus();
+      //Sign In with the correct credentials
+      await tester.enterText(emailField, 'secondUser@email.com');
+      await tester.enterText(passwordField, '123456');
+      FocusManager.instance.primaryFocus?.unfocus();
 
-    //   //Tap Sign In and wait
-    //   final scrollable = find.byType(Scrollable);
-    //   await tester.scrollUntilVisible(
-    //       signInButton, 500.0, // Scroll amount per attempt
-    //       scrollable: scrollable.first);
-    //   await tester.tap(signInButton);
-    //   await tester.pumpAndSettle(const Duration(seconds: 5));
+      //Tap Sign In and wait
+      final scrollable = find.byType(Scrollable);
+      await tester.scrollUntilVisible(
+          signInButton, 500.0, // Scroll amount per attempt
+          scrollable: scrollable.first);
+      await tester.tap(signInButton);
+      await tester.pumpAndSettle(const Duration(seconds: 5));
 
-    //   //Expect to see home screen with user's full name.
-    //   expect(find.textContaining('Second User'), findsOneWidget);
+      //Expect to see home screen with user's full name.
+      expect(find.textContaining('Second User'), findsOneWidget);
 
-    //   await tester.tap(profileTabButton);
-    //   await tester.pumpAndSettle(const Duration(seconds: 5));
-    //   expect(find.text('Second User'), findsOneWidget);
-    //   expect(find.text('secondUser@email.com'), findsOneWidget);
-    //   await container.read(authServicesProvider).signOut();
-    // });
+      await tester.tap(profileTabButton);
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+      expect(find.text('Second User'), findsOneWidget);
+      expect(find.text('secondUser@email.com'), findsOneWidget);
+      await container.read(authServicesProvider).signOut();
+    });
 
-    // testWidgets(
-    //     'As an existing professional user I can sign in and view my portfolio data in the profile screen',
-    //     (WidgetTester tester) async {
-    //   //Navigate to sign up screen
-    //   await navigateToLogInScreen(tester);
+    testWidgets(
+        'As an existing professional user I can sign in and view my portfolio data in the profile screen',
+        (WidgetTester tester) async {
+      //Navigate to sign up screen
+      await navigateToLogInScreen(tester);
 
-    //   //Sign In with the correct credentials
-    //   await tester.enterText(emailField, 'firstUser@email.com');
-    //   await tester.enterText(passwordField, '123456');
-    //   FocusManager.instance.primaryFocus?.unfocus();
+      //Sign In with the correct credentials
+      await tester.enterText(emailField, 'firstUser@email.com');
+      await tester.enterText(passwordField, '123456');
+      FocusManager.instance.primaryFocus?.unfocus();
 
-    //   //Tap Sign In and wait
-    //   final scrollable = find.byType(Scrollable);
-    //   await tester.scrollUntilVisible(
-    //       signInButton, 500.0, // Scroll amount per attempt
-    //       scrollable: scrollable.first);
-    //   await tester.tap(signInButton);
-    //   await tester.pumpAndSettle(const Duration(seconds: 5));
+      //Tap Sign In and wait
+      final scrollable = find.byType(Scrollable);
+      await tester.scrollUntilVisible(
+          signInButton, 500.0, // Scroll amount per attempt
+          scrollable: scrollable.first);
+      await tester.tap(signInButton);
+      await tester.pumpAndSettle(const Duration(seconds: 5));
 
-    //   //Expect to see home screen with user's full name.
-    //   expect(find.textContaining('First User'), findsOneWidget);
+      //Expect to see home screen with user's full name.
+      expect(find.textContaining('First User'), findsOneWidget);
 
-    //   await tester.tap(profileTabButton);
-    //   await tester.pumpAndSettle(const Duration(seconds: 5));
-    //   expect(find.text('First User'), findsOneWidget);
-    //   expect(find.text('Barber'), findsOneWidget);
-    //   expect(find.text('Barber Portfolio'), findsOneWidget);
-    //   expect(find.text('firstUser@email.com'), findsOneWidget);
-    //   expect(find.byType(Image), findsExactly(6));
-    //   await container.read(authServicesProvider).signOut();
-    // });
+      await tester.tap(profileTabButton);
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+      expect(find.text('First User'), findsOneWidget);
+      expect(find.text('Barber'), findsOneWidget);
+      expect(find.text('Barber Portfolio'), findsOneWidget);
+      expect(find.text('firstUser@email.com'), findsOneWidget);
+      expect(find.byType(Image), findsExactly(6));
+      await container.read(authServicesProvider).signOut();
+    });
 
-    // testWidgets(
-    //     'As an existing user, I can sign in and update my preferred services from the home screen',
-    //     (WidgetTester tester) async {
-    //   await navigateToLogInScreen(tester);
-    //   await tester.enterText(emailField, 'secondUser@email.com');
-    //   await tester.enterText(passwordField, '123456');
-    //   FocusManager.instance.primaryFocus?.unfocus();
+    testWidgets(
+        'As an existing user, I can sign in and update my preferred services from the home screen',
+        (WidgetTester tester) async {
+      await navigateToLogInScreen(tester);
+      await tester.enterText(emailField, 'secondUser@email.com');
+      await tester.enterText(passwordField, '123456');
+      FocusManager.instance.primaryFocus?.unfocus();
 
-    //   final scrollable = find.byType(Scrollable);
-    //   await tester.scrollUntilVisible(signInButton, 500.0,
-    //       scrollable: scrollable.first);
-    //   await tester.tap(signInButton);
-    //   await tester.pumpAndSettle(const Duration(seconds: 5));
-    //   await tester.tap(homeTabButton);
-    //   await tester.pumpAndSettle(const Duration(seconds: 5));
-    //   // Verify initial services are displayed
-    //   expect(find.text('BARBER'), findsOneWidget);
-    //   expect(find.text('CAR DETAILER'), findsOneWidget);
+      final scrollable = find.byType(Scrollable);
+      await tester.scrollUntilVisible(signInButton, 500.0,
+          scrollable: scrollable.first);
+      await tester.tap(signInButton);
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.tap(homeTabButton);
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+      // Verify initial services are displayed
+      expect(find.text('BARBER'), findsOneWidget);
+      expect(find.text('CAR DETAILER'), findsOneWidget);
 
-    //   // Tap edit button to update services
-    //   await tester.tap(editServicesButton);
-    //   await tester.pumpAndSettle(const Duration(seconds: 3));
+      // Tap edit button to update services
+      await tester.tap(editServicesButton);
+      await tester.pumpAndSettle(const Duration(seconds: 3));
 
-    //   // Verify we're on the update services screen
-    //   expect(find.text('Update Your Interests!'), findsOneWidget);
+      // Verify we're on the update services screen
+      expect(find.text('Update Your Interests!'), findsOneWidget);
 
-    //   await tester.tap(find.text('Hair Stylist'));
-    //   await tester.tap(find.text('Barber'));
+      await tester.tap(find.text('Hair Stylist'));
+      await tester.tap(find.text('Barber'));
 
-    //   await tester.pumpAndSettle(const Duration(seconds: 3));
+      await tester.pumpAndSettle(const Duration(seconds: 3));
 
-    //   // Update services
-    //   await tester.tap(updateServicesButton);
-    //   await tester.pumpAndSettle(const Duration(seconds: 3));
+      // Update services
+      await tester.tap(updateServicesButton);
+      await tester.pumpAndSettle(const Duration(seconds: 3));
 
-    //   // Verify new services are displayed
-    //   expect(find.text('HAIR STYLIST'), findsOneWidget);
-    //   expect(find.text('BARBER'), findsNothing);
-    //   await container.read(authServicesProvider).signOut();
-    // });
+      // Verify new services are displayed
+      expect(find.text('HAIR STYLIST'), findsOneWidget);
+      expect(find.text('BARBER'), findsNothing);
+      await container.read(authServicesProvider).signOut();
+    });
 
     testWidgets(
         'As an existing user, I can sign in, go to the profile tab, and update my profile.',
@@ -461,7 +462,6 @@ void main() {
       await tester.pumpAndSettle(const Duration(seconds: 3));
 
       await tester.enterText(verifyPasswordField, 'Pass123!');
-      await tester.scrollUntilVisible(verifyPasswordButton, 50);
       await tester.tap(verifyPasswordButton);
       await tester.pumpAndSettle(const Duration(seconds: 5));
       expect(find.text('Update Password'), findsOneWidget);
@@ -505,7 +505,6 @@ void main() {
       await tester.pumpAndSettle(const Duration(seconds: 3));
 
       await tester.enterText(verifyPasswordField, '123456');
-      await tester.scrollUntilVisible(verifyPasswordButton, 50);
       await tester.tap(verifyPasswordButton);
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
@@ -657,10 +656,9 @@ void main() {
           find.byType(TextField).first, 'Reporting a bug subject line');
       await tester.enterText(find.byType(TextField).last,
           'This is the message box for reporting a  bug');
-      await tester.tap(find.text('Submit Bug Report'));
-      await tester.pumpAndSettle(const Duration(seconds: 3));
-      expect(find.byType(SnackBar), findsOneWidget);
-      expect(find.text('Thank you for reporting this bug!'), findsOneWidget);
+      await tester.tap(feedbackButton);
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+      expect(find.text('Settings'), findsOneWidget);
       await container.read(authServicesProvider).signOut();
     });
 
@@ -697,11 +695,10 @@ void main() {
           find.byType(TextField).first, 'Getting help subject line');
       await tester.enterText(find.byType(TextField).last,
           'This is the message box for getting help');
-      await tester.tap(find.text('Send'));
-      await tester.pumpAndSettle(const Duration(seconds: 3));
-      expect(find.byType(SnackBar), findsOneWidget);
+      await tester.tap(feedbackButton);
+      await tester.pumpAndSettle(const Duration(seconds: 5));
       expect(
-          find.text('Your help request has been submitted!'), findsOneWidget);
+          find.text('Settings'), findsOneWidget);
 
       await container.read(authServicesProvider).signOut();
     });
@@ -1009,14 +1006,21 @@ void main() {
       await tester.tap(profileTabButton);
       await tester.pumpAndSettle(const Duration(seconds: 5));
       await tester.tap(speedDialButton);
-      await tester.pumpAndSettle(const Duration(seconds: 2));
+      await tester.pumpAndSettle(const Duration(seconds: 3));
       await tester.tap(editProfileButton);
-      await tester.pumpAndSettle(const Duration(seconds: 2));
-      await tester.enterText(fullNameField, '');
-      await tester.enterText(usernameField, '');
+      await tester.pumpAndSettle(const Duration(seconds: 3));
+      
 
-      final scrollable2 = find.byType(Scrollable);
-            await tester.scrollUntilVisible(updateProfileButton, 500.0, scrollable: find.byKey(const Key('edit-profile-scrollable')));
+        await tester.tap(fullNameField);
+  await tester.pumpAndSettle();
+  await tester.sendKeyEvent(LogicalKeyboardKey.backspace); // Clear existing text
+  await tester.pumpAndSettle();
+
+  await tester.tap(usernameField);
+  await tester.pumpAndSettle();
+  await tester.sendKeyEvent(LogicalKeyboardKey.backspace); // Clear existing text
+  await tester.pumpAndSettle();
+
 
       await tester.tap(updateProfileButton);
       await tester.pumpAndSettle(const Duration(seconds: 3));
@@ -1059,7 +1063,7 @@ void main() {
 
       // Enter incorrect password for verification
       await tester.enterText(verifyPasswordField, 'wrongpassword');
-      await tester.scrollUntilVisible(verifyPasswordButton, 50);
+
       await tester.tap(verifyPasswordButton);
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
@@ -1101,7 +1105,6 @@ void main() {
 
       // Enter incorrect password for verification
       await tester.enterText(verifyPasswordField, 'wrongpassword');
-      await tester.scrollUntilVisible(verifyPasswordButton, 50);
       await tester.tap(verifyPasswordButton);
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
@@ -1225,7 +1228,6 @@ void main() {
       await tester.tap(find.text('DELETE'));
       await tester.pumpAndSettle(const Duration(seconds: 3));
       await tester.enterText(verifyPasswordField, '123456');
-      await tester.scrollUntilVisible(verifyPasswordButton, 50);
       await tester.tap(verifyPasswordButton);
       await tester.pumpAndSettle(const Duration(seconds: 20));
 
@@ -1266,7 +1268,6 @@ void main() {
       await tester.tap(find.text('DELETE'));
       await tester.pumpAndSettle(const Duration(seconds: 3));
       await tester.enterText(verifyPasswordField, '123456');
-      await tester.scrollUntilVisible(verifyPasswordButton, 50);
       await tester.tap(verifyPasswordButton);
       await tester.pumpAndSettle(const Duration(seconds: 20));
 

@@ -231,8 +231,14 @@ class AccountScreen extends ConsumerWidget {
                   });
                 },
               ),
-              const Spacer(),
-              TextButton(
+            ],
+          ),
+          )
+        )), 
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        floatingActionButton: Container(
+          padding: const EdgeInsets.all(20),
+          width: double.infinity, child: TextButton(
                   style: TextButton.styleFrom(
                       backgroundColor: Theme.of(context).colorScheme.error),
                   onPressed: () {
@@ -286,10 +292,6 @@ class AccountScreen extends ConsumerWidget {
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                     ),
-                  )),
-            ],
-          ),
-          )
-        )));
+                  )),));
   }
 }

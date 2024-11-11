@@ -81,7 +81,7 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              backgroundColor: Theme.of(context).colorScheme.error,
+              backgroundColor: Colors.green[300],
               showCloseIcon: true,
               behavior: SnackBarBehavior.floating,
               content: Text(
@@ -178,8 +178,17 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
                         _messageController,
                         (value) {},
                         context, _messageFocusNode),
-                    // const Spacer(),
-                    ElevatedButton(
+                    const SizedBox(height:50),
+
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+        floatingActionButton: Container(width: double.infinity, padding: const EdgeInsets.all(10), child: ElevatedButton(
+                      key: const Key('submit-feedback-button'),
                       onPressed: _isSubmitting ? null : _submitFeedback,
                       child: _isSubmitting
                           ? const SizedBox(
@@ -196,12 +205,8 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
                               )),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ));
+                    ),),
+        
+        );
   }
 }

@@ -95,6 +95,7 @@ enabledBorder: const OutlineInputBorder(
       labelSmall: TextStyle(color: lightTextColor),
     ),
     colorScheme:  ColorScheme.light(
+      surface: lightBackgroundColor,
         primary: lightPrimaryColor,
         onPrimary: lightPrimaryFgColor,
         secondary: lightSecondaryColor,
@@ -164,6 +165,7 @@ enabledBorder: const OutlineInputBorder(
       labelBehavior: NavigationDestinationLabelBehavior.alwaysHide
     ),
     colorScheme:  ColorScheme.dark(
+      surface: darkBackgroundColor,
         primary: darkPrimaryColor,
         onPrimary: darkPrimaryFgColor,
         secondary: darkSecondaryColor,

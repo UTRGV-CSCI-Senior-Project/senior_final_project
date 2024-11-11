@@ -109,11 +109,17 @@ color: Theme.of(context).colorScheme.primary,
                 MoreDetailsScreen(onDetailsEntered: _onDetailsEntered),
               ],
             )),
-            Container(
+          ],
+        ),
+      )),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        color: Theme.of(context).colorScheme.surface,
               width: double.infinity,
-              padding: const EdgeInsets.only(
-                  top: 24), // Add padding above the error box
               child: Column(
+                    mainAxisSize: MainAxisSize.min,  // Add this to prevent column from expanding
+
                 children: [
                   ErrorBox(
                       errorMessage: errorMessage,
@@ -226,9 +232,6 @@ color: Theme.of(context).colorScheme.primary,
                 ],
               ),
             ),
-          ],
-        ),
-      )),
     );
   }
 }

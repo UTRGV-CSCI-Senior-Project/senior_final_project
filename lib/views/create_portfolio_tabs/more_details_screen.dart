@@ -51,7 +51,9 @@ class _MoreDetailsScreenState extends State<MoreDetailsScreen> {
               ),
               const SizedBox(height: 16.0),
               Expanded(
-                child: SizedBox(
+                
+                child: Padding(
+                  padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 80.0),
                   child: TextField(
                     textAlignVertical: TextAlignVertical.top,
                     textAlign: TextAlign.start,
