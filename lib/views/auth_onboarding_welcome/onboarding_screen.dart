@@ -228,6 +228,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         const SizedBox(height: 10,),
           Expanded(child: ServiceSelectionWidget(services: services, initialSelectedServices: selectedServices, onServicesSelected: (newServices){
             setState(() {
+              errorMessage = "";
               selectedServices.clear();
               selectedServices.addAll(newServices);
             });
@@ -327,20 +328,22 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                               'preferredServices': selectedServicesList
                             });
 
-                            if (!context.mounted) return;
-                            Navigator.pushReplacement(
+                            if (context.mounted) {
+                              Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => const HomeScreen()));
+                            }
                           } catch (e) {
-                            if (!context.mounted) return;
-                            setState(() {
+                            if (context.mounted) {
+                              setState(() {
                               errorMessage = e is AppException
                                   ? e.message
                                   : "Failed to update profile information. Please try again.";
                               _isLoading =
                                   false; // Reset loading state on error
                             });
+                            }
                           }
                         }
                       }

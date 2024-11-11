@@ -384,22 +384,22 @@ void main() {
         await tester.pumpAndSettle(const Duration(seconds: 4));
 
         await tester.tap(fullNameField);
-        await tester.pumpAndSettle();
+        await tester.pumpAndSettle(const Duration(seconds: 3));
         await tester
             .sendKeyEvent(LogicalKeyboardKey.backspace); // Clear existing text
         await tester.enterText(fullNameField, 'New Name');
-        await tester.pumpAndSettle();
+        await tester.pumpAndSettle(const Duration(seconds: 3));
 
         await tester.tap(usernameField);
-        await tester.pumpAndSettle();
+        await tester.pumpAndSettle(const Duration(seconds: 3));
         await tester
             .sendKeyEvent(LogicalKeyboardKey.backspace); // Clear existing text
         await tester.enterText(usernameField, 'newusername');
-        await tester.pumpAndSettle();
+        await tester.pumpAndSettle(const Duration(seconds: 3));
 
         // Ensure the button is visible before tapping
         await tester.tap(updateProfileButton);
-        await tester.pumpAndSettle();
+        await tester.pumpAndSettle(const Duration(seconds: 3));
 
         expect(find.textContaining('New Name'), findsOneWidget);
         await container.read(authServicesProvider).signOut();
@@ -1062,18 +1062,18 @@ void main() {
         await tester.pumpAndSettle(const Duration(seconds: 4));
 
         await tester.tap(fullNameField);
-        await tester.pumpAndSettle();
+        await tester.pumpAndSettle(const Duration(seconds: 3));
         await tester
             .sendKeyEvent(LogicalKeyboardKey.backspace); // Clear existing text
         await tester.enterText(fullNameField, '');
-        await tester.pumpAndSettle();
+        await tester.pumpAndSettle(const Duration(seconds: 3));
 
         await tester.tap(usernameField);
-        await tester.pumpAndSettle();
+        await tester.pumpAndSettle(const Duration(seconds: 3));
         await tester
             .sendKeyEvent(LogicalKeyboardKey.backspace); // Clear existing text
         await tester.enterText(usernameField, '');
-        await tester.pumpAndSettle();
+        await tester.pumpAndSettle(const Duration(seconds: 3));
 
         await tester.tap(updateProfileButton);
         await tester.pumpAndSettle(const Duration(seconds: 4));
