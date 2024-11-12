@@ -48,21 +48,27 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     try {
       final firestoreServices = ref.read(firestoreServicesProvider);
       final fetchedServices = await firestoreServices.getServices();
-      setState(() {
+      if(mounted) {
+        setState(() {
         services = fetchedServices;
 
         for (var service in services) {
           selectedServices[service] = false;
         }
       });
+      }
     } catch (e) {
-      setState(() {
+      if(mounted) {
+        setState(() {
         services = [];
       });
+      }
     } finally {
-      setState(() {
+      if(mounted) {
+        setState(() {
         _servicesAreLoading = false;
       });
+      }
     }
   }
 
@@ -71,9 +77,11 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     final XFile? image =
         await imagePicker.pickImage(source: ImageSource.gallery);
     if (image == null) return;
-    setState(() {
+    if(mounted) {
+      setState(() {
       file = File(image.path);
     });
+    }
   }
 
   Widget buildProfile(BuildContext context) {
@@ -227,11 +235,13 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         ),
         const SizedBox(height: 10,),
           Expanded(child: ServiceSelectionWidget(services: services, initialSelectedServices: selectedServices, onServicesSelected: (newServices){
-            setState(() {
+            if(mounted) {
+              setState(() {
               errorMessage = "";
               selectedServices.clear();
               selectedServices.addAll(newServices);
             });
+            }
           }, isLoading: _isLoading))
           
         ],
@@ -271,19 +281,23 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   physics: const NeverScrollableScrollPhysics(),
                   controller: _pageController,
                   onPageChanged: (int index) {
-                    setState(() {
+                    if(mounted) {
+                      setState(() {
                       _currentPage = index;
                       errorMessage = "";
                     });
+                    }
                   },
                   children: [buildProfile(context), buildInterests(context)],
                 ),
               ),
               errorMessage.isNotEmpty
                   ? ErrorBox(errorMessage: errorMessage, onDismiss: (){
-                    setState(() {
+                    if(mounted) {
+                      setState(() {
                       errorMessage = "";
                     });
+                    }
                   })
                   : Container(),
               Padding(
@@ -293,9 +307,11 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     onPressed: () async {
                       if (_currentPage == 0) {
                         if (_fullNameController.text.isEmpty) {
-                          setState(() {
+                          if(mounted) {
+                            setState(() {
                             errorMessage = "Please enter your full name.";
                           });
+                          }
                         } else {
                           FocusManager.instance.primaryFocus?.unfocus();
                           _pageController.nextPage(
@@ -306,14 +322,18 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                       } else {
                         if (!selectedServices.values
                             .any((selected) => selected)) {
-                          setState(() {
+                              if(mounted) {
+                                setState(() {
                             errorMessage = "Select at least one service.";
                           });
+                              }
                           return;
                         } else {
-                          setState(() {
+                          if(mounted) {
+                            setState(() {
                             _isLoading = true;
                           });
+                          }
                           try {
                             final List<String> selectedServicesList =
                                 selectedServices.entries
@@ -336,13 +356,15 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                             }
                           } catch (e) {
                             if (context.mounted) {
-                              setState(() {
+                              if(mounted) {
+                                setState(() {
                               errorMessage = e is AppException
                                   ? e.message
                                   : "Failed to update profile information. Please try again.";
                               _isLoading =
                                   false; // Reset loading state on error
                             });
+                              }
                             }
                           }
                         }
