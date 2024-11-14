@@ -1,9 +1,7 @@
 import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 import 'package:folio/core/app_exception.dart';
-import 'package:folio/widgets/phone_dialog.dart';
 
 class AuthServices {
   final FirebaseAuth _firebaseAuth;
@@ -31,10 +29,8 @@ class AuthServices {
       await _firebaseAuth.signInWithEmailAndPassword(
           email: email, password: password);
     } on FirebaseAuthException catch (e) {
-      print(e);
       throw AppException(e.code.toString());
     } catch (e) {
-      print(e);
       throw AppException('sign-in-error');
     }
   }

@@ -511,7 +511,7 @@ void main() {
               builder: (context) {
                 return TextButton(
                   onPressed: () {
-                    verifyPasswordDialog(context, title, onVerified);
+                    verifyPasswordDialog(context, title,'Please verify your account before continuing.' ,onVerified);
                   },
                   child: const Text('Open Dialog'),
                 );
@@ -547,7 +547,7 @@ void main() {
               builder: (context) {
                 return TextButton(
                   onPressed: () {
-                    verifyPasswordDialog(context, title, onVerified);
+                    verifyPasswordDialog(context, title,'Please verify your account before continuing.', onVerified);
                   },
                   child: const Text('Open Dialog'),
                 );

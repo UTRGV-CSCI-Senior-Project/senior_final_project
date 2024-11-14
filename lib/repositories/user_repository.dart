@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:folio/core/app_exception.dart';
 import 'package:folio/core/service_locator.dart';
@@ -9,7 +8,6 @@ import 'package:folio/models/user_model.dart';
 import 'package:folio/services/auth_services.dart';
 import 'package:folio/services/firestore_services.dart';
 import 'package:folio/services/storage_services.dart';
-import 'package:folio/widgets/phone_dialog.dart';
 
 class UserRepository {
   final AuthServices _authServices;
@@ -228,7 +226,6 @@ class UserRepository {
     try {
       return await _authServices.verifyPhoneNumber(phoneNumber);
     } catch (e) {
-      print(e);
       if (e is AppException) {
         rethrow;
       } else {
@@ -241,7 +238,6 @@ class UserRepository {
     try{
       await _authServices.verifySmsCode(verificationId, smsCode);
     }catch (e){
-      print(e);
       if(e is AppException)
       {
         rethrow;
