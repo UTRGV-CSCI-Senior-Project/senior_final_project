@@ -14,9 +14,11 @@ class PortfolioRepository {
     try {
       final imageData = await _storageServices.uploadFilesForUser(images);
 
+      final initialDate = DateTime.now();
       await _firestoreServices.savePortfolioDetails({
         'service': service,
         'details': details,
+        'experienceStartDate': initialDate,
         'years': years,
         'months': months,
         'images': imageData
@@ -42,6 +44,11 @@ class PortfolioRepository {
         updateFields['images'] = imageData;
       }
 
+      if (updateFields.containsKey('years') ||
+          updateFields.containsKey('months')) {
+        updateFields['experienceStartDate'] = DateTime.now();
+      }
+
       await _firestoreServices.savePortfolioDetails(updateFields);
     } catch (e) {
       if (e is AppException) {
@@ -58,10 +65,36 @@ class PortfolioRepository {
 
       await _storageServices.deleteImage(filePath);
     } catch (e) {
-      if(e is AppException){
+      if (e is AppException) {
         rethrow;
-      }else{
+      } else {
         throw AppException('delete-image-error');
+      }
+    }
+  }
+
+  Future<void> deletePortfolio() async {
+    try {
+      final portfolio = await _firestoreServices.getPortfolio();
+
+      if (portfolio == null) {
+        throw AppException('no-portfolio');
+      }
+
+      for (var image in portfolio.images) {
+        await deletePortfolioImage(
+            image['filePath']!, // Access the filePath from the map
+            image['downloadUrl']! // Access the downloadUrl from the map
+            );
+      }
+      await _firestoreServices.deletePortfolio();
+
+      await _firestoreServices.updateUser({'isProfessional': false});
+    } catch (e) {
+      if (e is AppException) {
+        rethrow;
+      } else {
+        throw AppException('delete-portfolio-error');
       }
     }
   }

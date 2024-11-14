@@ -5,6 +5,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:folio/core/app_exception.dart';
 import 'package:folio/core/service_locator.dart';
+import 'package:folio/services/auth_services.dart';
 import 'package:folio/services/storage_services.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -14,6 +15,7 @@ import '../../mocks/auth_services_test.mocks.dart';
 import '../../mocks/firestore_services_test.mocks.dart';
 @GenerateMocks([FirebaseStorage, Reference, UploadTask, TaskSnapshot, ListResult])
 import '../../mocks/storage_services_test.mocks.dart';
+import '../../mocks/user_repository_test.mocks.dart';
 
 void main() {
   late StorageServices storageServices;
@@ -23,31 +25,34 @@ void main() {
   late MockRef mockRef;
   late MockUser mockUser;
   late MockTaskSnapshot mockTaskSnapshot;
-  late MockListResult mockListResult;
+  late MockAuthServices mockAuthServices;
 
   setUp(() {
     mockFirebaseStorage = MockFirebaseStorage();
     mockRef = MockRef();
+    mockAuthServices = MockAuthServices();
     mockUser = MockUser();
     mockReference = MockReference();
     mockTaskSnapshot = MockTaskSnapshot();
     mockUploadTask = MockUploadTask();
-    mockListResult = MockListResult();
     storageServices = StorageServices(mockRef, mockFirebaseStorage);
 
     storageServices = StorageServices(mockRef, mockFirebaseStorage);
 
     provideDummy<AsyncValue<User?>>((const AsyncValue.data(null)));
+        provideDummy<AuthServices>(mockAuthServices);
+
   });
 
   group('uploadProfilePicture', () {
     test('uploadProfilePicture succeeds', () async {
+      
       final testFile = File('test_image.jpg');
       const testUid = 'test_user_id';
       const testDownloadUrl = 'https://test-download-url.com';
+when(mockRef.read(authServicesProvider)).thenReturn(mockAuthServices);
 
-      when(mockRef.read(authStateProvider)).thenReturn(AsyncValue.data(mockUser));
-      when(mockUser.uid).thenReturn(testUid);
+      when(mockAuthServices.currentUserUid()).thenAnswer((_) async => testUid);
       when(mockFirebaseStorage.ref()).thenReturn(mockReference);
 
       when(mockReference.child(any)).thenReturn(mockReference);
@@ -73,8 +78,9 @@ void main() {
     test('uploadProfilePicture throws error on no user', () async {
       final testFile = File('test_image.jpg');
 
-      when(mockRef.read(authStateProvider)).thenReturn(const AsyncValue.data(null));
+when(mockRef.read(authServicesProvider)).thenReturn(mockAuthServices);
 
+      when(mockAuthServices.currentUserUid()).thenAnswer((_) async => null);
       expect(() => storageServices.uploadProfilePicture(testFile), throwsA(predicate((error) => 
         error is AppException && 
         error.toString().contains('no-user')
@@ -100,6 +106,7 @@ void main() {
 
   group('uploadFilesForUser', () {
     test('uploadFilesForUser succeeds with multiple files', () async {
+      
       final testFiles = [
         File('test_image1.jpg'),
         File('test_image2.jpg'),
@@ -107,8 +114,9 @@ void main() {
       const testUid = 'test_user_id';
       const testDownloadUrl = 'https://test-download-url.com';
 
-      when(mockRef.read(authStateProvider)).thenReturn(AsyncValue.data(mockUser));
-      when(mockUser.uid).thenReturn(testUid);
+      when(mockRef.read(authServicesProvider)).thenReturn(mockAuthServices);
+
+      when(mockAuthServices.currentUserUid()).thenAnswer((_) async => testUid);
       when(mockFirebaseStorage.ref()).thenReturn(mockReference);
       when(mockReference.child(any)).thenReturn(mockReference);
       when(mockReference.putFile(any)).thenAnswer((_) => mockUploadTask);
@@ -131,8 +139,9 @@ void main() {
     test('uploadFilesForUser throws error on no user', () async {
       final testFiles = [File('test_image.jpg')];
 
-      when(mockRef.read(authStateProvider)).thenReturn(const AsyncValue.data(null));
+when(mockRef.read(authServicesProvider)).thenReturn(mockAuthServices);
 
+      when(mockAuthServices.currentUserUid()).thenAnswer((_) async => null);
       expect(() => storageServices.uploadFilesForUser(testFiles),
           throwsA(predicate((error) =>
               error is AppException && error.toString().contains('no-user'))));
@@ -183,48 +192,4 @@ void main() {
     });
   });
 
-  group('deletePortfolio', () {
-    test('deletePortfolio succeeds', () async {
-      const testUid = 'test_user_id';
-      final mockItems = [mockReference, mockReference];
-
-      when(mockRef.read(authStateProvider)).thenReturn(AsyncValue.data(mockUser));
-      when(mockUser.uid).thenReturn(testUid);
-      when(mockFirebaseStorage.ref()).thenReturn(mockReference);
-      when(mockReference.child(any)).thenReturn(mockReference);
-      when(mockReference.listAll()).thenAnswer((_) async => mockListResult);
-      when(mockListResult.items).thenReturn(mockItems);
-      when(mockReference.delete()).thenAnswer((_) async => {});
-      await storageServices.deletePortfolio();
-      expect(storageServices.deletePortfolio(), completes);
-      verify(mockReference.delete()).called(2);
-    });
-
-    test('deletePortfolio throws error on no user', () async {
-      when(mockRef.read(authStateProvider)).thenReturn(const AsyncValue.data(null));
-
-      // Assert
-      expect(() => storageServices.deletePortfolio(),
-          throwsA(predicate((error) =>
-              error is AppException && error.toString().contains('no-user'))));
-    });
-
-    test('deletePortfolio throws delete-portfolio-error on generic error',
-        () async {
-      const testUid = 'test_user_id';
-
-      when(mockRef.read(authStateProvider)).thenReturn(AsyncValue.data(mockUser));
-      when(mockUser.uid).thenReturn(testUid);
-      when(mockFirebaseStorage.ref()).thenReturn(mockReference);
-      when(mockReference.child(any)).thenReturn(mockReference);
-      when(mockReference.listAll()).thenThrow(Exception('delete-error'));
-
-      // Assert
-      expect(
-          () => storageServices.deletePortfolio(),
-          throwsA(predicate((error) =>
-              error is AppException &&
-              error.toString().contains('delete-portfolio-error'))));
-    });
-  });
 }
