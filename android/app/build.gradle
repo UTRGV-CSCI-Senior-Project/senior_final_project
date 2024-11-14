@@ -43,10 +43,10 @@ android {
 
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
-
-       //change this so it could run in my device -diego
-
+        minSdkVersion 34       //change this so it could run in my device -diego
+        //switch again needs version 34 to run geolocator 
         targetSdk = flutter.targetSdkVersion
+
         versionCode = flutterVersionCode.toInteger()
         versionName = flutterVersionName
     }

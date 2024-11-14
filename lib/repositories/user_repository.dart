@@ -6,6 +6,7 @@ import 'package:folio/models/user_model.dart';
 import 'package:folio/services/auth_services.dart';
 import 'package:folio/services/firestore_services.dart';
 import 'package:folio/services/storage_services.dart';
+import 'package:folio/core/user_location_controller.dart';
 
 class UserRepository {
   final AuthServices _authServices;
@@ -13,11 +14,15 @@ class UserRepository {
   final StorageServices _storageServices;
   final Ref _ref;
 
-  UserRepository(
-      this._authServices, this._firestoreServices, this._storageServices, this._ref);
+  UserRepository(this._authServices, this._firestoreServices,
+      this._storageServices, this._ref);
 
   Future<void> createUser(
-      String username, String email, String password,String city) async {
+    String username,
+    String email,
+    String password,
+    /*String city*/
+  ) async {
     try {
       bool usernameIsUnique =
           await _firestoreServices.isUsernameUnique(username);
@@ -31,7 +36,7 @@ class UserRepository {
         throw AppException('sign-up-error');
       }
       final user = UserModel(
-          uid: result, username: username, email: email, isProfessional: false,city: city);
+          uid: result, username: username, email: email, isProfessional: false);
 
       await _firestoreServices.addUser(user);
 
@@ -55,8 +60,12 @@ class UserRepository {
       final userDoc = await _firestoreServices.getUser();
       final userUID = await _authServices.currentUserUid();
 
-      if(userDoc == null && userUID != null){
-        await _firestoreServices.addUser(UserModel(uid: userUID, username: email.split('@')[0], email: email, isProfessional: false));
+      if (userDoc == null && userUID != null) {
+        await _firestoreServices.addUser(UserModel(
+            uid: userUID,
+            username: email.split('@')[0],
+            email: email,
+            isProfessional: false));
       }
     } catch (e) {
       if (e is AppException) {
@@ -115,6 +124,10 @@ class UserRepository {
     }
   }
 
+  Future<void> setCity() async {
+    await city();
+  }
+
   Future<void> reauthenticateUser(String password) async {
     await _authServices.reauthenticateUser(password);
   }
@@ -127,7 +140,7 @@ class UserRepository {
     await _authServices.updatePassword(newPassword);
   }
 
- Future<void> deleteUserAccount() async {
+  Future<void> deleteUserAccount() async {
     try {
       final user = await _firestoreServices.getUser();
 
@@ -137,13 +150,12 @@ class UserRepository {
       if (user.isProfessional) {
         await _ref.read(portfolioRepositoryProvider).deletePortfolio();
       }
-      if (user.profilePictureUrl != null && user.profilePictureUrl!.isNotEmpty) {
+      if (user.profilePictureUrl != null &&
+          user.profilePictureUrl!.isNotEmpty) {
         await _storageServices.deleteImage('profile_pictures/${user.uid}');
       }
 
       await _firestoreServices.deleteUser();
-
-
 
       await _authServices.deleteUser();
 
@@ -156,5 +168,4 @@ class UserRepository {
       }
     }
   }
-
 }
