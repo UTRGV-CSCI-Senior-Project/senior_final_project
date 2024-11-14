@@ -12,9 +12,11 @@ import 'package:folio/widgets/edit_profile_sheet.dart';
 import 'package:folio/views/settings/settings_screen.dart';
 import 'package:folio/views/auth_onboarding_welcome/state_screens.dart';
 import 'package:folio/views/auth_onboarding_welcome/welcome_screen.dart';
+import 'package:folio/widgets/email_verification_dialog.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 final selectedIndexProvider = StateProvider<int>((ref) => 0);
+final hasShownEmailDialogProvider = StateProvider<bool>((ref) => false);
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -28,8 +30,21 @@ class HomeScreen extends ConsumerWidget {
           if (userModel == null) {
             return const WelcomeScreen();
           }
+
           if (userModel.completedOnboarding) {
             final selectedIndex = ref.watch(selectedIndexProvider);
+            final hasShownDialog = ref.watch(hasShownEmailDialogProvider);
+
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (!hasShownDialog && !userModel.isEmailVerified && context.mounted) {
+                ref.read(hasShownEmailDialogProvider.notifier).state = true;  // Mark as shown
+                showDialog(
+                  context: context,
+                  builder: (context) => const EmailVerificationDialog(),
+                );
+              }
+            });
+
             String getTitle() {
               switch (selectedIndex) {
                 case 0:
@@ -90,7 +105,7 @@ class HomeScreen extends ConsumerWidget {
                           ),
                           backgroundColor: Colors.transparent),
                       SpeedDialChild(
-                        key: const Key('settings-button'),
+                          key: const Key('settings-button'),
                           onTap: () => Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -198,14 +213,15 @@ class HomeScreen extends ConsumerWidget {
           }
         },
         error: (e, s) {
-          if(e is AppException && e.code == 'no-user-doc'){
+          if (e is AppException && e.code == 'no-user-doc') {
             ref.read(userRepositoryProvider).signOut();
-
-          }else if (e is AppException && e.code == 'no-user'){
+          } else if (e is AppException && e.code == 'no-user') {
             ref.read(userRepositoryProvider).signOut();
           }
           return const Scaffold(
-            body: ErrorView(bigText: 'There was an error!', smallText: 'Please check your connection, or restart the app!'),
+            body: ErrorView(
+                bigText: 'There was an error!',
+                smallText: 'Please check your connection, or restart the app!'),
           );
         },
         loading: () => const LoadingScreen());

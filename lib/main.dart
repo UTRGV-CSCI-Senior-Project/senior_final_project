@@ -6,6 +6,7 @@ import 'package:folio/views/home/home_screen.dart';
 import 'package:folio/views/auth_onboarding_welcome/loading_screen.dart';
 import 'package:folio/views/auth_onboarding_welcome/welcome_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:folio/views/settings/account_screen.dart';
 import 'firebase_options.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -32,7 +33,7 @@ class MyApp extends ConsumerWidget {
         initialRoute: '/',
         routes: {
           '/welcome': (context) => const WelcomeScreen(),
-          '/home': (context) => const HomeScreen()
+          '/home': (context) => const HomeScreen(),
         },
         home: FutureBuilder(
             future: Future.delayed(duration, () {

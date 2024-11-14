@@ -61,7 +61,13 @@ final userRepositoryProvider = Provider<UserRepository>((ref) {
   final authServices = ref.watch(authServicesProvider);
   final firestoreServices = ref.watch(firestoreServicesProvider);
   final storageServices = ref.watch(storageServicesProvider);
-  return UserRepository(authServices, firestoreServices, storageServices, ref);
+  final repository =  UserRepository(authServices, firestoreServices, storageServices, ref);
+
+  ref.onDispose(() {
+    repository.dispose();
+  });
+  
+  return repository;
 });
 
 final portfolioRepositoryProvider = Provider<PortfolioRepository>((ref) {
