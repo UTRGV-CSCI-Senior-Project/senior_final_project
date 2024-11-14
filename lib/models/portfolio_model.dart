@@ -1,9 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class PortfolioModel {
   final String _service;
   final String _details;
   final int _years;
   final int _months;
   final List<Map<String, String>> _images;
+  final DateTime? _experienceStartDate;
 
   PortfolioModel({
     required String service,
@@ -11,11 +14,14 @@ class PortfolioModel {
     int years = 0,
     int months = 0,
     List<Map<String, String>> images = const [],
+    DateTime? experienceStartDate
   })  : _service = service,
         _details = details,
         _years = years,
         _months = months,
-        _images = images {
+        _images = images ,
+        _experienceStartDate = experienceStartDate
+        {
     if (service.isEmpty) {
       throw ArgumentError('UID cannot be empty');
     }
@@ -26,6 +32,7 @@ class PortfolioModel {
   int get years => _years;
   int get months => _months;
   List<Map<String, String>> get images => _images;
+  DateTime? get experienceStartDate => _experienceStartDate;
 
   // Convert the model to JSON format
   Map<String, dynamic> toJson() {
@@ -34,7 +41,8 @@ class PortfolioModel {
       "details": details,
       "years": years,
       "months": months,
-      "images": images, // No transformation needed since it's a list of maps
+      "images": images,
+      "experienceStartDate": experienceStartDate
     };
   }
 
@@ -49,6 +57,11 @@ class PortfolioModel {
       throw ArgumentError('empty-years');
     }
 
+    final experienceStartDateTimestamp = json['experienceStartDate'];
+    final experienceStartDate = experienceStartDateTimestamp is Timestamp
+      ? experienceStartDateTimestamp.toDate()
+      : null;
+
     return PortfolioModel(
       service: json['service'] as String,
       details: json['details'] as String,
@@ -58,6 +71,62 @@ class PortfolioModel {
               ?.map((e) => Map<String, String>.from(e as Map))
               .toList() ??
           [],
+      experienceStartDate: experienceStartDate
     );
+  }
+
+ Map<String, int> calculateTotalExperience() {
+    int totalYears = _years;
+    int totalMonths = _months;
+
+    
+    if (_experienceStartDate != null) {
+      final now = DateTime.now();
+      final difference = now.difference(_experienceStartDate);
+      
+      // Convert difference to years and months
+      int additionalMonths = (difference.inDays / 30.44).floor(); // Average days per month
+      int additionalYears = additionalMonths ~/ 12;
+      int remainingMonths = additionalMonths % 12;
+      
+      // Add the additional time to prior experience
+      totalMonths += remainingMonths;
+      totalYears += additionalYears;
+      
+     
+    }
+
+     // Handle month overflow
+      if (totalMonths >= 12) {
+        totalYears += totalMonths ~/ 12;
+        totalMonths = totalMonths % 12;
+      }
+
+    return {
+      'years': totalYears,
+      'months': totalMonths,
+    };
+  }
+
+  // Format total experience as string
+  String getFormattedTotalExperience() {
+    final experience = calculateTotalExperience();
+    final years = experience['years'] ?? 0;
+    final months = experience['months'] ?? 0;
+    
+    if (years == 0 && months == 0) {
+      return "Beginner";
+    }
+    
+    final yearText = years == 1 ? "year" : "years";
+    final monthText = months == 1 ? "month" : "months";
+    
+    if (years == 0) {
+      return "$months $monthText";
+    }
+    if (months == 0) {
+      return "$years $yearText";
+    }
+    return "$years $yearText, $months $monthText";
   }
 }

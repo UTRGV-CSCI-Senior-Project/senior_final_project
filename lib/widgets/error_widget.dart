@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class ErrorBox extends StatelessWidget {
   final String errorMessage;
@@ -22,21 +23,21 @@ class ErrorBox extends StatelessWidget {
         ? Container(
             margin: const EdgeInsets.symmetric(vertical: 10),
             decoration: BoxDecoration(
-              color: Colors.red.withOpacity(0.1), // Light red background
+              color: Theme.of(context).colorScheme.onError,// Light red background
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.red),
+              border: Border.all(color: Theme.of(context).colorScheme.error),
             ),
             child: ListTile(
-              leading: const Icon(Icons.error_outline, color: Colors.red),
+              leading:  Icon(Icons.error_outline, color: Theme.of(context).colorScheme.error),
               title: Text(
                 errorMessage,
-                style: const TextStyle(
-                    color: Colors.red,
-                    fontWeight: FontWeight.bold,
+                style:  GoogleFonts.inter(
+                    color: Theme.of(context).colorScheme.error,
+                    fontWeight: FontWeight.w600,
                     fontSize: 14),
               ),
               trailing: IconButton(
-                icon: const Icon(Icons.close, color: Colors.red),
+                icon:  Icon(Icons.close, color: Theme.of(context).colorScheme.error),
                 onPressed: onDismiss,
               ),
             ),

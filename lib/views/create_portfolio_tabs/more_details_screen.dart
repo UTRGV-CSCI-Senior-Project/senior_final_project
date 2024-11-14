@@ -3,9 +3,15 @@ import 'package:google_fonts/google_fonts.dart';
 
 class MoreDetailsScreen extends StatefulWidget {
   final Function(String) onDetailsEntered;
+  final String initialDetails;
+  final String? title;
+  final String? subTitle;
   const MoreDetailsScreen({
     super.key,
-    required this.onDetailsEntered
+    required this.onDetailsEntered,
+    this.initialDetails = "",
+    this.title,
+    this.subTitle
   });
 
   @override
@@ -16,6 +22,12 @@ class _MoreDetailsScreenState extends State<MoreDetailsScreen> {
   final detailsText = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    detailsText.text = widget.initialDetails;
+  }
+
+  @override
   void dispose(){
     detailsText.dispose();
     super.dispose();
@@ -23,35 +35,30 @@ class _MoreDetailsScreenState extends State<MoreDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
+    return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              Text(widget.title ??
                 "Let's get your profile ready!",
                 style: GoogleFonts.poppins(
-                    fontSize: 22, fontWeight: FontWeight.w500),
+                    fontSize: 20, fontWeight: FontWeight.w500),
               ),
               const SizedBox(height: 8.0),
-              Text(
+              Text(widget.subTitle ??
                 "Write any details for potential clients.",
                 style: GoogleFonts.poppins(
-                    fontSize: 18, fontWeight: FontWeight.w300),
+                    fontSize: 16, fontWeight: FontWeight.w300),
               ),
               const SizedBox(height: 16.0),
               Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.black)
-                  ),
+                
+                child: Padding(
+                  padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 80.0),
                   child: TextField(
+                    textAlignVertical: TextAlignVertical.top,
+                    textAlign: TextAlign.start,
                     key: const Key('details-field'),
-                    cursorColor: Colors.black,
+                    cursorColor: Theme.of(context).colorScheme.primary,
                     onChanged: (value){
                       widget.onDetailsEntered(value);
                     },
@@ -66,9 +73,6 @@ class _MoreDetailsScreenState extends State<MoreDetailsScreen> {
                 ),
               ),
             ],
-          ),
-        ),
-      ),
-    );
+          );
   }
 }

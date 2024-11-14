@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:folio/core/service_locator.dart';
-import 'package:folio/views/state_screens.dart';
+import 'package:folio/views/auth_onboarding_welcome/state_screens.dart';
+import 'package:folio/widgets/service_selection_widget.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class ChooseService extends ConsumerStatefulWidget {
+  final String initialService;
   final Function(String) onServiceSelected;
+  final String? title; 
+  final String? subTitle;
 
-  const ChooseService({super.key, required this.onServiceSelected});
+  const ChooseService({super.key, required this.onServiceSelected, this.initialService = "", this.title, this.subTitle});
 
   @override
   ConsumerState<ChooseService> createState() => _ChooseServiceState();
@@ -20,7 +24,6 @@ class _ChooseServiceState extends ConsumerState<ChooseService> {
   final searchController = TextEditingController();
   bool _isLoading = true;
 
-
   @override
   void initState() {
     super.initState();
@@ -28,25 +31,24 @@ class _ChooseServiceState extends ConsumerState<ChooseService> {
   }
 
   @override
-  void dispose()
-  {
+  void dispose() {
     serviceType.dispose();
     searchController.dispose();
     super.dispose();
   }
 
   Future<void> loadServices() async {
-    try{
+    try {
       final firestoreServices = ref.read(firestoreServicesProvider);
       final fetchedServices = await firestoreServices.getServices();
       setState(() {
         services = fetchedServices;
       });
-    }catch(e){
+    } catch (e) {
       setState(() {
         services = [];
       });
-    }finally{
+    } finally {
       setState(() {
         _isLoading = false;
       });
@@ -55,125 +57,79 @@ class _ChooseServiceState extends ConsumerState<ChooseService> {
 
   @override
   Widget build(BuildContext context) {
-
     if (_isLoading) {
-    return const Center(
-      child: CircularProgressIndicator(
-        color: Colors.blue,
-      ),
-    );
-  }
+      return Center(
+        child: CircularProgressIndicator(
+          color: Theme.of(context).colorScheme.primary,
+        ),
+      );
+    }
 
-  if (services.isEmpty) {
-    return  const ErrorView(bigText: 'Error fetching services!', smallText: 'Please check your connection, or try again later.',);
-  }
+    if (services.isEmpty) {
+      return const ErrorView(
+        bigText: 'Error fetching services!',
+        smallText: 'Please check your connection, or try again later.',
+      );
+    }
 
     return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            
-            const SizedBox(height: 20.0),
-             Text(
-              "Let's get your profile ready!",
-              style: GoogleFonts.poppins(fontSize: 22, fontWeight: FontWeight.w500),
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(widget.title ??
+          "Let's get your profile ready!",
+          style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.w500),
+        ),
+        Text(widget.subTitle ??
+          'What service do you offer?',
+          style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w300),
+        ),
+        Container(
+          margin: const EdgeInsets.only(top: 14),
+          decoration: BoxDecoration(
+            color: Colors.grey[500]!.withOpacity(0.2),
+            borderRadius: BorderRadius.circular(25),
+          ),
+          child: TextField(
+            cursorColor: Theme.of(context).textTheme.displayLarge?.color,
+            controller: searchController,
+            decoration: InputDecoration(
+              hintText: 'Search Folio',
+              enabledBorder: OutlineInputBorder(
+                  borderRadius: const BorderRadius.all(Radius.circular(50)),
+                  borderSide: BorderSide(width: 2, color: Colors.grey[400]!)),
+              focusedBorder: OutlineInputBorder(
+                  borderRadius: const BorderRadius.all(Radius.circular(50)),
+                  borderSide: BorderSide(width: 3, color: Colors.grey[400]!)),
+              hintStyle: GoogleFonts.inter(
+                  fontWeight: FontWeight.w500,
+                  color: Theme.of(context).textTheme.displayLarge?.color),
+              prefixIcon: Icon(Icons.search,
+                  color: Theme.of(context).textTheme.displayLarge?.color),
+              border: InputBorder.none,
+              contentPadding: const EdgeInsets.symmetric(vertical: 15),
             ),
-            const SizedBox(height: 8.0),
-             Text(
-              'What service do you offer?',
-              style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w300),
-            ),
-            const SizedBox(height: 30.0),
-
-             Container(
-              decoration: BoxDecoration(
-                color: const Color.fromRGBO(248, 249, 254, 1),
-                borderRadius: BorderRadius.circular(25),
-              ),
-              child: TextField(
-                cursorColor: Colors.black,
-                controller: searchController,
-                decoration: const InputDecoration(
-                  hintText: 'Services',
-                  prefixIcon: Icon(Icons.search, color: Colors.black),
-                  border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(vertical: 15),
-                ),
-              ),
-            ),
-            const SizedBox(height: 30.0),
-            Expanded(
-              child: ListView.builder(
-                itemCount: services.length,
-                itemBuilder: (context, index) {
-                  final service = services[index];
-                  return GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        if (selectedService == service) {
-                          selectedService = null; // Deselect the service
-                          serviceType.clear(); // Clear the TextField
-
-                        } else {
-                          selectedService = service; // Select the service
-                          serviceType.text = service; // Set the TextField
-                        }
-                        widget.onServiceSelected(selectedService!);
-
-                      });
-                    },
-                    child: serviceTemplate(service, service == selectedService),
-                  );
-                },
-              ),
-              
-            ),
-                    
-          ],
-        );
-  }
-
-   Widget serviceTemplate(String service, bool isSelected) {
-    return GestureDetector(
-      key: Key('$service-button'),
-      onTap: () {
-        setState(() {
-          selectedService = isSelected ? null : service; // Toggle selection
-          serviceType.text = selectedService ?? ''; // Update TextField
-          widget.onServiceSelected(selectedService ?? '');
-        });
-      },
-      child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 5),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? const Color.fromRGBO(229, 255, 200, 100)
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color: isSelected
-                ? const Color.fromRGBO(9, 195, 54, 100)
-                : Colors.grey,
           ),
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              Text(
-                service,
-                style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.normal),
-              ),
-              const Spacer(),
-              if (isSelected)
-                const Icon(
-                  Icons.check,
-                  color: Color.fromRGBO(9, 195, 19, 100),
-                  size: 20,
-                ),
-            ],
-          ),
-        ),
-      ),
+        const SizedBox(height: 30.0),
+        Expanded(
+            child: ServiceSelectionWidget(
+          services: services,
+          initialSelectedServices: widget.initialService.isNotEmpty ? {widget.initialService: true} : {},
+          onServicesSelected: (service) {
+            // Find the selected service (there should only be one)
+            setState(() {
+              if (selectedService == service) {
+                selectedService = null; // Deselect the service
+              } else {
+                selectedService = service; // Select the service
+              }
+              widget.onServiceSelected(selectedService ?? '');
+            });
+          },
+          isLoading: _isLoading,
+          singleSelectionMode: true,
+        )),
+      ],
     );
   }
 }
