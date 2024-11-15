@@ -14,24 +14,10 @@ class UserRepository {
   final FirestoreServices _firestoreServices;
   final StorageServices _storageServices;
   final Ref _ref;
-  StreamSubscription<User?>? _emailVerificationSubscription;
+
 
   UserRepository(this._authServices, this._firestoreServices,
-      this._storageServices, this._ref) {
-    _initializeEmailVerificationListener();
-  }
-
-  void _initializeEmailVerificationListener() {
-    _emailVerificationSubscription = _authServices.userChanges().listen((User? user) async {
-      if (user != null && user.emailVerified) {
-        await _firestoreServices.updateUser({'isEmailVerified': true});
-      }
-    });
-  }
-
-  void dispose() {
-    _emailVerificationSubscription?.cancel();
-  }
+      this._storageServices, this._ref);
 
   Future<void> createUser(
       String username, String email, String password) async {

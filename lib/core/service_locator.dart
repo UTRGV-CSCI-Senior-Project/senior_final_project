@@ -62,10 +62,6 @@ final userRepositoryProvider = Provider<UserRepository>((ref) {
   final firestoreServices = ref.watch(firestoreServicesProvider);
   final storageServices = ref.watch(storageServicesProvider);
   final repository =  UserRepository(authServices, firestoreServices, storageServices, ref);
-
-  ref.onDispose(() {
-    repository.dispose();
-  });
   
   return repository;
 });
@@ -112,6 +108,25 @@ final userDataStreamProvider = StreamProvider<Map<String, dynamic>?>((ref) {
         (userData, portfolio) => {'user': userData, 'portfolio': portfolio});
   }
   return Stream.value(null);
+});
+
+final emailVerificationStreamProvider = StreamProvider<bool>((ref) async* {
+  final auth = ref.read(authServicesProvider);
+  final userRepository = ref.read(userRepositoryProvider);
+
+ while (true) {
+    await Future.delayed(const Duration(seconds: 5));
+    final user = auth.currentUser();
+    await user?.reload();  // Reload user data
+    final isVerified = user?.emailVerified ?? false;
+    if (isVerified) {
+      // Update Firestore when email is verified
+      await userRepository.updateProfile(fields: {'isEmailVerified': true});
+      break;  // Stop emitting once verified
+    }
+    yield isVerified;  // Emit the email verification status
+
+  }
 });
 
 ////////////////// USER STREAMS //////////////////

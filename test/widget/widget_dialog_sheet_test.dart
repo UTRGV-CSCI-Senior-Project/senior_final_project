@@ -6,6 +6,7 @@ import 'package:folio/models/user_model.dart';
 import 'package:folio/widgets/account_item_widget.dart';
 import 'package:folio/widgets/delete_account_dialog.dart';
 import 'package:folio/widgets/edit_profile_sheet.dart';
+import 'package:folio/widgets/email_verification_dialog.dart';
 import 'package:folio/widgets/error_widget.dart';
 import 'package:folio/widgets/input_field_widget.dart';
 import 'package:folio/widgets/logout_dialog.dart';
@@ -511,7 +512,11 @@ void main() {
               builder: (context) {
                 return TextButton(
                   onPressed: () {
-                    verifyPasswordDialog(context, title,'Please verify your account before continuing.' ,onVerified);
+                    verifyPasswordDialog(
+                        context,
+                        title,
+                        'Please verify your account before continuing.',
+                        onVerified);
                   },
                   child: const Text('Open Dialog'),
                 );
@@ -547,7 +552,11 @@ void main() {
               builder: (context) {
                 return TextButton(
                   onPressed: () {
-                    verifyPasswordDialog(context, title,'Please verify your account before continuing.', onVerified);
+                    verifyPasswordDialog(
+                        context,
+                        title,
+                        'Please verify your account before continuing.',
+                        onVerified);
                   },
                   child: const Text('Open Dialog'),
                 );
@@ -662,6 +671,106 @@ void main() {
 
       // Verify that the callback was triggered
       expect(wasPressed, true);
+    });
+  });
+
+  group('EmailVerificationDialog', () {
+    testWidgets('displays the correct title and default message',
+        (WidgetTester tester) async {
+      // Show the EmailVerificationDialog in the widget tree
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            userRepositoryProvider.overrideWithValue(mockUserRepository),
+          ],
+          child: MaterialApp(
+            home: Scaffold(
+              body: EmailVerificationDialog(),
+            ),
+          ),
+        ),
+      );
+
+      // Verify the title and default message
+      expect(find.text('Verify Email'), findsOneWidget);
+      expect(
+        find.text(
+            "Your email address has not been verified yet. Would you like to us to send a verification link to your email?"),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('displays a custom message if provided',
+        (WidgetTester tester) async {
+      const customMessage =
+          "Your email address needs to be verified before adding a phone number.";
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            userRepositoryProvider.overrideWithValue(mockUserRepository),
+          ],
+          child: MaterialApp(
+            home: Scaffold(
+              body: EmailVerificationDialog(message: customMessage),
+            ),
+          ),
+        ),
+      );
+
+      // Verify the custom message is displayed
+      expect(find.text(customMessage), findsOneWidget);
+    });
+
+    testWidgets('closes dialog when "No" button is pressed',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            userRepositoryProvider.overrideWithValue(mockUserRepository),
+          ],
+          child: MaterialApp(
+            home: Scaffold(
+              body: EmailVerificationDialog(),
+            ),
+          ),
+        ),
+      );
+
+      // Tap the "No" button and pump the widget
+      await tester.tap(find.text('No'));
+      await tester.pumpAndSettle();
+
+      // Ensure the dialog is removed from the widget tree
+      expect(find.byType(AlertDialog), findsNothing);
+      // Ensure `sendEmailVerification` was not called
+      verifyNever(mockUserRepository.sendEmailVerification());
+    });
+
+    testWidgets(
+        'calls sendEmailVerification and closes dialog when "Send" button is pressed',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            userRepositoryProvider.overrideWithValue(mockUserRepository),
+          ],
+          child: MaterialApp(
+            home: Scaffold(
+              body: EmailVerificationDialog(),
+            ),
+          ),
+        ),
+      );
+
+      // Tap the "Send" button and pump the widget
+      await tester.tap(find.text('Send'));
+      await tester.pumpAndSettle();
+
+      // Verify the `sendEmailVerification` method is called
+      verify(mockUserRepository.sendEmailVerification()).called(1);
+      // Ensure the dialog is removed from the widget tree
+      expect(find.byType(AlertDialog), findsNothing);
     });
   });
 }

@@ -236,7 +236,10 @@ void main() {
         'isProfessional': false,
         'completedOnboarding': false,
         'preferredServices': [],
-        'profilePictureUrl': null
+        'profilePictureUrl': null,
+        'isEmailVerified': false,
+        'phoneNumber': null,
+        'isPhoneVerified': false
       };
       when(mockFirebaseFirestore.collection('users'))
           .thenReturn(mockCollectionReference);

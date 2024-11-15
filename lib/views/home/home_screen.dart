@@ -34,13 +34,14 @@ class HomeScreen extends ConsumerWidget {
           if (userModel.completedOnboarding) {
             final selectedIndex = ref.watch(selectedIndexProvider);
             final hasShownDialog = ref.watch(hasShownEmailDialogProvider);
+            ref.listen(emailVerificationStreamProvider, (previous, next) {});
 
             WidgetsBinding.instance.addPostFrameCallback((_) {
               if (!hasShownDialog && !userModel.isEmailVerified && context.mounted) {
                 ref.read(hasShownEmailDialogProvider.notifier).state = true;  // Mark as shown
                 showDialog(
                   context: context,
-                  builder: (context) => const EmailVerificationDialog(),
+                  builder: (context) => EmailVerificationDialog(),
                 );
               }
             });

@@ -87,6 +87,9 @@ void main() {
       expect(json['completedOnboarding'], true);
       expect(json['preferredServices'], []);
       expect(json['profilePictureUrl'], null);
+      expect(json['isEmailVerified'], false);
+      expect(json['phoneNumber'], null);
+      expect(json['isPhoneVerified'], false);
     });
   });
 
@@ -111,6 +114,9 @@ void main() {
       expect(user.completedOnboarding, false);
       expect(user.preferredServices, ['Barber']);
       expect(user.profilePictureUrl, null);
+      expect(user.isEmailVerified, false);
+      expect(user.phoneNumber, null);
+      expect(user.isPhoneVerified, false);
     });
 
     test('should return a valid user model with a fullName', () {
@@ -132,6 +138,9 @@ void main() {
       expect(user.completedOnboarding, false);
       expect(user.preferredServices, []);
       expect(user.profilePictureUrl, null);
+      expect(user.isEmailVerified, false);
+      expect(user.phoneNumber, null);
+      expect(user.isPhoneVerified, false);
     });
 
     test('should throw an error when uid is missing', () {

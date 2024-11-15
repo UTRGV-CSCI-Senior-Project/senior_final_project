@@ -4,7 +4,8 @@ import 'package:folio/core/service_locator.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class EmailVerificationDialog extends ConsumerWidget {
-  const EmailVerificationDialog({super.key});
+  String? message;
+   EmailVerificationDialog({super.key, this.message});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -18,7 +19,7 @@ class EmailVerificationDialog extends ConsumerWidget {
             fontWeight: FontWeight.bold,
             color: Theme.of(context).colorScheme.onTertiary),
       ),
-      content: Text(
+      content: Text(message ??
           "Your email address has not been verified yet. Would you like to us to send a verification link to your email?",
           style: GoogleFonts.poppins(
               fontSize: 18,

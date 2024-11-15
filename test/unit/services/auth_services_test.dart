@@ -6,7 +6,7 @@ import 'package:folio/services/auth_services.dart';
 import 'package:test/expect.dart';
 import 'package:test/scaffolding.dart';
 
-@GenerateMocks([FirebaseAuth, UserCredential, User])
+@GenerateMocks([FirebaseAuth, UserCredential, User, PhoneAuthCredential])
 import '../../mocks/auth_services_test.mocks.dart';
 
 void main() {
@@ -382,7 +382,7 @@ void main() {
       expect(
         () => authServices.reauthenticateUser('password123'),
         throwsA(predicate(
-            (e) => e is AppException && e.code == 'reauthenticate-user-error')),
+            (e) => e is AppException && e.code == 'reauthenticate-error')),
       );
     });
   });
@@ -485,4 +485,140 @@ void main() {
       );
     });
   });
+
+  group('verifyPhoneNumber', () {
+  test('successfully initiates phone verification', () async {
+    when(mockFirebaseAuth.currentUser).thenReturn(mockUser);
+    
+    // Mock the verifyPhoneNumber method
+    when(mockFirebaseAuth.verifyPhoneNumber(
+      phoneNumber: anyNamed('phoneNumber'),
+      verificationCompleted: anyNamed('verificationCompleted'),
+      verificationFailed: anyNamed('verificationFailed'),
+      codeSent: anyNamed('codeSent'),
+      codeAutoRetrievalTimeout: anyNamed('codeAutoRetrievalTimeout'),
+    )).thenAnswer((invocation) async {
+      // get the codeSent callback
+      final codeSent = invocation.namedArguments[const Symbol('codeSent')] 
+          as void Function(String, int?);
+      
+      // Call codeSent with a mock verification ID
+      codeSent('mock-verification-id', 12345);
+    });
+
+    final result = await authServices.verifyPhoneNumber('+1234567890');
+    
+    expect(result, 'mock-verification-id');
+    verify(mockFirebaseAuth.currentUser).called(1);
+    verify(mockFirebaseAuth.verifyPhoneNumber(
+      phoneNumber: '+1234567890',
+      verificationCompleted: anyNamed('verificationCompleted'),
+      verificationFailed: anyNamed('verificationFailed'),
+      codeSent: anyNamed('codeSent'),
+      codeAutoRetrievalTimeout: anyNamed('codeAutoRetrievalTimeout'),
+    )).called(1);
+  });
+
+  test('throws no-user error when current user is null', () async {
+    when(mockFirebaseAuth.currentUser).thenReturn(null);
+
+    expect(
+      () => authServices.verifyPhoneNumber('+1234567890'),
+      throwsA(predicate((e) => e is AppException && e.code == 'no-user')),
+    );
+  });
+
+  test('throws FirebaseAuthException codes properly', () async {
+    when(mockFirebaseAuth.currentUser).thenReturn(mockUser);
+    when(mockFirebaseAuth.verifyPhoneNumber(
+      phoneNumber: anyNamed('phoneNumber'),
+      verificationCompleted: anyNamed('verificationCompleted'),
+      verificationFailed: anyNamed('verificationFailed'),
+      codeSent: anyNamed('codeSent'),
+      codeAutoRetrievalTimeout: anyNamed('codeAutoRetrievalTimeout'),
+    )).thenAnswer((invocation) async {
+      // get the verificationFailed callback
+      final verificationFailed = invocation.namedArguments[const Symbol('verificationFailed')] 
+          as void Function(FirebaseAuthException);
+      
+      // Call verificationFailed with an invalid-phone-number error
+      verificationFailed(FirebaseAuthException(code: 'invalid-phone-number'));
+    });
+
+    expect(
+      () => authServices.verifyPhoneNumber('+1234567890'),
+      throwsA(predicate((e) => 
+        e is AppException && e.toString().contains('invalid-phone-number'))),
+    );
+  });
+
+  test('throws verify-number-error on other exceptions', () async {
+    when(mockFirebaseAuth.currentUser).thenReturn(mockUser);
+    when(mockFirebaseAuth.verifyPhoneNumber(
+      phoneNumber: anyNamed('phoneNumber'),
+      verificationCompleted: anyNamed('verificationCompleted'),
+      verificationFailed: anyNamed('verificationFailed'),
+      codeSent: anyNamed('codeSent'),
+      codeAutoRetrievalTimeout: anyNamed('codeAutoRetrievalTimeout'),
+    )).thenThrow(Exception('Unexpected error'));
+
+    expect(
+      () => authServices.verifyPhoneNumber('+1234567890'),
+      throwsA(predicate((e) => 
+        e is AppException && e.code == 'verify-number-error')),
+    );
+  });
+});
+
+group('verifySmsCode', () {
+  late PhoneAuthCredential mockPhoneAuthCredential;
+
+  setUp(() {
+    mockPhoneAuthCredential = MockPhoneAuthCredential();
+  });
+
+  test('successfully verifies SMS code', () async {
+    when(mockFirebaseAuth.currentUser).thenReturn(mockUser);
+    when(mockUser.updatePhoneNumber(any))
+        .thenAnswer((_) async => Future<void>.value());
+
+    await authServices.verifySmsCode('verification-id', '123456');
+
+    verify(mockFirebaseAuth.currentUser).called(1);
+    verify(mockUser.updatePhoneNumber(any)).called(1);
+  });
+
+  test('throws no-user error when current user is null', () async {
+    when(mockFirebaseAuth.currentUser).thenReturn(null);
+
+    expect(
+      () => authServices.verifySmsCode('verification-id', '123456'),
+      throwsA(predicate((e) => e is AppException && e.code == 'no-user')),
+    );
+  });
+
+  test('throws FirebaseAuthException codes from updatePhoneNumber', () async {
+    when(mockFirebaseAuth.currentUser).thenReturn(mockUser);
+    when(mockUser.updatePhoneNumber(any))
+        .thenThrow(FirebaseAuthException(code: 'invalid-verification-code'));
+
+    expect(
+      () => authServices.verifySmsCode('verification-id', '123456'),
+      throwsA(predicate((e) => 
+        e is AppException && e.toString().contains('invalid-verification-code'))),
+    );
+  });
+
+  test('throws verify-sms-error on other exceptions', () async {
+    when(mockFirebaseAuth.currentUser).thenReturn(mockUser);
+    when(mockUser.updatePhoneNumber(any))
+        .thenThrow(Exception('Unexpected error'));
+
+    expect(
+      () => authServices.verifySmsCode('verification-id', '123456'),
+      throwsA(predicate((e) => 
+        e is AppException && e.code == 'verify-sms-error')),
+    );
+  });
+});
 }

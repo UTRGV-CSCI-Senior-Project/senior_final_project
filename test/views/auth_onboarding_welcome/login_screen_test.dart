@@ -108,7 +108,7 @@ void main() {
       //Expect to see error with taken username message
       expect(
           find.textContaining(
-              'Invalid login credentials. Please check your email and password.'),
+              'Invalid login credentials. Please check your email or password.'),
           findsOneWidget);
     });
 

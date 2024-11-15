@@ -8,6 +8,7 @@ import 'dart:io' as _i4;
 
 import 'package:folio/repositories/user_repository.dart' as _i2;
 import 'package:mockito/mockito.dart' as _i1;
+import 'package:mockito/src/dummies.dart' as _i5;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -29,6 +30,15 @@ class MockUserRepository extends _i1.Mock implements _i2.UserRepository {
   MockUserRepository() {
     _i1.throwOnMissingStub(this);
   }
+
+  @override
+  void dispose() => super.noSuchMethod(
+        Invocation.method(
+          #dispose,
+          [],
+        ),
+        returnValueForMissingStub: null,
+      );
 
   @override
   _i3.Future<void> createUser(
@@ -130,6 +140,48 @@ class MockUserRepository extends _i1.Mock implements _i2.UserRepository {
         Invocation.method(
           #deleteUserAccount,
           [],
+        ),
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
+
+  @override
+  _i3.Future<void> sendEmailVerification() => (super.noSuchMethod(
+        Invocation.method(
+          #sendEmailVerification,
+          [],
+        ),
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
+
+  @override
+  _i3.Future<String> verifyPhone(String? phoneNumber) => (super.noSuchMethod(
+        Invocation.method(
+          #verifyPhone,
+          [phoneNumber],
+        ),
+        returnValue: _i3.Future<String>.value(_i5.dummyValue<String>(
+          this,
+          Invocation.method(
+            #verifyPhone,
+            [phoneNumber],
+          ),
+        )),
+      ) as _i3.Future<String>);
+
+  @override
+  _i3.Future<void> verifySmsCode(
+    String? verificationId,
+    String? smsCode,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #verifySmsCode,
+          [
+            verificationId,
+            smsCode,
+          ],
         ),
         returnValue: _i3.Future<void>.value(),
         returnValueForMissingStub: _i3.Future<void>.value(),

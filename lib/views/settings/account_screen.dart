@@ -6,7 +6,8 @@ import 'package:folio/models/user_model.dart';
 import 'package:folio/widgets/account_item_widget.dart';
 import 'package:folio/widgets/delete_account_dialog.dart';
 import 'package:folio/widgets/edit_profile_sheet.dart';
-import 'package:folio/widgets/phone_dialog.dart';
+import 'package:folio/widgets/email_verification_dialog.dart';
+import 'package:folio/views/settings/phone_verification_flow.dart';
 import 'package:folio/widgets/update_email_dialog.dart';
 import 'package:folio/widgets/verify_password_dialog.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -51,7 +52,8 @@ class AccountScreen extends ConsumerWidget {
                           context: context,
                           value: user.email,
                           onTap: () => {
-                                verifyPasswordDialog(context, 'Verify Password', "Please verify your password before updating your account's email address.",
+                                verifyPasswordDialog(context, 'Verify Password',
+                                    "Please verify your password before updating your account's email address.",
                                     (password) async {
                                   try {
                                     // Call your reauthenticate method here
@@ -158,7 +160,8 @@ class AccountScreen extends ConsumerWidget {
                         context: context,
                         value: '',
                         onTap: () {
-                          verifyPasswordDialog(context, 'Verify Password', "Please verify your current password before creating your new password.",
+                          verifyPasswordDialog(context, 'Verify Password',
+                              "Please verify your current password before creating your new password.",
                               (newPassword) async {
                             try {
                               await ref
@@ -252,7 +255,16 @@ class AccountScreen extends ConsumerWidget {
                           context: context,
                           value: user.phoneNumber ?? '',
                           onTap: () {
-                            verifyPasswordDialog(context, 'Verify Password', "Please verify your password before adding your phone number.",
+                            if (!user.isEmailVerified) {
+                              showDialog(
+                                context: context,
+                                builder: (context) =>
+                                   EmailVerificationDialog(message: "Your email address needs to be verified before adding a phone number. Would you like to us to send a verification link to your email?",),
+                              );
+                              return;
+                            }
+                            verifyPasswordDialog(context, 'Verify Password',
+                                "Please verify your password before adding your phone number.",
                                 (password) async {
                               try {
                                 await ref
@@ -260,10 +272,13 @@ class AccountScreen extends ConsumerWidget {
                                     .reauthenticateUser(password);
                                 if (context.mounted) {
                                   await showDialog(
-                                    useSafeArea: false,
+                                      useSafeArea: false,
                                       context: context,
                                       builder: (BuildContext context) =>
-                                           PhoneVerificationFlow(initialPhoneNumber: user.phoneNumber,));
+                                          PhoneVerificationFlow(
+                                            initialPhoneNumber:
+                                                user.phoneNumber,
+                                          ));
                                 }
                               } catch (e) {
                                 if (context.mounted) {
@@ -304,7 +319,8 @@ class AccountScreen extends ConsumerWidget {
                     builder: (BuildContext context) => DeleteDialog(
                         title: 'Account',
                         onPressed: () {
-                          verifyPasswordDialog(context, 'Verify Password', "Please verify your password before deleting your account.\n\nWe need to make sure it's you!",
+                          verifyPasswordDialog(context, 'Verify Password',
+                              "Please verify your password before deleting your account.\n\nWe need to make sure it's you!",
                               (password) async {
                             try {
                               await ref

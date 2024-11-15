@@ -47,8 +47,8 @@ class AuthServices {
     return _firebaseAuth.authStateChanges();
   }
 
-  Stream<User?> userChanges() {
-    return _firebaseAuth.userChanges();
+  User? currentUser() {
+    return _firebaseAuth.currentUser;
   }
 
   Future<void> deleteUser() async {
