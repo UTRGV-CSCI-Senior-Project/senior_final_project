@@ -83,9 +83,6 @@ jobs:
       - name: Clone Repository
         uses: actions/checkout@v4
 
-      - name: Erase all simulators
-        run: xcrun simctl erase all
-
       - name: Cache Derived Data
         uses: actions/cache@v4
         with:
