@@ -683,7 +683,7 @@ void main() {
           overrides: [
             userRepositoryProvider.overrideWithValue(mockUserRepository),
           ],
-          child: MaterialApp(
+          child: const MaterialApp(
             home: Scaffold(
               body: EmailVerificationDialog(),
             ),
@@ -710,7 +710,7 @@ void main() {
           overrides: [
             userRepositoryProvider.overrideWithValue(mockUserRepository),
           ],
-          child: MaterialApp(
+          child: const MaterialApp(
             home: Scaffold(
               body: EmailVerificationDialog(message: customMessage),
             ),
@@ -729,7 +729,7 @@ void main() {
           overrides: [
             userRepositoryProvider.overrideWithValue(mockUserRepository),
           ],
-          child: MaterialApp(
+          child: const MaterialApp(
             home: Scaffold(
               body: EmailVerificationDialog(),
             ),
@@ -755,7 +755,7 @@ void main() {
           overrides: [
             userRepositoryProvider.overrideWithValue(mockUserRepository),
           ],
-          child: MaterialApp(
+          child: const MaterialApp(
             home: Scaffold(
               body: EmailVerificationDialog(),
             ),

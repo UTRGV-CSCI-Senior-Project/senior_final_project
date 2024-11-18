@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:folio/core/service_locator.dart';
 import 'package:folio/views/settings/phone_verification_flow.dart';
+import 'package:folio/widgets/sms_code_dialog.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:mockito/mockito.dart';
 import 'package:folio/core/app_exception.dart';
@@ -24,7 +25,7 @@ void main() {
           overrides: [
             userRepositoryProvider.overrideWithValue(mockUserRepository),
           ],
-          child: MaterialApp(
+          child: const MaterialApp(
             home: PhoneVerificationFlow(),
           ),
         ),
@@ -42,7 +43,7 @@ void main() {
           overrides: [
             userRepositoryProvider.overrideWithValue(mockUserRepository),
           ],
-          child: MaterialApp(
+          child: const MaterialApp(
             home: PhoneVerificationFlow(),
           ),
         ),
@@ -65,7 +66,7 @@ void main() {
           overrides: [
             userRepositoryProvider.overrideWithValue(mockUserRepository),
           ],
-          child: MaterialApp(
+          child: const MaterialApp(
             home: PhoneVerificationFlow(),
           ),
         ),
@@ -101,7 +102,7 @@ void main() {
           overrides: [
             userRepositoryProvider.overrideWithValue(mockUserRepository),
           ],
-          child: MaterialApp(
+          child: const MaterialApp(
             home: PhoneVerificationFlow(),
           ),
         ),
@@ -143,7 +144,7 @@ void main() {
           overrides: [
             userRepositoryProvider.overrideWithValue(mockUserRepository),
           ],
-          child: MaterialApp(
+          child: const MaterialApp(
             home: PhoneVerificationFlow(),
           ),
         ),

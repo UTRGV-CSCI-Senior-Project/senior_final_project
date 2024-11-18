@@ -4,8 +4,8 @@ import 'package:folio/core/service_locator.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class EmailVerificationDialog extends ConsumerWidget {
-  String? message;
-   EmailVerificationDialog({super.key, this.message});
+  final String? message;
+  const EmailVerificationDialog({super.key, this.message});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -30,6 +30,7 @@ class EmailVerificationDialog extends ConsumerWidget {
           children: [
             Expanded(
               child: TextButton(
+                key: const Key('no-verification-button'),
                 onPressed: () => Navigator.pop(context),
                 style: TextButton.styleFrom(
                   backgroundColor: Colors.transparent,

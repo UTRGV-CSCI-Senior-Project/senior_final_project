@@ -18,11 +18,45 @@ import 'package:google_fonts/google_fonts.dart';
 final selectedIndexProvider = StateProvider<int>((ref) => 0);
 final hasShownEmailDialogProvider = StateProvider<bool>((ref) => false);
 
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Move dialog check to initState
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkAndShowEmailVerification();
+    });
+  }
+
+  void _checkAndShowEmailVerification() {
+    final userData = ref.read(userDataStreamProvider).value;
+    if (userData == null) return;
+
+    final userModel = userData['user'];
+    if (userModel == null) return;
+        if (!userModel.completedOnboarding) return;
+
+    final hasShownDialog = ref.read(hasShownEmailDialogProvider);
+    if (!hasShownDialog && !userModel.isEmailVerified && mounted) {
+      ref.read(hasShownEmailDialogProvider.notifier).state = true;
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        useRootNavigator: true,
+        builder: (BuildContext dialogContext) => const EmailVerificationDialog(),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return ref.watch(userDataStreamProvider).when(
         data: (userData) {
           final userModel = userData?['user'];
@@ -33,18 +67,7 @@ class HomeScreen extends ConsumerWidget {
 
           if (userModel.completedOnboarding) {
             final selectedIndex = ref.watch(selectedIndexProvider);
-            final hasShownDialog = ref.watch(hasShownEmailDialogProvider);
             ref.listen(emailVerificationStreamProvider, (previous, next) {});
-
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (!hasShownDialog && !userModel.isEmailVerified && context.mounted) {
-                ref.read(hasShownEmailDialogProvider.notifier).state = true;  // Mark as shown
-                showDialog(
-                  context: context,
-                  builder: (context) => EmailVerificationDialog(),
-                );
-              }
-            });
 
             String getTitle() {
               switch (selectedIndex) {
@@ -64,7 +87,6 @@ class HomeScreen extends ConsumerWidget {
             return Scaffold(
               appBar: AppBar(
                 centerTitle: false,
-                leading: null,
                 actions: [
                   SpeedDial(
                     key: const Key('speeddial-button'),

@@ -259,7 +259,7 @@ class AccountScreen extends ConsumerWidget {
                               showDialog(
                                 context: context,
                                 builder: (context) =>
-                                   EmailVerificationDialog(message: "Your email address needs to be verified before adding a phone number. Would you like to us to send a verification link to your email?",),
+                                   const EmailVerificationDialog(message: "Your email address needs to be verified before adding a phone number. Would you like to us to send a verification link to your email?",),
                               );
                               return;
                             }

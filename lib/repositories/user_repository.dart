@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:folio/core/app_exception.dart';
 import 'package:folio/core/service_locator.dart';
@@ -124,7 +123,6 @@ class UserRepository {
 
   Future<void> reauthenticateUser(String password) async {
     try{
-
     await _authServices.reauthenticateUser(password);
     }catch (e)
     {

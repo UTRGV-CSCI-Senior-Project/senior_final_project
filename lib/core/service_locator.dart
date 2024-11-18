@@ -119,12 +119,12 @@ final emailVerificationStreamProvider = StreamProvider<bool>((ref) async* {
     final user = auth.currentUser();
     await user?.reload();  // Reload user data
     final isVerified = user?.emailVerified ?? false;
+    yield isVerified;  // Emit the email verification status
     if (isVerified) {
       // Update Firestore when email is verified
       await userRepository.updateProfile(fields: {'isEmailVerified': true});
       break;  // Stop emitting once verified
     }
-    yield isVerified;  // Emit the email verification status
 
   }
 });
@@ -135,9 +135,9 @@ final emailVerificationStreamProvider = StreamProvider<bool>((ref) async* {
 void setupEmulators({bool useEmulators = false}) {
   if (useEmulators) {
     try {
-      FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
-      FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
-      FirebaseStorage.instance.useStorageEmulator('localhost', 9199);
+      FirebaseAuth.instance.useAuthEmulator('127.0.0.1', 9099);
+      FirebaseFirestore.instance.useFirestoreEmulator('127.0.0.1', 8080);
+      FirebaseStorage.instance.useStorageEmulator('127.0.0.1', 9199);
       // Add other emulators as needed
 
       developer.log(
