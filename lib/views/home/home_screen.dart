@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
@@ -26,17 +28,25 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
+    Timer? _emailCheckTimer;
+
   @override
   void initState() {
     super.initState();
     // Move dialog check to initState
    WidgetsBinding.instance.addPostFrameCallback((_) async {
       // Add slight delay to ensure state is properly initialized
-      await Future.delayed(const Duration(milliseconds: 100));
-      if (mounted) {
-        _checkAndShowEmailVerification();
-      }
+      _emailCheckTimer = Timer(const Duration(milliseconds: 100), () {
+        if (mounted) {
+          _checkAndShowEmailVerification();
+        }
+      });
     });
+  }
+ @override
+  void dispose() {
+    _emailCheckTimer?.cancel();
+    super.dispose();
   }
 
 void _checkAndShowEmailVerification() {

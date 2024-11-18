@@ -571,11 +571,6 @@ void main() {
 });
 
 group('verifySmsCode', () {
-  late PhoneAuthCredential mockPhoneAuthCredential;
-
-  setUp(() {
-    mockPhoneAuthCredential = MockPhoneAuthCredential();
-  });
 
   test('successfully verifies SMS code', () async {
     when(mockFirebaseAuth.currentUser).thenReturn(mockUser);

@@ -1,13 +1,8 @@
-import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:ui';
 import 'package:folio/views/home/profile_tab.dart';
-import 'package:folio/views/settings/phone_verification_flow.dart';
 import 'package:folio/widgets/email_verification_dialog.dart';
 import 'package:folio/widgets/sms_code_dialog.dart';
-import 'package:http/retry.dart';
-import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:network_image_mock/network_image_mock.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -121,14 +116,6 @@ void main() {
         overrides: [imagePickerProvider.overrideWithValue(mockImagePicker)]);
     await container.read(authServicesProvider).signOut();
 
-        if (Platform.isAndroid) {
-      // Android specific test code
-      print('Running on Android');
-    } else if (Platform.isIOS) {
-      // iOS specific test code
-      print('Running on iOS');
-    }
-
   });
 
   setUp(() {
@@ -201,7 +188,6 @@ void main() {
       }
       return null;
     } catch (e) {
-      print('error: $e');
       return null;
     }
   }

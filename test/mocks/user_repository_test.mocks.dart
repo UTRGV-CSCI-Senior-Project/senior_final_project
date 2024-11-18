@@ -94,15 +94,6 @@ class MockAuthServices extends _i1.Mock implements _i2.AuthServices {
       ) as _i3.Stream<_i4.User?>);
 
   @override
-  _i3.Stream<_i4.User?> userChanges() => (super.noSuchMethod(
-        Invocation.method(
-          #userChanges,
-          [],
-        ),
-        returnValue: _i3.Stream<_i4.User?>.empty(),
-      ) as _i3.Stream<_i4.User?>);
-
-  @override
   _i3.Future<void> deleteUser() => (super.noSuchMethod(
         Invocation.method(
           #deleteUser,

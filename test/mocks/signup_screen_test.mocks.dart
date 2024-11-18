@@ -32,15 +32,6 @@ class MockUserRepository extends _i1.Mock implements _i2.UserRepository {
   }
 
   @override
-  void dispose() => super.noSuchMethod(
-        Invocation.method(
-          #dispose,
-          [],
-        ),
-        returnValueForMissingStub: null,
-      );
-
-  @override
   _i3.Future<void> createUser(
     String? username,
     String? email,

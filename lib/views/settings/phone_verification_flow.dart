@@ -13,7 +13,8 @@ class PhoneVerificationFlow extends ConsumerStatefulWidget {
   const PhoneVerificationFlow({super.key, this.initialPhoneNumber});
 
   @override
-  ConsumerState<PhoneVerificationFlow> createState() => _PhoneVerificationFlowState();
+  ConsumerState<PhoneVerificationFlow> createState() =>
+      _PhoneVerificationFlowState();
 }
 
 class _PhoneVerificationFlowState extends ConsumerState<PhoneVerificationFlow> {
@@ -46,22 +47,24 @@ class _PhoneVerificationFlowState extends ConsumerState<PhoneVerificationFlow> {
       }
       final verificationId =
           await ref.read(userRepositoryProvider).verifyPhone(_phoneNumber);
-      String? smsCode = await getSmsCodeFromUser(context);
+      if (mounted) {
+        String? smsCode = await getSmsCodeFromUser(context);
 
-      if (smsCode == null) {
-        if (context.mounted) {
-          setState(() {
-            _isLoading = false;
-          });
+        if (smsCode == null) {
+          if (context.mounted) {
+            setState(() {
+              _isLoading = false;
+            });
+          }
+          return;
         }
-        return;
+        await ref
+            .read(userRepositoryProvider)
+            .verifySmsCode(verificationId, smsCode);
+        await ref.read(userRepositoryProvider).updateProfile(
+            fields: {'phoneNumber': _phoneNumber, 'isPhoneVerified': true});
       }
-      await ref
-          .read(userRepositoryProvider)
-          .verifySmsCode(verificationId, smsCode);
-      await ref.read(userRepositoryProvider).updateProfile(
-          fields: {'phoneNumber': _phoneNumber, 'isPhoneVerified': true});
-      if (context.mounted) {
+      if (mounted) {
         Navigator.of(context).popUntil((route) => route.isFirst);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -103,86 +106,83 @@ class _PhoneVerificationFlowState extends ConsumerState<PhoneVerificationFlow> {
     }
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return StatefulBuilder(builder: (context, setState) {
       return Dialog.fullscreen(
         child: Scaffold(
           appBar: AppBar(
-                automaticallyImplyLeading: true,
-                centerTitle: true,
-                title: Text(
-                  'Add your phone number',
-                  style: GoogleFonts.inter(
-                      fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-              ),
-          body: SafeArea(child: Padding(
+            automaticallyImplyLeading: true,
+            centerTitle: true,
+            title: Text(
+              'Add your phone number',
+              style:
+                  GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+          ),
+          body: SafeArea(
+              child: Padding(
             padding: const EdgeInsets.all(20),
             child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(
-                        'Please enter your phone number.\n\nWe will send a 6 digit code to the provided number.',
-                        style: GoogleFonts.inter(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      IntlPhoneField(
-                        key: const Key('phone-field'),
-                        invalidNumberMessage: null,
-                        initialCountryCode: 'US',
-                        style: GoogleFonts.inter(
-                            fontSize: 16, fontWeight: FontWeight.w600),
-                        dropdownIconPosition: IconPosition.trailing,
-                        flagsButtonMargin: const EdgeInsets.all(10),
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly
-                        ],
-                        languageCode: "en",
-                        onChanged: (phone) {
-                          setState(() {
-                            _isPhoneValid = phone;
-                            _phoneNumber = phone.completeNumber;
-                          });
-                        },
-                      )
+                    'Please enter your phone number.\n\nWe will send a 6 digit code to the provided number.',
+                    style: GoogleFonts.inter(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  IntlPhoneField(
+                    key: const Key('phone-field'),
+                    invalidNumberMessage: null,
+                    initialCountryCode: 'US',
+                    style: GoogleFonts.inter(
+                        fontSize: 16, fontWeight: FontWeight.w600),
+                    dropdownIconPosition: IconPosition.trailing,
+                    flagsButtonMargin: const EdgeInsets.all(10),
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    languageCode: "en",
+                    onChanged: (phone) {
+                      setState(() {
+                        _isPhoneValid = phone;
+                        _phoneNumber = phone.completeNumber;
+                      });
+                    },
+                  )
                 ],
               ),
             ),
-             )),
-              floatingActionButtonLocation:
-                FloatingActionButtonLocation.centerFloat,
-            floatingActionButton: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: TextButton(
-                key: const Key('send-code-button'),
-                onPressed: _isLoading ? null : () => _handlePhoneVerification(),
-                child: _isLoading
-                    ?  SizedBox(
-                        height: 25,
-                        width: 25,
-                        child: CircularProgressIndicator(
-                          color: Theme.of(context).colorScheme.onPrimary,
-                            strokeWidth: 5,
-                        ),
-                      )
-                    : Text(
-                        key: const Key('phone-number-button'),
-                        'Send Code',
-                        style: GoogleFonts.inter(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
+          )),
+          floatingActionButtonLocation:
+              FloatingActionButtonLocation.centerFloat,
+          floatingActionButton: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: TextButton(
+              key: const Key('send-code-button'),
+              onPressed: _isLoading ? null : () => _handlePhoneVerification(),
+              child: _isLoading
+                  ? SizedBox(
+                      height: 25,
+                      width: 25,
+                      child: CircularProgressIndicator(
+                        color: Theme.of(context).colorScheme.onPrimary,
+                        strokeWidth: 5,
                       ),
-              ),
+                    )
+                  : Text(
+                      key: const Key('phone-number-button'),
+                      'Send Code',
+                      style: GoogleFonts.inter(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
             ),
+          ),
         ),
       );
     });

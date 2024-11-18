@@ -37,8 +37,6 @@ void main() {
       portfolioRepositoryProvider.overrideWithValue(mockPortfolioRepository)
     ]);
 
-    when(mockAuthServices.userChanges())
-        .thenAnswer((_) => Stream.value(mockUser));
     when(mockUser.emailVerified).thenReturn(true);
   });
 
