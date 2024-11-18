@@ -79,7 +79,6 @@ jobs:
 
   iphone-integration-tests:
     runs-on: macOS-latest
-    needs: android-integration-tests
     steps:
       - name: Clone Repository
         uses: actions/checkout@v4
