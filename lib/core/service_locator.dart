@@ -18,7 +18,6 @@ final imagePickerProvider = Provider<ImagePicker>((ref) {
   return imagePicker;
 });
 
-
 ////////////////// FIREBASE SERVICES //////////////////
 
 final firebaseAuthProvider = Provider<FirebaseAuth>((ref) {
@@ -34,7 +33,6 @@ final firebaseStorageProvider = Provider<FirebaseStorage>((ref) {
 });
 
 ////////////////// FIREBASE SERVICES //////////////////
-
 
 ////////////////// SERVICE FILES //////////////////
 
@@ -61,8 +59,9 @@ final userRepositoryProvider = Provider<UserRepository>((ref) {
   final authServices = ref.watch(authServicesProvider);
   final firestoreServices = ref.watch(firestoreServicesProvider);
   final storageServices = ref.watch(storageServicesProvider);
-  final repository =  UserRepository(authServices, firestoreServices, storageServices, ref);
-  
+  final repository =
+      UserRepository(authServices, firestoreServices, storageServices, ref);
+
   return repository;
 });
 
@@ -72,13 +71,12 @@ final portfolioRepositoryProvider = Provider<PortfolioRepository>((ref) {
   return PortfolioRepository(firestoreServices, storageServices);
 });
 
-final feedbackRepositoryProvider = Provider<FeedbackRepository>((ref){
+final feedbackRepositoryProvider = Provider<FeedbackRepository>((ref) {
   final firestoreServices = ref.watch(firestoreServicesProvider);
   return FeedbackRepository(firestoreServices);
 });
 
 ////////////////// REPOSITORIES //////////////////
-
 
 ////////////////// USER STREAMS //////////////////
 
@@ -114,23 +112,26 @@ final emailVerificationStreamProvider = StreamProvider<bool>((ref) async* {
   final auth = ref.read(authServicesProvider);
   final userRepository = ref.read(userRepositoryProvider);
 
- while (true) {
+  while (true) {
     await Future.delayed(const Duration(seconds: 5));
     final user = auth.currentUser();
-    await user?.reload();  // Reload user data
-    final isVerified = user?.emailVerified ?? false;
-    yield isVerified;  // Emit the email verification status
-    if (isVerified) {
-      // Update Firestore when email is verified
-      await userRepository.updateProfile(fields: {'isEmailVerified': true});
-      break;  // Stop emitting once verified
+    try {
+      await user?.reload(); // Reload user data
+      final isVerified = user?.emailVerified ?? false;
+      yield isVerified; // Emit the email verification status
+      if (isVerified) {
+        // Update Firestore when email is verified
+        await userRepository.updateProfile(fields: {'isEmailVerified': true});
+        break; // Stop emitting once verified
+      }
+    } catch (e) {
+      yield false;
+      break;
     }
-
   }
 });
 
 ////////////////// USER STREAMS //////////////////
-
 
 void setupEmulators({bool useEmulators = false}) {
   if (useEmulators) {
