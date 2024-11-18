@@ -87,11 +87,13 @@ jobs:
       - name: Erase all simulators
         run: xcrun simctl erase all
 
-      - name: Shutdown all simulators
-        run: xcrun simctl shutdown all
-
-      - name: Clean Xcode Derived Data
-        run: rm -rf ~/Library/Developer/Xcode/DerivedData/*
+      - name: Cache Derived Data
+        uses: actions/cache@v4
+        with:
+          path: ~/Library/Developer/Xcode/DerivedData
+          key: ${{ runner.os }}-xcode-deriveddata-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-xcode-deriveddata-
 
       - name: Cache CocoaPods
         uses: actions/cache@v4
@@ -136,10 +138,6 @@ jobs:
           os: iOS
           model: "iPhone SE (3rd generation)"
           os_version: ">=13.0"
-          shutdown_after_job: false
-
-      - name: Check Simulator Status
-        run: xcrun simctl list devices
 
       - name: Grant permission
         run: |
@@ -149,4 +147,4 @@ jobs:
 
       - name: "Run Integration Tests"
         timeout-minutes: 120
-        run: firebase emulators:exec --token "${{ secrets.FIREBASE_TOKEN }}" "flutter test integration_test --timeout none" --import=./data
+        run: firebase emulators:exec --token "${{ secrets.FIREBASE_TOKEN }}" "flutter test integration_test --timeout none --verbose" --import=./data
