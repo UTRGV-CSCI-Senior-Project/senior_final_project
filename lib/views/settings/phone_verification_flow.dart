@@ -23,7 +23,6 @@ class _PhoneVerificationFlowState extends ConsumerState<PhoneVerificationFlow> {
 
   Future<void> _handlePhoneVerification() async {
     if (_isLoading) return;
-    print('function');
     setState(() {
       _isLoading = true;
     });

@@ -30,30 +30,44 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   void initState() {
     super.initState();
     // Move dialog check to initState
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _checkAndShowEmailVerification();
+   WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // Add slight delay to ensure state is properly initialized
+      await Future.delayed(const Duration(milliseconds: 100));
+      if (mounted) {
+        _checkAndShowEmailVerification();
+      }
     });
   }
 
-  void _checkAndShowEmailVerification() {
+void _checkAndShowEmailVerification() {
     final userData = ref.read(userDataStreamProvider).value;
     if (userData == null) return;
 
     final userModel = userData['user'];
     if (userModel == null) return;
-        if (!userModel.completedOnboarding) return;
+    if (!userModel.completedOnboarding) return;
 
-    final hasShownDialog = ref.read(hasShownEmailDialogProvider);
-    if (!hasShownDialog && !userModel.isEmailVerified && mounted) {
-      ref.read(hasShownEmailDialogProvider.notifier).state = true;
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        useRootNavigator: true,
-        builder: (BuildContext dialogContext) => const EmailVerificationDialog(),
-      );
-    }
+    // Force UI update to ensure consistent state
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final hasShownDialog = ref.read(hasShownEmailDialogProvider);
+      if (!hasShownDialog && !userModel.isEmailVerified && mounted) {
+        // Set flag before showing dialog
+        ref.read(hasShownEmailDialogProvider.notifier).state = true;
+        
+        // Use root navigator and ensure dialog is modal
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          useRootNavigator: true,
+          builder: (BuildContext dialogContext) => const PopScope(
+            canPop: false,  // Prevent back button dismissal
+            child: EmailVerificationDialog(),
+          ),
+        );
+      }
+    });
   }
+
 
   @override
   Widget build(BuildContext context) {
