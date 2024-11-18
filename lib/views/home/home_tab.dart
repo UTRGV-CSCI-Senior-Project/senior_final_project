@@ -1,15 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:folio/core/user_location_controller.dart';
 import 'package:folio/models/user_model.dart';
 import 'package:folio/views/home/update_services_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class HomeTab extends StatelessWidget {
+class HomeTab extends StatefulWidget {
   final UserModel? userModel;
 
-  const HomeTab({
+  HomeTab({
     super.key,
     required this.userModel,
   });
+
+  @override
+  State<HomeTab> createState() => _HomeTabState();
+}
+
+class _HomeTabState extends State<HomeTab> {
+  late Future<String> currentCityFuture;
+  @override
+  void initState() {
+    super.initState();
+    currentCityFuture = getCurrentCity();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,10 +36,30 @@ class HomeTab extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Text(
-                      "Current city",
-                      style: GoogleFonts.inter(
-                          fontWeight: FontWeight.w900, fontSize: 16),
+                    FutureBuilder(
+                      future: currentCityFuture,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return Text(
+                            "Fetching current city...",
+                            style: GoogleFonts.inter(
+                                fontWeight: FontWeight.w900, fontSize: 16),
+                          );
+                        } else if (snapshot.hasError) {
+                          return Text(
+                            "Error fetching city",
+                            style: GoogleFonts.inter(
+                                fontWeight: FontWeight.w900, fontSize: 16),
+                          );
+                        } else {
+                          return Text(
+                            "Current city: ${snapshot.data}",
+                            style: GoogleFonts.inter(
+                                fontWeight: FontWeight.w900, fontSize: 16),
+                          );
+                        }
+                      },
                     )
                   ],
                 ),
@@ -46,7 +79,7 @@ class HomeTab extends StatelessWidget {
                             MaterialPageRoute(
                                 builder: (context) => UpdateServicesScreen(
                                       selectedServices:
-                                          userModel!.preferredServices,
+                                          widget.userModel!.preferredServices,
                                     )));
                       },
                       child: Text(
@@ -63,14 +96,15 @@ class HomeTab extends StatelessWidget {
                   height: 50,
                   child: ListView.builder(
                       scrollDirection: Axis.horizontal,
-                      itemCount: userModel!.preferredServices.length,
+                      itemCount: widget.userModel!.preferredServices.length,
                       itemBuilder: (context, index) {
                         return Padding(
                           padding: const EdgeInsets.only(right: 8),
                           child: ActionChip(
                             onPressed: () {},
                             label: Text(
-                              userModel!.preferredServices[index].toUpperCase(),
+                              widget.userModel!.preferredServices[index]
+                                  .toUpperCase(),
                               style: GoogleFonts.inter(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,

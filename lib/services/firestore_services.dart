@@ -7,6 +7,7 @@ import 'package:folio/core/service_locator.dart';
 import 'package:folio/models/feedback_model.dart';
 import 'package:folio/models/portfolio_model.dart';
 import 'package:folio/models/user_model.dart';
+import 'package:folio/core/user_location_controller.dart';
 
 class FirestoreServices {
   final FirebaseFirestore _firestore;
@@ -273,6 +274,25 @@ class FirestoreServices {
           .set(feedbackModel.toJson());
     } catch (e) {
       throw AppException('add-feedback-error');
+    }
+  }
+
+  //////////////User Location
+  Future<void> savingLocation() async {
+    try {
+      final uid = await _ref.read(authServicesProvider).currentUserUid();
+
+      if (uid == null) {
+        throw AppException('no-user');
+      }
+
+      final location = await getCurrentLatiLong();
+
+      await _firestore.collection("users").doc(uid).update({
+        'location': GeoPoint(location[0], location[1]),
+      });
+    } catch (e) {
+      throw AppException('adding-location-error');
     }
   }
 }

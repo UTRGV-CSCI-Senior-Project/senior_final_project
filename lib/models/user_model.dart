@@ -7,9 +7,8 @@ class UserModel {
   final bool _completedOnboarding;
   final List<String> _preferredServices;
   final String? _profilePictureUrl;
-  // String _city;
-  // double? _lati;
-  // double? _long;
+  double? _latitude;
+  double? _longitude;
 
   UserModel({
     required String uid,
@@ -20,9 +19,8 @@ class UserModel {
     bool completedOnboarding = false,
     List<String> preferredServices = const [],
     String? profilePictureUrl,
-    //required String city,
-    //double? lati,
-    // double? long,
+    double? latitude,
+    double? longitude,
   })  : _uid = uid,
         _username = username,
         _fullName = fullName,
@@ -30,11 +28,9 @@ class UserModel {
         _isProfessional = isProfessional,
         _completedOnboarding = completedOnboarding,
         _preferredServices = preferredServices,
-        _profilePictureUrl = profilePictureUrl //,
-  //_city = city,
-  //_lati = lati,
-  // _long = long
-  {
+        _profilePictureUrl = profilePictureUrl,
+        _latitude = latitude,
+        _longitude = longitude {
     if (_uid.isEmpty) {
       throw ArgumentError('UID cannot be empty');
     }
@@ -44,9 +40,6 @@ class UserModel {
     if (_email.isEmpty) {
       throw ArgumentError('Email cannot be empty');
     }
-    /*if (_city.isEmpty) {
-      throw ArgumentError('You must choose a city');
-    }*/
   }
 
   String get uid => _uid;
@@ -57,9 +50,8 @@ class UserModel {
   bool get completedOnboarding => _completedOnboarding;
   List<String> get preferredServices => _preferredServices;
   String? get profilePictureUrl => _profilePictureUrl;
-  //String get city => _city;
-  //double? get lati => _lati;
-  //double? get long => _long;
+  double? get latitude => _latitude;
+  double? get longitude => _longitude;
 
   toJson() {
     return {
@@ -71,9 +63,8 @@ class UserModel {
       "completedOnboarding": completedOnboarding,
       "preferredServices": preferredServices,
       "profilePictureUrl": profilePictureUrl,
-      // "city": city,
-      // "latitude": lati,
-      // "longitude": long,
+      "latitude": latitude,
+      "longitude": longitude,
     };
   }
 
@@ -103,9 +94,8 @@ class UserModel {
               .toList() ??
           [],
       profilePictureUrl: json['profilePictureUrl'] as String?,
-      // city:json['city'] as String,
-      // lati: json["latitude"] as double?,
-      // long: json["longitude"] as double?,
+      latitude: json["latitude"] as double?,
+      longitude: json["longitude"] as double?,
     );
   }
 }

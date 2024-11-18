@@ -21,7 +21,6 @@ class UserRepository {
     String username,
     String email,
     String password,
-    /*String city*/
   ) async {
     try {
       bool usernameIsUnique =
@@ -122,10 +121,6 @@ class UserRepository {
         throw AppException('update-profile-error');
       }
     }
-  }
-
-  Future<void> setCity() async {
-    await city();
   }
 
   Future<void> reauthenticateUser(String password) async {

@@ -1,74 +1,89 @@
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 
-/// Determine the current position of the device.
-///
-/// When the location services are not enabled or permissions
-/// are denied the `Future` will return an error.\
-
+/// Check if location services are enabled.
 Future<bool> checkService() async {
-  bool serviceEnabled;
-  // Test if location services are enabled.
-  serviceEnabled = await Geolocator.isLocationServiceEnabled();
-  return serviceEnabled;
+  return await Geolocator.isLocationServiceEnabled();
 }
 
-Future<bool> checkPerm() async {
-  LocationPermission permission;
-  permission = await Geolocator.checkPermission();
+/// Check and request location permissions.
+Future<bool> checkPermission() async {
+  LocationPermission permission = await Geolocator.checkPermission();
+
   if (permission == LocationPermission.whileInUse ||
       permission == LocationPermission.always) {
     return true;
   }
+
   if (permission == LocationPermission.denied) {
     permission = await Geolocator.requestPermission();
   }
+
+  // Return false if permissions are still denied or denied forever.
   if (permission == LocationPermission.denied ||
-      permission == LocationPermission.deniedForever ||
-      permission == LocationPermission.unableToDetermine) {
-    // Permissions are denied, next time you could try
-    // requesting permissions again (this is also where
-    // Android's shouldShowRequestPermissionRationale
-    // returned true. According to Android guidelines
-    // your App should show an explanatory UI now.
+      permission == LocationPermission.deniedForever) {
     return false;
   }
 
   return true;
 }
 
-Future<List<double>> currentLocationLatiLong() async {
+/// Fetch the current latitude and longitude.
+Future<Position> getCurrentLocation() async {
   bool serviceEnabled = await checkService();
-  bool permission = await checkPerm();
-  // ignore: unrelated_type_equality_checks
-  if (serviceEnabled == false || permission == false) {
-    return Future.error("Could not get current Location");
+  bool hasPermission = await checkPermission();
+
+  if (!serviceEnabled) {
+    throw Exception("Location services are disabled.");
   }
 
-  Position p = await Geolocator.getCurrentPosition();
-  return [p.latitude, p.longitude];
+  if (!hasPermission) {
+    throw Exception("Location permissions are denied.");
+  }
+
+  Position position = await Geolocator.getCurrentPosition();
+  return position;
 }
 
-/*Future<Map<String, dynamic>> initilizeUser()async {
-  var location = await currentLocationLatiLong();
-  var city = await curretCity(location[0], location[1]);
-  return {'latitude': location[0], 'longitude': location[1], 'city': city};
-}*/
+Future<List<double>> getCurrentLatiLong() async {
+  Position position = await Geolocator.getCurrentPosition();
+  return [position.latitude, position.longitude];
+}
 
-double distanceInMiles(Position p1, Position p2) {
-  return 0.000621 *
+/// Calculate distance between two points in miles.
+double calculateDistanceInMiles(Position p1, Position p2) {
+  return 0.000621371 *
       Geolocator.distanceBetween(
-          p1.latitude, p1.longitude, p2.latitude, p2.longitude);
+        p1.latitude,
+        p1.longitude,
+        p2.latitude,
+        p2.longitude,
+      );
 }
 
-Future<String> currentAddress(double lati, double long) async {
-  List<Placemark> placemarks = await placemarkFromCoordinates(lati, long);
-  Placemark place = placemarks[0];
-  return "${place.street}";
+/// Get the street address for given latitude and longitude.
+Future<String> getAddress(double latitude, double longitude) async {
+  List<Placemark> placemarks =
+      await placemarkFromCoordinates(latitude, longitude);
+  if (placemarks.isNotEmpty) {
+    Placemark place = placemarks.first;
+    return "${place.street}, ${place.locality}, ${place.country}";
+  }
+  return "Address not found.";
 }
 
-Future<String> currentCity(double lati, double long) async {
-  List<Placemark> placemarks = await placemarkFromCoordinates(lati, long);
-  Placemark place = placemarks[0];
-  return "${place.locality}";
+/// Get the city for given latitude and longitude.
+Future<String> getCity(double latitude, double longitude) async {
+  List<Placemark> placemarks =
+      await placemarkFromCoordinates(latitude, longitude);
+  if (placemarks.isNotEmpty) {
+    return placemarks.first.locality ?? "City not found.";
+  }
+  return "City not found.";
+}
+
+/// Fetch the current city of the device.
+Future<String> getCurrentCity() async {
+  Position location = await getCurrentLocation();
+  return await getCity(location.latitude, location.longitude);
 }

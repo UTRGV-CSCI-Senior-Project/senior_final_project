@@ -27,7 +27,7 @@ class MyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     checkService();
-    checkPerm();
+    checkPermission();
     return MaterialApp(
         title: 'Folio',
         theme: lightTheme,
