@@ -2,8 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:folio/models/chatroom_model.dart';
 import 'package:folio/models/user_model.dart';
 import 'package:folio/repositories/feedback_repository.dart';
+import 'package:folio/repositories/message_repository.dart';
 import 'package:folio/repositories/portfolio_repository.dart';
 import 'package:folio/repositories/user_repository.dart';
 import 'package:folio/services/auth_services.dart';
@@ -75,6 +77,13 @@ final feedbackRepositoryProvider = Provider<FeedbackRepository>((ref){
   return FeedbackRepository(firestoreServices);
 });
 
+final messageRepositoryProvider = Provider<MessageRepository>((ref){
+  final firestoreServices = ref.watch(firestoreServicesProvider);
+  final authServices = ref.watch(authServicesProvider);
+
+  return MessageRepository(firestoreServices, authServices);
+});
+
 ////////////////// REPOSITORIES //////////////////
 
 
@@ -107,6 +116,17 @@ final userDataStreamProvider = StreamProvider<Map<String, dynamic>?>((ref) {
   }
   return Stream.value(null);
 });
+
+// final chatroomStreamProvider = StreamProvider<List<ChatroomModel>>((ref){
+//   final authState = ref.watch(authStateProvider).value;
+
+//   if (authState != null) {
+//     final firestoreServices = ref.read(firestoreServicesProvider);
+//     return firestoreServices.getChatrooms(authState.uid);
+//   } else {
+//     return Stream.value([]);
+//   }
+// });
 
 ////////////////// USER STREAMS //////////////////
 

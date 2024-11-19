@@ -4,7 +4,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:folio/core/app_exception.dart';
 import 'package:folio/core/service_locator.dart';
+import 'package:folio/models/chatroom_model.dart';
 import 'package:folio/models/feedback_model.dart';
+import 'package:folio/models/message_model.dart';
 import 'package:folio/models/portfolio_model.dart';
 import 'package:folio/models/user_model.dart';
 
@@ -32,6 +34,28 @@ class FirestoreServices {
         throw AppException('no-user');
       }
 
+      final userDoc = await _firestore.collection('users').doc(uid).get();
+
+      if (!userDoc.exists) {
+        return null;
+      }
+
+      try {
+        return UserModel.fromJson(userDoc.data()!);
+      } catch (e) {
+        throw AppException('invalid-user-data');
+      }
+    } catch (e) {
+      if (e is AppException) {
+        rethrow;
+      } else {
+        throw AppException('get-user-error');
+      }
+    }
+  }
+
+  Future<UserModel?> getOtherUser(String uid) async {
+    try {
       final userDoc = await _firestore.collection('users').doc(uid).get();
 
       if (!userDoc.exists) {
@@ -110,6 +134,9 @@ class FirestoreServices {
         'profilePictureUrl': FieldValue.delete(),
         'uid': FieldValue.delete(),
         'username': FieldValue.delete(),
+        'isEmailVerified': FieldValue.delete(),
+        'isPhoneVerified': FieldValue.delete(),
+        'phoneNumber': FieldValue.delete(),
       });
     } catch (e) {
       if (e is AppException && e.code == "no-user") {
@@ -273,6 +300,69 @@ class FirestoreServices {
           .set(feedbackModel.toJson());
     } catch (e) {
       throw AppException('add-feedback-error');
+    }
+  }
+  ///////////////////////// FEEDBACK COLLECTION /////////////////////////
+
+  ///////////////////////// MESSAGE COLLECTION /////////////////////////
+
+  Future<void> sendMessage(MessageModel messageModel, String chatroom) async {
+    try {
+      DocumentReference chatroomDoc =
+          _firestore.collection('chatrooms').doc(chatroom);
+
+      DocumentSnapshot docSnapshot = await chatroomDoc.get();
+
+      if (!docSnapshot.exists) {
+        UserModel? senderUser = await getUser();
+        UserModel? recieverUser = await getOtherUser(chatroom.split('_')[1]);
+
+        chatroomDoc.set({
+          'id': chatroom,
+          'participants': [
+            {
+              'uid': senderUser!.uid,
+              'identifier': senderUser.fullName ?? senderUser.username,
+              'profilePicture': senderUser.profilePictureUrl ?? ''
+            },
+            {
+              'uid': recieverUser!.uid,
+              'identifier': recieverUser.fullName ?? recieverUser.username,
+              'profilePicture': recieverUser.profilePictureUrl ?? ''
+            }
+          ],
+          'lastMessage': messageModel
+        });
+      }
+
+      await _firestore
+          .collection('chatrooms')
+          .doc(chatroom)
+          .collection('messages')
+          .add(messageModel.toJson());
+
+      await _firestore
+          .collection('chatrooms')
+          .doc(chatroom)
+          .update({'lastMessage': messageModel});
+    } catch (e) {
+      throw AppException('send-message-error');
+    }
+  }
+
+  Stream<List<ChatroomModel>> getChatrooms(String currentUserId) {
+    try {
+      return _firestore
+          .collection('chatrooms')
+          .where('id', isGreaterThanOrEqualTo: currentUserId)
+          .where('id', isLessThanOrEqualTo: currentUserId + '\uf8ff')
+          .snapshots()
+          .map((snapshot) => snapshot.docs
+              .map((doc) => ChatroomModel.fromJson(doc.data()))
+              .toList());
+    } catch (e) {
+      print(e);
+      throw AppException('get-chatrooms-error');
     }
   }
 }

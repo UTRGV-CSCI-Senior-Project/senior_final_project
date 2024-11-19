@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:folio/core/app_exception.dart';
 import 'package:folio/core/service_locator.dart';
+import 'package:folio/views/home/inbox_tab.dart';
 import 'package:folio/views/home/profile_tab.dart';
 import 'package:folio/views/auth_onboarding_welcome/loading_screen.dart';
 import 'package:folio/views/auth_onboarding_welcome/onboarding_screen.dart';
@@ -144,8 +145,7 @@ class HomeScreen extends ConsumerWidget {
                 children: [
                   HomeTab(userModel: userModel),
                   const DiscoverTab(),
-                  EditProfile(
-                      userModel: userModel, portfolioModel: userPortfolio),
+                  const InboxTab(),
                   EditProfile(
                       userModel: userModel, portfolioModel: userPortfolio),
                 ],
