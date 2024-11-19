@@ -111,6 +111,8 @@ class FirestoreServices {
         'profilePictureUrl': FieldValue.delete(),
         'uid': FieldValue.delete(),
         'username': FieldValue.delete(),
+        'latitude': FieldValue.delete(),
+        'longitude': FieldValue.delete(),
       });
     } catch (e) {
       if (e is AppException && e.code == "no-user") {
@@ -293,6 +295,33 @@ class FirestoreServices {
       });
     } catch (e) {
       throw AppException('adding-location-error');
+    }
+  }
+
+  Future<List<double>> getUserLatiLong() async {
+    try {
+      final uid = await _ref.read(authServicesProvider).currentUserUid();
+
+      if (uid == null) {
+        throw AppException('no-user');
+      }
+
+      final userDoc = await _firestore.collection('users').doc(uid).get();
+
+      if (!userDoc.exists) {
+        throw AppException('user-not-found');
+      }
+
+      final data = userDoc.data();
+      if (data == null ||
+          !data.containsKey('latitude') ||
+          !data.containsKey('longitude')) {
+        throw AppException('location-not-found');
+      }
+
+      return [data['latitude'], data['longitude']];
+    } catch (e) {
+      throw AppException('getting-location-error');
     }
   }
 }

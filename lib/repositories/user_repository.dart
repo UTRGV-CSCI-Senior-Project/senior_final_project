@@ -6,7 +6,6 @@ import 'package:folio/models/user_model.dart';
 import 'package:folio/services/auth_services.dart';
 import 'package:folio/services/firestore_services.dart';
 import 'package:folio/services/storage_services.dart';
-import 'package:folio/core/user_location_controller.dart';
 
 class UserRepository {
   final AuthServices _authServices;
