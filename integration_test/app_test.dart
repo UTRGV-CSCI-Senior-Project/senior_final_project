@@ -41,7 +41,8 @@ class MockImagePicker extends ImagePicker {
       {double? maxWidth,
       double? maxHeight,
       int? imageQuality,
-      bool requestFullMetadata = true}) async {
+      bool requestFullMetadata = true,
+      }) async {
     final imagePaths = [
       'integration_test/assets/folio1.jpg',
       'integration_test/assets/folio2.jpg', // Add paths to additional images

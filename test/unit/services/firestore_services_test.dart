@@ -12,6 +12,7 @@ import 'package:mockito/mockito.dart';
 import 'package:folio/models/user_model.dart';
 import 'package:folio/services/firestore_services.dart';
 
+import '../../mocks/firestore_services_test.mocks.dart';
 @GenerateMocks([
   FirebaseFirestore,
   CollectionReference,
@@ -23,7 +24,6 @@ import 'package:folio/services/firestore_services.dart';
   Ref,
   WriteBatch
 ])
-import '../../mocks/firestore_services_test.mocks.dart';
 import '../../mocks/user_repository_test.mocks.dart';
 
 void main() {
