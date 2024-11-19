@@ -117,16 +117,16 @@ final userDataStreamProvider = StreamProvider<Map<String, dynamic>?>((ref) {
   return Stream.value(null);
 });
 
-// final chatroomStreamProvider = StreamProvider<List<ChatroomModel>>((ref){
-//   final authState = ref.watch(authStateProvider).value;
+final chatroomStreamProvider = StreamProvider<List<ChatroomModel>>((ref){
+  final authState = ref.watch(authStateProvider).value;
 
-//   if (authState != null) {
-//     final firestoreServices = ref.read(firestoreServicesProvider);
-//     return firestoreServices.getChatrooms(authState.uid);
-//   } else {
-//     return Stream.value([]);
-//   }
-// });
+  if (authState != null) {
+    final firestoreServices = ref.read(firestoreServicesProvider);
+    return firestoreServices.getChatrooms(authState.uid);
+  } else {
+    return Stream.value([]);
+  }
+});
 
 ////////////////// USER STREAMS //////////////////
 

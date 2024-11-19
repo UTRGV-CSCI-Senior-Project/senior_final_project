@@ -178,7 +178,6 @@ class HomeScreen extends ConsumerWidget {
                   NavigationDestination(
                     key: const Key('inbox-button'),
                     icon: const Icon(Icons.bookmark_border, size: 25),
-                    enabled: false,
                     selectedIcon: Icon(Icons.bookmark_border,
                         color: Theme.of(context).colorScheme.primary, size: 30),
                     label: 'Inbox',

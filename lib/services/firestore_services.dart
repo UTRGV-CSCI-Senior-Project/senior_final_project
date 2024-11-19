@@ -308,12 +308,14 @@ class FirestoreServices {
 
   Future<void> sendMessage(MessageModel messageModel, String chatroom) async {
     try {
+      print('sending');
       DocumentReference chatroomDoc =
           _firestore.collection('chatrooms').doc(chatroom);
 
       DocumentSnapshot docSnapshot = await chatroomDoc.get();
 
       if (!docSnapshot.exists) {
+        print('doesnt exist');
         UserModel? senderUser = await getUser();
         UserModel? recieverUser = await getOtherUser(chatroom.split('_')[1]);
 
@@ -346,6 +348,7 @@ class FirestoreServices {
           .doc(chatroom)
           .update({'lastMessage': messageModel});
     } catch (e) {
+      print(e);
       throw AppException('send-message-error');
     }
   }
@@ -366,3 +369,7 @@ class FirestoreServices {
     }
   }
 }
+
+
+//l1ne2oFMn6cCCClBuc0EPhOqSLz2
+//PR6efiUdngUzfoS7hO1AOHf7GI13
