@@ -53,7 +53,7 @@ void main() {
               onImagesAdded: (files) {
                 selectedImages = files;
               },
-              selectedImages: [],
+              selectedImages: List.empty(growable: true),
             ),
           )),
         ),

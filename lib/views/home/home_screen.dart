@@ -145,7 +145,7 @@ class HomeScreen extends ConsumerWidget {
                 children: [
                   HomeTab(userModel: userModel),
                   const DiscoverTab(),
-                  const InboxTab(),
+                   InboxTab(userModel: userModel),
                   EditProfile(
                       userModel: userModel, portfolioModel: userPortfolio),
                 ],
@@ -161,7 +161,7 @@ class HomeScreen extends ConsumerWidget {
                   NavigationDestination(
                     key: const Key('home-button'),
                     icon: const Icon(
-                      Icons.home,
+                      Icons.home_outlined,
                       size: 25,
                     ),
                     selectedIcon: Icon(Icons.home,
@@ -170,7 +170,7 @@ class HomeScreen extends ConsumerWidget {
                   ),
                   NavigationDestination(
                     key: const Key('discover-button'),
-                    icon: const Icon(Icons.explore, size: 25),
+                    icon: const Icon(Icons.explore_outlined, size: 25),
                     selectedIcon: Icon(Icons.explore,
                         color: Theme.of(context).colorScheme.primary, size: 30),
                     label: 'Discover',
@@ -178,13 +178,13 @@ class HomeScreen extends ConsumerWidget {
                   NavigationDestination(
                     key: const Key('inbox-button'),
                     icon: const Icon(Icons.bookmark_border, size: 25),
-                    selectedIcon: Icon(Icons.bookmark_border,
+                    selectedIcon: Icon(Icons.bookmark,
                         color: Theme.of(context).colorScheme.primary, size: 30),
                     label: 'Inbox',
                   ),
                   NavigationDestination(
                     key: const Key('profile-button'),
-                    icon: const Icon(Icons.person, size: 25),
+                    icon: const Icon(Icons.person_outline, size: 25),
                     selectedIcon: Icon(Icons.person,
                         color: Theme.of(context).colorScheme.primary, size: 30),
                     label: 'Profile',

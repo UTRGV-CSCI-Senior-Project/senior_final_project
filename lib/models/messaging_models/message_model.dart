@@ -1,21 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class MessageModel {
-  final String _senderId;
-  final String _recieverId;
-  final String _message;
-  final Timestamp _timestamp;
+  final String senderId;
+  final String recieverId;
+  final String message;
+  final DateTime timestamp;
 
   MessageModel({
-    required String senderId,
-    required String recieverId,
-    required String message,
-    required Timestamp timestamp
-  }) :
-  _senderId = senderId,
-  _recieverId = recieverId,
-  _message = message,
-  _timestamp = timestamp {
+    required this.senderId,
+    required this.recieverId,
+    required this.message,
+    required this.timestamp
+  }){
     if(senderId.isEmpty){
       throw ArgumentError('senderId cannot be empty');
     }
@@ -27,17 +23,12 @@ class MessageModel {
     }
   }
 
-  String get senderId => _senderId;
-  String get recieverId => _recieverId;
-  String get message => _message;
-  Timestamp get timestamp => _timestamp;
-
   Map<String, dynamic> toJson() {
     return {
-      'senderId': _senderId,
-      'recieverId': _recieverId,
-      'message': _message,
-      'timestamp': _timestamp
+      'senderId': senderId,
+      'recieverId': recieverId,
+      'message': message,
+      'timestamp': Timestamp.fromDate(timestamp)
     };
   }
 
@@ -55,7 +46,7 @@ class MessageModel {
       throw ArgumentError('empty-timestamp');
     }
 
-    return MessageModel(senderId: json['senderId'] as String, recieverId: json['recieverId'] as String, message: json['message'] as String, timestamp: json['timestamp'] as Timestamp);
+    return MessageModel(senderId: json['senderId'] as String, recieverId: json['recieverId'] as String, message: json['message'] as String, timestamp: (json['timestamp'] as Timestamp).toDate());
   }
   
 }

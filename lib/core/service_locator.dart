@@ -2,7 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:folio/models/chatroom_model.dart';
+import 'package:folio/models/messaging_models/chatroom_model.dart';
+import 'package:folio/models/messaging_models/message_model.dart';
 import 'package:folio/models/user_model.dart';
 import 'package:folio/repositories/feedback_repository.dart';
 import 'package:folio/repositories/message_repository.dart';
@@ -127,6 +128,12 @@ final chatroomStreamProvider = StreamProvider<List<ChatroomModel>>((ref){
     return Stream.value([]);
   }
 });
+
+final chatMessagesProvider = StreamProvider.autoDispose.family<List<MessageModel>, String>((ref, chatroomId) {
+  final messageRepository = ref.watch(messageRepositoryProvider);
+  return messageRepository.getChatroomMessages(chatroomId);
+});
+
 
 ////////////////// USER STREAMS //////////////////
 

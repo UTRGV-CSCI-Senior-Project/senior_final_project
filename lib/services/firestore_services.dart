@@ -4,9 +4,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:folio/core/app_exception.dart';
 import 'package:folio/core/service_locator.dart';
-import 'package:folio/models/chatroom_model.dart';
+import 'package:folio/models/messaging_models/chat_participant_model.dart';
+import 'package:folio/models/messaging_models/chatroom_model.dart';
 import 'package:folio/models/feedback_model.dart';
-import 'package:folio/models/message_model.dart';
+import 'package:folio/models/messaging_models/message_model.dart';
 import 'package:folio/models/portfolio_model.dart';
 import 'package:folio/models/user_model.dart';
 
@@ -305,36 +306,53 @@ class FirestoreServices {
   ///////////////////////// FEEDBACK COLLECTION /////////////////////////
 
   ///////////////////////// MESSAGE COLLECTION /////////////////////////
+  ///
+  Future<List<ChatParticipant>> getChatParticipants(String chatroomId) async {
+    final userOne = await getUser();
+    if (userOne == null) {
+      return [];
+    }
+    final userIds = chatroomId.split('_');
+    final otherUserId =
+        userIds.first == userOne.uid ? userIds.last : userIds.first;
+    final userTwo = await getOtherUser(otherUserId);
+
+    if (userTwo != null) {
+      final participantOne = ChatParticipant(
+          uid: userOne.uid,
+          identifier: userOne.fullName ?? userOne.username,
+          profilePicture: userOne.profilePictureUrl);
+      final participantTwo = ChatParticipant(
+          uid: userTwo.uid,
+          identifier: userTwo.fullName ?? userTwo.username,
+          profilePicture: userTwo.profilePictureUrl);
+      return [participantOne, participantTwo];
+    } else {
+      return [];
+    }
+  }
 
   Future<void> sendMessage(MessageModel messageModel, String chatroom) async {
     try {
-      print('sending');
       DocumentReference chatroomDoc =
           _firestore.collection('chatrooms').doc(chatroom);
 
       DocumentSnapshot docSnapshot = await chatroomDoc.get();
 
       if (!docSnapshot.exists) {
-        print('doesnt exist');
-        UserModel? senderUser = await getUser();
-        UserModel? recieverUser = await getOtherUser(chatroom.split('_')[1]);
+        final participants = await getChatParticipants(chatroom);
 
-        chatroomDoc.set({
-          'id': chatroom,
-          'participants': [
-            {
-              'uid': senderUser!.uid,
-              'identifier': senderUser.fullName ?? senderUser.username,
-              'profilePicture': senderUser.profilePictureUrl ?? ''
-            },
-            {
-              'uid': recieverUser!.uid,
-              'identifier': recieverUser.fullName ?? recieverUser.username,
-              'profilePicture': recieverUser.profilePictureUrl ?? ''
-            }
-          ],
-          'lastMessage': messageModel
-        });
+        if (participants.isNotEmpty) {
+          chatroomDoc.set({
+            'id': chatroom,
+            'participants': [
+              participants[0].toJson(),
+              participants[1].toJson()
+            ],
+            'participantIds': [participants[0].uid, participants[1].uid],
+            'lastMessage': messageModel.toJson()
+          });
+        }
       }
 
       await _firestore
@@ -346,9 +364,8 @@ class FirestoreServices {
       await _firestore
           .collection('chatrooms')
           .doc(chatroom)
-          .update({'lastMessage': messageModel});
+          .update({'lastMessage': messageModel.toJson()});
     } catch (e) {
-      print(e);
       throw AppException('send-message-error');
     }
   }
@@ -357,15 +374,31 @@ class FirestoreServices {
     try {
       return _firestore
           .collection('chatrooms')
-          .where('id', isGreaterThanOrEqualTo: currentUserId)
-          .where('id', isLessThanOrEqualTo: currentUserId + '\uf8ff')
+          .where('participantIds', arrayContains: currentUserId)
           .snapshots()
           .map((snapshot) => snapshot.docs
               .map((doc) => ChatroomModel.fromJson(doc.data()))
               .toList());
     } catch (e) {
-      print(e);
       throw AppException('get-chatrooms-error');
+    }
+  }
+
+  Stream<List<MessageModel>> getChatroomMessages(String chatroomId,
+      {int limit = 50}) {
+    try {
+      return _firestore
+          .collection('chatrooms')
+          .doc(chatroomId)
+          .collection('messages')
+          .orderBy('timestamp', descending: true)
+          .limit(limit)
+          .snapshots()
+          .map((snapshot) => snapshot.docs
+              .map((doc) => MessageModel.fromJson(doc.data()))
+              .toList());
+    } catch (e) {
+      throw AppException('get-messages-error');
     }
   }
 }
