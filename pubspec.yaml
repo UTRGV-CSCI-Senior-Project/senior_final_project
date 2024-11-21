@@ -48,8 +48,10 @@ dependencies:
   rxdart: ^0.28.0
   geocoding: ^3.0.0
   flutter_speed_dial: ^7.0.0
-  device_info_plus: ^11.1.1
-  package_info_plus: ^8.1.1
+  #had to change didnt run in my laptop
+  #still giving me error 
+  device_info_plus: ^11.1.0
+  package_info_plus: ^8.1.0
 
 
 dev_dependencies:
