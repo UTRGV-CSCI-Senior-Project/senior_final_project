@@ -46,13 +46,8 @@ Future<Position> getCurrentLocation() async {
 }
 
 Future<List<double>> getCurrentLatiLong() async {
-  Position position = await getCurrentLocation();
+  Position position = await Geolocator.getCurrentPosition();
   return [position.latitude, position.longitude];
-}
-
-Future<List<double>> getLastLatiLong() async {
-  Position? position = await Geolocator.getLastKnownPosition();
-  return [position!.latitude, position.longitude];
 }
 
 /// Calculate distance between two points in miles.
