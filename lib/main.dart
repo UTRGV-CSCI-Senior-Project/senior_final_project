@@ -44,9 +44,11 @@ class MyApp extends ConsumerWidget {
               return snapshot.data?.when(
                     data: (user) {
                       if (user != null) {
-                        
+                        getCurrentLatiLong();
                         return const HomeScreen();
                       } else {
+                        checkService();
+                        checkPermission();
                         return const WelcomeScreen();
                       }
                     },
