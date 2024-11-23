@@ -6,6 +6,7 @@
 import 'dart:async' as _i3;
 import 'dart:io' as _i4;
 
+import 'package:folio/models/portfolio_model.dart' as _i5;
 import 'package:folio/repositories/portfolio_repository.dart' as _i2;
 import 'package:mockito/mockito.dart' as _i1;
 
@@ -38,6 +39,10 @@ class MockPortfolioRepository extends _i1.Mock
     int? months,
     int? years,
     List<_i4.File>? images,
+    Map<String, String?>? location,
+    Map<String, double?>? latAndLong,
+    String? geohash,
+    String? professionalsName,
   ) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -48,6 +53,10 @@ class MockPortfolioRepository extends _i1.Mock
             months,
             years,
             images,
+            location,
+            latAndLong,
+            geohash,
+            professionalsName,
           ],
         ),
         returnValue: _i3.Future<void>.value(),
@@ -98,4 +107,15 @@ class MockPortfolioRepository extends _i1.Mock
         returnValue: _i3.Future<void>.value(),
         returnValueForMissingStub: _i3.Future<void>.value(),
       ) as _i3.Future<void>);
+
+  @override
+  _i3.Future<List<_i5.PortfolioModel>> getNearbyPortfolios(String? geohash) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #getNearbyPortfolios,
+          [geohash],
+        ),
+        returnValue:
+            _i3.Future<List<_i5.PortfolioModel>>.value(<_i5.PortfolioModel>[]),
+      ) as _i3.Future<List<_i5.PortfolioModel>>);
 }

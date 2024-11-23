@@ -177,9 +177,19 @@ class _FakeProviderContainer_13 extends _i1.SmartFake
         );
 }
 
-class _FakeProviderSubscription_14<State1> extends _i1.SmartFake
+class _FakeKeepAliveLink_14 extends _i1.SmartFake implements _i6.KeepAliveLink {
+  _FakeKeepAliveLink_14(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
+class _FakeProviderSubscription_15<State1> extends _i1.SmartFake
     implements _i6.ProviderSubscription<State1> {
-  _FakeProviderSubscription_14(
+  _FakeProviderSubscription_15(
     Object parent,
     Invocation parentInvocation,
   ) : super(
@@ -1982,8 +1992,7 @@ class MockRef<State extends Object?> extends _i1.Mock
       ) as bool);
 
   @override
-  T watch<T>(_i6.AlwaysAliveProviderListenable<T>? provider) =>
-      (super.noSuchMethod(
+  T watch<T>(_i6.ProviderListenable<T>? provider) => (super.noSuchMethod(
         Invocation.method(
           #watch,
           [provider],
@@ -1998,8 +2007,23 @@ class MockRef<State extends Object?> extends _i1.Mock
       ) as T);
 
   @override
+  _i6.KeepAliveLink keepAlive() => (super.noSuchMethod(
+        Invocation.method(
+          #keepAlive,
+          [],
+        ),
+        returnValue: _FakeKeepAliveLink_14(
+          this,
+          Invocation.method(
+            #keepAlive,
+            [],
+          ),
+        ),
+      ) as _i6.KeepAliveLink);
+
+  @override
   _i6.ProviderSubscription<T> listen<T>(
-    _i6.AlwaysAliveProviderListenable<T>? provider,
+    _i6.ProviderListenable<T>? provider,
     void Function(
       T?,
       T,
@@ -2022,7 +2046,7 @@ class MockRef<State extends Object?> extends _i1.Mock
             #fireImmediately: fireImmediately,
           },
         ),
-        returnValue: _FakeProviderSubscription_14<T>(
+        returnValue: _FakeProviderSubscription_15<T>(
           this,
           Invocation.method(
             #listen,

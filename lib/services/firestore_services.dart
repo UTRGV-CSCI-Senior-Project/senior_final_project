@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -323,5 +324,16 @@ class FirestoreServices {
     } catch (e) {
       throw AppException('getting-location-error');
     }
+  }
+
+  Future<List<PortfolioModel>> getNearbyPortfolios(String targetGeohash, {int maxResults = 10}) async {
+  String geohashPrefix = targetGeohash.substring(0, min(4, targetGeohash.length));
+
+  try{
+    QuerySnapshot querySnapshot = await _firestore.collection('portfolios').where('geohash', isGreaterThanOrEqualTo: geohashPrefix).where('geohash', isLessThan: '$geohashPrefix\uf8ff').limit(maxResults).get();
+    return querySnapshot.docs.map((doc) => PortfolioModel.fromJson(doc.data() as Map<String, dynamic>)).toList();
+  }catch (e){
+    return [];
+  }
   }
 }

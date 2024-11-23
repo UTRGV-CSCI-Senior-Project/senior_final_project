@@ -8,7 +8,6 @@ import 'package:folio/views/auth_onboarding_welcome/welcome_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'controller/user_location_controller.dart';
 
 Future<void> main({bool useEmulator = false}) async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,7 +25,6 @@ class MyApp extends ConsumerWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    getCurrentLatiLong();
     return MaterialApp(
         title: 'Folio',
         theme: lightTheme,
@@ -44,11 +42,8 @@ class MyApp extends ConsumerWidget {
               return snapshot.data?.when(
                     data: (user) {
                       if (user != null) {
-                        getCurrentLatiLong();
                         return const HomeScreen();
                       } else {
-                        checkService();
-                        checkPermission();
                         return const WelcomeScreen();
                       }
                     },

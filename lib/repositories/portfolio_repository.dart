@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:folio/core/app_exception.dart';
+import 'package:folio/models/portfolio_model.dart';
 import 'package:folio/services/firestore_services.dart';
 import 'package:folio/services/storage_services.dart';
 
@@ -10,19 +11,13 @@ class PortfolioRepository {
   PortfolioRepository(this._firestoreServices, this._storageServices);
 
   Future<void> createPortfolio(String service, String details, int months,
-      int years, List<File> images) async {
+      int years, List<File> images, Map<String, String?>? location, Map<String, double?>? latAndLong, String? geohash, String? professionalsName) async {
     try {
       final imageData = await _storageServices.uploadFilesForUser(images);
 
       final initialDate = DateTime.now();
-      await _firestoreServices.savePortfolioDetails({
-        'service': service,
-        'details': details,
-        'experienceStartDate': initialDate,
-        'years': years,
-        'months': months,
-        'images': imageData
-      });
+      final portfolio = PortfolioModel(service: service, details: details, experienceStartDate: initialDate, years: years, months: months, images: imageData, location: location, latAndLong: latAndLong, geohash: geohash, professionalsName: professionalsName);
+      await _firestoreServices.savePortfolioDetails(portfolio.toJson());
 
       await _firestoreServices.updateUser({'isProfessional': true});
     } catch (e) {
@@ -97,5 +92,9 @@ class PortfolioRepository {
         throw AppException('delete-portfolio-error');
       }
     }
+  }
+
+  Future<List<PortfolioModel>> getNearbyPortfolios(String geohash) async {
+    return await _firestoreServices.getNearbyPortfolios(geohash);
   }
 }

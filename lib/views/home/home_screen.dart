@@ -12,9 +12,11 @@ import 'package:folio/widgets/edit_profile_sheet.dart';
 import 'package:folio/views/settings/settings_screen.dart';
 import 'package:folio/views/auth_onboarding_welcome/state_screens.dart';
 import 'package:folio/views/auth_onboarding_welcome/welcome_screen.dart';
+import 'package:folio/widgets/request_location_dialog.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 final selectedIndexProvider = StateProvider<int>((ref) => 0);
+final hasShownLocationPermissionDialog = StateProvider<bool>((ref) => false);
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -29,11 +31,17 @@ class HomeScreen extends ConsumerWidget {
             return const WelcomeScreen();
           }
           if (userModel.completedOnboarding) {
+            final hashShownLocationPermission =
+                ref.watch(hasShownLocationPermissionDialog);
+            if (!hashShownLocationPermission) {
+              _checkLocationPermission(context, ref);
+            }
+
             final selectedIndex = ref.watch(selectedIndexProvider);
             String getTitle() {
               switch (selectedIndex) {
                 case 0:
-                  return 'Welcome, ${userModel.fullName} ${userModel.latitude} ${userModel.longitude}!';
+                  return 'Welcome, ${userModel.fullName}!';
                 case 1:
                   return 'Discover';
                 case 2:
@@ -210,5 +218,30 @@ class HomeScreen extends ConsumerWidget {
           );
         },
         loading: () => const LoadingScreen());
+  }
+}
+
+void _checkLocationPermission(BuildContext context, WidgetRef ref) async {
+  final locationService = ref.read(locationServiceProvider);
+
+  try {
+    bool hasPermission = await locationService.checkPermission();
+
+    if (!hasPermission && context.mounted) {
+      bool? shouldRequestPermission = await showDialog<bool>(
+          context: context,
+          builder: (BuildContext dialogContext) => const RequestLocationDialog());
+      if (shouldRequestPermission ?? false) {
+        await locationService.openLocationSettings();
+      }
+      ref.read(hasShownLocationPermissionDialog.notifier).state = true;
+    } else {}
+  } catch (e) {
+    // Handle any exceptions during permission check
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error checking location permissions: $e')),
+      );
+    }
   }
 }

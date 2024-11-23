@@ -44,7 +44,7 @@ void main() {
   Widget createPortfolioScreen(ProviderContainer container) {
     return UncontrolledProviderScope(
       container: container,
-      child: const MaterialApp(home: CreatePortfolioScreen()),
+      child: const MaterialApp(home: CreatePortfolioScreen(name: 'Professionals Name',)),
     );
   }
 
@@ -150,7 +150,7 @@ void main() {
     testWidgets('can proceed through entire flow',
         (WidgetTester tester) async {
            when(mockPortfolioRepository.createPortfolio(
-        any, any, any, any, any,
+        any, any, any, any, any, any, any, any, any
       )).thenAnswer((_) async {});
       final container = createProviderContainer();
       await tester.pumpWidget(createPortfolioScreen(container));
@@ -185,7 +185,7 @@ void main() {
         'Test portfolio details',
         6,
         2,
-        any,
+        any, any, any, any, any
       )).called(1);
 
       // Verify navigation back

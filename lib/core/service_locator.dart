@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:folio/controller/user_location_controller.dart';
+import 'package:folio/models/portfolio_model.dart';
 import 'package:folio/models/user_model.dart';
 import 'package:folio/repositories/feedback_repository.dart';
 import 'package:folio/repositories/portfolio_repository.dart';
@@ -9,6 +11,7 @@ import 'package:folio/repositories/user_repository.dart';
 import 'package:folio/services/auth_services.dart';
 import 'package:folio/services/firestore_services.dart';
 import 'package:folio/services/storage_services.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:rxdart/rxdart.dart';
 import 'dart:developer' as developer;
@@ -109,6 +112,28 @@ final userDataStreamProvider = StreamProvider<Map<String, dynamic>?>((ref) {
 });
 
 ////////////////// USER STREAMS //////////////////
+///
+final locationServiceProvider = Provider<LocationService>((ref){
+ return LocationService();
+});
+
+final currentPositionProvider = StateProvider<Position?>((ref) => null);
+
+final positionStreamProvider = StreamProvider<Position>((ref){
+  final locationService = ref.watch(locationServiceProvider);
+  return locationService.getPositionStream();
+});
+
+final nearbyPortfoliosProvider = FutureProvider<List<PortfolioModel>>((ref) async {
+  final positionAsyncValue = ref.watch(positionStreamProvider);
+
+  return positionAsyncValue.when(data: (position) async {
+    final locationService = ref.read(locationServiceProvider);
+    final geohash = locationService.createGeohash(position.latitude, position.longitude);
+    return await ref.read(portfolioRepositoryProvider).getNearbyPortfolios(geohash);
+  }, loading: () => [],
+    error: (error, stack) => [],);
+});
 
 
 void setupEmulators({bool useEmulators = false}) {

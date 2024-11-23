@@ -222,6 +222,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.8"
+  dart_geohash:
+    dependency: "direct main"
+    description:
+      name: dart_geohash
+      sha256: c5594c0063ca67f37778b2c7d025d22e2ecd38741c0acd5b0f7596374e3309f2
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.0"
   dart_style:
     dependency: transitive
     description:
@@ -543,6 +551,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.2.1"
+  google_maps_places_autocomplete_widgets:
+    dependency: "direct main"
+    description:
+      name: google_maps_places_autocomplete_widgets
+      sha256: c2f9417bda671f5c44602c040873c9e3efd21466fa93b3edff39962e3942c835
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.2.3"
   graphs:
     dependency: transitive
     description:

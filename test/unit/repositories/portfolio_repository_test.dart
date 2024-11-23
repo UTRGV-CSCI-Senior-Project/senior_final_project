@@ -49,7 +49,7 @@ void main() {
       // Act
       final repository = container.read(portfolioRepositoryProvider);
       await repository.createPortfolio(
-          'Photographer', 'Professional photography', 6, 2, images);
+          'Photographer', 'Professional photography', 6, 2, images, {'city': 'City', 'state': 'state'}, {'latitude': 40.7128, 'longitude': -74.0060},  'testgeohash', 'Test Name');
 
       // Assert
       verify(mockStorageServices.uploadFilesForUser(images)).called(1);
@@ -69,7 +69,7 @@ void main() {
       final repository = container.read(portfolioRepositoryProvider);
       expect(
         () =>
-            repository.createPortfolio('Photography', 'Details', 6, 2, images),
+            repository.createPortfolio('Photography', 'Details', 6, 2, images,{'city': 'City', 'state': 'state'}, {'latitude': 40.7128, 'longitude': -74.0060},  'testgeohash', 'Test Name'),
         throwsA(predicate((e) =>
             e is AppException && e.toString().contains('upload-files-error'))),
       );
@@ -92,7 +92,7 @@ void main() {
       final repository = container.read(portfolioRepositoryProvider);
       expect(
         () =>
-            repository.createPortfolio('Photography', 'Details', 6, 2, images),
+            repository.createPortfolio('Photography', 'Details', 6, 2, images,{'city': 'City', 'state': 'state'}, {'latitude': 40.7128, 'longitude': -74.0060},  'testgeohash', 'Test Name'),
         throwsA(predicate((e) =>
             e is AppException &&
             e.toString().contains('update-portfolio-error'))),
@@ -118,7 +118,7 @@ void main() {
       final repository = container.read(portfolioRepositoryProvider);
       expect(
         () =>
-            repository.createPortfolio('Photography', 'Details', 6, 2, images),
+            repository.createPortfolio('Photography', 'Details', 6, 2, images,{'city': 'City', 'state': 'state'}, {'latitude': 40.7128, 'longitude': -74.0060},  'testgeohash', 'Test Name'),
         throwsA(predicate((e) =>
             e is AppException && e.toString().contains('update-user-error'))),
       );

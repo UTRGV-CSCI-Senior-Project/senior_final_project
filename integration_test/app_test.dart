@@ -35,6 +35,7 @@ class MockImagePicker extends ImagePicker {
   @override
   Future<List<XFile>> pickMultiImage(
       {double? maxWidth,
+      int? limit,
       double? maxHeight,
       int? imageQuality,
       bool requestFullMetadata = true}) async {

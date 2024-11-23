@@ -1,27 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:folio/controller/user_location_controller.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:folio/core/service_locator.dart';
+import 'package:folio/models/portfolio_model.dart';
 import 'package:folio/models/user_model.dart';
 import 'package:folio/views/home/update_services_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class HomeTab extends StatefulWidget {
+class HomeTab extends ConsumerStatefulWidget {
   final UserModel? userModel;
 
-  HomeTab({
+  const HomeTab({
     super.key,
     required this.userModel,
   });
 
   @override
-  State<HomeTab> createState() => _HomeTabState();
+  ConsumerState<HomeTab> createState() => _HomeTabState();
 }
 
-class _HomeTabState extends State<HomeTab> {
-  late Future<String> currentCityFuture;
+class _HomeTabState extends ConsumerState<HomeTab> {
   @override
   void initState() {
     super.initState();
-    currentCityFuture = getCurrentCity();
   }
 
   @override
@@ -34,35 +34,6 @@ class _HomeTabState extends State<HomeTab> {
           children: [
             Column(
               children: [
-                Row(
-                  children: [
-                    FutureBuilder(
-                      future: currentCityFuture,
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return Text(
-                            "Fetching current city...",
-                            style: GoogleFonts.inter(
-                                fontWeight: FontWeight.w900, fontSize: 16),
-                          );
-                        } else if (snapshot.hasError) {
-                          return Text(
-                            "Error fetching city",
-                            style: GoogleFonts.inter(
-                                fontWeight: FontWeight.w900, fontSize: 16),
-                          );
-                        } else {
-                          return Text(
-                            "Current city: ${snapshot.data}",
-                            style: GoogleFonts.inter(
-                                fontWeight: FontWeight.w900, fontSize: 16),
-                          );
-                        }
-                      },
-                    )
-                  ],
-                ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -96,7 +67,8 @@ class _HomeTabState extends State<HomeTab> {
                   height: 50,
                   child: ListView.builder(
                       scrollDirection: Axis.horizontal,
-                      itemCount: widget.userModel!.preferredServices.length,
+                      itemCount:
+                          widget.userModel?.preferredServices.length ?? 0,
                       itemBuilder: (context, index) {
                         return Padding(
                           padding: const EdgeInsets.only(right: 8),
@@ -137,7 +109,7 @@ class _HomeTabState extends State<HomeTab> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      "Just Uploaded",
+                      "Near You",
                       style: GoogleFonts.inter(
                           fontWeight: FontWeight.w900, fontSize: 16),
                     ),
@@ -154,11 +126,132 @@ class _HomeTabState extends State<HomeTab> {
                     ),
                   ],
                 ),
+                ref.watch(nearbyPortfoliosProvider).when(
+                    data: (portfolios) {
+                      if (portfolios.isEmpty) {
+                        return const Center(
+                            child: Text("No portfolios found nearby."));
+                      }
+                      return SizedBox(
+                        height: 250,
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: portfolios.length,
+                          itemBuilder: (context, index) {
+                            final portfolio = portfolios[index];
+                            return Padding(
+                              padding: const EdgeInsets.only(right: 16),
+                              child: _buildPortfolio(portfolio),
+                            );
+                          },
+                        ),
+                      );
+                    },
+                    loading: () =>
+                        const Center(child: CircularProgressIndicator()),
+                    error: (error, stack) => Center(
+                        child: Text("Failed to load portfolios: $error")))
               ],
             ),
           ],
         ),
       ),
     ));
+  }
+
+  Widget _buildPortfolio(PortfolioModel portfolio) {
+    return Container(
+      height: 250,
+      width: 255,
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.secondary.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.secondary.withOpacity(0.05),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          SizedBox(
+            height: 110,
+            child: portfolio.images.isNotEmpty
+                ? PageView.builder(
+                    itemCount: portfolio.images.length,
+                    itemBuilder: (context, index) {
+                      return ClipRRect(
+                        borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(12)),
+                        child: Image.network(
+                          portfolio.images[index]['downloadUrl'] ?? '',
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                        ),
+                      );
+                    },
+                  )
+                : Container(
+                    color: Colors.grey[200],
+                    child: const Center(child: Icon(Icons.image_not_supported)),
+                  ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize
+                  .min, // This ensures the column takes minimum space
+
+              children: [
+                Text(
+                  portfolio.professionalsName ?? "Professional's Name",
+                  style: GoogleFonts.inter(
+                      fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                Row(
+                  children: [
+                    Text(portfolio.service,
+                        style: GoogleFonts.inter(
+                            fontSize: 13, fontWeight: FontWeight.w500)),
+                    const Spacer(),
+                    Text(
+                      portfolio.getFormattedTotalExperience(),
+                      style: GoogleFonts.inter(
+                          fontSize: 13, fontWeight: FontWeight.w500),
+                    )
+                  ],
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(10),
+            child: SizedBox(
+              width: double.infinity,
+              child: TextButton(
+                style: TextButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    shape: RoundedRectangleBorder(
+                        side: BorderSide(
+                          color: Theme.of(context).colorScheme.primary,
+                          width: 2,
+                        ),
+                        borderRadius: const BorderRadius.all(Radius.circular(50)))),
+                onPressed: () {},
+                child: Text(
+                  'View Portfolio',
+                  style: GoogleFonts.inter(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Theme.of(context).textTheme.displayLarge!.color),
+                ),
+              ),
+            ),
+          ),
+          // Add more portfolio details as needed
+        ],
+      ),
+    );
   }
 }

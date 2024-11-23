@@ -7,6 +7,10 @@ class PortfolioModel {
   final int _months;
   final List<Map<String, String>> _images;
   final DateTime? _experienceStartDate;
+  final Map<String, String?>? _location;
+  final Map<String, double?>? _latAndLong;
+  final String? _geohash;
+  final String? _professionalsName;
 
   PortfolioModel({
     required String service,
@@ -14,13 +18,21 @@ class PortfolioModel {
     int years = 0,
     int months = 0,
     List<Map<String, String>> images = const [],
-    DateTime? experienceStartDate
+    DateTime? experienceStartDate,
+     Map<String, String?>? location,
+     Map<String, double?>? latAndLong,
+    String? geohash,
+    String? professionalsName
   })  : _service = service,
         _details = details,
         _years = years,
         _months = months,
         _images = images ,
-        _experienceStartDate = experienceStartDate
+        _experienceStartDate = experienceStartDate,
+        _location = location,
+        _latAndLong = latAndLong,
+        _geohash = geohash,
+        _professionalsName = professionalsName
         {
     if (service.isEmpty) {
       throw ArgumentError('UID cannot be empty');
@@ -33,6 +45,11 @@ class PortfolioModel {
   int get months => _months;
   List<Map<String, String>> get images => _images;
   DateTime? get experienceStartDate => _experienceStartDate;
+  Map<String, String?>? get location => _location;
+   Map<String, double?>? get latAndLong => _latAndLong;
+   String? get geohash => _geohash;
+   String? get professionalsName => _professionalsName;
+
 
   // Convert the model to JSON format
   Map<String, dynamic> toJson() {
@@ -42,7 +59,11 @@ class PortfolioModel {
       "years": years,
       "months": months,
       "images": images,
-      "experienceStartDate": experienceStartDate
+      "experienceStartDate": experienceStartDate,
+      "location": location,
+      "latAndLong": latAndLong,
+      "geohash": geohash,
+      "professionalsName": professionalsName
     };
   }
 
@@ -71,7 +92,15 @@ class PortfolioModel {
               ?.map((e) => Map<String, String>.from(e as Map))
               .toList() ??
           [],
-      experienceStartDate: experienceStartDate
+      experienceStartDate: experienceStartDate,
+      location: json['location'] != null 
+          ? Map<String, String?>.from(json['location'] as Map)
+          : null,
+      latAndLong: json['latAndLong'] != null
+          ? Map<String, double?>.from(json['latAndLong'] as Map)
+          : null,
+      geohash: json['geohash'] as String?,
+      professionalsName: json['professionalsName'] as String?
     );
   }
 

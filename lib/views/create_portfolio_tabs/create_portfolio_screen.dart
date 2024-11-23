@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:folio/core/app_exception.dart';
 import 'package:folio/core/service_locator.dart';
+import 'package:folio/views/create_portfolio_tabs/add_location_tab.dart';
 import 'package:folio/views/create_portfolio_tabs/choose_service_screen.dart';
 import 'package:folio/views/create_portfolio_tabs/input_experience_screen.dart';
 import 'package:folio/views/create_portfolio_tabs/more_details_screen.dart';
@@ -11,7 +12,8 @@ import 'package:folio/widgets/error_widget.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class CreatePortfolioScreen extends ConsumerStatefulWidget {
-  const CreatePortfolioScreen({super.key});
+  final String name;
+  const CreatePortfolioScreen({super.key, required this.name});
 
   @override
   ConsumerState<CreatePortfolioScreen> createState() =>
@@ -28,6 +30,9 @@ class _CreatePortfolioScreenState extends ConsumerState<CreatePortfolioScreen> {
   String? _details;
   String errorMessage = "";
   bool _isLoading = false;
+  Map<String, String?>? _location;
+  Map<String, double?>? _latAndLong;
+  String? _geohash;
 
   void _onServiceSelected(String service) {
     setState(() {
@@ -58,11 +63,28 @@ class _CreatePortfolioScreenState extends ConsumerState<CreatePortfolioScreen> {
     });
   }
 
+  void _onAddressSelected(
+      String? city, String? state, double? latitude, double? longitude) {
+    setState(() {
+      _location = {
+        'city': city,
+        'state': state,
+      };
+      _latAndLong = {
+        'latitude': latitude,
+        'longitude': longitude
+      };
+      if(latitude != null && longitude != null) {
+        _geohash = ref.read(locationServiceProvider).createGeohash(latitude, longitude);
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-                leading: IconButton(
+        leading: IconButton(
             key: const Key('close-button'),
             onPressed: () {
               Navigator.of(context).pop();
@@ -75,9 +97,10 @@ class _CreatePortfolioScreenState extends ConsumerState<CreatePortfolioScreen> {
           padding:
               const EdgeInsets.only(right: 16.0), // Add padding on the right
           child: LinearProgressIndicator(
-            value: (_currentPage + 1) / 4,
-color: Theme.of(context).colorScheme.primary,
-                backgroundColor: Colors.grey[300],            minHeight: 6,
+            value: (_currentPage + 1) / 5,
+            color: Theme.of(context).colorScheme.primary,
+            backgroundColor: Colors.grey[300],
+            minHeight: 6,
             borderRadius: BorderRadius.circular(4),
           ),
         ),
@@ -107,6 +130,7 @@ color: Theme.of(context).colorScheme.primary,
                   selectedImages: _images,
                 ),
                 MoreDetailsScreen(onDetailsEntered: _onDetailsEntered),
+                AddLocationTab(onAddressChosen: _onAddressSelected)
               ],
             )),
           ],
@@ -116,122 +140,143 @@ color: Theme.of(context).colorScheme.primary,
       floatingActionButton: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12),
         color: Theme.of(context).colorScheme.surface,
-              width: double.infinity,
-              child: Column(
-                    mainAxisSize: MainAxisSize.min,  // Add this to prevent column from expanding
+        width: double.infinity,
+        child: Column(
+          mainAxisSize:
+              MainAxisSize.min, // Add this to prevent column from expanding
 
-                children: [
-                  ErrorBox(
-                      errorMessage: errorMessage,
-                      onDismiss: () {
+          children: [
+            ErrorBox(
+                errorMessage: errorMessage,
+                onDismiss: () {
+                  setState(() {
+                    errorMessage = "";
+                  });
+                }),
+            TextButton(
+                key: const Key('portfolio-next-button'),
+                onPressed: _isLoading
+                    ? null
+                    : () async {
+                        FocusScope.of(context).unfocus();
                         setState(() {
                           errorMessage = "";
                         });
-                      }),
-                  TextButton(
-                      key: const Key('portfolio-next-button'),
-                      onPressed: _isLoading
-                          ? null
-                          : () async {
-                              FocusScope.of(context).unfocus();
-                              setState(() {
-                                errorMessage = "";
-                              });
-                              if (_currentPage == 0) {
-                                if (_selectedService == null ||
-                                    _selectedService!.isEmpty) {
-                                  setState(() {
-                                    errorMessage = "Please select a service.";
-                                  });
-                                } else {
-                                  _pageController.nextPage(
-                                    duration: const Duration(milliseconds: 300),
-                                    curve: Curves.easeInOut,
-                                  );
-                                }
-                              } else if (_currentPage == 1) {
-                                _pageController.nextPage(
-                                  duration: const Duration(milliseconds: 300),
-                                  curve: Curves.easeInOut,
-                                );
-                              } else if (_currentPage == 2) {
-                                if (_images.isEmpty ||
-                                    _images.length < 5) {
-                                  errorMessage =
-                                      "Please upload at least 5 images.";
-                                } else {
-                                  _pageController.nextPage(
-                                    duration: const Duration(milliseconds: 300),
-                                    curve: Curves.easeInOut,
-                                  );
-                                }
-                              } else if (_currentPage == 3) {
-                                setState(() {
-                                  _isLoading = true;
-                                });
-                                final portfolioRepository =
-                                    ref.watch(portfolioRepositoryProvider);
+                        if (_currentPage == 0) {
+                          if (_selectedService == null ||
+                              _selectedService!.isEmpty) {
+                            setState(() {
+                              errorMessage = "Please select a service.";
+                            });
+                          } else {
+                            _pageController.nextPage(
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeInOut,
+                            );
+                          }
+                        } else if (_currentPage == 1) {
+                          _pageController.nextPage(
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeInOut,
+                          );
+                        } else if (_currentPage == 2) {
+                          if (_images.isEmpty || _images.length < 5) {
+                            setState(() {
+                              errorMessage = "Please upload at least 5 images.";
+                            });
+                          } else {
+                            _pageController.nextPage(
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeInOut,
+                            );
+                          }
+                        } else if (_currentPage == 3) {
+                          _pageController.nextPage(
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeInOut,
+                          );
+                        } else if (_currentPage == 4) {
+                          if (_latAndLong?['latitude'] == null ||
+                              _latAndLong?['longitude'] == null) {
+                            setState(() {
+                              errorMessage =
+                                  "Please enter your business location.";
+                            });
+                          } else {
+                            setState(() {
+                              _isLoading = true;
+                            });
+                            final portfolioRepository =
+                                ref.watch(portfolioRepositoryProvider);
 
-                                if (_selectedService == null ||
-                                    _selectedService!.isEmpty) {
-                                  setState(() {
-                                    errorMessage = "Please select a service.";
-                                    _isLoading = false;
-                                  });
-                                  _pageController.animateToPage(0, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
-                                  return;
-                                }
-                                try {
-                                  await portfolioRepository.createPortfolio(
-                                      _selectedService!,
-                                      _details ?? '',
-                                      _months,
-                                      _years,
-                                      _images);
-                                  if (context.mounted) {
-                                    Navigator.of(context).pop();
-                                  }
-                                } catch (e) {
-                                  if (e is AppException) {
-                                    setState(() {
-                                      errorMessage = e.message;
-                                    });
-                                  } else {
-                                    setState(() {
-                                      errorMessage =
-                                          "Failed to create your portfolio. Please try again.";
-                                    });
-                                  }
-                                } finally {
-                                  if (mounted) {
-                                    _isLoading = false;
-                                  }
-                                }
+                            if (_selectedService == null ||
+                                _selectedService!.isEmpty) {
+                              setState(() {
+                                errorMessage = "Please select a service.";
+                                _isLoading = false;
+                              });
+                              _pageController.animateToPage(0,
+                                  duration: const Duration(milliseconds: 300),
+                                  curve: Curves.easeInOut);
+                              return;
+                            }
+                            try {
+                              await portfolioRepository.createPortfolio(
+                                  _selectedService!,
+                                  _details ?? '',
+                                  _months,
+                                  _years,
+                                  _images, 
+                                  _location,
+                                  _latAndLong,
+                                  _geohash,
+                                  widget.name
+                                  );
+                              if (context.mounted) {
+                                Navigator.of(context).pop();
                               }
-                            },
-                      style: TextButton.styleFrom(
-                          minimumSize: const Size.fromHeight(50),
-                         ),
-                      child: _isLoading
-                          ?  SizedBox(
-                              height: 24,
-                              width: 24,
-                              child: CircularProgressIndicator(
-                                color: Theme.of(context).colorScheme.onPrimary,
-                                strokeWidth: 5,
-                              ),
-                            )
-                          : Text(
-                              _currentPage != 3 ? 'Next' : 'Done!',
-                              style: GoogleFonts.poppins(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Theme.of(context).colorScheme.onPrimary,
-                              ),
-                            )),
-                ],
-              ),
-            ),
+                            } catch (e) {
+                              if (e is AppException) {
+                                setState(() {
+                                  errorMessage = e.message;
+                                });
+                              } else {
+                                setState(() {
+                                  errorMessage =
+                                      "Failed to create your portfolio. Please try again.";
+                                });
+                              }
+                            } finally {
+                              if (mounted) {
+                                _isLoading = false;
+                              }
+                            }
+                          }
+                        }
+                      },
+                style: TextButton.styleFrom(
+                  minimumSize: const Size.fromHeight(50),
+                ),
+                child: _isLoading
+                    ? SizedBox(
+                        height: 24,
+                        width: 24,
+                        child: CircularProgressIndicator(
+                          color: Theme.of(context).colorScheme.onPrimary,
+                          strokeWidth: 5,
+                        ),
+                      )
+                    : Text(
+                        _currentPage != 4 ? 'Next' : 'Done!',
+                        style: GoogleFonts.poppins(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.onPrimary,
+                        ),
+                      )),
+          ],
+        ),
+      ),
     );
   }
 }

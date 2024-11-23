@@ -294,6 +294,40 @@ class MockFirestoreServices extends _i1.Mock implements _i5.FirestoreServices {
         returnValue: _i3.Future<void>.value(),
         returnValueForMissingStub: _i3.Future<void>.value(),
       ) as _i3.Future<void>);
+
+  @override
+  _i3.Future<void> savingLocation() => (super.noSuchMethod(
+        Invocation.method(
+          #savingLocation,
+          [],
+        ),
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
+
+  @override
+  _i3.Future<List<double>> getUserLatiLong() => (super.noSuchMethod(
+        Invocation.method(
+          #getUserLatiLong,
+          [],
+        ),
+        returnValue: _i3.Future<List<double>>.value(<double>[]),
+      ) as _i3.Future<List<double>>);
+
+  @override
+  _i3.Future<List<_i7.PortfolioModel>> getNearbyPortfolios(
+    String? targetGeohash, {
+    int? maxResults = 10,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #getNearbyPortfolios,
+          [targetGeohash],
+          {#maxResults: maxResults},
+        ),
+        returnValue:
+            _i3.Future<List<_i7.PortfolioModel>>.value(<_i7.PortfolioModel>[]),
+      ) as _i3.Future<List<_i7.PortfolioModel>>);
 }
 
 /// A class which mocks [StorageServices].
