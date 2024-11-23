@@ -25,7 +25,7 @@ class _AddLocationTabState extends State<AddLocationTab> {
       ),
       const SizedBox(height: 16.0),
       AddressAutocompleteTextField(
-        mapsApiKey: 'AIzaSyAYAofTND2JTcUDbmpUJdmqE8dAxDZqAi0',
+        mapsApiKey: '',
         decoration: InputDecoration(
           hintText: 'Enter your address',
           hintStyle: GoogleFonts.inter(
