@@ -1,7 +1,8 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:folio/core/service_locator.dart';
-import 'package:folio/services/firestore_services.dart'; // Import FirestoreServices
 import 'package:folio/services/gemini_services.dart';
 import 'package:folio/views/state_screens.dart'; // For error handling
 import 'package:google_fonts/google_fonts.dart';

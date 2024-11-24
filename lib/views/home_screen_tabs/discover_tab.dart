@@ -6,6 +6,7 @@ class DiscoverTab extends ConsumerStatefulWidget {
   const DiscoverTab({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _DiscoverTabState createState() => _DiscoverTabState();
 }
 
@@ -42,7 +43,6 @@ class _DiscoverTabState extends ConsumerState<DiscoverTab> {
         _isLoading = false;
       });
     } catch (e) {
-      print("Error occurred: $e");
       setState(() {
         _isLoading = false;
       });
@@ -91,7 +91,7 @@ class _DiscoverTabState extends ConsumerState<DiscoverTab> {
                 children: [
                   const Text('Filtered Services:',
                       style: TextStyle(fontWeight: FontWeight.bold)),
-                  ..._filteredServices.map((service) => Text(service)).toList(),
+                  ..._filteredServices.map((service) => Text(service)),
                 ],
               ),
             if (!_isLoading &&

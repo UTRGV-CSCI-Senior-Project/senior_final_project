@@ -4,17 +4,16 @@ import 'package:folio/core/service_locator.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 
 Future<String?> fetchApiKey() async {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseFirestore firestore = FirebaseFirestore.instance;
   try {
     DocumentSnapshot doc =
-        await _firestore.collection('api').doc('gemini').get();
+        await firestore.collection('api').doc('gemini').get();
     if (doc.exists) {
       return doc['key'] as String;
     } else {
       return null;
     }
   } catch (e) {
-    print('Error fetching API key: $e');
     return null;
   }
 }
@@ -24,7 +23,6 @@ Future<List<String>> getAllServices(WidgetRef ref) async {
     final firestoreServices = ref.read(firestoreServicesProvider);
     return await firestoreServices.getServices();
   } catch (e) {
-    print('Error fetching services: $e');
     return [];
   }
 }
@@ -44,7 +42,6 @@ class GeminiServices {
       final response = await model.generateContent(content);
       return response.text;
     } catch (e) {
-      print('Error during AI processing: $e');
       return null;
     }
   }
@@ -52,7 +49,6 @@ class GeminiServices {
   Future<List<String>> aiSearch(WidgetRef ref, String promptUser) async {
     final apiKey = await fetchApiKey();
     if (apiKey == null) {
-      print('API key is null');
       return [];
     }
 
@@ -76,7 +72,6 @@ class GeminiServices {
     if (aiResponse != null && aiResponse.isNotEmpty) {
       return aiResponse.split(',').map((service) => service.trim()).toList();
     } else {
-      print('No relevant services found from AI response.');
       return [];
     }
   }
@@ -84,7 +79,6 @@ class GeminiServices {
   Future<bool> aiEvaluator(WidgetRef ref, String userPrompt) async {
     final apiKey = await fetchApiKey();
     if (apiKey == null) {
-      print('API key is null');
       return false;
     }
 
@@ -153,7 +147,6 @@ class GeminiServices {
       Please respond with **"true"** if the service name meets the above criteria and is a valid service name, or **"false"** if it violates any of the rules listed above.
 
         """;
-    ;
 
     final response = await _generateContent(prompt, apiKey);
     if (response != null) {

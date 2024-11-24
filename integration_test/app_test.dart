@@ -1,11 +1,10 @@
 import 'dart:io';
-
+import 'dart:math';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:folio/views/create_portfolio_tabs/choose_service_screen.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:folio/main.dart';
@@ -172,6 +171,8 @@ void main() {
           scrollable: scrollable.first);
       await tester.tap(signUpButton);
       await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(find.text('Name and Profile Picture'), findsOneWidget);
 
       //Enter full name in onboarding screen and tap next
       await tester.enterText(fullNameField, "First Last");

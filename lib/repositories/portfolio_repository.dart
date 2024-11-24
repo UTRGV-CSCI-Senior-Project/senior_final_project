@@ -70,10 +70,6 @@ class PortfolioRepository {
   void shareMessageOnFacebook() {
     const String message =
         "Hello everyone! \nI invite you to check out my profile on the Folio App, \nwhere I showcase my car detailing services. You'll find a variety of photos \nthat highlight the quality of my work. The Folio App is available for download on both the App Store and Google Play Store.";
-    SocialShare.shareOptions(message).then((result) {
-      print(result);
-    }).catchError((error) {
-      print("Error sharing: $error");
-    });
+    SocialShare.shareOptions(message).then((result) {}).catchError((error) {});
   }
 }
