@@ -509,7 +509,7 @@ class _ManagePortfolioScreenState extends ConsumerState<ManagePortfolioScreen> {
                   builder: (context) => DeleteDialog(
                       title: 'Portfolio',
                       onPressed: () {
-                        verifyPasswordDialog(context, 'Verify Password',
+                        verifyPasswordDialog(context, 'Verify Password', "Please verify your password before deleting your portfolio.\n\nWe need to make sure it's you!",
                             (password) async {
                           try {
                             await ref

@@ -7,24 +7,33 @@ class UserModel {
   final bool _completedOnboarding;
   final List<String> _preferredServices;
   final String? _profilePictureUrl;
+  final bool _isEmailVerified;
+  final String? _phoneNumber;
+  final bool _isPhoneVerified;
 
-  UserModel({
-    required String uid,
-    required String username,
-    String? fullName,
-    required String email,
-    required bool isProfessional,
-    bool completedOnboarding = false,
-    List<String> preferredServices = const [],
-    String? profilePictureUrl,
-  })  : _uid = uid,
+  UserModel(
+      {required String uid,
+      required String username,
+      String? fullName,
+      required String email,
+      required bool isProfessional,
+      bool completedOnboarding = false,
+      List<String> preferredServices = const [],
+      String? profilePictureUrl,
+      bool isEmailVerified = false,
+      String? phoneNumber,
+      bool isPhoneVerified = false})
+      : _uid = uid,
         _username = username,
         _fullName = fullName,
         _email = email,
         _isProfessional = isProfessional,
         _completedOnboarding = completedOnboarding,
         _preferredServices = preferredServices,
-        _profilePictureUrl = profilePictureUrl {
+        _profilePictureUrl = profilePictureUrl,
+        _isEmailVerified = isEmailVerified,
+        _phoneNumber = phoneNumber,
+        _isPhoneVerified = isPhoneVerified {
     if (_uid.isEmpty) {
       throw ArgumentError('UID cannot be empty');
     }
@@ -44,6 +53,9 @@ class UserModel {
   bool get completedOnboarding => _completedOnboarding;
   List<String> get preferredServices => _preferredServices;
   String? get profilePictureUrl => _profilePictureUrl;
+  bool get isEmailVerified => _isEmailVerified;
+  String? get phoneNumber => _phoneNumber;
+  bool get isPhoneVerified => _isPhoneVerified;
 
   toJson() {
     return {
@@ -55,6 +67,9 @@ class UserModel {
       "completedOnboarding": completedOnboarding,
       "preferredServices": preferredServices,
       "profilePictureUrl": profilePictureUrl,
+      "isEmailVerified": isEmailVerified,
+      "phoneNumber": phoneNumber,
+      "isPhoneVerified": isPhoneVerified
     };
   }
 
@@ -83,6 +98,9 @@ class UserModel {
                 ?.map((e) => e as String)
                 .toList() ??
             [],
-        profilePictureUrl: json['profilePictureUrl'] as String?);
+        profilePictureUrl: json['profilePictureUrl'] as String?,
+        isEmailVerified: json['isEmailVerified'] ?? false,
+        phoneNumber: json['phoneNumber'] as String?,
+        isPhoneVerified: json['isPhoneVerified'] ?? false);
   }
 }

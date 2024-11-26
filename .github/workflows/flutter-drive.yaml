@@ -78,8 +78,7 @@ jobs:
           script: firebase emulators:exec "flutter test integration_test --timeout none" --import=./android_emulator_data
 
   iphone-integration-tests:
-    runs-on: macOS-latest
-    needs: android-integration-tests
+    runs-on: macos-latest-xlarge
     steps:
       - name: Clone Repository
         uses: actions/checkout@v4

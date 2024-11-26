@@ -9,25 +9,22 @@ class ErrorConstants {
     'username-taken': 'This username is already taken. Please try a different one.',
     'unexpected-error': 'An unexpected error occurred. Please try again later or contact support if the problem persists.',
     'empty-fields': 'Please fill in all required fields to continue.',
-    'invalid-credential': 'Invalid login credentials. Please check your email and password.',
+    'invalid-credential': 'Invalid login credentials. Please check your email or password.',
     'user-disabled': 'This account has been disabled. Please contact support for assistance.',
     'user-not-found': 'No account found with this email address. Please check the email or create a new account.',
     'wrong-password': 'Incorrect password. Please try again or reset your password.',
     'no-user': 'Session expired. Please log in again to continue.',
-    
     'pfp-error': 'Unable to upload profile picture.',
     'pfp-upload-error': 'Failed to update profile picture. Please try a different image or try again later.',
     'delete-image-error': 'Unable to delete image. Please try again later.',
     'upload-files-error': 'Failed to upload images. Please try again later.',
     'fetch-images-error': 'Unable to load images. Please check your connection and try again.',
-    
     'create-portfolio-error': 'Failed to create your portfolio. Please try again later.',
     'update-portfolio-error': 'Changes to your portfolio could not be saved. Please try again.',
     'delete-portfolio-error': 'Unable to delete portfolio. Please try again later.',
     'invalid-portfolio-data': 'Some portfolio information is invalid. Please review and try again.',
     'portfolio-stream-error': 'Unable to load portfolio updates. Please restart the app.',
     'delete-portfolio-image-error': 'Failed to remove portfolio image. Please try again later.',
-    
     'sign-up-error': 'Unable to complete registration. Please try again or contact support.',
     'create-user-error': 'Failed to create account. Please check your information and try again.',
     'sign-in-error': 'Unable to sign in. Please check your credentials and try again.',
@@ -38,12 +35,28 @@ class ErrorConstants {
     'add-user-error': 'Unable to add user to the system. Please try again.',
     'invalid-user-data': 'Some of the provided information is invalid. Please review and try again.',
     'user-stream-error': 'Unable to load user updates. Please restart the app.',
-    
     'already-verified': 'This email is already verified.',
     'email-verification-error': 'Unable to send verification email. Please try again later.',
-    
     'get-services-error': 'Unable to load available services. Please restart the app.',
     'username-unique-error': 'Unable to verify username availability. Please try again.',
+    'invalid-verification-code': 'The provided verification code was incorrect.',
+    'invalid-verification-id': 'The provided verification code was invalid or expired. Try again later.',
+    'code-expired': 'The provided verification code was expeired. Try again.',
+    'quota-exceeded': 'Too many requests, try again later.',
+    'requires-recent-login': 'Please verify your password again then try again.',
+    'verify-number-error': 'There was an error verifying you number. Try again later',
+    'send-feedback-error': 'There was an error sending your feedback. Try again later.',
+    'no-portfolio': 'No portfolio was found.',
+    'reauthenticate-error': 'There was an error reauthenticating your account. Try again later.',
+    'update-email-error': 'There was an error updating your email. Try again later or contact support if problem persists.',
+    'update-password-error': 'There was an error updating your password. Try again later or contact support if problem persists.',
+    'verify-sms-error': 'There was an error verifying the code. Try again later or contact support if problem persists.',
+    'add-feedback-error': 'There was an error sending your feedback. Try again later.',
+    'get-portfolio-error': 'There was an error fetching your portfolio.',
+    'get-user-error': 'There was an error fetching your account information',
+    'no-user=doc': 'There was an error fetching your account information, if the problem persists, contact support',
+    'phone-number-update-failed': 'We failed to updated your phone number. Try again later or contact support if problem persists.',
+    'no-email': "There was an error reauthenticating your account. Try again later."
   };
 
   static String getMessage(String errorCode) {

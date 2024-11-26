@@ -172,7 +172,21 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 hintStyle: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w500)
               ),
             ),
-          )
+          ),
+           if (errorMessage.isNotEmpty && _currentPage == 0)
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: ErrorBox(
+              errorMessage: errorMessage,
+              onDismiss: () {
+                if (mounted) {
+                  setState(() {
+                    errorMessage = "";
+                  });
+                }
+              }
+            ),
+          ),
         ],
       ),
     );
@@ -242,8 +256,21 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               selectedServices.addAll(newServices);
             });
             }
-          }, isLoading: _isLoading))
-          
+          }, isLoading: _isLoading)),
+          if (errorMessage.isNotEmpty && _currentPage == 1)
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: ErrorBox(
+              errorMessage: errorMessage,
+              onDismiss: () {
+                if (mounted) {
+                  setState(() {
+                    errorMessage = "";
+                  });
+                }
+              }
+            ),
+          ),
         ],
       );
   }
@@ -283,23 +310,14 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   onPageChanged: (int index) {
                     if(mounted) {
                       setState(() {
-                      _currentPage = index;
                       errorMessage = "";
+                      _currentPage = index;
                     });
                     }
                   },
                   children: [buildProfile(context), buildInterests(context)],
                 ),
               ),
-              errorMessage.isNotEmpty
-                  ? ErrorBox(errorMessage: errorMessage, onDismiss: (){
-                    if(mounted) {
-                      setState(() {
-                      errorMessage = "";
-                    });
-                    }
-                  })
-                  : Container(),
               Padding(
                 padding: const EdgeInsets.all(12),
                 child: TextButton(

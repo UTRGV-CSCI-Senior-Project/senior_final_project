@@ -5,27 +5,31 @@ import 'package:folio/core/service_locator.dart';
 import 'package:folio/models/user_model.dart';
 import 'package:folio/views/settings/account_screen.dart';
 import 'package:folio/widgets/edit_profile_sheet.dart';
+import 'package:folio/widgets/email_verification_dialog.dart';
+import 'package:folio/views/settings/phone_verification_flow.dart';
 import 'package:mockito/mockito.dart';
 
 import '../../mocks/login_screen_test.mocks.dart';
 
-void main(){
+void main() {
   late MockUserRepository mockUserRepository;
 
-  setUp((){
+  setUp(() {
     mockUserRepository = MockUserRepository();
   });
 
-   group('AccountScreen Tests', () {
+  group('AccountScreen Tests', () {
     final testUser = UserModel(
       uid: '123123',
       username: 'testuser',
       email: 'test@example.com',
       fullName: 'Test User',
       isProfessional: false,
+      isEmailVerified: false,
     );
 
-    testWidgets('displays user information correctly', (WidgetTester tester) async {
+    testWidgets('displays user information correctly',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
@@ -42,7 +46,8 @@ void main(){
       expect(find.text('Test User'), findsOneWidget);
     });
 
-    testWidgets('shows editProfileSheet when username is tapped', (WidgetTester tester) async {
+    testWidgets('shows editProfileSheet when username is tapped',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
@@ -61,7 +66,8 @@ void main(){
       expect(find.byType(TextField), findsExactly(2));
     });
 
-    testWidgets('shows editProfileSheet when name is tapped', (WidgetTester tester) async {
+    testWidgets('shows editProfileSheet when name is tapped',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
@@ -80,7 +86,9 @@ void main(){
       expect(find.byType(TextField), findsExactly(2));
     });
 
-    testWidgets('calls reauthenticateUser and changeUserEmail when click on Email and fill in the information', (WidgetTester tester) async {
+    testWidgets(
+        'calls reauthenticateUser and changeUserEmail when click on Email and fill in the information',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
@@ -106,10 +114,13 @@ void main(){
       await tester.tap(find.text('Update'));
 
       verify(mockUserRepository.reauthenticateUser('123123')).called(1);
-      verify(mockUserRepository.changeUserEmail('newemail@email.com')).called(1);
+      verify(mockUserRepository.changeUserEmail('newemail@email.com'))
+          .called(1);
     });
 
-        testWidgets('calls reauthenticateUser and updateUserPassword when click on Password and fill in the information', (WidgetTester tester) async {
+    testWidgets(
+        'calls reauthenticateUser and updateUserPassword when click on Password and fill in the information',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
@@ -138,7 +149,9 @@ void main(){
       verify(mockUserRepository.updateUserPassword('123456')).called(1);
     });
 
-    testWidgets('delete account button shows dialog, calls reauthenticateUser, and calls deleteUserAccount', (WidgetTester tester) async {
+    testWidgets(
+        'delete account button shows dialog, calls reauthenticateUser, and calls deleteUserAccount',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
@@ -152,10 +165,13 @@ void main(){
       await tester.pumpAndSettle();
       await tester.tap(find.text('DELETE ACCOUNT'));
       await tester.pumpAndSettle();
-      expect(find.text('Are you sure you want delete your account? All your account data will be lost.'), findsOneWidget);
+      expect(
+          find.text(
+              'Are you sure you want delete your account? All your account data will be lost.'),
+          findsOneWidget);
       await tester.tap(find.text('DELETE'));
       await tester.pumpAndSettle();
-       expect(find.text('Verify Password'), findsOneWidget);
+      expect(find.text('Verify Password'), findsOneWidget);
 
       await tester.enterText(find.byType(TextField), '123123');
       await tester.tap(find.text('Verify'));
@@ -163,6 +179,61 @@ void main(){
 
       verify(mockUserRepository.reauthenticateUser('123123')).called(1);
       verify(mockUserRepository.deleteUserAccount()).called(1);
+    });
+
+    testWidgets(
+        'phone number button shows email verification dialog if users email is not verified',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            userRepositoryProvider.overrideWithValue(mockUserRepository),
+          ],
+          child: MaterialApp(
+            home: AccountScreen(user: testUser),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Phone Number'));
+      await tester.pumpAndSettle();
+      expect(find.text('Verify Email'), findsOneWidget);
+      expect(find.byType(EmailVerificationDialog), findsOneWidget);
+    });
+
+    testWidgets(
+        'phone number button shows password verification screen then phone verification screen',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            userRepositoryProvider.overrideWithValue(mockUserRepository),
+          ],
+          child: MaterialApp(
+            home: AccountScreen(
+                user: UserModel(
+              uid: '123123',
+              username: 'testuser',
+              email: 'test@example.com',
+              fullName: 'Test User',
+              isProfessional: false,
+              isEmailVerified: true,
+            )),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Phone Number'));
+      await tester.pumpAndSettle();
+      expect(find.byType(EmailVerificationDialog), findsNothing);
+
+      await tester.enterText(find.byType(TextField), '123123');
+      await tester.tap(find.text('Verify'));
+      await tester.pump();
+
+      expect(find.text('Please enter your phone number.\n\nWe will send a 6 digit code to the provided number.'), findsOneWidget);
+      expect(find.byType(PhoneVerificationFlow), findsOneWidget);
     });
   });
 }
