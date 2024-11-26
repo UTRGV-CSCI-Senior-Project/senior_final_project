@@ -50,7 +50,6 @@ dependencies:
   share_plus: ^10.1.1
   font_awesome_flutter: ^10.7.0
   google_generative_ai: ^0.4.6
-  connectivity_plus: ^6.1.0
   flutter_speed_dial: ^7.0.0
   device_info_plus: ^11.1.1
   package_info_plus: ^8.1.1
