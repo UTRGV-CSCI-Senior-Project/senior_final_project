@@ -112,8 +112,13 @@ class FirestoreServices {
     try {
       final uid = await _ref.read(authServicesProvider).currentUserUid();
       await _firestore.collection('users').doc(uid).update(fieldsToUpdate);
+      await updateChatroomParticipant();
     } catch (e) {
-      throw AppException('update-user-error');
+      if (e is AppException) {
+        rethrow;
+      } else {
+        throw AppException('update-user-error');
+      }
     }
   }
 
@@ -138,6 +143,7 @@ class FirestoreServices {
         'isEmailVerified': FieldValue.delete(),
         'isPhoneVerified': FieldValue.delete(),
         'phoneNumber': FieldValue.delete(),
+        'fcmTokens': FieldValue.delete()
       });
     } catch (e) {
       if (e is AppException && e.code == "no-user") {
@@ -293,6 +299,7 @@ class FirestoreServices {
   }
 
   ///////////////////////// FEEDBACK COLLECTION /////////////////////////
+
   Future<void> addFeedback(FeedbackModel feedbackModel) async {
     try {
       await _firestore
@@ -306,29 +313,31 @@ class FirestoreServices {
   ///////////////////////// FEEDBACK COLLECTION /////////////////////////
 
   ///////////////////////// MESSAGE COLLECTION /////////////////////////
-  ///
-  Future<List<ChatParticipant>> getChatParticipants(String chatroomId) async {
-    final userOne = await getUser();
-    if (userOne == null) {
-      return [];
-    }
-    final userIds = chatroomId.split('_');
-    final otherUserId =
-        userIds.first == userOne.uid ? userIds.last : userIds.first;
-    final userTwo = await getOtherUser(otherUserId);
 
-    if (userTwo != null) {
-      final participantOne = ChatParticipant(
-          uid: userOne.uid,
-          identifier: userOne.fullName ?? userOne.username,
-          profilePicture: userOne.profilePictureUrl);
-      final participantTwo = ChatParticipant(
-          uid: userTwo.uid,
-          identifier: userTwo.fullName ?? userTwo.username,
-          profilePicture: userTwo.profilePictureUrl);
-      return [participantOne, participantTwo];
-    } else {
+  Future<List<ChatParticipant>> getChatParticipants(String chatroomId) async {
+    try {
+      final userOne = await getUser();
+      if (userOne != null) {
+      
+      final userIds = chatroomId.split('_');
+      final otherUserId =
+          userIds.first == userOne.uid ? userIds.last : userIds.first;
+      final userTwo = await getOtherUser(otherUserId);
+
+      if (userTwo != null) {
+        final participantOne = ChatParticipant.fromUserModel(userOne);
+        final participantTwo = ChatParticipant.fromUserModel(userTwo);
+        return [participantOne, participantTwo];
+      } else {
+        throw AppException('no-chat-participant');
+      }}
       return [];
+    } catch (e) {
+      if (e is AppException) {
+        rethrow;
+      } else {
+        throw AppException('get-chat-participant-error');
+      }
     }
   }
 
@@ -366,7 +375,11 @@ class FirestoreServices {
           .doc(chatroom)
           .update({'lastMessage': messageModel.toJson()});
     } catch (e) {
-      throw AppException('send-message-error');
+      if (e is AppException) {
+        rethrow;
+      } else {
+        throw AppException('send-message-error');
+      }
     }
   }
 
@@ -385,7 +398,7 @@ class FirestoreServices {
   }
 
   Stream<List<MessageModel>> getChatroomMessages(String chatroomId,
-      {int limit = 50}) {
+      {int limit = 100}) {
     try {
       return _firestore
           .collection('chatrooms')
@@ -401,8 +414,53 @@ class FirestoreServices {
       throw AppException('get-messages-error');
     }
   }
+
+  Future<void> updateChatroomParticipant() async {
+    try {
+      final uid = await _ref.read(authServicesProvider).currentUserUid();
+
+      if (uid == null) {
+        throw AppException('no-user');
+      }
+
+      final updatedUser = await getUser();
+      if (updatedUser == null) {
+        throw AppException('no-user');
+      }
+
+      final updatedParticipant = ChatParticipant.fromUserModel(updatedUser);
+
+      final chatroomsQuery = await _firestore
+          .collection('chatrooms')
+          .where('participantIds', arrayContains: uid)
+          .get();
+
+      for (var chatroomDoc in chatroomsQuery.docs) {
+        final chatroom = ChatroomModel.fromJson(chatroomDoc.data());
+
+        // Find and update the current user's participant info
+        List<Map<String, dynamic>> updatedParticipants =
+            chatroom.participants.map((participant) {
+          if (participant.uid == uid) {
+            return updatedParticipant.toJson();
+          }
+          return participant.toJson();
+        }).toList();
+
+        // Update the chatroom document
+        await chatroomDoc.reference.update({
+          'participants': updatedParticipants,
+        });
+      }
+    } catch (e) {
+      if (e is AppException) {
+        rethrow;
+      } else {
+        throw AppException(
+            'update-chatroom-participant-error'); // Updated error code
+      }
+    }
+  }
+
+///////////////////////// MESSAGE COLLECTION /////////////////////////
 }
-
-
-//l1ne2oFMn6cCCClBuc0EPhOqSLz2
-//PR6efiUdngUzfoS7hO1AOHf7GI13

@@ -4,15 +4,19 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i3;
-import 'dart:io' as _i10;
+import 'dart:io' as _i13;
 
 import 'package:firebase_auth/firebase_auth.dart' as _i4;
 import 'package:folio/models/feedback_model.dart' as _i8;
+import 'package:folio/models/messaging_models/chat_participant_model.dart'
+    as _i9;
+import 'package:folio/models/messaging_models/chatroom_model.dart' as _i11;
+import 'package:folio/models/messaging_models/message_model.dart' as _i10;
 import 'package:folio/models/portfolio_model.dart' as _i7;
 import 'package:folio/models/user_model.dart' as _i6;
 import 'package:folio/services/auth_services.dart' as _i2;
 import 'package:folio/services/firestore_services.dart' as _i5;
-import 'package:folio/services/storage_services.dart' as _i9;
+import 'package:folio/services/storage_services.dart' as _i12;
 import 'package:mockito/mockito.dart' as _i1;
 
 // ignore_for_file: type=lint
@@ -180,6 +184,15 @@ class MockFirestoreServices extends _i1.Mock implements _i5.FirestoreServices {
       ) as _i3.Future<_i6.UserModel?>);
 
   @override
+  _i3.Future<_i6.UserModel?> getOtherUser(String? uid) => (super.noSuchMethod(
+        Invocation.method(
+          #getOtherUser,
+          [uid],
+        ),
+        returnValue: _i3.Future<_i6.UserModel?>.value(),
+      ) as _i3.Future<_i6.UserModel?>);
+
+  @override
   _i3.Stream<_i6.UserModel> getUserStream(String? uid) => (super.noSuchMethod(
         Invocation.method(
           #getUserStream,
@@ -294,18 +307,81 @@ class MockFirestoreServices extends _i1.Mock implements _i5.FirestoreServices {
         returnValue: _i3.Future<void>.value(),
         returnValueForMissingStub: _i3.Future<void>.value(),
       ) as _i3.Future<void>);
+
+  @override
+  _i3.Future<List<_i9.ChatParticipant>> getChatParticipants(
+          String? chatroomId) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #getChatParticipants,
+          [chatroomId],
+        ),
+        returnValue: _i3.Future<List<_i9.ChatParticipant>>.value(
+            <_i9.ChatParticipant>[]),
+      ) as _i3.Future<List<_i9.ChatParticipant>>);
+
+  @override
+  _i3.Future<void> sendMessage(
+    _i10.MessageModel? messageModel,
+    String? chatroom,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #sendMessage,
+          [
+            messageModel,
+            chatroom,
+          ],
+        ),
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
+
+  @override
+  _i3.Stream<List<_i11.ChatroomModel>> getChatrooms(String? currentUserId) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #getChatrooms,
+          [currentUserId],
+        ),
+        returnValue: _i3.Stream<List<_i11.ChatroomModel>>.empty(),
+      ) as _i3.Stream<List<_i11.ChatroomModel>>);
+
+  @override
+  _i3.Stream<List<_i10.MessageModel>> getChatroomMessages(
+    String? chatroomId, {
+    int? limit = 100,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #getChatroomMessages,
+          [chatroomId],
+          {#limit: limit},
+        ),
+        returnValue: _i3.Stream<List<_i10.MessageModel>>.empty(),
+      ) as _i3.Stream<List<_i10.MessageModel>>);
+
+  @override
+  _i3.Future<void> updateChatroomParticipant() => (super.noSuchMethod(
+        Invocation.method(
+          #updateChatroomParticipant,
+          [],
+        ),
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
 }
 
 /// A class which mocks [StorageServices].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockStorageServices extends _i1.Mock implements _i9.StorageServices {
+class MockStorageServices extends _i1.Mock implements _i12.StorageServices {
   MockStorageServices() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i3.Future<String?> uploadProfilePicture(_i10.File? image) =>
+  _i3.Future<String?> uploadProfilePicture(_i13.File? image) =>
       (super.noSuchMethod(
         Invocation.method(
           #uploadProfilePicture,
@@ -316,7 +392,7 @@ class MockStorageServices extends _i1.Mock implements _i9.StorageServices {
 
   @override
   _i3.Future<List<Map<String, String>>> uploadFilesForUser(
-          List<_i10.File>? files) =>
+          List<_i13.File>? files) =>
       (super.noSuchMethod(
         Invocation.method(
           #uploadFilesForUser,

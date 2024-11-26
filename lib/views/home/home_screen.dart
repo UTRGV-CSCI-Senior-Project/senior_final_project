@@ -17,11 +17,57 @@ import 'package:google_fonts/google_fonts.dart';
 
 final selectedIndexProvider = StateProvider<int>((ref) => 0);
 
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  bool _isInitializingNotifications = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize notifications after widget is built
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeMessaging();
+    });
+  }
+
+  Future<void> _initializeMessaging() async {
+    // Only initialize if not already in progress
+    if (_isInitializingNotifications) return;
+    _isInitializingNotifications = true;
+
+    try {
+      final messagingService = ref.read(cloudMessagingServicesProvider);
+      await messagingService.initNotifications();
+    } catch (e) {
+      // Only show error if user has completed onboarding and is actually logged in
+      final userData = ref.read(userDataStreamProvider).value;
+      final userModel = userData?['user'];
+      if (userModel?.completedOnboarding == true) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('Notifications may not work properly'),
+              action: SnackBarAction(
+                label: 'Retry',
+                onPressed: _initializeMessaging,
+              ),
+            ),
+          );
+        }
+      }
+    } finally {
+      _isInitializingNotifications = false;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return ref.watch(userDataStreamProvider).when(
         data: (userData) {
           final userModel = userData?['user'];

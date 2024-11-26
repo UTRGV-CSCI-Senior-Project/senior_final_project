@@ -44,6 +44,7 @@ class _InboxTabState extends ConsumerState<InboxTab> {
                       (chatroom) => Padding(
                         padding: const EdgeInsets.only(bottom: 8.0),
                         child: ChatRoomTile(
+                          senderName: widget.userModel.fullName ?? widget.userModel.username,
                           chatroom: chatroom,
                           currentUserId: widget.userModel.uid,
                         ),
@@ -74,11 +75,13 @@ class _InboxTabState extends ConsumerState<InboxTab> {
 class ChatRoomTile extends StatelessWidget {
   final ChatroomModel chatroom;
   final String currentUserId;
+  final String senderName;
 
   const ChatRoomTile({
     super.key,
     required this.chatroom,
     required this.currentUserId,
+    required this.senderName
   });
 
 
@@ -88,7 +91,7 @@ class ChatRoomTile extends StatelessWidget {
  final otherParticipant = chatroom.otherParticipant(currentUserId);
     return ListTile(
       onTap: (){
-        Navigator.push(context, MaterialPageRoute(builder: (context) => ChatroomScreen(chatroomId: chatroom.id, otherParticipant: otherParticipant)));
+        Navigator.push(context, MaterialPageRoute(builder: (context) => ChatroomScreen(chatroomId: chatroom.id, otherParticipant: otherParticipant, senderName: senderName,)));
       },
       leading: CircleAvatar(
         radius: 28,

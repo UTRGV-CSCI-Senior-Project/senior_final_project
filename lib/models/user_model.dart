@@ -7,6 +7,7 @@ class UserModel {
   final bool _completedOnboarding;
   final List<String> _preferredServices;
   final String? _profilePictureUrl;
+  final List<String>? _fcmTokens;
 
   UserModel({
     required String uid,
@@ -17,6 +18,7 @@ class UserModel {
     bool completedOnboarding = false,
     List<String> preferredServices = const [],
     String? profilePictureUrl,
+    List<String>? fcmTokens
   })  : _uid = uid,
         _username = username,
         _fullName = fullName,
@@ -24,7 +26,8 @@ class UserModel {
         _isProfessional = isProfessional,
         _completedOnboarding = completedOnboarding,
         _preferredServices = preferredServices,
-        _profilePictureUrl = profilePictureUrl {
+        _profilePictureUrl = profilePictureUrl,
+        _fcmTokens = fcmTokens {
     if (_uid.isEmpty) {
       throw ArgumentError('UID cannot be empty');
     }
@@ -44,7 +47,7 @@ class UserModel {
   bool get completedOnboarding => _completedOnboarding;
   List<String> get preferredServices => _preferredServices;
   String? get profilePictureUrl => _profilePictureUrl;
-
+  List<String>? get fcmTokens => _fcmTokens;
   toJson() {
     return {
       "uid": uid,
@@ -55,6 +58,7 @@ class UserModel {
       "completedOnboarding": completedOnboarding,
       "preferredServices": preferredServices,
       "profilePictureUrl": profilePictureUrl,
+      "fcmTokens": fcmTokens
     };
   }
 
@@ -83,6 +87,9 @@ class UserModel {
                 ?.map((e) => e as String)
                 .toList() ??
             [],
-        profilePictureUrl: json['profilePictureUrl'] as String?);
+        profilePictureUrl: json['profilePictureUrl'] as String?,
+        fcmTokens: (json['fcmTokens'] as List?)?.map((e) => e.toString()).toList()
+        
+        );
   }
 }
