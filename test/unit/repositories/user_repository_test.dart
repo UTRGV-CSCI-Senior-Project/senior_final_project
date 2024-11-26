@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:folio/core/app_exception.dart';
 import 'package:folio/models/user_model.dart';
+import 'package:folio/services/cloud_messaging_services.dart';
 import 'package:folio/services/storage_services.dart';
 import 'package:mockito/mockito.dart';
 import 'package:folio/core/service_locator.dart';
@@ -12,7 +13,7 @@ import 'package:test/test.dart';
 
 import '../../mocks/auth_services_test.mocks.dart';
 import '../../mocks/create_portfolio_screen.mocks.dart';
-@GenerateMocks([AuthServices, FirestoreServices, StorageServices])
+@GenerateMocks([AuthServices, FirestoreServices, StorageServices, CloudMessagingServices])
 import '../../mocks/user_repository_test.mocks.dart';
 
 void main() {
@@ -23,18 +24,23 @@ void main() {
   late MockStorageServices mockStorageServices;
   late MockUser mockUser;
   late MockPortfolioRepository mockPortfolioRepository;
+  late MockCloudMessagingServices mockCloudMessagingServices;
+
 
   setUp(() {
     mockAuthServices = MockAuthServices();
     mockFirestoreServices = MockFirestoreServices();
     mockStorageServices = MockStorageServices();
     mockPortfolioRepository = MockPortfolioRepository();
+    mockCloudMessagingServices = MockCloudMessagingServices();
+
     mockUser = MockUser();
     container = ProviderContainer(overrides: [
       authServicesProvider.overrideWithValue(mockAuthServices),
       firestoreServicesProvider.overrideWithValue(mockFirestoreServices),
       storageServicesProvider.overrideWithValue(mockStorageServices),
-      portfolioRepositoryProvider.overrideWithValue(mockPortfolioRepository)
+      portfolioRepositoryProvider.overrideWithValue(mockPortfolioRepository),
+      cloudMessagingServicesProvider.overrideWithValue(mockCloudMessagingServices)
     ]);
   });
 
@@ -185,6 +191,7 @@ void main() {
 
   group('signOut', () {
     test('signs out successfully', () async {
+      when(mockCloudMessagingServices.removeToken()).thenAnswer((_) async {});
       when(mockAuthServices.signOut()).thenAnswer((_) async {});
 
       final userRepository = container.read(userRepositoryProvider);
@@ -194,6 +201,7 @@ void main() {
     });
 
     test('throws error when sign out fails', () async {
+      when(mockCloudMessagingServices.removeToken()).thenAnswer((_) async {});
       when(mockAuthServices.signOut())
           .thenThrow(AppException('sign-out-error'));
 
@@ -202,6 +210,17 @@ void main() {
           () => userRepository.signOut(),
           throwsA(predicate((e) =>
               e is AppException && e.toString().contains('sign-out-error'))));
+    });
+
+    test('signs out if token removal fails', () async {
+      when(mockCloudMessagingServices.removeToken()).thenThrow(AppException('remove-token-error'));
+       when(mockAuthServices.signOut()).thenAnswer((_) async {});
+
+
+      final userRepository = container.read(userRepositoryProvider);
+      await expectLater(userRepository.signOut(), completes);
+
+      verify(mockAuthServices.signOut()).called(1);
     });
   });
 

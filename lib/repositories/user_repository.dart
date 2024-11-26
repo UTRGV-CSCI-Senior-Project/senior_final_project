@@ -70,8 +70,13 @@ class UserRepository {
   }
 
   Future<void> signOut() async {
-    try {
+    try{
       await _cloudMessagingServices.removeToken();
+    }catch(e){
+
+    }
+
+    try {
       await _authServices.signOut();
     } catch (e) {
       if (e is AppException) {

@@ -95,9 +95,9 @@ void main() {
 
       // Verify navigation bar is present with all items
       expect(find.byIcon(Icons.home), findsOneWidget);
-      expect(find.byIcon(Icons.explore), findsOneWidget);
+      expect(find.byIcon(Icons.explore_outlined), findsOneWidget);
       expect(find.byIcon(Icons.bookmark_border), findsOneWidget);
-      expect(find.byIcon(Icons.person), findsOneWidget);
+      expect(find.byIcon(Icons.person_outline), findsOneWidget);
     });
 
     testWidgets('navigation works correctly', (WidgetTester tester) async {
@@ -117,12 +117,17 @@ void main() {
       expect(find.text('Welcome, Test User!'), findsOneWidget);
 
       // Tap discover tab
-      await tester.tap(find.byIcon(Icons.explore));
+      await tester.tap(find.byIcon(Icons.explore_outlined));
       await tester.pumpAndSettle();
       expect(find.text('Discover'), findsExactly(2));
 
+         // Tap inbox tab
+      await tester.tap(find.byIcon(Icons.bookmark_border));
+      await tester.pumpAndSettle();
+      expect(find.text('Inbox'), findsExactly(2));
+
       // Tap profile tab
-      await tester.tap(find.byIcon(Icons.person));
+      await tester.tap(find.byIcon(Icons.person_outline));
       await tester.pumpAndSettle();
       expect(find.text('Profile'), findsExactly(2));
     });
@@ -201,7 +206,7 @@ void main() {
       await tester.pumpWidget(createHomeScreen(container));
       await tester.pumpAndSettle();
 
-      await tester.tap(find.byIcon(Icons.person));
+      await tester.tap(find.byIcon(Icons.person_outline));
       await tester.pumpAndSettle();
       expect(find.text('Test User'), findsOneWidget);
 
@@ -237,7 +242,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Navigate to profile tab
-      await tester.tap(find.byIcon(Icons.person));
+      await tester.tap(find.byIcon(Icons.person_outline));
       await tester.pumpAndSettle();
 
       // Verify speed dial exists

@@ -15,6 +15,7 @@ import 'package:folio/models/messaging_models/message_model.dart' as _i10;
 import 'package:folio/models/portfolio_model.dart' as _i7;
 import 'package:folio/models/user_model.dart' as _i6;
 import 'package:folio/services/auth_services.dart' as _i2;
+import 'package:folio/services/cloud_messaging_services.dart' as _i14;
 import 'package:folio/services/firestore_services.dart' as _i5;
 import 'package:folio/services/storage_services.dart' as _i12;
 import 'package:mockito/mockito.dart' as _i1;
@@ -416,6 +417,65 @@ class MockStorageServices extends _i1.Mock implements _i12.StorageServices {
         Invocation.method(
           #deleteImage,
           [imagePath],
+        ),
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
+}
+
+/// A class which mocks [CloudMessagingServices].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockCloudMessagingServices extends _i1.Mock
+    implements _i14.CloudMessagingServices {
+  MockCloudMessagingServices() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i3.Future<void> initNotifications() => (super.noSuchMethod(
+        Invocation.method(
+          #initNotifications,
+          [],
+        ),
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
+
+  @override
+  _i3.Future<void> updateToken(String? token) => (super.noSuchMethod(
+        Invocation.method(
+          #updateToken,
+          [token],
+        ),
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
+
+  @override
+  _i3.Future<void> removeToken() => (super.noSuchMethod(
+        Invocation.method(
+          #removeToken,
+          [],
+        ),
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
+
+  @override
+  _i3.Future<void> sendNotification(
+    List<String>? tokens,
+    String? title,
+    String? body,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #sendNotification,
+          [
+            tokens,
+            title,
+            body,
+          ],
         ),
         returnValue: _i3.Future<void>.value(),
         returnValueForMissingStub: _i3.Future<void>.value(),
