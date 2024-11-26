@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:folio/core/app_exception.dart';
 
@@ -43,6 +45,10 @@ class AuthServices {
 
   Stream<User?> authStateChanges() {
     return _firebaseAuth.authStateChanges();
+  }
+
+  User? currentUser() {
+    return _firebaseAuth.currentUser;
   }
 
   Future<void> deleteUser() async {
@@ -102,7 +108,7 @@ class AuthServices {
       if (e is AppException) {
         rethrow;
       }
-      throw AppException('reauthenticate-user-error');
+      throw AppException('reauthenticate-error');
     }
   }
 
@@ -141,5 +147,76 @@ class AuthServices {
     }
   }
 
-  
+  Future<String> verifyPhoneNumber(String phoneNumber) async {
+    final user = _firebaseAuth.currentUser;
+    if (user == null) {
+      throw AppException('no-user');
+    }
+    try {
+      final Completer<String> completer = Completer();
+
+      await _firebaseAuth.verifyPhoneNumber(
+          phoneNumber: phoneNumber,
+          verificationCompleted: (PhoneAuthCredential credential) async {
+            try {
+              await user.updatePhoneNumber(credential);
+            } catch (e) {
+              if (e is FirebaseAuthException) {
+                throw AppException(e.code);
+              } else {
+                throw AppException('phone-number-update-failed');
+              }
+            }
+          },
+          verificationFailed: (FirebaseAuthException exception) {
+            throw AppException(exception.code);
+          },
+          codeAutoRetrievalTimeout: (_) {},
+          codeSent: (String verificationId, int? resendToken) async {
+            completer.complete(verificationId); // Complete with the verification ID
+          });
+      return await completer.future; // Return the verification ID
+    } catch (e) {
+      if(e is FirebaseAuthException){
+        throw AppException(e.code);
+      }else if (e is AppException) {
+        rethrow;
+      } else {
+        throw AppException('verify-number-error');
+      }
+    }
+  }
+
+  Future<void> verifySmsCode(String verificationId, String smsCode) async {
+    final user = _firebaseAuth.currentUser;
+    if (user == null) {
+      throw AppException('no-user');
+    }
+    try {
+      final credential = PhoneAuthProvider.credential(
+        verificationId: verificationId,
+        smsCode: smsCode,
+      );
+
+      try {
+        await user.updatePhoneNumber(credential);
+      } catch (e) {
+        if(e is FirebaseAuthException){
+        throw AppException(e.code);
+      }else if (e is AppException) {
+          rethrow;
+        } else {
+          throw AppException('verify-sms-error');
+        }
+      }
+    } catch (e) {
+      if(e is FirebaseAuthException){
+        throw AppException(e.code);
+      }else if (e is AppException) {
+        rethrow;
+      } else {
+        throw AppException('verify-sms-error');
+      }
+    }
+  }
 }

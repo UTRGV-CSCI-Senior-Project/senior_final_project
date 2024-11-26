@@ -7,19 +7,25 @@ class UserModel {
   final bool _completedOnboarding;
   final List<String> _preferredServices;
   final String? _profilePictureUrl;
+  final bool _isEmailVerified;
+  final String? _phoneNumber;
+  final bool _isPhoneVerified;
   final List<String>? _fcmTokens;
 
-  UserModel({
-    required String uid,
-    required String username,
-    String? fullName,
-    required String email,
-    required bool isProfessional,
-    bool completedOnboarding = false,
-    List<String> preferredServices = const [],
-    String? profilePictureUrl,
-    List<String>? fcmTokens
-  })  : _uid = uid,
+  UserModel(
+      {required String uid,
+      required String username,
+      String? fullName,
+      required String email,
+      required bool isProfessional,
+      bool completedOnboarding = false,
+      List<String> preferredServices = const [],
+      String? profilePictureUrl,
+    List<String>? fcmTokens,
+      bool isEmailVerified = false,
+      String? phoneNumber,
+      bool isPhoneVerified = false})
+      : _uid = uid,
         _username = username,
         _fullName = fullName,
         _email = email,
@@ -27,7 +33,10 @@ class UserModel {
         _completedOnboarding = completedOnboarding,
         _preferredServices = preferredServices,
         _profilePictureUrl = profilePictureUrl,
-        _fcmTokens = fcmTokens {
+        _fcmTokens = fcmTokens,
+        _isEmailVerified = isEmailVerified,
+        _phoneNumber = phoneNumber,
+        _isPhoneVerified = isPhoneVerified {
     if (_uid.isEmpty) {
       throw ArgumentError('UID cannot be empty');
     }
@@ -47,6 +56,9 @@ class UserModel {
   bool get completedOnboarding => _completedOnboarding;
   List<String> get preferredServices => _preferredServices;
   String? get profilePictureUrl => _profilePictureUrl;
+  bool get isEmailVerified => _isEmailVerified;
+  String? get phoneNumber => _phoneNumber;
+  bool get isPhoneVerified => _isPhoneVerified;
   List<String>? get fcmTokens => _fcmTokens;
   toJson() {
     return {
@@ -58,7 +70,6 @@ class UserModel {
       "completedOnboarding": completedOnboarding,
       "preferredServices": preferredServices,
       "profilePictureUrl": profilePictureUrl,
-      "fcmTokens": fcmTokens
     };
   }
 
@@ -88,8 +99,11 @@ class UserModel {
                 .toList() ??
             [],
         profilePictureUrl: json['profilePictureUrl'] as String?,
+        isEmailVerified: json['isEmailVerified'] ?? false,
+        phoneNumber: json['phoneNumber'] as String?,
+        isPhoneVerified: json['isPhoneVerified'] ?? false,
         fcmTokens: (json['fcmTokens'] as List?)?.map((e) => e.toString()).toList()
-        
         );
+      
   }
 }

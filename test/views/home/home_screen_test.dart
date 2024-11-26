@@ -10,6 +10,7 @@ import 'package:folio/views/home/home_screen.dart';
 import 'package:folio/views/auth_onboarding_welcome/loading_screen.dart';
 import 'package:folio/views/auth_onboarding_welcome/onboarding_screen.dart';
 import 'package:folio/views/auth_onboarding_welcome/welcome_screen.dart';
+import 'package:folio/widgets/email_verification_dialog.dart';
 import 'package:mockito/mockito.dart';
 import '../../mocks/login_screen_test.mocks.dart';
 import '../../mocks/user_repository_test.mocks.dart';
@@ -30,11 +31,13 @@ void main() {
         ]);
   });
 
-  ProviderContainer createProviderContainer({UserModel? userModel, PortfolioModel? portfolioModel}) {
+  ProviderContainer createProviderContainer(
+      {UserModel? userModel, PortfolioModel? portfolioModel}) {
     return ProviderContainer(
       overrides: [
         firestoreServicesProvider.overrideWithValue(mockFirestoreServices),
-        userDataStreamProvider.overrideWith((ref) => Stream.value({'user': userModel, 'portfolio': portfolioModel})),
+        userDataStreamProvider.overrideWith((ref) =>
+            Stream.value({'user': userModel, 'portfolio': portfolioModel})),
         userRepositoryProvider.overrideWithValue(mockUserRepository),
       ],
     );
@@ -115,7 +118,8 @@ void main() {
       await tester.pumpAndSettle();
       // Initially should be on home tab
       expect(find.text('Welcome, Test User!'), findsOneWidget);
-
+      await tester.tap(find.text('No'));
+      await tester.pumpAndSettle();
       // Tap discover tab
       await tester.tap(find.byIcon(Icons.explore_outlined));
       await tester.pumpAndSettle();
@@ -145,10 +149,54 @@ void main() {
       await tester.pumpWidget(createHomeScreen(container));
       expect(find.byType(LoadingScreen), findsOneWidget);
     });
+
+    testWidgets('shows email verification dialog when email is not verified',
+        (WidgetTester tester) async {
+      final userModel = UserModel(
+        uid: 'testuid',
+        username: 'username',
+        email: 'email@email.com',
+        isProfessional: false,
+        fullName: 'Test User',
+        completedOnboarding: true,
+        preferredServices: ['Nail Tech', 'Hair Stylist'],
+        isEmailVerified: false, // Set email as not verified
+      );
+
+      final container = createProviderContainer(userModel: userModel);
+      await tester.pumpWidget(createHomeScreen(container));
+      await tester.pumpAndSettle();
+
+      // Verify the dialog is shown
+      expect(find.byType(EmailVerificationDialog), findsOneWidget);
+
+    });
+
+    testWidgets('doesnt show email verification dialog when email is  verified',
+        (WidgetTester tester) async {
+      final userModel = UserModel(
+        uid: 'testuid',
+        username: 'username',
+        email: 'email@email.com',
+        isProfessional: false,
+        fullName: 'Test User',
+        completedOnboarding: true,
+        preferredServices: ['Nail Tech', 'Hair Stylist'],
+        isEmailVerified: true, // Set email as not verified
+      );
+
+      final container = createProviderContainer(userModel: userModel);
+      await tester.pumpWidget(createHomeScreen(container));
+      await tester.pumpAndSettle();
+
+      // Verify the dialog is shown
+      expect(find.byType(EmailVerificationDialog), findsNothing);
+
+    });
   });
 
   group('home tab', () {
-        testWidgets('can go to update services screen and update services',
+    testWidgets('can go to update services screen and update services',
         (WidgetTester tester) async {
       final userModel = UserModel(
           uid: 'testuid',
@@ -165,6 +213,8 @@ void main() {
 
       final container = createProviderContainer(userModel: userModel);
       await tester.pumpWidget(createHomeScreen(container));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('No'));
       await tester.pumpAndSettle();
 
       expect(find.text("NAIL TECH"), findsOneWidget);
@@ -189,21 +239,28 @@ void main() {
   });
 
   group('profile tab', () {
-    testWidgets('can edit user information from profile tab',  (WidgetTester tester) async{
-         final userModel = UserModel(
-        uid: 'testuid',
-        username: 'username',
-        email: 'email@email.com',
-        isProfessional: false,
-        fullName: 'Test User',
-        completedOnboarding: true,
-        profilePictureUrl: 'url'
-      );
-      when(mockFirestoreServices.isUsernameUnique(any)).thenAnswer((_) => Future.value(true));
-      when(mockUserRepository.updateProfile(profilePicture: null, fields: {'fullName': 'New Name', 'username': 'newusername', 'profilePictureUrl': null})).thenAnswer((_) async {});
+    testWidgets('can edit user information from profile tab',
+        (WidgetTester tester) async {
+      final userModel = UserModel(
+          uid: 'testuid',
+          username: 'username',
+          email: 'email@email.com',
+          isProfessional: false,
+          fullName: 'Test User',
+          completedOnboarding: true,
+          profilePictureUrl: 'url');
+      when(mockFirestoreServices.isUsernameUnique(any))
+          .thenAnswer((_) => Future.value(true));
+      when(mockUserRepository.updateProfile(profilePicture: null, fields: {
+        'fullName': 'New Name',
+        'username': 'newusername',
+        'profilePictureUrl': null
+      })).thenAnswer((_) async {});
 
       final container = createProviderContainer(userModel: userModel);
       await tester.pumpWidget(createHomeScreen(container));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('No'));
       await tester.pumpAndSettle();
 
       await tester.tap(find.byIcon(Icons.person_outline));
@@ -219,28 +276,34 @@ void main() {
       expect(find.byType(TextField), findsExactly(2));
       await tester.tap(find.byIcon(Icons.delete));
       await tester.enterText(find.byKey(const Key('name-field')), 'New Name');
-      await tester.enterText(find.byKey(const Key('username-field')), 'newusername');
+      await tester.enterText(
+          find.byKey(const Key('username-field')), 'newusername');
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key('update-button')));
       await tester.pumpAndSettle();
       expect(find.byType(BottomSheet), findsNothing);
-      verify(mockUserRepository.updateProfile(profilePicture: null, fields: {'fullName': 'New Name', 'username': 'newusername', 'profilePictureUrl': null})).called(1);
+      verify(mockUserRepository.updateProfile(profilePicture: null, fields: {
+        'fullName': 'New Name',
+        'username': 'newusername',
+        'profilePictureUrl': null
+      })).called(1);
     });
 
-     testWidgets('shows speed dial menu on profile tab', (WidgetTester tester) async {
+    testWidgets('shows speed dial menu on profile tab',
+        (WidgetTester tester) async {
       final userModel = UserModel(
-        uid: 'testuid',
-        username: 'username',
-        email: 'email@email.com',
-        isProfessional: false,
-        fullName: 'Test User',
-        completedOnboarding: true,
-        profilePictureUrl: 'url'
-      );
-       final container = createProviderContainer(userModel: userModel);
+          uid: 'testuid',
+          username: 'username',
+          email: 'email@email.com',
+          isProfessional: false,
+          fullName: 'Test User',
+          completedOnboarding: true,
+          profilePictureUrl: 'url');
+      final container = createProviderContainer(userModel: userModel);
       await tester.pumpWidget(createHomeScreen(container));
       await tester.pumpAndSettle();
-
+      await tester.tap(find.text('No'));
+      await tester.pumpAndSettle();
       // Navigate to profile tab
       await tester.tap(find.byIcon(Icons.person_outline));
       await tester.pumpAndSettle();

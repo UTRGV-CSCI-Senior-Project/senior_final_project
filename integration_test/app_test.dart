@@ -1,5 +1,8 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:folio/views/home/profile_tab.dart';
+import 'package:folio/widgets/email_verification_dialog.dart';
+import 'package:folio/widgets/sms_code_dialog.dart';
 import 'package:network_image_mock/network_image_mock.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +13,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:folio/main.dart';
 import 'package:folio/core/service_locator.dart';
+import 'package:http/http.dart' as http;
 
 class MockImagePicker extends ImagePicker {
   @override
@@ -97,6 +101,7 @@ void main() {
   final dialogField = find.byKey(const Key('dialog-field'));
   final dialogButton = find.byKey(const Key('dialog-button'));
   final feedbackButton = find.byKey(const Key('submit-feedback-button'));
+  final noVerificationButton = find.byKey(const Key('no-verification-button'));
 ////////////////////////////////////////////////////////////////////////
 
 //////////////////////// Set Up and Tear Down //////////////////////////
@@ -110,6 +115,7 @@ void main() {
     container = ProviderContainer(
         overrides: [imagePickerProvider.overrideWithValue(mockImagePicker)]);
     await container.read(authServicesProvider).signOut();
+
   });
 
   setUp(() {
@@ -165,6 +171,26 @@ void main() {
     await tester.tap(signInButton);
     await tester.pumpAndSettle(const Duration(seconds: 4));
   }
+
+  Future<String?> getLatestVerificationCode() async {
+    final host = Platform.isAndroid ? '10.0.2.2' : '127.0.0.1';
+    try {
+      final response = await http.get(
+        Uri.parse('http://$host:9099/emulator/v1/projects/senior-final-project/verificationCodes'),
+      );
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = jsonDecode(response.body) as Map<String, dynamic>;
+        final List<dynamic> codes = data['verificationCodes'] as List<dynamic>;
+        
+        if (codes.isNotEmpty) {
+          return codes.first['code'] as String;
+        }
+      }
+      return null;
+    } catch (e) {
+      return null;
+    }
+  }
 ////////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////// HAPPY PATHS //////////////////////////////////////////////////////////////////////
@@ -204,6 +230,7 @@ void main() {
         await tester.tap(onboardingButton);
         await tester.pumpAndSettle(const Duration(seconds: 5));
         //Expect to see home screen with user's full name
+
         expect(find.textContaining('First Last'), findsOneWidget);
         await container.read(authServicesProvider).signOut();
       });
@@ -376,6 +403,9 @@ void main() {
         await tester.tap(signInButton);
         await tester.pumpAndSettle(const Duration(seconds: 5));
 
+        await tester.tap(noVerificationButton.first);
+        await tester.pumpAndSettle(const Duration(seconds: 3));
+
         await tester.tap(profileTabButton);
         await tester.pumpAndSettle(const Duration(seconds: 5));
         await tester.tap(speedDialButton);
@@ -426,6 +456,9 @@ void main() {
         await tester.tap(signInButton);
         await tester.pumpAndSettle(const Duration(seconds: 5));
 
+        await tester.tap(noVerificationButton.first);
+        await tester.pumpAndSettle(const Duration(seconds: 3));
+
         await tester.tap(profileTabButton);
         await tester.pumpAndSettle(const Duration(seconds: 5));
         await tester.tap(speedDialButton);
@@ -461,6 +494,9 @@ void main() {
             scrollable: scrollable.first);
         await tester.tap(signInButton);
         await tester.pumpAndSettle(const Duration(seconds: 5));
+
+        await tester.tap(noVerificationButton.first);
+        await tester.pumpAndSettle(const Duration(seconds: 3));
 
         await tester.tap(profileTabButton);
         await tester.pumpAndSettle(const Duration(seconds: 5));
@@ -506,6 +542,9 @@ void main() {
             scrollable: scrollable.first);
         await tester.tap(signInButton);
         await tester.pumpAndSettle(const Duration(seconds: 5));
+
+        await tester.tap(noVerificationButton.first);
+        await tester.pumpAndSettle(const Duration(seconds: 3));
 
         await tester.tap(profileTabButton);
         await tester.pumpAndSettle(const Duration(seconds: 5));
@@ -730,6 +769,66 @@ void main() {
         await container.read(authServicesProvider).signOut();
       });
     });
+
+
+    testWidgets(
+        'As an existing user, I can sign in, go to the account settings and add my phone number',
+        (WidgetTester tester) async {
+        //Navigate to sign up screen
+        await navigateToLogInScreen(tester);
+
+        //Sign In with the correct credentials
+        await tester.enterText(emailField, 'firstUser@email.com');
+        await tester.enterText(passwordField, '123456');
+        FocusManager.instance.primaryFocus?.unfocus();
+
+        //Tap Sign In and wait
+        final scrollable = find.byType(Scrollable);
+        await tester.scrollUntilVisible(
+            signInButton, 500.0, // Scroll amount per attempt
+            scrollable: scrollable.first);
+        await tester.tap(signInButton);
+        await tester.pumpAndSettle(const Duration(seconds: 5));
+
+        await tester.tap(profileTabButton);
+        await tester.pumpAndSettle(const Duration(seconds: 5));
+        await tester.tap(speedDialButton);
+        await tester.pumpAndSettle(const Duration(seconds: 4));
+        await tester.tap(settingsButton);
+        await tester.pumpAndSettle(const Duration(seconds: 4));
+        await tester.tap(find.text('Account'));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
+
+        await tester.tap(find.byKey(const Key('Phone Number')));
+        await tester.pumpAndSettle(const Duration(seconds: 10));
+
+        await tester.enterText(verifyPasswordField, '123456');
+        await tester.tap(verifyPasswordButton);
+        await tester.pump(const Duration(seconds: 5));
+        expect(find.text('Add your phone number'), findsOneWidget);
+
+        await tester.enterText(find.byType(TextFormField), '5555550000');
+        await tester.tap(find.byKey(const Key('send-code-button')));
+        await tester.pump(const Duration(seconds: 10));
+
+        final code = await getLatestVerificationCode();
+
+        expect(find.byType(SmsCodeDialog), findsOneWidget);
+        await tester.enterText(find.byKey(const Key('pinput-field')), code ?? '');
+        await tester.pump(const Duration(seconds: 5));
+        await tester.tap(find.byKey(const Key('submit-sms-button')));
+        await tester.pumpAndSettle(const Duration(seconds: 10));
+
+        await tester.tap(speedDialButton);
+        await tester.pumpAndSettle(const Duration(seconds: 4));
+        await tester.tap(settingsButton);
+        await tester.pumpAndSettle(const Duration(seconds: 4));
+        await tester.tap(find.text('Account'));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
+
+        expect(find.text('+15555550000'), findsOneWidget);
+        await container.read(authServicesProvider).signOut();
+      });
   });
 
   /////////////////////////////////////////////// HAPPY PATHS //////////////////////////////////////////////////////////////////////
@@ -1003,7 +1102,7 @@ void main() {
         //Go to profile tab and click button to create a portfolio
         await tester.tap(profileTabButton);
         await tester.pumpAndSettle(const Duration(seconds: 4));
-  await tester.tap(speedDialButton);
+        await tester.tap(speedDialButton);
         await tester.pumpAndSettle(const Duration(seconds: 4));
         await tester.tap(settingsButton);
         await tester.pumpAndSettle(const Duration(seconds: 4));
@@ -1054,6 +1153,9 @@ void main() {
         await tester.tap(signInButton);
         await tester.pumpAndSettle(const Duration(seconds: 5));
 
+        await tester.tap(noVerificationButton.first);
+        await tester.pumpAndSettle(const Duration(seconds: 3));
+
         await tester.tap(profileTabButton);
         await tester.pumpAndSettle(const Duration(seconds: 5));
         await tester.tap(speedDialButton);
@@ -1063,14 +1165,16 @@ void main() {
 
         await tester.tap(fullNameField);
         await tester.pumpAndSettle(const Duration(seconds: 3));
-        await tester.sendKeyEvent(LogicalKeyboardKey.backspace); // Clear existing text
+        await tester
+            .sendKeyEvent(LogicalKeyboardKey.backspace); // Clear existing text
         await tester.pumpAndSettle(const Duration(seconds: 2));
         await tester.enterText(fullNameField, '');
         await tester.pumpAndSettle(const Duration(seconds: 3));
 
         await tester.tap(usernameField);
         await tester.pumpAndSettle(const Duration(seconds: 3));
-        await tester.sendKeyEvent(LogicalKeyboardKey.backspace); // Clear existing text
+        await tester
+            .sendKeyEvent(LogicalKeyboardKey.backspace); // Clear existing text
         await tester.pumpAndSettle(const Duration(seconds: 2));
         await tester.enterText(usernameField, '');
         await tester.pumpAndSettle(const Duration(seconds: 3));
@@ -1103,6 +1207,9 @@ void main() {
             scrollable: scrollable.first);
         await tester.tap(signInButton);
         await tester.pumpAndSettle(const Duration(seconds: 5));
+
+        await tester.tap(noVerificationButton.first);
+        await tester.pumpAndSettle(const Duration(seconds: 3));
 
         await tester.tap(profileTabButton);
         await tester.pumpAndSettle(const Duration(seconds: 5));
@@ -1147,6 +1254,9 @@ void main() {
             scrollable: scrollable.first);
         await tester.tap(signInButton);
         await tester.pumpAndSettle(const Duration(seconds: 5));
+
+        await tester.tap(noVerificationButton.first);
+        await tester.pumpAndSettle(const Duration(seconds: 3));
 
         await tester.tap(profileTabButton);
         await tester.pumpAndSettle(const Duration(seconds: 5));
@@ -1255,6 +1365,43 @@ void main() {
         await container.read(authServicesProvider).signOut();
       });
     });
+
+    testWidgets(
+        'As an existing user, I should not be able to add a phone number if my email is not verified',
+        (WidgetTester tester) async {
+        await navigateToLogInScreen(tester);
+
+        //Sign In with the correct credentials
+        await tester.enterText(emailField, 'testuser@email.com');
+        await tester.enterText(passwordField, '123456');
+        FocusManager.instance.primaryFocus?.unfocus();
+
+        //Tap Sign In and wait
+        final scrollable = find.byType(Scrollable);
+        await tester.scrollUntilVisible(
+            signInButton, 500.0, // Scroll amount per attempt
+            scrollable: scrollable.first);
+        await tester.tap(signInButton);
+        await tester.pumpAndSettle(const Duration(seconds: 5));
+
+        await tester.tap(noVerificationButton.first);
+        await tester.pumpAndSettle(const Duration(seconds: 3));
+
+        await tester.tap(profileTabButton);
+        await tester.pumpAndSettle(const Duration(seconds: 5));
+        await tester.tap(speedDialButton);
+        await tester.pumpAndSettle(const Duration(seconds: 4));
+        await tester.tap(settingsButton);
+        await tester.pumpAndSettle(const Duration(seconds: 4));
+        await tester.tap(find.text('Account'));
+        await tester.pumpAndSettle(const Duration(seconds: 4));
+
+        await tester.tap(find.byKey(const Key('Phone Number')));
+        await tester.pumpAndSettle(const Duration(seconds: 5));
+
+        expect(find.byType(EmailVerificationDialog), findsOneWidget);
+        expect(find.text('Your email address needs to be verified before adding a phone number. Would you like to us to send a verification link to your email?'), findsOneWidget);     
+      });
   });
   /////////////////////////////////////////////// SAD PATHS ////////////////////////////////////////////////////////////////////////
 
@@ -1278,6 +1425,9 @@ void main() {
             scrollable: scrollable.first);
         await tester.tap(signInButton);
         await tester.pumpAndSettle(const Duration(seconds: 5));
+
+        await tester.tap(noVerificationButton.first);
+        await tester.pumpAndSettle(const Duration(seconds: 3));
 
         await tester.tap(profileTabButton);
         await tester.pumpAndSettle(const Duration(seconds: 5));
@@ -1342,5 +1492,7 @@ void main() {
         await container.read(authServicesProvider).signOut();
       });
     });
+
+    
   });
 }

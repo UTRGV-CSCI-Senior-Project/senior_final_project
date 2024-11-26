@@ -257,6 +257,9 @@ void main() {
         'completedOnboarding': false,
         'preferredServices': [],
         'profilePictureUrl': null,
+        'isEmailVerified': false,
+        'phoneNumber': null,
+        'isPhoneVerified': false,
         'fcmTokens': null
       };
       when(mockFirebaseFirestore.collection('users'))

@@ -32,7 +32,7 @@ class MyApp extends ConsumerWidget {
         initialRoute: '/',
         routes: {
           '/welcome': (context) => const WelcomeScreen(),
-          '/home': (context) => const HomeScreen()
+          '/home': (context) => const HomeScreen(),
         },
         home: FutureBuilder(
             future: Future.delayed(duration, () {

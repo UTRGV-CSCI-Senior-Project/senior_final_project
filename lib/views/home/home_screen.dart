@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
@@ -13,26 +15,70 @@ import 'package:folio/widgets/edit_profile_sheet.dart';
 import 'package:folio/views/settings/settings_screen.dart';
 import 'package:folio/views/auth_onboarding_welcome/state_screens.dart';
 import 'package:folio/views/auth_onboarding_welcome/welcome_screen.dart';
+import 'package:folio/widgets/email_verification_dialog.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 final selectedIndexProvider = StateProvider<int>((ref) => 0);
+final hasShownEmailDialogProvider = StateProvider<bool>((ref) => false);
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
-
+  
   @override
   ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  bool _isInitializingNotifications = false;
+    Timer? _emailCheckTimer;
+    bool _isInitializingNotifications = false;
+
 
   @override
   void initState() {
     super.initState();
-    // Initialize notifications after widget is built
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    // Move dialog check to initState
+   WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // Add slight delay to ensure state is properly initialized
       _initializeMessaging();
+      _emailCheckTimer = Timer(const Duration(milliseconds: 100), () {
+        if (mounted) {
+          _checkAndShowEmailVerification();
+        }
+      });
+    });
+  }
+ @override
+  void dispose() {
+    _emailCheckTimer?.cancel();
+    super.dispose();
+  }
+
+void _checkAndShowEmailVerification() {
+    final userData = ref.read(userDataStreamProvider).value;
+    if (userData == null) return;
+
+    final userModel = userData['user'];
+    if (userModel == null) return;
+    if (!userModel.completedOnboarding) return;
+
+    // Force UI update to ensure consistent state
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final hasShownDialog = ref.read(hasShownEmailDialogProvider);
+      if (!hasShownDialog && !userModel.isEmailVerified && mounted) {
+        // Set flag before showing dialog
+        ref.read(hasShownEmailDialogProvider.notifier).state = true;
+        
+        // Use root navigator and ensure dialog is modal
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          useRootNavigator: true,
+          builder: (BuildContext dialogContext) => const PopScope(
+            canPop: false,  // Prevent back button dismissal
+            child: EmailVerificationDialog(),
+          ),
+        );
+      }
     });
   }
 
@@ -75,8 +121,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           if (userModel == null) {
             return const WelcomeScreen();
           }
+
           if (userModel.completedOnboarding) {
             final selectedIndex = ref.watch(selectedIndexProvider);
+            ref.listen(emailVerificationStreamProvider, (previous, next) {});
+
             String getTitle() {
               switch (selectedIndex) {
                 case 0:
@@ -95,7 +144,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             return Scaffold(
               appBar: AppBar(
                 centerTitle: false,
-                leading: null,
                 actions: [
                   SpeedDial(
                     key: const Key('speeddial-button'),
@@ -137,7 +185,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           ),
                           backgroundColor: Colors.transparent),
                       SpeedDialChild(
-                        key: const Key('settings-button'),
+                          key: const Key('settings-button'),
                           onTap: () => Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -243,14 +291,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           }
         },
         error: (e, s) {
-          if(e is AppException && e.code == 'no-user-doc'){
+          if (e is AppException && e.code == 'no-user-doc') {
             ref.read(userRepositoryProvider).signOut();
-
-          }else if (e is AppException && e.code == 'no-user'){
+          } else if (e is AppException && e.code == 'no-user') {
             ref.read(userRepositoryProvider).signOut();
           }
           return const Scaffold(
-            body: ErrorView(bigText: 'There was an error!', smallText: 'Please check your connection, or restart the app!'),
+            body: ErrorView(
+                bigText: 'There was an error!',
+                smallText: 'Please check your connection, or restart the app!'),
           );
         },
         loading: () => const LoadingScreen());

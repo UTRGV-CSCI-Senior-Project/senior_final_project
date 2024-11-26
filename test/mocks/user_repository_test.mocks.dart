@@ -15,10 +15,10 @@ import 'package:folio/models/messaging_models/message_model.dart' as _i10;
 import 'package:folio/models/portfolio_model.dart' as _i7;
 import 'package:folio/models/user_model.dart' as _i6;
 import 'package:folio/services/auth_services.dart' as _i2;
-import 'package:folio/services/cloud_messaging_services.dart' as _i14;
 import 'package:folio/services/firestore_services.dart' as _i5;
-import 'package:folio/services/storage_services.dart' as _i12;
+import 'package:folio/services/storage_services.dart' as _i9;
 import 'package:mockito/mockito.dart' as _i1;
+import 'package:mockito/src/dummies.dart' as _i5;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -155,18 +155,51 @@ class MockAuthServices extends _i1.Mock implements _i2.AuthServices {
         returnValue: _i3.Future<void>.value(),
         returnValueForMissingStub: _i3.Future<void>.value(),
       ) as _i3.Future<void>);
+
+  @override
+  _i3.Future<String> verifyPhoneNumber(String? phoneNumber) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #verifyPhoneNumber,
+          [phoneNumber],
+        ),
+        returnValue: _i3.Future<String>.value(_i5.dummyValue<String>(
+          this,
+          Invocation.method(
+            #verifyPhoneNumber,
+            [phoneNumber],
+          ),
+        )),
+      ) as _i3.Future<String>);
+
+  @override
+  _i3.Future<void> verifySmsCode(
+    String? verificationId,
+    String? smsCode,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #verifySmsCode,
+          [
+            verificationId,
+            smsCode,
+          ],
+        ),
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
 }
 
 /// A class which mocks [FirestoreServices].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockFirestoreServices extends _i1.Mock implements _i5.FirestoreServices {
+class MockFirestoreServices extends _i1.Mock implements _i6.FirestoreServices {
   MockFirestoreServices() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i3.Future<void> addUser(_i6.UserModel? user) => (super.noSuchMethod(
+  _i3.Future<void> addUser(_i7.UserModel? user) => (super.noSuchMethod(
         Invocation.method(
           #addUser,
           [user],
@@ -176,10 +209,19 @@ class MockFirestoreServices extends _i1.Mock implements _i5.FirestoreServices {
       ) as _i3.Future<void>);
 
   @override
-  _i3.Future<_i6.UserModel?> getUser() => (super.noSuchMethod(
+  _i3.Future<_i7.UserModel?> getUser() => (super.noSuchMethod(
         Invocation.method(
           #getUser,
           [],
+        ),
+        returnValue: _i3.Future<_i7.UserModel?>.value(),
+      ) as _i3.Future<_i7.UserModel?>);
+
+  @override
+  _i3.Future<_i6.UserModel?> getOtherUser(String? uid) => (super.noSuchMethod(
+        Invocation.method(
+          #getOtherUser,
+          [uid],
         ),
         returnValue: _i3.Future<_i6.UserModel?>.value(),
       ) as _i3.Future<_i6.UserModel?>);
@@ -194,13 +236,13 @@ class MockFirestoreServices extends _i1.Mock implements _i5.FirestoreServices {
       ) as _i3.Future<_i6.UserModel?>);
 
   @override
-  _i3.Stream<_i6.UserModel> getUserStream(String? uid) => (super.noSuchMethod(
+  _i3.Stream<_i7.UserModel> getUserStream(String? uid) => (super.noSuchMethod(
         Invocation.method(
           #getUserStream,
           [uid],
         ),
-        returnValue: _i3.Stream<_i6.UserModel>.empty(),
-      ) as _i3.Stream<_i6.UserModel>);
+        returnValue: _i3.Stream<_i7.UserModel>.empty(),
+      ) as _i3.Stream<_i7.UserModel>);
 
   @override
   _i3.Future<bool> isUsernameUnique(String? username) => (super.noSuchMethod(
@@ -233,23 +275,23 @@ class MockFirestoreServices extends _i1.Mock implements _i5.FirestoreServices {
       ) as _i3.Future<void>);
 
   @override
-  _i3.Future<_i7.PortfolioModel?> getPortfolio() => (super.noSuchMethod(
+  _i3.Future<_i8.PortfolioModel?> getPortfolio() => (super.noSuchMethod(
         Invocation.method(
           #getPortfolio,
           [],
         ),
-        returnValue: _i3.Future<_i7.PortfolioModel?>.value(),
-      ) as _i3.Future<_i7.PortfolioModel?>);
+        returnValue: _i3.Future<_i8.PortfolioModel?>.value(),
+      ) as _i3.Future<_i8.PortfolioModel?>);
 
   @override
-  _i3.Stream<_i7.PortfolioModel?> getPortfolioStream(String? uid) =>
+  _i3.Stream<_i8.PortfolioModel?> getPortfolioStream(String? uid) =>
       (super.noSuchMethod(
         Invocation.method(
           #getPortfolioStream,
           [uid],
         ),
-        returnValue: _i3.Stream<_i7.PortfolioModel?>.empty(),
-      ) as _i3.Stream<_i7.PortfolioModel?>);
+        returnValue: _i3.Stream<_i8.PortfolioModel?>.empty(),
+      ) as _i3.Stream<_i8.PortfolioModel?>);
 
   @override
   _i3.Future<void> savePortfolioDetails(Map<String, dynamic>? fieldsToUpdate) =>
@@ -299,7 +341,7 @@ class MockFirestoreServices extends _i1.Mock implements _i5.FirestoreServices {
       ) as _i3.Future<List<String>>);
 
   @override
-  _i3.Future<void> addFeedback(_i8.FeedbackModel? feedbackModel) =>
+  _i3.Future<void> addFeedback(_i9.FeedbackModel? feedbackModel) =>
       (super.noSuchMethod(
         Invocation.method(
           #addFeedback,
@@ -377,12 +419,13 @@ class MockFirestoreServices extends _i1.Mock implements _i5.FirestoreServices {
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockStorageServices extends _i1.Mock implements _i12.StorageServices {
+class MockStorageServices extends _i1.Mock implements _i10.StorageServices {
   MockStorageServices() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i3.Future<String?> uploadProfilePicture(_i13.File? image) =>
+  _i3.Future<String?> uploadProfilePicture(_i11.File? image) =>
       (super.noSuchMethod(
         Invocation.method(
           #uploadProfilePicture,
