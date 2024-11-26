@@ -1008,3 +1008,40 @@ class MockUser extends _i1.Mock implements _i4.User {
         returnValueForMissingStub: _i5.Future<void>.value(),
       ) as _i5.Future<void>);
 }
+
+/// A class which mocks [PhoneAuthCredential].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockPhoneAuthCredential extends _i1.Mock
+    implements _i3.PhoneAuthCredential {
+  MockPhoneAuthCredential() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  String get providerId => (super.noSuchMethod(
+        Invocation.getter(#providerId),
+        returnValue: _i6.dummyValue<String>(
+          this,
+          Invocation.getter(#providerId),
+        ),
+      ) as String);
+
+  @override
+  String get signInMethod => (super.noSuchMethod(
+        Invocation.getter(#signInMethod),
+        returnValue: _i6.dummyValue<String>(
+          this,
+          Invocation.getter(#signInMethod),
+        ),
+      ) as String);
+
+  @override
+  Map<String, dynamic> asMap() => (super.noSuchMethod(
+        Invocation.method(
+          #asMap,
+          [],
+        ),
+        returnValue: <String, dynamic>{},
+      ) as Map<String, dynamic>);
+}

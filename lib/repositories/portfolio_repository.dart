@@ -15,9 +15,11 @@ class PortfolioRepository {
     try {
       final imageData = await _storageServices.uploadFilesForUser(images);
 
+      final initialDate = DateTime.now();
       await _firestoreServices.savePortfolioDetails({
         'service': service,
         'details': details,
+        'experienceStartDate': initialDate,
         'years': years,
         'months': months,
         'images': imageData
@@ -41,6 +43,11 @@ class PortfolioRepository {
       if (images != null && images.isNotEmpty) {
         final imageData = await _storageServices.uploadFilesForUser(images);
         updateFields['images'] = imageData;
+      }
+
+      if (updateFields.containsKey('years') ||
+          updateFields.containsKey('months')) {
+        updateFields['experienceStartDate'] = DateTime.now();
       }
 
       await _firestoreServices.savePortfolioDetails(updateFields);
@@ -67,9 +74,36 @@ class PortfolioRepository {
     }
   }
 
+<<<<<<< HEAD
   void shareMessageOnFacebook() {
     const String message =
         "Hello everyone! \nI invite you to check out my profile on the Folio App, \nwhere I showcase my car detailing services. You'll find a variety of photos \nthat highlight the quality of my work. The Folio App is available for download on both the App Store and Google Play Store.";
     SocialShare.shareOptions(message).then((result) {}).catchError((error) {});
+=======
+  Future<void> deletePortfolio() async {
+    try {
+      final portfolio = await _firestoreServices.getPortfolio();
+
+      if (portfolio == null) {
+        throw AppException('no-portfolio');
+      }
+
+      for (var image in portfolio.images) {
+        await deletePortfolioImage(
+            image['filePath']!, // Access the filePath from the map
+            image['downloadUrl']! // Access the downloadUrl from the map
+            );
+      }
+      await _firestoreServices.deletePortfolio();
+
+      await _firestoreServices.updateUser({'isProfessional': false});
+    } catch (e) {
+      if (e is AppException) {
+        rethrow;
+      } else {
+        throw AppException('delete-portfolio-error');
+      }
+    }
+>>>>>>> main
   }
 }

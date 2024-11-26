@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:folio/core/app_exception.dart';
 import 'package:folio/core/service_locator.dart';
+import 'package:folio/models/portfolio_model.dart';
 import 'package:mockito/mockito.dart';
 
 import '../../mocks/user_repository_test.mocks.dart';
@@ -35,7 +36,7 @@ void main() {
         'details': 'Professional photography',
         'years': 2,
         'months': 6,
-        'images': imageData
+        'images': imageData,
       };
 
       when(mockStorageServices.uploadFilesForUser(images))
@@ -52,7 +53,7 @@ void main() {
 
       // Assert
       verify(mockStorageServices.uploadFilesForUser(images)).called(1);
-      verify(mockFirestoreServices.savePortfolioDetails(portfolioData))
+      verify(mockFirestoreServices.savePortfolioDetails(any))
           .called(1);
       verify(mockFirestoreServices.updateUser({'isProfessional': true}))
           .called(1);
@@ -258,6 +259,140 @@ void main() {
         throwsA(predicate((e) =>
             e is AppException &&
             e.toString().contains('delete-image-error'))),
+      );
+    });
+  });
+
+  group('deletePortfolio', () {
+ test('should successfully delete portfolio with images', () async {
+      // Arrange
+      final portfolio = PortfolioModel(service: 'Barber', images: [{'filePath': 'file1/path', 'downloadUrl': 'url1.com'}, {'filePath': 'file2/path', 'downloadUrl': 'url2.com'}]);
+
+      when(mockFirestoreServices.getPortfolio())
+          .thenAnswer((_) async => portfolio);
+      
+      // Setup mocks for image deletion
+      when(mockFirestoreServices.deletePortfolioImage(any, any))
+          .thenAnswer((_) async => {});
+      when(mockStorageServices.deleteImage(any))
+          .thenAnswer((_) async => {});
+      
+      // Setup mocks for portfolio deletion
+      when(mockFirestoreServices.deletePortfolio())
+          .thenAnswer((_) async => {});
+      when(mockFirestoreServices.updateUser({'isProfessional': false}))
+          .thenAnswer((_) async => {});
+
+      // Act
+      final repository = container.read(portfolioRepositoryProvider);
+      await repository.deletePortfolio();
+
+      // Assert
+      verify(mockFirestoreServices.getPortfolio()).called(1);
+      verify(mockFirestoreServices.deletePortfolioImage('file1/path', 'url1.com')).called(1);
+      verify(mockFirestoreServices.deletePortfolioImage('file2/path', 'url2.com')).called(1);
+      verify(mockStorageServices.deleteImage('file1/path')).called(1);
+      verify(mockStorageServices.deleteImage('file2/path')).called(1);
+      verify(mockFirestoreServices.deletePortfolio()).called(1);
+      verify(mockFirestoreServices.updateUser({'isProfessional': false})).called(1);
+    });
+
+    test('should throw AppException when portfolio is not found', () async {
+      // Arrange
+      when(mockFirestoreServices.getPortfolio())
+          .thenAnswer((_) async => null);
+
+      // Act & Assert
+      final repository = container.read(portfolioRepositoryProvider);
+      expect(
+        () => repository.deletePortfolio(),
+        throwsA(predicate((e) =>
+            e is AppException && e.toString().contains('no-portfolio'))),
+      );
+    });
+
+    test('should throw AppException when image deletion fails', () async {
+      // Arrange
+            final portfolio = PortfolioModel(service: 'Barber', images: [{'filePath': 'file1/path', 'downloadUrl': 'url1.com'}, {'filePath': 'file2/path', 'downloadUrl': 'url2.com'}]);
+
+
+      when(mockFirestoreServices.getPortfolio())
+          .thenAnswer((_) async => portfolio);
+      when(mockFirestoreServices.deletePortfolioImage('file1/path', 'url1.com'))
+          .thenThrow(AppException('delete-portfolio-image-error'));
+
+      // Act & Assert
+      final repository = container.read(portfolioRepositoryProvider);
+      expect(
+        () => repository.deletePortfolio(),
+        throwsA(predicate((e) =>
+            e is AppException &&
+            e.toString().contains('delete-portfolio-image-error'))),
+      );
+    });
+
+    test('should throw AppException when portfolio deletion fails', () async {
+      // Arrange
+      final portfolio = PortfolioModel(service: 'Barber', images: [{'filePath': 'file1/path', 'downloadUrl': 'url1.com'}, {'filePath': 'file2/path', 'downloadUrl': 'url2.com'}]);
+
+
+      when(mockFirestoreServices.getPortfolio())
+          .thenAnswer((_) async => portfolio);
+      when(mockFirestoreServices.deletePortfolioImage(any, any))
+          .thenAnswer((_) async => {});
+      when(mockStorageServices.deleteImage(any))
+          .thenAnswer((_) async => {});
+      when(mockFirestoreServices.deletePortfolio())
+          .thenThrow(AppException('delete-portfolio-error'));
+
+      // Act & Assert
+      final repository = container.read(portfolioRepositoryProvider);
+      expect(
+        () => repository.deletePortfolio(),
+        throwsA(predicate((e) =>
+            e is AppException &&
+            e.toString().contains('delete-portfolio-error'))),
+      );
+    });
+
+    test('should throw AppException when user update fails', () async {
+      // Arrange
+            final portfolio = PortfolioModel(service: 'Barber', images: [{'filePath': 'file1/path', 'downloadUrl': 'url1.com'}, {'filePath': 'file2/path', 'downloadUrl': 'url2.com'}]);
+
+
+      when(mockFirestoreServices.getPortfolio())
+          .thenAnswer((_) async => portfolio);
+      when(mockFirestoreServices.deletePortfolioImage(any, any))
+          .thenAnswer((_) async => {});
+      when(mockStorageServices.deleteImage(any))
+          .thenAnswer((_) async => {});
+      when(mockFirestoreServices.deletePortfolio())
+          .thenAnswer((_) async => {});
+      when(mockFirestoreServices.updateUser({'isProfessional': false}))
+          .thenThrow(AppException('update-user-error'));
+
+      // Act & Assert
+      final repository = container.read(portfolioRepositoryProvider);
+      expect(
+        () => repository.deletePortfolio(),
+        throwsA(predicate((e) =>
+            e is AppException &&
+            e.toString().contains('update-user-error'))),
+      );
+    });
+
+    test('should throw AppException for unexpected errors', () async {
+      // Arrange
+      when(mockFirestoreServices.getPortfolio())
+          .thenThrow(Exception('Unexpected error'));
+
+      // Act & Assert
+      final repository = container.read(portfolioRepositoryProvider);
+      expect(
+        () => repository.deletePortfolio(),
+        throwsA(predicate((e) =>
+            e is AppException &&
+            e.toString().contains('delete-portfolio-error'))),
       );
     });
   });

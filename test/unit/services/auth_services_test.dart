@@ -6,7 +6,7 @@ import 'package:folio/services/auth_services.dart';
 import 'package:test/expect.dart';
 import 'package:test/scaffolding.dart';
 
-@GenerateMocks([FirebaseAuth, UserCredential, User])
+@GenerateMocks([FirebaseAuth, UserCredential, User, PhoneAuthCredential])
 import '../../mocks/auth_services_test.mocks.dart';
 
 void main() {
@@ -53,10 +53,8 @@ void main() {
               email: 'test@email.com',
               password: 'Pass123!',
               username: 'username'),
-          throwsA(predicate((e) => 
-    e is AppException && 
-    e.toString().contains('other-error')
-  )));
+          throwsA(predicate((e) =>
+              e is AppException && e.toString().contains('other-error'))));
     });
 
     test('create account fails with weak-password FirebaseAuthException',
@@ -70,10 +68,8 @@ void main() {
       expect(
           () => authServices.signUp(
               email: 'test@email.com', password: '1!', username: 'username'),
-          throwsA(predicate((e) => 
-    e is AppException && 
-    e.toString().contains('weak-password')
-  )));
+          throwsA(predicate((e) =>
+              e is AppException && e.toString().contains('weak-password'))));
     });
 
     test('create account fails with email-already-in-use FirebaseAuthException',
@@ -87,10 +83,9 @@ void main() {
       expect(
           () => authServices.signUp(
               email: 'test@email.com', password: '1!', username: 'username'),
-          throwsA(predicate((e) => 
-    e is AppException && 
-    e.toString().contains('email-already-in-use')
-  )));
+          throwsA(predicate((e) =>
+              e is AppException &&
+              e.toString().contains('email-already-in-use'))));
     });
 
     test('create account fails with invalid-email FirebaseAuthException',
@@ -104,10 +99,8 @@ void main() {
       expect(
           () => authServices.signUp(
               email: 'test@email.com', password: '1!', username: 'username'),
-          throwsA(predicate((e) => 
-    e is AppException && 
-    e.toString().contains('invalid-email')
-  )));
+          throwsA(predicate((e) =>
+              e is AppException && e.toString().contains('invalid-email'))));
     });
 
     test('create account fails with too-many-requests FirebaseAuthException',
@@ -121,10 +114,9 @@ void main() {
       expect(
           () => authServices.signUp(
               email: 'test@email.com', password: '1!', username: 'username'),
-          throwsA(predicate((e) => 
-    e is AppException && 
-    e.toString().contains('too-many-requests')
-  )));
+          throwsA(predicate((e) =>
+              e is AppException &&
+              e.toString().contains('too-many-requests'))));
     });
 
     test(
@@ -139,10 +131,9 @@ void main() {
       expect(
           () => authServices.signUp(
               email: 'test@email.com', password: '1!', username: 'username'),
-          throwsA(predicate((e) => 
-    e is AppException && 
-    e.toString().contains('network-request-failed')
-  )));
+          throwsA(predicate((e) =>
+              e is AppException &&
+              e.toString().contains('network-request-failed'))));
     });
 
     test('create account fails with generic exception', () async {
@@ -154,10 +145,8 @@ void main() {
       expect(
           () => authServices.signUp(
               email: 'test@email.com', password: '1!', username: 'username'),
-          throwsA(predicate((e) => 
-    e is AppException && 
-    e.toString().contains('sign-up-error')
-  )));
+          throwsA(predicate((e) =>
+              e is AppException && e.toString().contains('sign-up-error'))));
     });
   });
 
@@ -189,10 +178,8 @@ void main() {
       expect(
           () => authServices.signIn(
               email: 'test@email.com', password: 'Pass123!'),
-          throwsA(predicate((e) => 
-    e is AppException && 
-    e.toString().contains('other-error')
-  )));
+          throwsA(predicate((e) =>
+              e is AppException && e.toString().contains('other-error'))));
     });
 
     test('log in fails with invalid-email FirebaseAuthException', () async {
@@ -202,11 +189,10 @@ void main() {
           .thenAnswer(
               (_) => throw FirebaseAuthException(code: 'invalid-email'));
       //Expect invalid-email to be caught when logging in
-      expect(() => authServices.signIn(email: 'test@email.com', password: '1!'),
-          throwsA(predicate((e) => 
-    e is AppException && 
-    e.toString().contains('invalid-email')
-  )));
+      expect(
+          () => authServices.signIn(email: 'test@email.com', password: '1!'),
+          throwsA(predicate((e) =>
+              e is AppException && e.toString().contains('invalid-email'))));
     });
 
     test('log in fails with user-not-found FirebaseAuthException', () async {
@@ -216,11 +202,10 @@ void main() {
           .thenAnswer(
               (_) => throw FirebaseAuthException(code: 'user-not-found'));
       //Expect user-not-found to be caught when logging in
-      expect(() => authServices.signIn(email: 'test@email.com', password: '1!'),
-          throwsA(predicate((e) => 
-    e is AppException && 
-    e.toString().contains('user-not-found')
-  )));
+      expect(
+          () => authServices.signIn(email: 'test@email.com', password: '1!'),
+          throwsA(predicate((e) =>
+              e is AppException && e.toString().contains('user-not-found'))));
     });
 
     test('log in fails with wrong-password FirebaseAuthException', () async {
@@ -230,11 +215,10 @@ void main() {
           .thenAnswer(
               (_) => throw FirebaseAuthException(code: 'wrong-password'));
       //Expect wrong-password to be caught when logging in
-      expect(() => authServices.signIn(email: 'test@email.com', password: '1!'),
-          throwsA(predicate((e) => 
-    e is AppException && 
-    e.toString().contains('wrong-password')
-  )));
+      expect(
+          () => authServices.signIn(email: 'test@email.com', password: '1!'),
+          throwsA(predicate((e) =>
+              e is AppException && e.toString().contains('wrong-password'))));
     });
   });
 
@@ -250,10 +234,10 @@ void main() {
     test('throws sign-out-error on failure', () async {
       when(mockFirebaseAuth.signOut()).thenThrow(Exception('Sign out failed'));
 
-      expect(authServices.signOut(), throwsA(predicate((e) => 
-    e is AppException && 
-    e.toString().contains('sign-out-error')
-  )));
+      expect(
+          authServices.signOut(),
+          throwsA(predicate((e) =>
+              e is AppException && e.toString().contains('sign-out-error'))));
 
       verify(mockFirebaseAuth.signOut()).called(1);
     });
@@ -291,11 +275,10 @@ void main() {
       when(mockUser.delete())
           .thenThrow(FirebaseAuthException(code: 'user-not-found'));
 
-      expect(() async => await authServices.deleteUser(),
-          throwsA(predicate((e) => 
-    e is AppException && 
-    e.toString().contains('user-not-found')
-  )));
+      expect(
+          () async => await authServices.deleteUser(),
+          throwsA(predicate((e) =>
+              e is AppException && e.toString().contains('user-not-found'))));
     });
   });
 
@@ -326,10 +309,8 @@ void main() {
       // Should throw already verified
       expect(
         () => authServices.sendVerificationEmail(),
-        throwsA(predicate((e) => 
-    e is AppException && 
-    e.toString().contains('already-verified')
-  )),
+        throwsA(predicate((e) =>
+            e is AppException && e.toString().contains('already-verified'))),
       );
     });
 
@@ -343,10 +324,9 @@ void main() {
       // Should throw email-verification-error
       expect(
         () => authServices.sendVerificationEmail(),
-        throwsA(predicate((e) => 
-    e is AppException && 
-    e.toString().contains('email-verification-error')
-  )),
+        throwsA(predicate((e) =>
+            e is AppException &&
+            e.toString().contains('email-verification-error'))),
       );
     });
 
@@ -357,11 +337,283 @@ void main() {
       // Should throw email-verification-error
       expect(
         () => authServices.sendVerificationEmail(),
-        throwsA(predicate((e) => 
-    e is AppException && 
-    e.toString().contains('no-user')
-  )),
+        throwsA(predicate(
+            (e) => e is AppException && e.toString().contains('no-user'))),
       );
     });
   });
+
+  group('reauthenticateUser', () {
+    test('reauthenticates user successfully', () async {
+      when(mockFirebaseAuth.currentUser).thenReturn(mockUser);
+      when(mockUser.email).thenReturn('test@example.com');
+      when(mockUser.reauthenticateWithCredential(any))
+          .thenAnswer((_) async => mockUserCredential);
+      await authServices.reauthenticateUser('password123');
+
+      verify(mockUser.reauthenticateWithCredential(any)).called(1);
+    });
+
+    test('throws no-user error when current user is null', () async {
+      when(mockFirebaseAuth.currentUser).thenReturn(null);
+
+      expect(
+        () => authServices.reauthenticateUser('password123'),
+        throwsA(predicate((e) => e is AppException && e.code == 'no-user')),
+      );
+    });
+
+    test('throws no-email error when current user has no email', () async {
+      when(mockFirebaseAuth.currentUser).thenReturn(mockUser);
+      when(mockUser.email).thenReturn(null);
+
+      expect(
+        () => authServices.reauthenticateUser('password123'),
+        throwsA(predicate((e) => e is AppException && e.code == 'no-email')),
+      );
+    });
+
+    test('throws reauthenticate-user-error on other exceptions', () async {
+      when(mockFirebaseAuth.currentUser).thenReturn(mockUser);
+      when(mockUser.email).thenReturn('test@example.com');
+      when(mockUser.reauthenticateWithCredential(any))
+          .thenThrow(Exception('Unexpected error'));
+
+      expect(
+        () => authServices.reauthenticateUser('password123'),
+        throwsA(predicate(
+            (e) => e is AppException && e.code == 'reauthenticate-error')),
+      );
+    });
+  });
+
+  group('updateEmail', () {
+    test('updates email successfully', () async {
+      when(mockFirebaseAuth.currentUser).thenReturn(mockUser);
+      when(mockUser.verifyBeforeUpdateEmail('new@example.com'))
+          .thenAnswer((_) async => {});
+
+      await authServices.updateEmail('new@example.com');
+
+      verify(mockUser.verifyBeforeUpdateEmail('new@example.com')).called(1);
+    });
+    test('throws no-user error when current user is null', () async {
+      when(mockFirebaseAuth.currentUser).thenReturn(null);
+
+      expect(
+        () => authServices.updateEmail('new@example.com'),
+        throwsA(predicate((e) => e is AppException && e.code == 'no-user')),
+      );
+    });
+
+    test('throws update-email-error on other exceptions', () async {
+      when(mockFirebaseAuth.currentUser).thenReturn(mockUser);
+      when(mockUser.verifyBeforeUpdateEmail('new@example.com'))
+          .thenThrow(Exception('Unexpected error'));
+
+      expect(
+        () => authServices.updateEmail('new@example.com'),
+        throwsA(predicate(
+            (e) => e is AppException && e.code == 'update-email-error')),
+      );
+    });
+  });
+
+  group('currentUserUid', () {
+    test('returns uid when user is logged in', () async {
+      when(mockFirebaseAuth.currentUser).thenReturn(mockUser);
+      when(mockUser.uid).thenReturn('test-uid');
+
+      final result = await authServices.currentUserUid();
+      expect(result, 'test-uid');
+
+      verify(mockFirebaseAuth.currentUser).called(1);
+    });
+
+    test('returns null when no user is logged in', () async {
+      when(mockFirebaseAuth.currentUser).thenReturn(null);
+
+      final result = await authServices.currentUserUid();
+      expect(result, null);
+
+      verify(mockFirebaseAuth.currentUser).called(1);
+    });
+  });
+
+  group('updatePassword', () {
+    test('updates password successfully', () async {
+      when(mockFirebaseAuth.currentUser).thenReturn(mockUser);
+      when(mockUser.updatePassword('newPass123!'))
+          .thenAnswer((_) async => Future.value());
+
+      await authServices.updatePassword('newPass123!');
+
+      verify(mockFirebaseAuth.currentUser).called(1);
+      verify(mockUser.updatePassword('newPass123!')).called(1);
+    });
+
+    test('throws no-user error when current user is null', () async {
+      when(mockFirebaseAuth.currentUser).thenReturn(null);
+
+      expect(
+        () => authServices.updatePassword('newPass123!'),
+        throwsA(predicate((e) => e is AppException && e.code == 'no-user')),
+      );
+    });
+
+    test('throws FirebaseAuthException codes properly', () async {
+      when(mockFirebaseAuth.currentUser).thenReturn(mockUser);
+      when(mockUser.updatePassword('newPass123!'))
+          .thenThrow(FirebaseAuthException(code: 'weak-password'));
+
+      expect(
+        () => authServices.updatePassword('newPass123!'),
+        throwsA(predicate((e) =>
+            e is AppException && e.toString().contains('weak-password'))),
+      );
+    });
+
+    test('throws update-password-error on other exceptions', () async {
+      when(mockFirebaseAuth.currentUser).thenReturn(mockUser);
+      when(mockUser.updatePassword('newPass123!'))
+          .thenThrow(Exception('Unexpected error'));
+
+      expect(
+        () => authServices.updatePassword('newPass123!'),
+        throwsA(predicate(
+            (e) => e is AppException && e.code == 'update-password-error')),
+      );
+    });
+  });
+
+  group('verifyPhoneNumber', () {
+  test('successfully initiates phone verification', () async {
+    when(mockFirebaseAuth.currentUser).thenReturn(mockUser);
+    
+    // Mock the verifyPhoneNumber method
+    when(mockFirebaseAuth.verifyPhoneNumber(
+      phoneNumber: anyNamed('phoneNumber'),
+      verificationCompleted: anyNamed('verificationCompleted'),
+      verificationFailed: anyNamed('verificationFailed'),
+      codeSent: anyNamed('codeSent'),
+      codeAutoRetrievalTimeout: anyNamed('codeAutoRetrievalTimeout'),
+    )).thenAnswer((invocation) async {
+      // get the codeSent callback
+      final codeSent = invocation.namedArguments[const Symbol('codeSent')] 
+          as void Function(String, int?);
+      
+      // Call codeSent with a mock verification ID
+      codeSent('mock-verification-id', 12345);
+    });
+
+    final result = await authServices.verifyPhoneNumber('+1234567890');
+    
+    expect(result, 'mock-verification-id');
+    verify(mockFirebaseAuth.currentUser).called(1);
+    verify(mockFirebaseAuth.verifyPhoneNumber(
+      phoneNumber: '+1234567890',
+      verificationCompleted: anyNamed('verificationCompleted'),
+      verificationFailed: anyNamed('verificationFailed'),
+      codeSent: anyNamed('codeSent'),
+      codeAutoRetrievalTimeout: anyNamed('codeAutoRetrievalTimeout'),
+    )).called(1);
+  });
+
+  test('throws no-user error when current user is null', () async {
+    when(mockFirebaseAuth.currentUser).thenReturn(null);
+
+    expect(
+      () => authServices.verifyPhoneNumber('+1234567890'),
+      throwsA(predicate((e) => e is AppException && e.code == 'no-user')),
+    );
+  });
+
+  test('throws FirebaseAuthException codes properly', () async {
+    when(mockFirebaseAuth.currentUser).thenReturn(mockUser);
+    when(mockFirebaseAuth.verifyPhoneNumber(
+      phoneNumber: anyNamed('phoneNumber'),
+      verificationCompleted: anyNamed('verificationCompleted'),
+      verificationFailed: anyNamed('verificationFailed'),
+      codeSent: anyNamed('codeSent'),
+      codeAutoRetrievalTimeout: anyNamed('codeAutoRetrievalTimeout'),
+    )).thenAnswer((invocation) async {
+      // get the verificationFailed callback
+      final verificationFailed = invocation.namedArguments[const Symbol('verificationFailed')] 
+          as void Function(FirebaseAuthException);
+      
+      // Call verificationFailed with an invalid-phone-number error
+      verificationFailed(FirebaseAuthException(code: 'invalid-phone-number'));
+    });
+
+    expect(
+      () => authServices.verifyPhoneNumber('+1234567890'),
+      throwsA(predicate((e) => 
+        e is AppException && e.toString().contains('invalid-phone-number'))),
+    );
+  });
+
+  test('throws verify-number-error on other exceptions', () async {
+    when(mockFirebaseAuth.currentUser).thenReturn(mockUser);
+    when(mockFirebaseAuth.verifyPhoneNumber(
+      phoneNumber: anyNamed('phoneNumber'),
+      verificationCompleted: anyNamed('verificationCompleted'),
+      verificationFailed: anyNamed('verificationFailed'),
+      codeSent: anyNamed('codeSent'),
+      codeAutoRetrievalTimeout: anyNamed('codeAutoRetrievalTimeout'),
+    )).thenThrow(Exception('Unexpected error'));
+
+    expect(
+      () => authServices.verifyPhoneNumber('+1234567890'),
+      throwsA(predicate((e) => 
+        e is AppException && e.code == 'verify-number-error')),
+    );
+  });
+});
+
+group('verifySmsCode', () {
+
+  test('successfully verifies SMS code', () async {
+    when(mockFirebaseAuth.currentUser).thenReturn(mockUser);
+    when(mockUser.updatePhoneNumber(any))
+        .thenAnswer((_) async => Future<void>.value());
+
+    await authServices.verifySmsCode('verification-id', '123456');
+
+    verify(mockFirebaseAuth.currentUser).called(1);
+    verify(mockUser.updatePhoneNumber(any)).called(1);
+  });
+
+  test('throws no-user error when current user is null', () async {
+    when(mockFirebaseAuth.currentUser).thenReturn(null);
+
+    expect(
+      () => authServices.verifySmsCode('verification-id', '123456'),
+      throwsA(predicate((e) => e is AppException && e.code == 'no-user')),
+    );
+  });
+
+  test('throws FirebaseAuthException codes from updatePhoneNumber', () async {
+    when(mockFirebaseAuth.currentUser).thenReturn(mockUser);
+    when(mockUser.updatePhoneNumber(any))
+        .thenThrow(FirebaseAuthException(code: 'invalid-verification-code'));
+
+    expect(
+      () => authServices.verifySmsCode('verification-id', '123456'),
+      throwsA(predicate((e) => 
+        e is AppException && e.toString().contains('invalid-verification-code'))),
+    );
+  });
+
+  test('throws verify-sms-error on other exceptions', () async {
+    when(mockFirebaseAuth.currentUser).thenReturn(mockUser);
+    when(mockUser.updatePhoneNumber(any))
+        .thenThrow(Exception('Unexpected error'));
+
+    expect(
+      () => authServices.verifySmsCode('verification-id', '123456'),
+      throwsA(predicate((e) => 
+        e is AppException && e.code == 'verify-sms-error')),
+    );
+  });
+});
 }

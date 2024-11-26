@@ -5,7 +5,11 @@ import 'package:google_fonts/google_fonts.dart';
 
 class InputExperience extends StatefulWidget {
   final Function(int, int) onExperienceEntered;
-  const InputExperience({super.key, required this.onExperienceEntered});
+  final int initialYears;
+  final int initialMonths;
+  final String? title;
+  final String? subTitle;
+  const InputExperience({super.key, required this.onExperienceEntered, this.initialYears = 0, this.initialMonths = 0, this.title, this.subTitle});
 
   @override
   State<InputExperience> createState() => _InputExperienceState();
@@ -18,6 +22,8 @@ class _InputExperienceState extends State<InputExperience> {
   @override
   void initState() {
     super.initState();
+    yrsController.text = '${widget.initialYears}';
+    monthController.text = '${widget.initialMonths}';
   }
 
   @override
@@ -29,20 +35,17 @@ class _InputExperienceState extends State<InputExperience> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
+    return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             const SizedBox(height: 20.0),
-            Text(
+            Text(widget.title ??
               "Let's get your profile ready!",
               style: GoogleFonts.poppins(
                   fontSize: 22, fontWeight: FontWeight.w500),
             ),
             const SizedBox(height: 8.0),
-            Text(
+            Text(widget.subTitle ??
               'How much experience do you have?',
               style: GoogleFonts.poppins(
                   fontSize: 18, fontWeight: FontWeight.w300),
@@ -61,9 +64,7 @@ class _InputExperienceState extends State<InputExperience> {
               ),
             ),
           ],
-        ),
-      ),
-    );
+        );
   }
 
   Widget _buildInputColumn(String label, TextEditingController controller) {
@@ -77,14 +78,10 @@ class _InputExperienceState extends State<InputExperience> {
           alignment: Alignment.center,
           height: 90,
           width: 90,
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: Colors.black,
-              )),
+          
           child: TextField(
+            cursorColor: Theme.of(context).colorScheme.primary,
             key:  Key('$label-field'),
-            cursorColor: Colors.black,
             style: GoogleFonts.poppins(
                 fontSize: 30, fontWeight: FontWeight.w300),
             textAlign: TextAlign.center,
@@ -103,7 +100,6 @@ class _InputExperienceState extends State<InputExperience> {
             inputFormatters: <TextInputFormatter>[
               FilteringTextInputFormatter.digitsOnly,
             ],
-            decoration: null,
           ),
         ),
       ],
