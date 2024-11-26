@@ -46,20 +46,17 @@ dependencies:
   firebase_storage: ^12.3.3
   google_fonts: ^6.2.1
   rxdart: ^0.28.0
-<<<<<<< HEAD
   social_share: ^2.3.1
   share_plus: ^10.1.1
   font_awesome_flutter: ^10.7.0
   google_generative_ai: ^0.4.6
   connectivity_plus: ^6.1.0
-=======
   flutter_speed_dial: ^7.0.0
   device_info_plus: ^11.1.1
   package_info_plus: ^8.1.1
   intl_phone_field: ^3.2.0
   pinput: ^5.0.0
   http: ^1.2.2
->>>>>>> main
 
 dev_dependencies:
   flutter_test:

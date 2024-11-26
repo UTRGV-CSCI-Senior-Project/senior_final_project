@@ -24,15 +24,6 @@ class FirestoreServices {
     }
   }
 
-<<<<<<< HEAD
-  Future<void> addService(String service) async {
-    try {
-      await _firestore.collection('services').doc(service).set({
-        'service': service,
-      });
-    } catch (e) {
-      throw AppException('add-service-error');
-=======
   Future<UserModel?> getUser() async {
     try {
       final uid = await _ref.read(authServicesProvider).currentUserUid();
@@ -58,7 +49,6 @@ class FirestoreServices {
       } else {
         throw AppException('get-user-error');
       }
->>>>>>> main
     }
   }
 
