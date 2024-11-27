@@ -10,7 +10,10 @@ class ChatroomScreen extends ConsumerStatefulWidget {
   final ChatParticipant otherParticipant;
   final String senderName;
   const ChatroomScreen(
-      {super.key, required this.chatroomId, required this.otherParticipant, required this.senderName});
+      {super.key,
+      required this.chatroomId,
+      required this.otherParticipant,
+      required this.senderName});
 
   @override
   ConsumerState<ChatroomScreen> createState() => _ChatroomScreenState();
@@ -65,6 +68,7 @@ class _ChatroomScreenState extends ConsumerState<ChatroomScreen> {
                 children: [
                   Expanded(
                     child: TextField(
+                      key: const Key('message-field'),
                       controller: _messageController,
                       decoration: InputDecoration(
                         hintText: 'Type a message...',
@@ -86,6 +90,7 @@ class _ChatroomScreenState extends ConsumerState<ChatroomScreen> {
                   const SizedBox(width: 8),
                   // Send Button
                   ElevatedButton(
+                    key: const Key('send-message-button'),
                     onPressed: () async {
                       if (_messageController.text.isEmpty) {
                         return;
@@ -94,9 +99,11 @@ class _ChatroomScreenState extends ConsumerState<ChatroomScreen> {
                           _isLoading = true;
                         });
                         try {
-                          await ref.read(messageRepositoryProvider).sendMessage(widget.senderName,
+                          await ref.read(messageRepositoryProvider).sendMessage(
+                              widget.senderName,
                               widget.otherParticipant.uid,
-                              _messageController.text, widget.otherParticipant.fcmTokens);
+                              _messageController.text,
+                              widget.otherParticipant.fcmTokens);
                           _messageController.clear();
                         } catch (e) {
                           //Catch Error
@@ -108,7 +115,10 @@ class _ChatroomScreenState extends ConsumerState<ChatroomScreen> {
                       }
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).colorScheme.tertiary.withOpacity(0.7),
+                      backgroundColor: Theme.of(context)
+                          .colorScheme
+                          .tertiary
+                          .withOpacity(0.7),
                       shape: const CircleBorder(),
                       padding: const EdgeInsets.all(16),
                     ),
