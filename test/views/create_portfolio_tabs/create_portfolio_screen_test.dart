@@ -19,7 +19,7 @@ void main() {
   late MockFirestoreServices mockFirestoreServices;
   late MockImagePicker mockImagePicker;
   late MockXFile mockXFile;
-  final nextButton = find.byKey(const Key('create-profile-button'));
+  final nextButton = find.byKey(const Key('portfolio-next-button'));
   final closeButton = find.byKey(const Key('close-button'));
 
   setUp(() {

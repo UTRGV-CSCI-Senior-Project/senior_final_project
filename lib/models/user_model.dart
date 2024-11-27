@@ -70,6 +70,10 @@ class UserModel {
       "completedOnboarding": completedOnboarding,
       "preferredServices": preferredServices,
       "profilePictureUrl": profilePictureUrl,
+      "isEmailVerified": isEmailVerified,
+      "isPhoneVerified": isPhoneVerified,
+      "phoneNumber": phoneNumber,
+      "fcmTokens": fcmTokens
     };
   }
 

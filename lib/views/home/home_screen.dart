@@ -23,7 +23,7 @@ final hasShownEmailDialogProvider = StateProvider<bool>((ref) => false);
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
-  
+
   @override
   ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
@@ -32,14 +32,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     Timer? _emailCheckTimer;
     bool _isInitializingNotifications = false;
 
-
   @override
   void initState() {
     super.initState();
-    // Move dialog check to initState
    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      // Add slight delay to ensure state is properly initialized
+    try{
       _initializeMessaging();
+    }catch(e){
+    }
       _emailCheckTimer = Timer(const Duration(milliseconds: 100), () {
         if (mounted) {
           _checkAndShowEmailVerification();
@@ -91,26 +91,12 @@ void _checkAndShowEmailVerification() {
       final messagingService = ref.read(cloudMessagingServicesProvider);
       await messagingService.initNotifications();
     } catch (e) {
-      // Only show error if user has completed onboarding and is actually logged in
-      final userData = ref.read(userDataStreamProvider).value;
-      final userModel = userData?['user'];
-      if (userModel?.completedOnboarding == true) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Text('Notifications may not work properly'),
-              action: SnackBarAction(
-                label: 'Retry',
-                onPressed: _initializeMessaging,
-              ),
-            ),
-          );
-        }
-      }
+      return;
     } finally {
       _isInitializingNotifications = false;
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -239,7 +225,7 @@ void _checkAndShowEmailVerification() {
                 children: [
                   HomeTab(userModel: userModel),
                   const DiscoverTab(),
-                   InboxTab(userModel: userModel),
+                  InboxTab(userModel: userModel),
                   EditProfile(
                       userModel: userModel, portfolioModel: userPortfolio),
                 ],
@@ -271,8 +257,8 @@ void _checkAndShowEmailVerification() {
                   ),
                   NavigationDestination(
                     key: const Key('inbox-button'),
-                    icon: const Icon(Icons.bookmark_border, size: 25),
-                    selectedIcon: Icon(Icons.bookmark,
+                    icon: const Icon(Icons.email_outlined, size: 25),
+                    selectedIcon: Icon(Icons.email,
                         color: Theme.of(context).colorScheme.primary, size: 30),
                     label: 'Inbox',
                   ),
