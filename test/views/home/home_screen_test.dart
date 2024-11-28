@@ -222,6 +222,50 @@ void main() {
             container.dispose();
 
     });
+
+    testWidgets('shows email verification dialog when email is not verified',
+        (WidgetTester tester) async {
+      final userModel = UserModel(
+        uid: 'testuid',
+        username: 'username',
+        email: 'email@email.com',
+        isProfessional: false,
+        fullName: 'Test User',
+        completedOnboarding: true,
+        preferredServices: ['Nail Tech', 'Hair Stylist'],
+        isEmailVerified: false, // Set email as not verified
+      );
+
+      final container = createProviderContainer(userModel: userModel);
+      await tester.pumpWidget(createHomeScreen(container));
+      await tester.pumpAndSettle();
+
+      // Verify the dialog is shown
+      expect(find.byType(EmailVerificationDialog), findsOneWidget);
+
+    });
+
+    testWidgets('doesnt show email verification dialog when email is  verified',
+        (WidgetTester tester) async {
+      final userModel = UserModel(
+        uid: 'testuid',
+        username: 'username',
+        email: 'email@email.com',
+        isProfessional: false,
+        fullName: 'Test User',
+        completedOnboarding: true,
+        preferredServices: ['Nail Tech', 'Hair Stylist'],
+        isEmailVerified: true, // Set email as not verified
+      );
+
+      final container = createProviderContainer(userModel: userModel);
+      await tester.pumpWidget(createHomeScreen(container));
+      await tester.pumpAndSettle();
+
+      // Verify the dialog is shown
+      expect(find.byType(EmailVerificationDialog), findsNothing);
+
+    });
   });
 
   group('home tab', () {
