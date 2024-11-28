@@ -95,8 +95,9 @@ class _UpdateServicesScreenState extends ConsumerState<UpdateServicesScreen> {
 
     if (services.isEmpty) {
       return const ErrorView(
-          bigText: 'Error fetching services!',
-          smallText: 'Please check your connection, or try again later.');
+        bigText: 'Error fetching services!',
+        smallText: 'Please check your connection, or try again later.',
+      );
     }
 
     return Scaffold(

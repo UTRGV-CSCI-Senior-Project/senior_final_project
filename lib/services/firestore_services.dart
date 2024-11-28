@@ -282,6 +282,17 @@ class FirestoreServices {
     }
   }
 
+  Future<void> addCareer(String career) async {
+    try {
+      await _firestore
+          .collection('services')
+          .doc(career)
+          .set({'service': career});
+    } catch (e) {
+      throw ArgumentError(e);
+    }
+  }
+
   ///////////////////////// SERVICE COLLECTION /////////////////////////
 
   Future<List<String>> getServices() async {
@@ -310,6 +321,7 @@ class FirestoreServices {
       throw AppException('add-feedback-error');
     }
   }
+
   ///////////////////////// FEEDBACK COLLECTION /////////////////////////
 
   ///////////////////////// MESSAGE COLLECTION /////////////////////////
@@ -318,19 +330,19 @@ class FirestoreServices {
     try {
       final userOne = await getUser();
       if (userOne != null) {
-      
-      final userIds = chatroomId.split('_');
-      final otherUserId =
-          userIds.first == userOne.uid ? userIds.last : userIds.first;
-      final userTwo = await getOtherUser(otherUserId);
+        final userIds = chatroomId.split('_');
+        final otherUserId =
+            userIds.first == userOne.uid ? userIds.last : userIds.first;
+        final userTwo = await getOtherUser(otherUserId);
 
-      if (userTwo != null) {
-        final participantOne = ChatParticipant.fromUserModel(userOne);
-        final participantTwo = ChatParticipant.fromUserModel(userTwo);
-        return [participantOne, participantTwo];
-      } else {
-        throw AppException('no-chat-participant');
-      }}
+        if (userTwo != null) {
+          final participantOne = ChatParticipant.fromUserModel(userOne);
+          final participantTwo = ChatParticipant.fromUserModel(userTwo);
+          return [participantOne, participantTwo];
+        } else {
+          throw AppException('no-chat-participant');
+        }
+      }
       return [];
     } catch (e) {
       if (e is AppException) {

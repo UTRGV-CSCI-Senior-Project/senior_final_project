@@ -6,7 +6,7 @@ class LoadingView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return  Center(
+    return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -25,9 +25,9 @@ class ErrorView extends StatelessWidget {
   final String smallText;
 
   const ErrorView({
-    super.key, 
+    super.key,
     required this.bigText,
-    required this.smallText
+    required this.smallText,
   });
 
   @override
@@ -38,7 +38,7 @@ class ErrorView extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-             Icon(
+            Icon(
               Icons.error_outline,
               color: Theme.of(context).colorScheme.error,
               size: 100,
@@ -48,10 +48,9 @@ class ErrorView extends StatelessWidget {
               bigText,
               textAlign: TextAlign.center,
               style: GoogleFonts.poppins(
-                fontSize: 30,
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.error
-              ),
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.error),
             ),
             const SizedBox(height: 8),
             Text(

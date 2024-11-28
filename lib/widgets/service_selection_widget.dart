@@ -10,15 +10,13 @@ class ServiceSelectionWidget extends ConsumerStatefulWidget {
   final Function onServicesSelected;
   final bool singleSelectionMode; // New parameter
 
-
-  const ServiceSelectionWidget({
-    super.key,
-    required this.services,
-    required this.initialSelectedServices,
-    required this.onServicesSelected,
-    required this.isLoading,
-    this.singleSelectionMode = false
-  });
+  const ServiceSelectionWidget(
+      {super.key,
+      required this.services,
+      required this.initialSelectedServices,
+      required this.onServicesSelected,
+      required this.isLoading,
+      this.singleSelectionMode = false});
 
   @override
   ConsumerState<ServiceSelectionWidget> createState() =>
@@ -49,23 +47,23 @@ class _ServiceSelectionWidgetState
     }
 
     return ListView.builder(
-      itemCount: widget.services.length,
-      itemBuilder: (context, index) {
-final service = widget.services[index];
-        final isSelected = selectedServices[service] ?? false;
+        itemCount: widget.services.length,
+        itemBuilder: (context, index) {
+          final service = widget.services[index];
+          final isSelected = selectedServices[service] ?? false;
           return GestureDetector(
             key: Key('$service-button'),
             onTap: () {
               setState(() {
-                if(widget.singleSelectionMode){
-                    // In single selection mode, clear other selections first
-                selectedServices.updateAll((key, value) => false);
-                selectedServices[service] = !isSelected;
-
-                widget.onServicesSelected(service);
-                }else{
+                if (widget.singleSelectionMode) {
+                  // In single selection mode, clear other selections first
+                  selectedServices.updateAll((key, value) => false);
                   selectedServices[service] = !isSelected;
-                widget.onServicesSelected(selectedServices);
+
+                  widget.onServicesSelected(service);
+                } else {
+                  selectedServices[service] = !isSelected;
+                  widget.onServicesSelected(selectedServices);
                 }
               });
             },
@@ -74,8 +72,7 @@ final service = widget.services[index];
               decoration: BoxDecoration(
                 color: isSelected
                     ? const Color.fromRGBO(229, 255, 200, 0.4)
-                    : Colors
-                        .transparent, 
+                    : Colors.transparent,
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
                   width: 2,
@@ -106,7 +103,6 @@ final service = widget.services[index];
               ),
             ),
           );
-      }
-        );
+        });
   }
 }

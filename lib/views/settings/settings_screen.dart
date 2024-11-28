@@ -26,12 +26,11 @@ class SettingsScreen extends ConsumerWidget {
           return Scaffold(
             appBar: AppBar(
               leading: IconButton(
-                key: const Key('settings-back-button'),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            icon: const Icon(Icons.arrow_back_ios,
-                size: 24)),
+                  key: const Key('settings-back-button'),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  icon: const Icon(Icons.arrow_back_ios, size: 24)),
               title: Text(
                 'Settings',
                 style: GoogleFonts.inter(
@@ -58,7 +57,7 @@ class SettingsScreen extends ConsumerWidget {
                       onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) =>  AccountScreen(user: user))),
+                              builder: (context) => AccountScreen(user: user))),
                     ),
                     if (!user.isProfessional)
                       SettingsItem(
@@ -80,8 +79,9 @@ class SettingsScreen extends ConsumerWidget {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) =>
-                                       ManagePortfolioScreen(portfolioModel: portfolio,)));
+                                  builder: (context) => ManagePortfolioScreen(
+                                        portfolioModel: portfolio,
+                                      )));
                         },
                       ),
                     SettingsItem(
@@ -91,12 +91,16 @@ class SettingsScreen extends ConsumerWidget {
                     ),
                     SettingsItem(
                       title: 'Log Out',
-                      leading:  Icon(Icons.logout_outlined, color: Theme.of(context).colorScheme.error,),
+                      leading: Icon(
+                        Icons.logout_outlined,
+                        color: Theme.of(context).colorScheme.error,
+                      ),
                       color: Theme.of(context).colorScheme.error,
                       onTap: () {
                         showDialog(
                             context: context,
-                            builder: (BuildContext  context) => const LogoutDialog() );
+                            builder: (BuildContext context) =>
+                                const LogoutDialog());
                       },
                     ),
                     const SizedBox(height: 30),
@@ -108,14 +112,22 @@ class SettingsScreen extends ConsumerWidget {
                       title: 'Report a bug',
                       leading: const Icon(Icons.bug_report_outlined),
                       onTap: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => FeedbackScreen(type: 'bug', userId: user.uid)));
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => FeedbackScreen(
+                                    type: 'bug', userId: user.uid)));
                       },
                     ),
                     SettingsItem(
                       title: 'Get Help',
                       leading: const Icon(Icons.feedback_outlined),
                       onTap: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => FeedbackScreen(type: 'help', userId: user.uid)));
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => FeedbackScreen(
+                                    type: 'help', userId: user.uid)));
                       },
                     ),
                   ],
@@ -131,5 +143,3 @@ class SettingsScreen extends ConsumerWidget {
         loading: () => const LoadingView());
   }
 }
-
-

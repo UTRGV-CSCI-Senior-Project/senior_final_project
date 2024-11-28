@@ -50,9 +50,10 @@ class MyApp extends ConsumerWidget {
                     error: (e, s) {
                       return const Scaffold(
                         body: ErrorView(
-                            bigText: 'There was an error!',
-                            smallText:
-                                'Please check your connection, or restart the app!'),
+                          bigText: 'There was an error!',
+                          smallText:
+                              'Please check your connection, or restart the app!',
+                        ),
                       );
                     },
                     loading: () => const LoadingScreen(),

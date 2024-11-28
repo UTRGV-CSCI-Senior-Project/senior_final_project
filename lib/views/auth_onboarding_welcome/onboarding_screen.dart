@@ -48,26 +48,26 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     try {
       final firestoreServices = ref.read(firestoreServicesProvider);
       final fetchedServices = await firestoreServices.getServices();
-      if(mounted) {
+      if (mounted) {
         setState(() {
-        services = fetchedServices;
+          services = fetchedServices;
 
-        for (var service in services) {
-          selectedServices[service] = false;
-        }
-      });
+          for (var service in services) {
+            selectedServices[service] = false;
+          }
+        });
       }
     } catch (e) {
-      if(mounted) {
+      if (mounted) {
         setState(() {
-        services = [];
-      });
+          services = [];
+        });
       }
     } finally {
-      if(mounted) {
+      if (mounted) {
         setState(() {
-        _servicesAreLoading = false;
-      });
+          _servicesAreLoading = false;
+        });
       }
     }
   }
@@ -77,10 +77,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     final XFile? image =
         await imagePicker.pickImage(source: ImageSource.gallery);
     if (image == null) return;
-    if(mounted) {
+    if (mounted) {
       setState(() {
-      file = File(image.path);
-    });
+        file = File(image.path);
+      });
     }
   }
 
@@ -90,16 +90,18 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-           Text(
+          Text(
             'Name and Profile Picture',
             textAlign: TextAlign.center,
-            style: GoogleFonts.poppins(fontSize: 22, fontWeight: FontWeight.w600),
+            style:
+                GoogleFonts.poppins(fontSize: 22, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 4),
-           Text(
+          Text(
             'This is how others will see you.',
             textAlign: TextAlign.center,
-            style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w500),
+            style:
+                GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w500),
           ),
           const SizedBox(height: 50),
           Padding(
@@ -110,8 +112,11 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   Container(
                     height: 200,
                     width: 200,
-                    decoration:  BoxDecoration(
-                      color: Theme.of(context).colorScheme.secondary.withOpacity(0.4),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .secondary
+                          .withOpacity(0.4),
                       shape: BoxShape.circle,
                     ),
                     child: file != null
@@ -122,10 +127,13 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                               fit: BoxFit.cover,
                             ),
                           )
-                        :  Icon(
+                        : Icon(
                             Icons.person,
                             size: 200,
-                            color: Theme.of(context).colorScheme.tertiary.withOpacity(0.3),
+                            color: Theme.of(context)
+                                .colorScheme
+                                .tertiary
+                                .withOpacity(0.3),
                           ),
                   ),
                   Positioned(
@@ -145,7 +153,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                             width: 3,
                           ),
                         ),
-                        child:  Icon(
+                        child: Icon(
                           Icons.create_rounded,
                           size: 30,
                           color: Theme.of(context).colorScheme.onPrimary,
@@ -162,31 +170,30 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: TextField(
               focusNode: nameFocusNode,
-              style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w500),
+              style:
+                  GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w500),
               textCapitalization: TextCapitalization.words,
               key: const Key('name-field'),
               controller: _fullNameController,
-            
               decoration: InputDecoration(
-                hintText: 'Full Name',
-                hintStyle: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w500)
-              ),
+                  hintText: 'Full Name',
+                  hintStyle: GoogleFonts.inter(
+                      fontSize: 16, fontWeight: FontWeight.w500)),
             ),
           ),
-           if (errorMessage.isNotEmpty && _currentPage == 0)
-          Padding(
-            padding: const EdgeInsets.only(top: 8.0),
-            child: ErrorBox(
-              errorMessage: errorMessage,
-              onDismiss: () {
-                if (mounted) {
-                  setState(() {
-                    errorMessage = "";
-                  });
-                }
-              }
+          if (errorMessage.isNotEmpty && _currentPage == 0)
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: ErrorBox(
+                  errorMessage: errorMessage,
+                  onDismiss: () {
+                    if (mounted) {
+                      setState(() {
+                        errorMessage = "";
+                      });
+                    }
+                  }),
             ),
-          ),
         ],
       ),
     );
@@ -194,10 +201,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   Widget buildInterests(BuildContext context) {
     if (_servicesAreLoading) {
-      return  Center(
+      return Center(
         child: CircularProgressIndicator(
-          color: Theme.of(context).colorScheme.primary
-        ),
+            color: Theme.of(context).colorScheme.primary),
       );
     }
 
@@ -208,20 +214,20 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       );
     }
 
-    return  Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-           Text(
-            'Select the services you\'re interested in.',
-            textAlign: TextAlign.start,
-            style: GoogleFonts.poppins(fontSize: 22, fontWeight: FontWeight.w500),
-          ),
-           Text(
-            "Choose at least one!",
-            textAlign: TextAlign.start,
-            style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w400),
-          ),
-           Container(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          'Select the services you\'re interested in.',
+          textAlign: TextAlign.start,
+          style: GoogleFonts.poppins(fontSize: 22, fontWeight: FontWeight.w500),
+        ),
+        Text(
+          "Choose at least one!",
+          textAlign: TextAlign.start,
+          style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w400),
+        ),
+        Container(
           margin: const EdgeInsets.only(top: 14),
           decoration: BoxDecoration(
             color: Colors.grey[500]!.withOpacity(0.2),
@@ -247,32 +253,38 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             ),
           ),
         ),
-        const SizedBox(height: 10,),
-          Expanded(child: ServiceSelectionWidget(services: services, initialSelectedServices: selectedServices, onServicesSelected: (newServices){
-            if(mounted) {
-              setState(() {
-              errorMessage = "";
-              selectedServices.clear();
-              selectedServices.addAll(newServices);
-            });
-            }
-          }, isLoading: _isLoading)),
-          if (errorMessage.isNotEmpty && _currentPage == 1)
+        const SizedBox(
+          height: 10,
+        ),
+        Expanded(
+            child: ServiceSelectionWidget(
+                services: services,
+                initialSelectedServices: selectedServices,
+                onServicesSelected: (newServices) {
+                  if (mounted) {
+                    setState(() {
+                      errorMessage = "";
+                      selectedServices.clear();
+                      selectedServices.addAll(newServices);
+                    });
+                  }
+                },
+                isLoading: _isLoading)),
+        if (errorMessage.isNotEmpty && _currentPage == 1)
           Padding(
             padding: const EdgeInsets.only(top: 8.0),
             child: ErrorBox(
-              errorMessage: errorMessage,
-              onDismiss: () {
-                if (mounted) {
-                  setState(() {
-                    errorMessage = "";
-                  });
-                }
-              }
-            ),
+                errorMessage: errorMessage,
+                onDismiss: () {
+                  if (mounted) {
+                    setState(() {
+                      errorMessage = "";
+                    });
+                  }
+                }),
           ),
-        ],
-      );
+      ],
+    );
   }
 
   @override
@@ -281,19 +293,26 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         toolbarHeight: 35,
-        leading: _currentPage == 1 ?  IconButton(onPressed: (){
-          if(_currentPage == 1){
-            _pageController.animateToPage(0, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
-          }
-        }, icon: const Icon(Icons.arrow_back_ios),) : null,
+        leading: _currentPage == 1
+            ? IconButton(
+                onPressed: () {
+                  if (_currentPage == 1) {
+                    _pageController.animateToPage(0,
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut);
+                  }
+                },
+                icon: const Icon(Icons.arrow_back_ios),
+              )
+            : null,
         centerTitle: true,
         title: LinearProgressIndicator(
-                minHeight: 6,
-                borderRadius: BorderRadius.circular(5),
-                value: (_currentPage + 1) / 2,
-                color: Theme.of(context).colorScheme.primary,
-                backgroundColor: Colors.grey[300],
-              ),
+          minHeight: 6,
+          borderRadius: BorderRadius.circular(5),
+          value: (_currentPage + 1) / 2,
+          color: Theme.of(context).colorScheme.primary,
+          backgroundColor: Colors.grey[300],
+        ),
       ),
       body: SafeArea(
         child: Padding(
@@ -301,18 +320,17 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              
               const SizedBox(height: 24),
               Expanded(
                 child: PageView(
                   physics: const NeverScrollableScrollPhysics(),
                   controller: _pageController,
                   onPageChanged: (int index) {
-                    if(mounted) {
+                    if (mounted) {
                       setState(() {
-                      errorMessage = "";
-                      _currentPage = index;
-                    });
+                        errorMessage = "";
+                        _currentPage = index;
+                      });
                     }
                   },
                   children: [buildProfile(context), buildInterests(context)],
@@ -325,10 +343,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     onPressed: () async {
                       if (_currentPage == 0) {
                         if (_fullNameController.text.isEmpty) {
-                          if(mounted) {
+                          if (mounted) {
                             setState(() {
-                            errorMessage = "Please enter your full name.";
-                          });
+                              errorMessage = "Please enter your full name.";
+                            });
                           }
                         } else {
                           FocusManager.instance.primaryFocus?.unfocus();
@@ -340,17 +358,17 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                       } else {
                         if (!selectedServices.values
                             .any((selected) => selected)) {
-                              if(mounted) {
-                                setState(() {
-                            errorMessage = "Select at least one service.";
-                          });
-                              }
+                          if (mounted) {
+                            setState(() {
+                              errorMessage = "Select at least one service.";
+                            });
+                          }
                           return;
                         } else {
-                          if(mounted) {
+                          if (mounted) {
                             setState(() {
-                            _isLoading = true;
-                          });
+                              _isLoading = true;
+                            });
                           }
                           try {
                             final List<String> selectedServicesList =
@@ -368,20 +386,21 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
                             if (context.mounted) {
                               Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => const HomeScreen()));
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          const HomeScreen()));
                             }
                           } catch (e) {
                             if (context.mounted) {
-                              if(mounted) {
+                              if (mounted) {
                                 setState(() {
-                              errorMessage = e is AppException
-                                  ? e.message
-                                  : "Failed to update profile information. Please try again.";
-                              _isLoading =
-                                  false; // Reset loading state on error
-                            });
+                                  errorMessage = e is AppException
+                                      ? e.message
+                                      : "Failed to update profile information. Please try again.";
+                                  _isLoading =
+                                      false; // Reset loading state on error
+                                });
                               }
                             }
                           }
@@ -394,7 +413,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                         backgroundColor: const Color.fromARGB(255, 0, 111, 253),
                         padding: const EdgeInsets.symmetric(vertical: 12)),
                     child: _isLoading
-                        ?  SizedBox(
+                        ? SizedBox(
                             height: 24,
                             width: 24,
                             child: CircularProgressIndicator(
@@ -404,8 +423,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                           )
                         : Text(_currentPage == 0 ? 'Next' : 'Done!',
                             style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold))),
+                                fontSize: 20, fontWeight: FontWeight.bold))),
               )
             ],
           ),
