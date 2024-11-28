@@ -11,6 +11,7 @@ class CloudMessagingServices {
 
   CloudMessagingServices(this._firebaseMessaging, this._firestoreServices,
       this._firebaseFunctions) {
+        _firebaseMessaging.setAutoInitEnabled(false);
     _firebaseMessaging.onTokenRefresh.listen((newToken) {
       updateToken(newToken);
     });

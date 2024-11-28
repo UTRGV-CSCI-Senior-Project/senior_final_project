@@ -177,6 +177,7 @@ void setupEmulators({bool useEmulators = false}) {
       FirebaseAuth.instance.useAuthEmulator('127.0.0.1', 9099);
       FirebaseFirestore.instance.useFirestoreEmulator('127.0.0.1', 8080);
       FirebaseStorage.instance.useStorageEmulator('127.0.0.1', 9199);
+      FirebaseFunctions.instance.useFunctionsEmulator('127.0.0.1', 5001);
       // Add other emulators as needed
 
       developer.log(
