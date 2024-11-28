@@ -4,6 +4,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:folio/core/app_exception.dart';
 import 'package:folio/core/service_locator.dart';
 import 'package:folio/models/feedback_model.dart';
+import 'package:folio/models/messaging_models/chat_participant_model.dart';
+import 'package:folio/models/messaging_models/chatroom_model.dart';
+import 'package:folio/models/messaging_models/message_model.dart';
 import 'package:folio/models/portfolio_model.dart';
 import 'package:folio/services/auth_services.dart';
 import 'package:mockito/annotations.dart';
@@ -152,14 +155,32 @@ void main() {
     test('should update user successful', () async {
       const uid = 'testUid';
       final fieldsToUpdate = {'username': 'newUsername'};
+      final Map<String, dynamic> userData = {
+        'uid': uid,
+        'email': 'test@example.com',
+        'username': 'testuser',
+        'fullName': 'Test User',
+        'completedOnboarding': true,
+        'isProfessional': false,
+        'preferredServices': ['service1', 'service2'],
+        'profilePictureUrl': 'https://example.com/pic.jpg',
+      };
       when(mockRef.read(authServicesProvider)).thenReturn(mockAuthServices);
       when(mockAuthServices.currentUserUid())
           .thenAnswer((_) => Future.value(uid));
-      when(mockFirebaseFirestore.collection('users'))
+      when(mockFirebaseFirestore.collection(any))
           .thenReturn(mockCollectionReference);
-      when(mockCollectionReference.doc(uid)).thenReturn(mockDocumentReference);
+      when(mockCollectionReference.doc(any)).thenReturn(mockDocumentReference);
       when(mockDocumentReference.update(fieldsToUpdate))
           .thenAnswer((_) async => {});
+      when(mockDocumentReference.get())
+          .thenAnswer((_) async => mockDocumentSnapshot);
+      when(mockDocumentSnapshot.exists).thenReturn(true);
+      when(mockDocumentSnapshot.data()).thenReturn(userData);
+      when(mockCollectionReference.where('participantIds', arrayContains: uid))
+          .thenReturn(mockQuery);
+      when(mockQuery.get()).thenAnswer((_) async => mockQuerySnapshot);
+      when(mockQuerySnapshot.docs).thenReturn([]);
 
       await expectLater(
         firestoreServices.updateUser(fieldsToUpdate),
@@ -174,8 +195,7 @@ void main() {
       final fieldsToUpdate = {'username': 'newUsername'};
 
       when(mockRef.read(authServicesProvider)).thenReturn(mockAuthServices);
-      when(mockAuthServices.currentUserUid())
-          .thenAnswer((_) => Future.value(uid));
+      when(mockAuthServices.currentUserUid()).thenAnswer((_) async => uid);
       when(mockFirebaseFirestore.collection('users'))
           .thenReturn(mockCollectionReference);
       when(mockCollectionReference.doc(uid)).thenReturn(mockDocumentReference);
@@ -239,7 +259,8 @@ void main() {
         'profilePictureUrl': null,
         'isEmailVerified': false,
         'phoneNumber': null,
-        'isPhoneVerified': false
+        'isPhoneVerified': false,
+        'fcmTokens': null
       };
       when(mockFirebaseFirestore.collection('users'))
           .thenReturn(mockCollectionReference);
@@ -605,7 +626,6 @@ void main() {
 
   group('getUser', () {
     test('returns UserModel when user exists', () async {
-      // Arrange
       const String uid = 'test-uid';
       final Map<String, dynamic> userData = {
         'uid': uid,
@@ -628,17 +648,14 @@ void main() {
       when(mockDocumentSnapshot.exists).thenReturn(true);
       when(mockDocumentSnapshot.data()).thenReturn(userData);
 
-      // Act
       final result = await firestoreServices.getUser();
 
-      // Assert
       expect(result, isA<UserModel>());
       expect(result?.uid, equals(uid));
       expect(result?.email, equals('test@example.com'));
     });
 
     test('returns null when user document does not exist', () async {
-      // Arrange
       const String uid = 'test-uid';
       when(mockFirebaseFirestore.collection(any))
           .thenReturn(mockCollectionReference);
@@ -650,19 +667,15 @@ void main() {
           .thenAnswer((_) async => mockDocumentSnapshot);
       when(mockDocumentSnapshot.exists).thenReturn(false);
 
-      // Act
       final result = await firestoreServices.getUser();
 
-      // Assert
       expect(result, isNull);
     });
 
     test('throws AppException when no current user', () async {
-      // Arrange
       when(mockRef.read(authServicesProvider)).thenReturn(mockAuthServices);
       when(mockAuthServices.currentUserUid())
           .thenAnswer((_) => Future.value(null));
-      // Act & Assert
       expect(
         () => firestoreServices.getUser(),
         throwsA(isA<AppException>().having(
@@ -676,7 +689,6 @@ void main() {
 
   group('getPortfolio', () {
     test('returns PortfolioModel when portfolio exists', () async {
-      // Arrange
       const String uid = 'test-uid';
       final Map<String, dynamic> portfolioData = {
         'details': 'Test bio',
@@ -698,16 +710,13 @@ void main() {
       when(mockDocumentSnapshot.exists).thenReturn(true);
       when(mockDocumentSnapshot.data()).thenReturn(portfolioData);
 
-      // Act
       final result = await firestoreServices.getPortfolio();
 
-      // Assert
       expect(result, isA<PortfolioModel>());
       expect(result?.service, equals('Barber'));
     });
 
     test('returns null when portfolio does not exist', () async {
-      // Arrange
       const String uid = 'test-uid';
       when(mockFirebaseFirestore.collection(any))
           .thenReturn(mockCollectionReference);
@@ -720,20 +729,16 @@ void main() {
           .thenAnswer((_) async => mockDocumentSnapshot);
       when(mockDocumentSnapshot.exists).thenReturn(false);
 
-      // Act
       final result = await firestoreServices.getPortfolio();
 
-      // Assert
       expect(result, isNull);
     });
 
     test('throws AppException when no current user', () async {
-      // Arrange
       when(mockRef.read(authServicesProvider)).thenReturn(mockAuthServices);
 
       when(mockAuthServices.currentUserUid()).thenAnswer((_) async => null);
 
-      // Act & Assert
       expect(
         () => firestoreServices.getPortfolio(),
         throwsA(isA<AppException>().having(
@@ -747,7 +752,6 @@ void main() {
 
   group('deleteUser', () {
     test('successfully deletes user fields', () async {
-      // Arrange
       const String uid = 'test-uid';
       when(mockRef.read(authServicesProvider)).thenReturn(mockAuthServices);
       when(mockFirebaseFirestore.collection(any))
@@ -756,7 +760,6 @@ void main() {
       when(mockAuthServices.currentUserUid()).thenAnswer((_) async => uid);
       when(mockDocumentReference.update(any)).thenAnswer((_) async => {});
 
-      // Act & Assert
       await firestoreServices.deleteUser();
 
       verify(mockDocumentReference.update({
@@ -768,18 +771,20 @@ void main() {
         'profilePictureUrl': FieldValue.delete(),
         'uid': FieldValue.delete(),
         'username': FieldValue.delete(),
+        'isEmailVerified': FieldValue.delete(),
+        'isPhoneVerified': FieldValue.delete(),
+        'phoneNumber': FieldValue.delete(),
+        'fcmTokens': FieldValue.delete()
       })).called(1);
     });
 
     test('throws AppException when no current user', () async {
-      // Arrange
       when(mockRef.read(authServicesProvider)).thenReturn(mockAuthServices);
       when(mockFirebaseFirestore.collection(any))
           .thenReturn(mockCollectionReference);
       when(mockCollectionReference.doc(any)).thenReturn(mockDocumentReference);
       when(mockAuthServices.currentUserUid()).thenAnswer((_) async => null);
 
-      // Act & Assert
       expect(
         () => firestoreServices.deleteUser(),
         throwsA(isA<AppException>().having(
@@ -791,7 +796,6 @@ void main() {
     });
 
     test('throws AppException when update fails', () async {
-      // Arrange
       const String uid = 'test-uid';
       when(mockRef.read(authServicesProvider)).thenReturn(mockAuthServices);
       when(mockFirebaseFirestore.collection(any))
@@ -801,7 +805,6 @@ void main() {
       when(mockDocumentReference.update(any))
           .thenThrow(Exception('Update failed'));
 
-      // Act & Assert
       expect(
         () => firestoreServices.deleteUser(),
         throwsA(isA<AppException>().having(
@@ -813,8 +816,8 @@ void main() {
     });
   });
 
-  group('addFeedback', ()  {
- test('adds feedback successfuly', () async {
+  group('addFeedback', () {
+    test('adds feedback successfuly', () async {
       //Create necessary information for creating a feedback
       final now = DateTime.now();
       final feedback = FeedbackModel(
@@ -834,7 +837,7 @@ void main() {
           .thenReturn(mockDocumentReference);
       when(mockDocumentReference.set(feedback.toJson()))
           .thenAnswer((_) async => {});
-     
+
       //Expect the addFeedback to return successfully
       expect(() => firestoreServices.addFeedback(feedback), returnsNormally);
       //Expect all necessary function to add a feedback to be called
@@ -862,12 +865,539 @@ void main() {
           .thenReturn(mockDocumentReference);
       when(mockDocumentReference.set(feedback.toJson()))
           .thenThrow(Exception('failed'));
-      
+
       //Expect a general exception to be caught
       expect(
           () => firestoreServices.addFeedback(feedback),
           throwsA(predicate((e) =>
-              e is AppException && e.toString().contains('add-feedback-error'))));
+              e is AppException &&
+              e.toString().contains('add-feedback-error'))));
+    });
+  });
+
+  group('getChatParticipants', () {
+    test('successfully retrieves chat participants', () async {
+      final snapshot1 = MockDocumentSnapshot<Map<String, dynamic>>();
+      final snapshot2 = MockDocumentSnapshot<Map<String, dynamic>>();
+      final reference1 = MockDocumentReference<Map<String, dynamic>>();
+      final reference2 = MockDocumentReference<Map<String, dynamic>>();
+
+      const String chatroomId = 'user1_user2';
+      final UserModel userOne = UserModel(
+        uid: 'user1',
+        username: 'testUser1',
+        email: 'user1@test.com',
+        isProfessional: false,
+      );
+      final UserModel userTwo = UserModel(
+        uid: 'user2',
+        username: 'testUser2',
+        email: 'user2@test.com',
+        isProfessional: true,
+      );
+
+      // Mock current user
+      when(mockRef.read(authServicesProvider)).thenReturn(mockAuthServices);
+      when(mockAuthServices.currentUserUid()).thenAnswer((_) async => 'user1');
+
+      // Mock getUser
+      when(mockFirebaseFirestore.collection(any))
+          .thenReturn(mockCollectionReference);
+      when(mockCollectionReference.doc('user1')).thenReturn(reference1);
+      when(mockCollectionReference.doc('user2')).thenReturn(reference2);
+      when(reference1.get()).thenAnswer((_) async => snapshot1);
+      when(reference2.get()).thenAnswer((_) async => snapshot2);
+      when(snapshot1.exists).thenReturn(true);
+      when(snapshot2.exists).thenReturn(true);
+      when(snapshot1.data()).thenReturn(userOne.toJson());
+      when(snapshot2.data()).thenReturn(userTwo.toJson());
+
+      final participants =
+          await firestoreServices.getChatParticipants(chatroomId);
+
+      expect(participants.length, 2);
+      expect(participants[0].uid, 'user1');
+      expect(participants[1].uid, 'user2');
+    });
+
+    test('throws get-user-error when current user is null', () async {
+      const String chatroomId = 'user1_user2';
+
+      // Mock current user
+      when(mockRef.read(authServicesProvider)).thenReturn(mockAuthServices);
+      when(mockAuthServices.currentUserUid()).thenAnswer((_) async => null);
+
+      expect(
+        () => firestoreServices.getChatParticipants(chatroomId),
+        throwsA(isA<AppException>().having(
+          (e) => e.code,
+          'code',
+          'no-user',
+        )),
+      );
+    });
+
+    test('throws get-user-error when other user is null', () async {
+      final snapshot1 = MockDocumentSnapshot<Map<String, dynamic>>();
+      final snapshot2 = MockDocumentSnapshot<Map<String, dynamic>>();
+      final reference1 = MockDocumentReference<Map<String, dynamic>>();
+      final reference2 = MockDocumentReference<Map<String, dynamic>>();
+      const String chatroomId = 'user1_user2';
+      final UserModel userOne = UserModel(
+        uid: 'user1',
+        username: 'testUser1',
+        email: 'user1@test.com',
+        isProfessional: false,
+      );
+
+      // Mock current user
+      when(mockRef.read(authServicesProvider)).thenReturn(mockAuthServices);
+      when(mockAuthServices.currentUserUid()).thenAnswer((_) async => 'user1');
+      when(mockFirebaseFirestore.collection(any))
+          .thenReturn(mockCollectionReference);
+      when(mockCollectionReference.doc('user1')).thenReturn(reference1);
+      when(mockCollectionReference.doc('user2')).thenReturn(reference2);
+      when(reference1.get()).thenAnswer((_) async => snapshot1);
+      when(reference2.get()).thenAnswer((_) async => snapshot2);
+      when(snapshot1.exists).thenReturn(true);
+      when(snapshot2.exists).thenReturn(false);
+      when(snapshot1.data()).thenReturn(userOne.toJson());
+
+      expect(
+        () => firestoreServices.getChatParticipants(chatroomId),
+        throwsA(isA<AppException>().having(
+          (e) => e.code,
+          'code',
+          'no-chat-participant',
+        )),
+      );
+    });
+  });
+
+  group('sendMessage', () {
+    test('successfully sends a message to an existing chatroom', () async {
+      const chatroomId = 'user1_user2';
+      final MessageModel messageModel = MessageModel(
+        senderId: 'user1',
+        recieverId: 'user2',
+        message: 'Test message',
+        timestamp: DateTime.now(),
+      );
+
+      // Mock Firestore collections and documents
+      when(mockFirebaseFirestore.collection('chatrooms'))
+          .thenReturn(mockCollectionReference);
+      when(mockCollectionReference.doc(chatroomId))
+          .thenReturn(mockDocumentReference);
+
+      // Mock document snapshot to simulate existing chatroom
+      when(mockDocumentReference.get())
+          .thenAnswer((_) async => mockDocumentSnapshot);
+      when(mockDocumentSnapshot.exists).thenReturn(true);
+
+      // Mock message collection
+      when(mockDocumentReference.collection('messages'))
+          .thenReturn(mockCollectionReference);
+      when(mockCollectionReference.add(messageModel.toJson()))
+          .thenAnswer((_) async => mockDocumentReference);
+      when(mockDocumentReference.update(any)).thenAnswer((_) async => {});
+
+      await expectLater(
+        firestoreServices.sendMessage(messageModel, chatroomId),
+        completes,
+      );
+    });
+
+    test('creates new chatroom when it does not exist', () async {
+      final snapshot1 = MockDocumentSnapshot<Map<String, dynamic>>();
+      final snapshot2 = MockDocumentSnapshot<Map<String, dynamic>>();
+      final reference1 = MockDocumentReference<Map<String, dynamic>>();
+      final reference2 = MockDocumentReference<Map<String, dynamic>>();
+      const String chatroomId = 'user1_user2';
+      final UserModel userOne = UserModel(
+        uid: 'user1',
+        username: 'testUser1',
+        email: 'user1@test.com',
+        isProfessional: false,
+      );
+      final UserModel userTwo = UserModel(
+        uid: 'user2',
+        username: 'testUser2',
+        email: 'user2@test.com',
+        isProfessional: true,
+      );
+      final MessageModel messageModel = MessageModel(
+        senderId: 'user1',
+        message: 'Test message',
+        timestamp: DateTime.now(),
+        recieverId: 'user2',
+      );
+
+      // Mock Firestore collections and documents
+      when(mockFirebaseFirestore.collection('chatrooms'))
+          .thenReturn(mockCollectionReference);
+      when(mockCollectionReference.doc(chatroomId))
+          .thenReturn(mockDocumentReference);
+
+      // Mock document snapshot to simulate non-existing chatroom
+      when(mockDocumentReference.get())
+          .thenAnswer((_) async => mockDocumentSnapshot);
+      when(mockDocumentSnapshot.exists).thenReturn(false);
+
+      //Mock call to getChatParticipants
+      when(mockRef.read(authServicesProvider)).thenReturn(mockAuthServices);
+      when(mockAuthServices.currentUserUid()).thenAnswer((_) async => 'user1');
+      when(mockFirebaseFirestore.collection(any))
+          .thenReturn(mockCollectionReference);
+      when(mockCollectionReference.doc('user1')).thenReturn(reference1);
+      when(mockCollectionReference.doc('user2')).thenReturn(reference2);
+      when(reference1.get()).thenAnswer((_) async => snapshot1);
+      when(reference2.get()).thenAnswer((_) async => snapshot2);
+      when(snapshot1.exists).thenReturn(true);
+      when(snapshot2.exists).thenReturn(true);
+      when(snapshot1.data()).thenReturn(userOne.toJson());
+      when(snapshot2.data()).thenReturn(userTwo.toJson());
+
+      // Mock message collection
+      when(mockDocumentReference.collection('messages'))
+          .thenReturn(mockCollectionReference);
+      when(mockCollectionReference.add(messageModel.toJson()))
+          .thenAnswer((_) async => mockDocumentReference);
+      when(mockDocumentReference.update(any)).thenAnswer((_) async => {});
+
+      await expectLater(
+        firestoreServices.sendMessage(messageModel, chatroomId),
+        completes,
+      );
+    });
+
+    test('throws send-message-error on general exception', () async {
+      const String chatroomId = 'user1_user2';
+      final MessageModel messageModel = MessageModel(
+        senderId: 'user1',
+        message: 'Test message',
+        timestamp: DateTime.now(),
+        recieverId: 'user2',
+      );
+
+      // Mock to throw a generic exception
+      when(mockFirebaseFirestore.collection('chatrooms'))
+          .thenThrow(Exception('Generic error'));
+
+      expect(
+        () => firestoreServices.sendMessage(messageModel, chatroomId),
+        throwsA(isA<AppException>().having(
+          (e) => e.code,
+          'code',
+          'send-message-error',
+        )),
+      );
+    });
+  });
+
+  group('getChatrooms', () {
+    test('returns list of chatrooms for a user', () async {
+      const String userId = 'user1';
+      final mockQueryDocumentSnapshot1 =
+          MockQueryDocumentSnapshot<Map<String, dynamic>>();
+      final mockQueryDocumentSnapshot2 =
+          MockQueryDocumentSnapshot<Map<String, dynamic>>();
+
+      // Mock Firestore query
+      when(mockFirebaseFirestore.collection('chatrooms'))
+          .thenReturn(mockCollectionReference);
+      when(mockCollectionReference.where('participantIds',
+              arrayContains: userId))
+          .thenReturn(mockQuery);
+      when(mockQuery.snapshots())
+          .thenAnswer((_) => Stream.fromIterable([mockQuerySnapshot]));
+
+      // Mock chatroom data
+      when(mockQuerySnapshot.docs).thenReturn([
+        mockQueryDocumentSnapshot1,
+        mockQueryDocumentSnapshot2,
+      ]);
+
+      final chatroom = ChatroomModel(
+          id: 'chatroom1',
+          participants: [
+            ChatParticipant(uid: 'uid', identifier: 'identifier'),
+            ChatParticipant(uid: 'uid', identifier: 'identifier')
+          ],
+          lastMessage: MessageModel(
+              senderId: 'senderId',
+              recieverId: 'recieverId',
+              message: 'message',
+              timestamp: DateTime.now()),
+          participantIds: ['uid', 'uid']);
+
+      when(mockQueryDocumentSnapshot1.data()).thenReturn(chatroom.toJson());
+      when(mockQueryDocumentSnapshot2.data()).thenReturn(chatroom.toJson());
+
+      final chatroomsStream = firestoreServices.getChatrooms(userId);
+
+      expect(
+        chatroomsStream,
+        emits(
+          allOf(
+            hasLength(2),
+            contains(isA<ChatroomModel>()),
+          ),
+        ),
+      );
+    });
+
+    test('throws get-chatrooms-error on exception', () async {
+      const String userId = 'user1';
+
+      // Mock to throw an exception
+      when(mockFirebaseFirestore.collection('chatrooms'))
+          .thenThrow(Exception('Generic error'));
+
+      expect(
+        () => firestoreServices.getChatrooms(userId),
+        throwsA(isA<AppException>().having(
+          (e) => e.code,
+          'code',
+          'get-chatrooms-error',
+        )),
+      );
+    });
+  });
+
+  group('getChatroomMessages', () {
+    test('returns stream of messages for a chatroom', () async {
+      const String chatroomId = 'user1_user2';
+      final mockQueryDocumentSnapshot1 =
+          MockQueryDocumentSnapshot<Map<String, dynamic>>();
+      final mockQueryDocumentSnapshot2 =
+          MockQueryDocumentSnapshot<Map<String, dynamic>>();
+
+      // Mock Firestore query
+      when(mockFirebaseFirestore.collection('chatrooms'))
+          .thenReturn(mockCollectionReference);
+      when(mockCollectionReference.doc(chatroomId))
+          .thenReturn(mockDocumentReference);
+
+      final mockMessagesCollection =
+          MockCollectionReference<Map<String, dynamic>>();
+      when(mockDocumentReference.collection('messages'))
+          .thenReturn(mockMessagesCollection);
+      when(mockMessagesCollection.orderBy('timestamp', descending: true))
+          .thenReturn(mockQuery);
+      when(mockQuery.limit(100)).thenReturn(mockQuery);
+      when(mockQuery.snapshots())
+          .thenAnswer((_) => Stream.fromIterable([mockQuerySnapshot]));
+
+      // Mock message data
+      when(mockQuerySnapshot.docs).thenReturn([
+        mockQueryDocumentSnapshot1,
+        mockQueryDocumentSnapshot2,
+      ]);
+
+      final message1 = MessageModel(
+          senderId: 'user1',
+          recieverId: 'user2',
+          message: 'Hello',
+          timestamp: DateTime.now());
+      final message2 = MessageModel(
+          senderId: 'user2',
+          recieverId: 'user1',
+          message: 'Hi there!',
+          timestamp: DateTime.now());
+
+      when(mockQueryDocumentSnapshot1.data()).thenReturn(message1.toJson());
+      when(mockQueryDocumentSnapshot2.data()).thenReturn(message2.toJson());
+
+      final messagesStream = firestoreServices.getChatroomMessages(chatroomId);
+
+      await expectLater(
+        messagesStream,
+        emits(
+          allOf(
+            hasLength(2),
+            contains(isA<MessageModel>()),
+          ),
+        ),
+      );
+    });
+
+    test('throws get-messages-error on exception', () async {
+      const String chatroomId = 'user1_user2';
+
+      // Mock to throw an exception
+      when(mockFirebaseFirestore.collection('chatrooms'))
+          .thenThrow(Exception('Generic error'));
+
+      expect(
+        () => firestoreServices.getChatroomMessages(chatroomId),
+        throwsA(isA<AppException>().having(
+          (e) => e.code,
+          'code',
+          'get-messages-error',
+        )),
+      );
+    });
+  });
+
+  group('updateChatroomParticipant', () {
+    test('successfully updates participant info', () async {
+      const String uid = 'user1';
+      final UserModel updatedUser = UserModel(
+        uid: uid,
+        username: 'updatedUsername',
+        email: 'updated@test.com',
+        isProfessional: true,
+      );
+
+      // Mock current user retrieval
+      when(mockRef.read(authServicesProvider)).thenReturn(mockAuthServices);
+      when(mockAuthServices.currentUserUid()).thenAnswer((_) async => uid);
+
+      when(mockFirebaseFirestore.collection(any))
+          .thenReturn(mockCollectionReference);
+      when(mockCollectionReference.doc(any)).thenReturn(mockDocumentReference);
+      when(mockRef.read(authServicesProvider)).thenReturn(mockAuthServices);
+      when(mockAuthServices.currentUserUid())
+          .thenAnswer((_) => Future.value(uid));
+      when(mockDocumentReference.get())
+          .thenAnswer((_) async => mockDocumentSnapshot);
+      when(mockDocumentSnapshot.exists).thenReturn(true);
+      when(mockDocumentSnapshot.data()).thenReturn(updatedUser.toJson());
+
+      when(mockFirebaseFirestore.collection('chatrooms'))
+          .thenReturn(mockCollectionReference);
+      when(mockCollectionReference.where('participantIds', arrayContains: uid))
+          .thenReturn(mockQuery);
+      when(mockQuery.get()).thenAnswer((_) async => mockQuerySnapshot);
+      final mockChatroomDoc1 =
+          MockQueryDocumentSnapshot<Map<String, dynamic>>();
+      final mockChatroomDoc2 =
+          MockQueryDocumentSnapshot<Map<String, dynamic>>();
+      when(mockQuerySnapshot.docs)
+          .thenReturn([mockChatroomDoc1, mockChatroomDoc2]);
+      final chatroom1 = ChatroomModel(
+          id: 'user1_user2',
+          participants: [
+            ChatParticipant(uid: 'user1', identifier: 'user 1'),
+            ChatParticipant(uid: 'user2', identifier: 'user2')
+          ],
+          lastMessage: MessageModel(
+              senderId: 'senderId',
+              recieverId: 'recieverId',
+              message: 'message',
+              timestamp: DateTime.now()),
+          participantIds: ['user1', 'user2']);
+      final chatroom2 = ChatroomModel(
+          id: 'user1_user3',
+          participants: [
+            ChatParticipant(uid: 'user1', identifier: 'user 1'),
+            ChatParticipant(uid: 'user3', identifier: 'user3')
+          ],
+          lastMessage: MessageModel(
+              senderId: 'senderId',
+              recieverId: 'recieverId',
+              message: 'message',
+              timestamp: DateTime.now()),
+          participantIds: ['user1', 'user3']);
+      when(mockChatroomDoc1.data()).thenReturn(chatroom1.toJson());
+      when(mockChatroomDoc2.data()).thenReturn(chatroom2.toJson());
+      final docReference1 = MockDocumentReference<Map<String, dynamic>>();
+      final docReference2 = MockDocumentReference<Map<String, dynamic>>();
+      when(mockChatroomDoc1.reference).thenReturn(docReference1);
+      when(mockChatroomDoc2.reference).thenReturn(docReference2);
+
+      when(docReference1.update(any)).thenAnswer((_) async => Future.value());
+      when(docReference1.update(any)).thenAnswer((_) async => Future.value());
+
+      expectLater(firestoreServices.updateChatroomParticipant(), completes);
+    });
+
+    test('throws error when getUser fails', () async {
+      when(mockRef.read(authServicesProvider)).thenReturn(mockAuthServices);
+      when(mockAuthServices.currentUserUid()).thenAnswer((_) async => null);
+
+      // Mock getUser failing
+
+      expect(
+          () => firestoreServices.updateChatroomParticipant(),
+          throwsA(isA<AppException>()
+              .having((e) => e.code, 'error code', 'no-user')));
+    });
+
+    test('throws update-chatroom-participant-error when update fails',
+        () async {
+      const String uid = 'user1';
+      final UserModel updatedUser = UserModel(
+        uid: uid,
+        username: 'updatedUsername',
+        email: 'updated@test.com',
+        isProfessional: true,
+      );
+
+      // Mock current user retrieval
+      when(mockRef.read(authServicesProvider)).thenReturn(mockAuthServices);
+      when(mockAuthServices.currentUserUid()).thenAnswer((_) async => uid);
+
+      when(mockFirebaseFirestore.collection(any))
+          .thenReturn(mockCollectionReference);
+      when(mockCollectionReference.doc(any)).thenReturn(mockDocumentReference);
+      when(mockRef.read(authServicesProvider)).thenReturn(mockAuthServices);
+      when(mockAuthServices.currentUserUid())
+          .thenAnswer((_) => Future.value(uid));
+      when(mockDocumentReference.get())
+          .thenAnswer((_) async => mockDocumentSnapshot);
+      when(mockDocumentSnapshot.exists).thenReturn(true);
+      when(mockDocumentSnapshot.data()).thenReturn(updatedUser.toJson());
+
+      when(mockFirebaseFirestore.collection('chatrooms'))
+          .thenReturn(mockCollectionReference);
+      when(mockCollectionReference.where('participantIds', arrayContains: uid))
+          .thenReturn(mockQuery);
+      when(mockQuery.get()).thenAnswer((_) async => mockQuerySnapshot);
+      final mockChatroomDoc1 =
+          MockQueryDocumentSnapshot<Map<String, dynamic>>();
+      final mockChatroomDoc2 =
+          MockQueryDocumentSnapshot<Map<String, dynamic>>();
+      when(mockQuerySnapshot.docs)
+          .thenReturn([mockChatroomDoc1, mockChatroomDoc2]);
+      final chatroom1 = ChatroomModel(
+          id: 'user1_user2',
+          participants: [
+            ChatParticipant(uid: 'user1', identifier: 'user 1'),
+            ChatParticipant(uid: 'user2', identifier: 'user2')
+          ],
+          lastMessage: MessageModel(
+              senderId: 'senderId',
+              recieverId: 'recieverId',
+              message: 'message',
+              timestamp: DateTime.now()),
+          participantIds: ['user1', 'user2']);
+      final chatroom2 = ChatroomModel(
+          id: 'user1_user3',
+          participants: [
+            ChatParticipant(uid: 'user1', identifier: 'user 1'),
+            ChatParticipant(uid: 'user3', identifier: 'user3')
+          ],
+          lastMessage: MessageModel(
+              senderId: 'senderId',
+              recieverId: 'recieverId',
+              message: 'message',
+              timestamp: DateTime.now()),
+          participantIds: ['user1', 'user3']);
+      when(mockChatroomDoc1.data()).thenReturn(chatroom1.toJson());
+      when(mockChatroomDoc2.data()).thenReturn(chatroom2.toJson());
+      final docReference1 = MockDocumentReference<Map<String, dynamic>>();
+      final docReference2 = MockDocumentReference<Map<String, dynamic>>();
+      when(mockChatroomDoc1.reference).thenReturn(docReference1);
+      when(mockChatroomDoc2.reference).thenReturn(docReference2);
+
+      when(docReference1.update(any)).thenThrow(Exception('error'));
+
+      expectLater(
+          firestoreServices.updateChatroomParticipant(),
+          throwsA(isA<AppException>().having(
+              (e) => e.code, 'error', 'update-chatroom-participant-error')));
     });
   });
 }

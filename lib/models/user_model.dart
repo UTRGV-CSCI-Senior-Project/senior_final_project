@@ -10,6 +10,7 @@ class UserModel {
   final bool _isEmailVerified;
   final String? _phoneNumber;
   final bool _isPhoneVerified;
+  final List<String>? _fcmTokens;
 
   UserModel(
       {required String uid,
@@ -20,6 +21,7 @@ class UserModel {
       bool completedOnboarding = false,
       List<String> preferredServices = const [],
       String? profilePictureUrl,
+    List<String>? fcmTokens,
       bool isEmailVerified = false,
       String? phoneNumber,
       bool isPhoneVerified = false})
@@ -31,6 +33,7 @@ class UserModel {
         _completedOnboarding = completedOnboarding,
         _preferredServices = preferredServices,
         _profilePictureUrl = profilePictureUrl,
+        _fcmTokens = fcmTokens,
         _isEmailVerified = isEmailVerified,
         _phoneNumber = phoneNumber,
         _isPhoneVerified = isPhoneVerified {
@@ -56,7 +59,7 @@ class UserModel {
   bool get isEmailVerified => _isEmailVerified;
   String? get phoneNumber => _phoneNumber;
   bool get isPhoneVerified => _isPhoneVerified;
-
+  List<String>? get fcmTokens => _fcmTokens;
   toJson() {
     return {
       "uid": uid,
@@ -68,8 +71,9 @@ class UserModel {
       "preferredServices": preferredServices,
       "profilePictureUrl": profilePictureUrl,
       "isEmailVerified": isEmailVerified,
+      "isPhoneVerified": isPhoneVerified,
       "phoneNumber": phoneNumber,
-      "isPhoneVerified": isPhoneVerified
+      "fcmTokens": fcmTokens
     };
   }
 
@@ -101,6 +105,9 @@ class UserModel {
         profilePictureUrl: json['profilePictureUrl'] as String?,
         isEmailVerified: json['isEmailVerified'] ?? false,
         phoneNumber: json['phoneNumber'] as String?,
-        isPhoneVerified: json['isPhoneVerified'] ?? false);
+        isPhoneVerified: json['isPhoneVerified'] ?? false,
+        fcmTokens: (json['fcmTokens'] as List?)?.map((e) => e.toString()).toList()
+        );
+      
   }
 }

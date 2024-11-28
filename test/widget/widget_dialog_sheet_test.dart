@@ -2,20 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:folio/core/service_locator.dart';
+import 'package:folio/models/messaging_models/chat_participant_model.dart';
+import 'package:folio/models/messaging_models/chatroom_model.dart';
+import 'package:folio/models/messaging_models/message_model.dart';
 import 'package:folio/models/user_model.dart';
+import 'package:folio/views/home/chatroom_screen.dart';
 import 'package:folio/widgets/account_item_widget.dart';
+import 'package:folio/widgets/chatroom_tile_widget.dart';
 import 'package:folio/widgets/delete_account_dialog.dart';
 import 'package:folio/widgets/edit_profile_sheet.dart';
 import 'package:folio/widgets/email_verification_dialog.dart';
 import 'package:folio/widgets/error_widget.dart';
 import 'package:folio/widgets/input_field_widget.dart';
 import 'package:folio/widgets/logout_dialog.dart';
+import 'package:folio/widgets/message_tile_widget.dart';
 import 'package:folio/widgets/service_selection_widget.dart';
 import 'package:folio/widgets/settings_item_widget.dart';
 import 'package:folio/widgets/update_email_dialog.dart';
 import 'package:folio/widgets/verify_password_dialog.dart';
 import 'package:mockito/mockito.dart';
 
+import '../mocks/inbox_tab_test.mocks.dart';
 import '../mocks/login_screen_test.mocks.dart';
 import '../mocks/onboarding_screen_test.mocks.dart';
 import '../mocks/user_repository_test.mocks.dart';
@@ -28,12 +35,14 @@ void main() {
   late MockImagePicker mockImagePicker;
   late MockFirestoreServices mockFirestoreServices;
   late ProviderContainer container;
+  late MockMessageRepository mockMessageRepository;
 
   setUp(() {
     mockBuildContext = MockBuildContext();
     mockUserRepository = MockUserRepository();
     mockImagePicker = MockImagePicker();
     mockFirestoreServices = MockFirestoreServices();
+    mockMessageRepository = MockMessageRepository();
     container = ProviderContainer(
       overrides: [
         imagePickerProvider.overrideWithValue(mockImagePicker),
@@ -772,5 +781,160 @@ void main() {
       // Ensure the dialog is removed from the widget tree
       expect(find.byType(AlertDialog), findsNothing);
     });
+  });
+
+  group('ChatRoomTile', () {
+    testWidgets(
+      'displays correct participant info, last message, and timestamp',
+      (WidgetTester tester) async {
+        final mockChatroom = ChatroomModel(
+            id: 'user1_user2',
+            participants: [
+              ChatParticipant(uid: 'user1', identifier: 'User One'),
+              ChatParticipant(uid: 'user2', identifier: 'User Two')
+            ],
+            lastMessage: MessageModel(
+                senderId: 'user1',
+                recieverId: 'user2',
+                message: 'Hello, do you have any appointments?',
+                timestamp: DateTime.now()),
+            participantIds: ['user1', 'user2']);
+
+        await tester.pumpWidget(
+          ProviderScope(
+            child: MaterialApp(
+              home: Scaffold(
+                body: ChatRoomTile(
+                    chatroom: mockChatroom,
+                    currentUserId: 'user1',
+                    senderName: 'User One'),
+              ),
+            ),
+          ),
+        );
+
+        expect(find.text('User Two'), findsOneWidget);
+        expect(
+            find.text('Hello, do you have any appointments?'), findsOneWidget);
+
+        final avatar = find.byType(CircleAvatar);
+        expect(avatar, findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'navigates to ChatroomScreen on tap',
+      (WidgetTester tester) async {
+        final mockChatroom = ChatroomModel(
+            id: 'user1_user2',
+            participants: [
+              ChatParticipant(uid: 'user1', identifier: 'User One'),
+              ChatParticipant(uid: 'user2', identifier: 'User Two')
+            ],
+            lastMessage: MessageModel(
+                senderId: 'user1',
+                recieverId: 'user2',
+                message: 'Hello, do you have any appointments?',
+                timestamp: DateTime.now()),
+            participantIds: ['user1', 'user2']);
+
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              messageRepositoryProvider.overrideWithValue(mockMessageRepository)
+            ],
+            child: MaterialApp(
+              home: Scaffold(
+                body: ChatRoomTile(
+                    chatroom: mockChatroom,
+                    currentUserId: 'user1',
+                    senderName: 'User One'),
+              ),
+            ),
+          ),
+        );
+
+        when(mockMessageRepository.getChatroomMessages('user1_user2'))
+            .thenAnswer((_) => Stream.value([
+                  MessageModel(
+                      senderId: 'user1',
+                      recieverId: 'user2',
+                      message: 'Hello, do you have any appointments?',
+                      timestamp: DateTime.now())
+                ]));
+
+        await tester.tap(find.byType(ListTile));
+        await tester.pumpAndSettle();
+
+        expect(find.byType(ChatroomScreen), findsOneWidget);
+        expect(find.text('User Two'), findsOneWidget);
+        expect(
+            find.text('Hello, do you have any appointments?'), findsOneWidget);
+      },
+    );
+  });
+
+  group('MessageTile', () {
+    testWidgets(
+        'displays message and timestamp with correct alignment if current user sent it',
+        (WidgetTester tester) async {
+      final mockMessage = MessageModel(
+        message: 'Hello, how are you?',
+        senderId: 'user1',
+        timestamp: DateTime(2024, 11, 26, 14, 30),
+        recieverId: 'user2',
+      );
+
+      await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+          body: MessageTile(
+            message: mockMessage,
+            otherUserId: 'user2',
+          ),
+        ),
+      ));
+
+      expect(find.text('Hello, how are you?'), findsOneWidget);
+      expect(find.text('11/26/24 2:30'), findsOneWidget);
+
+      // Check alignment
+      final align = tester.widget<Align>(find.byType(Align));
+      expect(align.alignment, Alignment.centerRight);
+
+    });
+
+    testWidgets(
+      'displays message and timestamp with correct alignment if other user sent it',
+      (WidgetTester tester) async {
+        final mockMessage = MessageModel(
+          message: 'Im good',
+          senderId: 'user2',
+          timestamp: DateTime(2024, 11, 26, 14, 45),
+          recieverId: 'user1',
+        );
+
+        await tester.pumpWidget(MaterialApp(
+          home: Scaffold(
+            body: MessageTile(
+              message: mockMessage,
+              otherUserId: 'user2',
+            ),
+          ),
+        ));
+
+        expect(find.text('Im good'), findsOneWidget);
+        expect(find.text('11/26/24 2:45'), findsOneWidget);
+
+        // Check alignment
+        final align = tester.widget<Align>(find.byType(Align));
+        expect(align.alignment, Alignment.centerLeft);
+
+        final container = tester.widget<Container>(find.byType(Container));
+      final decoration = container.decoration as BoxDecoration;
+
+      // Check color
+      expect(decoration.color, Colors.grey[600]);
+      },
+    );
   });
 }

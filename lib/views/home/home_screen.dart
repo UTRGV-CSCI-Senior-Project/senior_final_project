@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:folio/core/app_exception.dart';
 import 'package:folio/core/service_locator.dart';
+import 'package:folio/views/home/inbox_tab.dart';
 import 'package:folio/views/home/profile_tab.dart';
 import 'package:folio/views/auth_onboarding_welcome/loading_screen.dart';
 import 'package:folio/views/auth_onboarding_welcome/onboarding_screen.dart';
@@ -29,13 +30,16 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
     Timer? _emailCheckTimer;
+    bool _isInitializingNotifications = false;
 
   @override
   void initState() {
     super.initState();
-    // Move dialog check to initState
    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      // Add slight delay to ensure state is properly initialized
+    try{
+      _initializeMessaging();
+    }catch(e){
+    }
       _emailCheckTimer = Timer(const Duration(milliseconds: 100), () {
         if (mounted) {
           _checkAndShowEmailVerification();
@@ -76,6 +80,21 @@ void _checkAndShowEmailVerification() {
         );
       }
     });
+  }
+
+  Future<void> _initializeMessaging() async {
+    // Only initialize if not already in progress
+    if (_isInitializingNotifications) return;
+    _isInitializingNotifications = true;
+
+    try {
+      final messagingService = ref.read(cloudMessagingServicesProvider);
+      await messagingService.initNotifications();
+    } catch (e) {
+      return;
+    } finally {
+      _isInitializingNotifications = false;
+    }
   }
 
 
@@ -206,8 +225,7 @@ void _checkAndShowEmailVerification() {
                 children: [
                   HomeTab(userModel: userModel),
                   const DiscoverTab(),
-                  EditProfile(
-                      userModel: userModel, portfolioModel: userPortfolio),
+                  InboxTab(userModel: userModel),
                   EditProfile(
                       userModel: userModel, portfolioModel: userPortfolio),
                 ],
@@ -223,7 +241,7 @@ void _checkAndShowEmailVerification() {
                   NavigationDestination(
                     key: const Key('home-button'),
                     icon: const Icon(
-                      Icons.home,
+                      Icons.home_outlined,
                       size: 25,
                     ),
                     selectedIcon: Icon(Icons.home,
@@ -232,22 +250,21 @@ void _checkAndShowEmailVerification() {
                   ),
                   NavigationDestination(
                     key: const Key('discover-button'),
-                    icon: const Icon(Icons.explore, size: 25),
+                    icon: const Icon(Icons.explore_outlined, size: 25),
                     selectedIcon: Icon(Icons.explore,
                         color: Theme.of(context).colorScheme.primary, size: 30),
                     label: 'Discover',
                   ),
                   NavigationDestination(
                     key: const Key('inbox-button'),
-                    icon: const Icon(Icons.bookmark_border, size: 25),
-                    enabled: false,
-                    selectedIcon: Icon(Icons.bookmark_border,
+                    icon: const Icon(Icons.email_outlined, size: 25),
+                    selectedIcon: Icon(Icons.email,
                         color: Theme.of(context).colorScheme.primary, size: 30),
                     label: 'Inbox',
                   ),
                   NavigationDestination(
                     key: const Key('profile-button'),
-                    icon: const Icon(Icons.person, size: 25),
+                    icon: const Icon(Icons.person_outline, size: 25),
                     selectedIcon: Icon(Icons.person,
                         color: Theme.of(context).colorScheme.primary, size: 30),
                     label: 'Profile',

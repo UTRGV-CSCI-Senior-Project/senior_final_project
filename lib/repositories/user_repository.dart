@@ -5,6 +5,7 @@ import 'package:folio/core/app_exception.dart';
 import 'package:folio/core/service_locator.dart';
 import 'package:folio/models/user_model.dart';
 import 'package:folio/services/auth_services.dart';
+import 'package:folio/services/cloud_messaging_services.dart';
 import 'package:folio/services/firestore_services.dart';
 import 'package:folio/services/storage_services.dart';
 
@@ -12,11 +13,11 @@ class UserRepository {
   final AuthServices _authServices;
   final FirestoreServices _firestoreServices;
   final StorageServices _storageServices;
+  final CloudMessagingServices _cloudMessagingServices;
   final Ref _ref;
 
-
-  UserRepository(this._authServices, this._firestoreServices,
-      this._storageServices, this._ref);
+  UserRepository(
+      this._authServices, this._firestoreServices, this._storageServices, this._ref, this._cloudMessagingServices);
 
   Future<void> createUser(
       String username, String email, String password) async {
@@ -74,6 +75,12 @@ class UserRepository {
   }
 
   Future<void> signOut() async {
+    try{
+      await _cloudMessagingServices.removeToken();
+    }catch(e){
+      
+    }
+
     try {
       await _authServices.signOut();
     } catch (e) {

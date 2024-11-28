@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:folio/views/home/profile_tab.dart';
+import 'package:folio/widgets/chatroom_tile_widget.dart';
 import 'package:folio/widgets/email_verification_dialog.dart';
+import 'package:folio/widgets/message_tile_widget.dart';
 import 'package:folio/widgets/sms_code_dialog.dart';
 import 'package:network_image_mock/network_image_mock.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -102,6 +104,7 @@ void main() {
   final dialogButton = find.byKey(const Key('dialog-button'));
   final feedbackButton = find.byKey(const Key('submit-feedback-button'));
   final noVerificationButton = find.byKey(const Key('no-verification-button'));
+  final inboxTabButton = find.byKey(const Key('inbox-button'));
 ////////////////////////////////////////////////////////////////////////
 
 //////////////////////// Set Up and Tear Down //////////////////////////
@@ -829,6 +832,45 @@ void main() {
         expect(find.text('+15555550000'), findsOneWidget);
         await container.read(authServicesProvider).signOut();
       });
+
+      testWidgets(
+        'As an existing user I can sign in, go to the inbox tab, see my existing message threads, and send a message',
+        (WidgetTester tester) async {
+      await mockNetworkImagesFor(() async {
+        //Navigate to sign up screen
+        await navigateToLogInScreen(tester);
+
+        //Sign In with the correct credentials
+        await tester.enterText(emailField, 'fourthUser@email.com');
+        await tester.enterText(passwordField, '123456');
+        FocusManager.instance.primaryFocus?.unfocus();
+
+        //Tap Sign In and wait
+        final scrollable = find.byType(Scrollable);
+        await tester.scrollUntilVisible(
+            signInButton, 500.0, // Scroll amount per attempt
+            scrollable: scrollable.first);
+        await tester.tap(signInButton);
+        await tester.pumpAndSettle(const Duration(seconds: 5));
+
+        //Expect to see home screen with user's full name.
+        expect(find.textContaining('Fourth User'), findsOneWidget);
+
+        await tester.tap(inboxTabButton);
+        await tester.pumpAndSettle(const Duration(seconds: 5));
+        expect(find.text('Messages'), findsOneWidget);
+        expect(find.text('First User'), findsOneWidget);
+
+        await tester.tap(find.byType(ChatRoomTile));
+        await tester.pumpAndSettle(const Duration(seconds: 3));
+        expect(find.text('Hello, I like your work!'), findsOneWidget);
+        await tester.enterText(find.byKey(const Key('message-field')), 'Do you have any appointments soon?');
+        await tester.tap(find.byKey(const Key('send-message-button')));
+        await tester.pumpAndSettle(const Duration(seconds: 10));
+        expect(find.byType(MessageTile), findsExactly(2));
+        await container.read(authServicesProvider).signOut();
+      });
+    });
   });
 
   /////////////////////////////////////////////// HAPPY PATHS //////////////////////////////////////////////////////////////////////

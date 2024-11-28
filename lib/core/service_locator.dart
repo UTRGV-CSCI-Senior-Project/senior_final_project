@@ -1,12 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:folio/models/messaging_models/chatroom_model.dart';
 import 'package:folio/models/user_model.dart';
 import 'package:folio/repositories/feedback_repository.dart';
+import 'package:folio/repositories/message_repository.dart';
 import 'package:folio/repositories/portfolio_repository.dart';
 import 'package:folio/repositories/user_repository.dart';
 import 'package:folio/services/auth_services.dart';
+import 'package:folio/services/cloud_messaging_services.dart';
 import 'package:folio/services/firestore_services.dart';
 import 'package:folio/services/storage_services.dart';
 import 'package:image_picker/image_picker.dart';
@@ -32,6 +37,14 @@ final firebaseStorageProvider = Provider<FirebaseStorage>((ref) {
   return FirebaseStorage.instance;
 });
 
+final firebaseFunctions = Provider<FirebaseFunctions>((ref) {
+  return FirebaseFunctions.instance;
+});
+
+final firebaseMessaging = Provider<FirebaseMessaging>((ref) {
+  return FirebaseMessaging.instance;
+});
+
 ////////////////// FIREBASE SERVICES //////////////////
 
 ////////////////// SERVICE FILES //////////////////
@@ -51,6 +64,14 @@ final storageServicesProvider = Provider<StorageServices>((ref) {
   return StorageServices(ref, firebaseStorage);
 });
 
+final cloudMessagingServicesProvider = Provider<CloudMessagingServices>((ref) {
+  final firestoreServices = ref.read(firestoreServicesProvider);
+  final firebaseMessaging = FirebaseMessaging.instance;
+  final firebaseFunctions = FirebaseFunctions.instance;
+
+  return CloudMessagingServices(firebaseMessaging, firestoreServices, firebaseFunctions);
+});
+
 ////////////////// SERVICE FILES //////////////////
 
 ////////////////// REPOSITORIES //////////////////
@@ -59,10 +80,9 @@ final userRepositoryProvider = Provider<UserRepository>((ref) {
   final authServices = ref.watch(authServicesProvider);
   final firestoreServices = ref.watch(firestoreServicesProvider);
   final storageServices = ref.watch(storageServicesProvider);
-  final repository =
-      UserRepository(authServices, firestoreServices, storageServices, ref);
-
-  return repository;
+  final cloudMessagingServices = ref.watch(cloudMessagingServicesProvider);
+  return UserRepository(authServices, firestoreServices, storageServices, ref,
+      cloudMessagingServices);
 });
 
 final portfolioRepositoryProvider = Provider<PortfolioRepository>((ref) {
@@ -76,9 +96,16 @@ final feedbackRepositoryProvider = Provider<FeedbackRepository>((ref) {
   return FeedbackRepository(firestoreServices);
 });
 
+final messageRepositoryProvider = Provider<MessageRepository>((ref) {
+  final firestoreServices = ref.watch(firestoreServicesProvider);
+  final authServices = ref.watch(authServicesProvider);
+  final cloudMessagingServices = ref.watch(cloudMessagingServicesProvider);
+  return MessageRepository(firestoreServices, authServices, cloudMessagingServices);
+});
+
 ////////////////// REPOSITORIES //////////////////
 
-////////////////// USER STREAMS //////////////////
+////////////////// STREAMS //////////////////
 
 final authStateProvider = StreamProvider<User?>((ref) {
   return ref.watch(authServicesProvider).authStateChanges();
@@ -131,7 +158,18 @@ final emailVerificationStreamProvider = StreamProvider<bool>((ref) async* {
   }
 });
 
-////////////////// USER STREAMS //////////////////
+final chatroomStreamProvider = StreamProvider<List<ChatroomModel>>((ref) {
+  final authState = ref.watch(authStateProvider).value;
+
+  if (authState != null) {
+    final firestoreServices = ref.read(firestoreServicesProvider);
+    return firestoreServices.getChatrooms(authState.uid);
+  } else {
+    return Stream.value([]);
+  }
+});
+
+////////////////// STREAMS //////////////////
 
 void setupEmulators({bool useEmulators = false}) {
   if (useEmulators) {
@@ -139,6 +177,8 @@ void setupEmulators({bool useEmulators = false}) {
       FirebaseAuth.instance.useAuthEmulator('127.0.0.1', 9099);
       FirebaseFirestore.instance.useFirestoreEmulator('127.0.0.1', 8080);
       FirebaseStorage.instance.useStorageEmulator('127.0.0.1', 9199);
+      FirebaseFunctions.instance.useFunctionsEmulator('127.0.0.1', 5001);
+      FirebaseMessaging.instance.setAutoInitEnabled(false);
       // Add other emulators as needed
 
       developer.log(

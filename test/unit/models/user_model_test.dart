@@ -14,7 +14,8 @@ void main() {
         isProfessional: true,
         completedOnboarding: true,
         preferredServices: ['Barber', 'Nail Tech'],
-        profilePictureUrl: 'imageurl.com'
+        profilePictureUrl: 'imageurl.com',
+        fcmTokens: ['token1', 'token2']
       );
 
       //Expect the user to have all the correct information
@@ -26,6 +27,8 @@ void main() {
       expect(user.completedOnboarding, true);
       expect(user.preferredServices, ['Barber', 'Nail Tech']);
       expect(user.profilePictureUrl, 'imageurl.com');
+      expect(user.fcmTokens, ['token1', 'token2']);
+
     });
 
     test('throws an error when uid is empty', () {
@@ -74,7 +77,9 @@ void main() {
         fullName: 'Test User',
         email: 'test@example.com',
         isProfessional: true,
-        completedOnboarding: true
+        completedOnboarding: true,
+        fcmTokens: ['token1', 'token2']
+
       );
 
       //Check that the toJson returns the correct JSON
@@ -90,6 +95,7 @@ void main() {
       expect(json['isEmailVerified'], false);
       expect(json['phoneNumber'], null);
       expect(json['isPhoneVerified'], false);
+      expect(json['fcmTokens'], ['token1', 'token2']);
     });
   });
 
@@ -102,6 +108,7 @@ void main() {
         'isProfessional': true,
         'completedOnboarding': false,
         'preferredServices': ['Barber'],
+        'fcmTokens': ['token1', 'token2']
       };
 
       final user = UserModel.fromJson(jsonUser);
@@ -117,6 +124,7 @@ void main() {
       expect(user.isEmailVerified, false);
       expect(user.phoneNumber, null);
       expect(user.isPhoneVerified, false);
+      expect(user.fcmTokens, ['token1', 'token2']);
     });
 
     test('should return a valid user model with a fullName', () {
@@ -141,6 +149,7 @@ void main() {
       expect(user.isEmailVerified, false);
       expect(user.phoneNumber, null);
       expect(user.isPhoneVerified, false);
+      expect(user.fcmTokens, null);
     });
 
     test('should throw an error when uid is missing', () {
@@ -180,4 +189,6 @@ void main() {
           throwsArgumentError);
     });
   });
+
+  
 }
