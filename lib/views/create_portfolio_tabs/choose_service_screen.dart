@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:folio/core/service_locator.dart';
@@ -8,10 +10,15 @@ import 'package:google_fonts/google_fonts.dart';
 class ChooseService extends ConsumerStatefulWidget {
   final String initialService;
   final Function(String) onServiceSelected;
-  final String? title; 
+  final String? title;
   final String? subTitle;
 
-  const ChooseService({super.key, required this.onServiceSelected, this.initialService = "", this.title, this.subTitle});
+  const ChooseService(
+      {super.key,
+      required this.onServiceSelected,
+      this.initialService = "",
+      this.title,
+      this.subTitle});
 
   @override
   ConsumerState<ChooseService> createState() => _ChooseServiceState();
@@ -19,7 +26,8 @@ class ChooseService extends ConsumerStatefulWidget {
 
 class _ChooseServiceState extends ConsumerState<ChooseService> {
   final serviceType = TextEditingController();
-  String? selectedService; // Track the selected service
+  String? selectedService;
+  late List<String> allServices = [];
   late List<String> services = [];
   final searchController = TextEditingController();
   bool _isLoading = true;
@@ -28,11 +36,13 @@ class _ChooseServiceState extends ConsumerState<ChooseService> {
   void initState() {
     super.initState();
     loadServices();
+    searchController.addListener(_filterServices);
   }
 
   @override
   void dispose() {
     serviceType.dispose();
+    searchController.removeListener(_filterServices);
     searchController.dispose();
     super.dispose();
   }
@@ -42,10 +52,12 @@ class _ChooseServiceState extends ConsumerState<ChooseService> {
       final firestoreServices = ref.read(firestoreServicesProvider);
       final fetchedServices = await firestoreServices.getServices();
       setState(() {
-        services = fetchedServices;
+        allServices = fetchedServices;
+        services = allServices;
       });
     } catch (e) {
       setState(() {
+        allServices = [];
         services = [];
       });
     } finally {
@@ -53,6 +65,19 @@ class _ChooseServiceState extends ConsumerState<ChooseService> {
         _isLoading = false;
       });
     }
+  }
+
+  void _filterServices() {
+    final query = searchController.text.toLowerCase().trim();
+    setState(() {
+      if (query.isEmpty) {
+        services = allServices;
+      } else {
+        services = allServices
+            .where((service) => service.toLowerCase().contains(query))
+            .toList();
+      }
+    });
   }
 
   @override
@@ -75,12 +100,12 @@ class _ChooseServiceState extends ConsumerState<ChooseService> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(widget.title ??
-          "Let's get your profile ready!",
+        Text(
+          widget.title ?? "Let's get your profile ready!",
           style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.w500),
         ),
-        Text(widget.subTitle ??
-          'What service do you offer?',
+        Text(
+          widget.subTitle ?? 'What service do you offer?',
           style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w300),
         ),
         Container(
@@ -114,7 +139,9 @@ class _ChooseServiceState extends ConsumerState<ChooseService> {
         Expanded(
             child: ServiceSelectionWidget(
           services: services,
-          initialSelectedServices: widget.initialService.isNotEmpty ? {widget.initialService: true} : {},
+          initialSelectedServices: widget.initialService.isNotEmpty
+              ? {widget.initialService: true}
+              : {},
           onServicesSelected: (service) {
             // Find the selected service (there should only be one)
             setState(() {
@@ -131,5 +158,14 @@ class _ChooseServiceState extends ConsumerState<ChooseService> {
         )),
       ],
     );
+  }
+
+  String capitalizeEachWord(String text) {
+    return text
+        .split(' ')
+        .map((word) => word.isNotEmpty
+            ? word[0].toUpperCase() + word.substring(1).toLowerCase()
+            : '')
+        .join(' ');
   }
 }
