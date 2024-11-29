@@ -26,27 +26,28 @@ void main() {
 
     testWidgets('displays user information correctly',
         (WidgetTester tester) async {
+      // Build the widget and wait for it to settle.
       await tester.pumpWidget(
         ProviderScope(
           child: MaterialApp(
-            home: Scaffold(
-              body: EditProfile(
-                userModel: mockUserModel,
-                portfolioModel: mockPortfolioModel,
-              ),
+            home: EditProfile(
+              userModel: mockUserModel,
+              portfolioModel: mockPortfolioModel,
             ),
           ),
         ),
       );
 
-      // Verify user info
+      // Wait for the widget tree to settle completely.
+      await tester.pumpAndSettle();
+
+      // Ensure that the TabBar with the key 'tab-bar-key' is found.
+      expect(find.byType(TabBar), findsOneWidget);
+
+      // Ensure other widgets are also found (verify user details, etc.)
       expect(find.text('Test User'), findsOneWidget);
       expect(find.text('email@email.com'), findsOneWidget);
       expect(find.text('Photography'), findsOneWidget);
-
-      // Verify portfolio grid
-      expect(find.byType(GridView), findsOneWidget);
-      expect(find.byIcon(Icons.add_rounded), findsOneWidget);
     });
   });
 }

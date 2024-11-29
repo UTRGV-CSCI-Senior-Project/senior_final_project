@@ -83,7 +83,7 @@ class _ChooseServiceState extends ConsumerState<ChooseService> {
   }
 
   Future<void> _evaluateAndAddService() async {
-    final serviceName = searchController.text;
+    String serviceName = searchController.text;
 
     if (serviceName.isNotEmpty) {
       GeminiServices geminiServices = GeminiServices();
@@ -93,6 +93,7 @@ class _ChooseServiceState extends ConsumerState<ChooseService> {
       if (evaluationResult?.trim() == 'true') {
         setState(() {
           final firestoreServices = ref.read(firestoreServicesProvider);
+          serviceName = capitalizeEachWord(serviceName);
           allServices.add(serviceName);
           services = List.from(allServices);
           firestoreServices.addCareer(serviceName);
@@ -117,6 +118,12 @@ class _ChooseServiceState extends ConsumerState<ChooseService> {
 
   @override
   Widget build(BuildContext context) {
+    if (allServices.isEmpty) {
+      const ErrorView(
+        bigText: 'Error',
+        smallText: 'Failed to fetch',
+      );
+    }
     if (_isLoading) {
       return Center(
         child: CircularProgressIndicator(
@@ -124,9 +131,66 @@ class _ChooseServiceState extends ConsumerState<ChooseService> {
         ),
       );
     }
-
     if (services.isEmpty && !_isLoading) {
-      return Column(
+      return Scaffold(
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              widget.title ?? "Let's get your profile ready!",
+              style: GoogleFonts.poppins(
+                  fontSize: 20, fontWeight: FontWeight.w500),
+            ),
+            Text(
+              widget.subTitle ?? 'What service do you offer?',
+              style: GoogleFonts.poppins(
+                  fontSize: 16, fontWeight: FontWeight.w300),
+            ),
+            Container(
+              margin: const EdgeInsets.only(top: 14),
+              decoration: BoxDecoration(
+                color: Colors.grey[500]!.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(25),
+              ),
+              child: TextField(
+                cursorColor: Theme.of(context).textTheme.displayLarge?.color,
+                controller: searchController,
+                decoration: InputDecoration(
+                  hintText: 'Search Folio',
+                  enabledBorder: OutlineInputBorder(
+                      borderRadius: const BorderRadius.all(Radius.circular(50)),
+                      borderSide:
+                          BorderSide(width: 2, color: Colors.grey[400]!)),
+                  focusedBorder: OutlineInputBorder(
+                      borderRadius: const BorderRadius.all(Radius.circular(50)),
+                      borderSide:
+                          BorderSide(width: 3, color: Colors.grey[400]!)),
+                  hintStyle: GoogleFonts.inter(
+                      fontWeight: FontWeight.w500,
+                      color: Theme.of(context).textTheme.displayLarge?.color),
+                  prefixIcon: Icon(Icons.search,
+                      color: Theme.of(context).textTheme.displayLarge?.color),
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(vertical: 15),
+                ),
+              ),
+            ),
+            const SizedBox(height: 10.0),
+            Text(
+              'No services found matching your search.',
+              style: GoogleFonts.poppins(fontSize: 16, color: Colors.grey),
+            ),
+            ElevatedButton(
+                key: const Key('evaluate-career-button'),
+                onPressed: _evaluateAndAddService,
+                child: const Text('Add to Career List'))
+          ],
+        ),
+      );
+    }
+
+    return Scaffold(
+      body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
@@ -146,6 +210,7 @@ class _ChooseServiceState extends ConsumerState<ChooseService> {
               borderRadius: BorderRadius.circular(25),
             ),
             child: TextField(
+              key: const Key('choose-service-textfield'),
               cursorColor: Theme.of(context).textTheme.displayLarge?.color,
               controller: searchController,
               decoration: InputDecoration(
@@ -166,82 +231,28 @@ class _ChooseServiceState extends ConsumerState<ChooseService> {
               ),
             ),
           ),
-          const SizedBox(height: 10.0),
-          Text(
-            'No services found matching your search.',
-            style: GoogleFonts.poppins(fontSize: 16, color: Colors.grey),
-          ),
-          ElevatedButton(
-              onPressed: _evaluateAndAddService,
-              child: const Text('Add to Career List'))
+          const SizedBox(height: 30.0),
+          Expanded(
+              child: ServiceSelectionWidget(
+            services: services,
+            initialSelectedServices: widget.initialService.isNotEmpty
+                ? {widget.initialService: true}
+                : {},
+            onServicesSelected: (service) {
+              setState(() {
+                if (selectedService == service) {
+                  selectedService = null;
+                } else {
+                  selectedService = service;
+                }
+                widget.onServiceSelected(selectedService ?? '');
+              });
+            },
+            isLoading: _isLoading,
+            singleSelectionMode: true,
+          )),
         ],
-      );
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          widget.title ?? "Let's get your profile ready!",
-          style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.w500),
-        ),
-        Text(
-          widget.subTitle ?? 'What service do you offer?',
-          style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w300),
-        ),
-        Container(
-          margin: const EdgeInsets.only(top: 14),
-          decoration: BoxDecoration(
-            color: Colors.grey[500]!.withOpacity(0.2),
-            borderRadius: BorderRadius.circular(25),
-          ),
-          child: TextField(
-            cursorColor: Theme.of(context).textTheme.displayLarge?.color,
-            controller: searchController,
-            decoration: InputDecoration(
-              hintText: 'Search Folio',
-              enabledBorder: OutlineInputBorder(
-                  borderRadius: const BorderRadius.all(Radius.circular(50)),
-                  borderSide: BorderSide(width: 2, color: Colors.grey[400]!)),
-              focusedBorder: OutlineInputBorder(
-                  borderRadius: const BorderRadius.all(Radius.circular(50)),
-                  borderSide: BorderSide(width: 3, color: Colors.grey[400]!)),
-              hintStyle: GoogleFonts.inter(
-                  fontWeight: FontWeight.w500,
-                  color: Theme.of(context).textTheme.displayLarge?.color),
-              prefixIcon: Icon(Icons.search,
-                  color: Theme.of(context).textTheme.displayLarge?.color),
-              border: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(vertical: 15),
-            ),
-          ),
-        ),
-        const SizedBox(height: 30.0),
-        if (services.isEmpty)
-          const ErrorView(
-            bigText: 'Failed to fetch',
-            smallText: 'Service list is empty',
-          ),
-        Expanded(
-            child: ServiceSelectionWidget(
-          services: services,
-          initialSelectedServices: widget.initialService.isNotEmpty
-              ? {widget.initialService: true}
-              : {},
-          onServicesSelected: (service) {
-            setState(() {
-              if (selectedService == service) {
-                selectedService = null;
-              } else {
-                selectedService = service;
-              }
-              widget.onServiceSelected(selectedService ?? '');
-            });
-          },
-          isLoading: _isLoading,
-          singleSelectionMode: true,
-        )),
-      ],
+      ),
     );
   }
 
