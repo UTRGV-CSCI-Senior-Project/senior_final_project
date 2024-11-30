@@ -55,6 +55,7 @@ dependencies:
   firebase_messaging: ^15.1.5
   cloud_functions: ^5.1.5
   google_generative_ai: ^0.4.6
+  share_plus: ^10.1.2
 
 dev_dependencies:
   flutter_test:

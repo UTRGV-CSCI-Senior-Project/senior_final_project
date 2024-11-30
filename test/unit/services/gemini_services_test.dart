@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:folio/core/app_exception.dart';
 import 'package:folio/services/gemini_services.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:mockito/annotations.dart';
@@ -27,6 +28,7 @@ void main() {
       mockQueryDocumentSnapshot;
   late MockFirestoreServices mockFirestoreServices;
   late GeminiServices geminiServices;
+  late Widget ref;
 
   setUp(() async {
     mockFirestore = MockFirebaseFirestore();
@@ -82,40 +84,40 @@ void main() {
 
       expect(apiKey, isNull);
     });
-    // group('GeminiServices _generateContent', () {
-    //   test('should return generated content when generation is successful',
-    //       () async {
-    //     final prompt = 'Generate content about Flutter';
-    //     final apiKey = 'dummy-api-key';
-    //     final contentResponse = 'Generated content about Flutter.';
+    group('getAllServices', () {
+      test('should return list of services', () async {
+        final mockQueryDocumentSnapshot1 =
+            MockQueryDocumentSnapshot<Map<String, dynamic>>();
+        final mockQueryDocumentSnapshot2 =
+            MockQueryDocumentSnapshot<Map<String, dynamic>>();
 
-    //     // Arrange: Mocking the generateContent method
-    //     when(() => generativeModel.generateContent(any(), any()))
-    //         .thenAnswer((_) async => ContentResponse(text: contentResponse));
+        when(mockFirestore.collection('services'))
+            .thenReturn(mockCollectionReference);
+        when(mockCollectionReference.get())
+            .thenAnswer((_) async => mockQuerySnapshot);
+        when(mockQuerySnapshot.docs).thenReturn(
+            [mockQueryDocumentSnapshot1, mockQueryDocumentSnapshot2]);
 
-    //     // Act: Calling _generateContent
-    //     final result = await geminiServices._generateContent(prompt, apiKey);
+        when(mockQueryDocumentSnapshot1.get('service')).thenReturn('Service 1');
+        when(mockQueryDocumentSnapshot2.get('service')).thenReturn('Service 2');
 
-    //     // Assert: Verify the content is correctly returned
-    //     expect(result, contentResponse);
-    //     verify(() => generativeModel.generateContent(any())).called(1);
-    //   });
+        final result = await getAllServices();
 
-    //   test('should return null when there is an exception', () async {
-    //     final prompt = 'Generate content about Flutter';
-    //     final apiKey = 'dummy-api-key';
+        expect(result, equals(['Service 1', 'Service 2']));
+      });
 
-    //     // Arrange: Simulate an error during content generation
-    //     when(() => generativeModel.generateContent(any()))
-    //         .thenThrow(Exception('Generation error'));
+      test('should throw get-services-error on fail', () async {
+        when(mockFirestore.collection('services'))
+            .thenReturn(mockCollectionReference);
+        when(mockCollectionReference.get())
+            .thenThrow(Exception('Fetch failed'));
 
-    //     // Act: Calling _generateContent
-    //     final result = await geminiServices._generateContent(prompt, apiKey);
-
-    //     // Assert: Verify the result is null
-    //     expect(result, null);
-    //     verify(() => generativeModel.generateContent(any())).called(1);
-    //   });
-    // });
+        expect(
+            getAllServices,
+            throwsA(predicate((e) =>
+                e is AppException &&
+                e.toString().contains('get-services-error'))));
+      });
+    });
   });
 }

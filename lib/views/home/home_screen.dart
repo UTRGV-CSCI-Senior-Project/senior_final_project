@@ -17,6 +17,7 @@ import 'package:folio/views/auth_onboarding_welcome/state_screens.dart';
 import 'package:folio/views/auth_onboarding_welcome/welcome_screen.dart';
 import 'package:folio/widgets/email_verification_dialog.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:share_plus/share_plus.dart';
 
 final selectedIndexProvider = StateProvider<int>((ref) => 0);
 final hasShownEmailDialogProvider = StateProvider<bool>((ref) => false);
@@ -95,6 +96,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     } finally {
       _isInitializingNotifications = false;
     }
+  }
+
+  Future<void> shareProfile() async {
+    String sharingIsCaring =
+        "Checkout my profile in Folio\nHow to Download:\n1.Open App Store or Google Play Store\n2.Search and download Folio";
+    Share.share(sharingIsCaring);
   }
 
   @override
@@ -190,20 +197,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             color: Theme.of(context).colorScheme.onTertiary,
                           ),
                           backgroundColor: Colors.transparent),
-                      SpeedDialChild(
-                          label: 'Share Profile',
-                          labelBackgroundColor: Colors.transparent,
-                          labelShadow: [],
-                          labelStyle: GoogleFonts.inter(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).colorScheme.onTertiary),
-                          elevation: 0,
-                          child: Icon(
-                            Icons.ios_share,
-                            color: Theme.of(context).colorScheme.onTertiary,
-                          ),
-                          backgroundColor: Colors.transparent),
+                      if (userPortfolio != null)
+                        SpeedDialChild(
+                            onTap: shareProfile,
+                            label: 'Share Profile',
+                            labelBackgroundColor: Colors.transparent,
+                            labelShadow: [],
+                            labelStyle: GoogleFonts.inter(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color:
+                                    Theme.of(context).colorScheme.onTertiary),
+                            elevation: 0,
+                            child: Icon(
+                              Icons.ios_share,
+                              color: Theme.of(context).colorScheme.onTertiary,
+                            ),
+                            backgroundColor: Colors.transparent),
                     ],
                     child: Icon(
                       color: Theme.of(context).colorScheme.tertiary,

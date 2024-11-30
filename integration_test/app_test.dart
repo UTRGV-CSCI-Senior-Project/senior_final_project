@@ -342,7 +342,6 @@ void main() {
         await container.read(authServicesProvider).signOut();
       });
     });
-
     testWidgets(
         'As an existing user, I can sign in and update my preferred services from the home screen',
         (WidgetTester tester) async {
@@ -577,8 +576,6 @@ void main() {
       });
     });
 
-    });
-
     testWidgets(
         'As an existing normal user I can sign in, go to the profile tab and create a portfolio ',
         (WidgetTester tester) async {
@@ -598,9 +595,12 @@ void main() {
             scrollable: scrollable.first);
         await tester.tap(signInButton);
         await tester.pumpAndSettle(const Duration(seconds: 5));
+
+        //Expect to see home screen with user's full name.
+        expect(find.textContaining('Second User'), findsOneWidget);
+
         await tester.tap(profileTabButton);
         await tester.pumpAndSettle(const Duration(seconds: 5));
-
         expect(find.text('Second User'), findsOneWidget);
         expect(find.text('secondUser@email.com'), findsOneWidget);
 
@@ -610,16 +610,16 @@ void main() {
         await tester.pumpAndSettle(const Duration(seconds: 4));
         await tester.tap(find.text('Become a professional'));
         await tester.pumpAndSettle(const Duration(seconds: 4));
-        await tester.tap(find.text('Barber'));
-        await tester.tap(find.text('Next'));
+        await tester.tap(barberServiceButton);
+        await tester.tap(createPortfolioNextButton);
         await tester.pumpAndSettle(const Duration(seconds: 5));
-        await tester.tap(find.text('Next'));
+        await tester.tap(createPortfolioNextButton);
         await tester.pumpAndSettle(const Duration(seconds: 5));
         await tester.tap(imagePickerButton);
         await tester.pumpAndSettle(const Duration(seconds: 5));
-        await tester.tap(find.text('Next'));
+        await tester.tap(createPortfolioNextButton);
         await tester.pumpAndSettle(const Duration(seconds: 5));
-        await tester.tap(find.text('Done'));
+        await tester.tap(createPortfolioNextButton);
         await tester.pumpAndSettle(const Duration(seconds: 40));
         await tester.tap(find.byKey(const Key('settings-back-button')));
         await tester.pumpAndSettle(const Duration(seconds: 4));
