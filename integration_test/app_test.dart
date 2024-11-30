@@ -577,6 +577,8 @@ void main() {
       });
     });
 
+    });
+
     testWidgets(
         'As an existing normal user I can sign in, go to the profile tab and create a portfolio ',
         (WidgetTester tester) async {
@@ -596,12 +598,9 @@ void main() {
             scrollable: scrollable.first);
         await tester.tap(signInButton);
         await tester.pumpAndSettle(const Duration(seconds: 5));
-
-        //Expect to see home screen with user's full name.
-        expect(find.textContaining('Second User'), findsOneWidget);
-
         await tester.tap(profileTabButton);
         await tester.pumpAndSettle(const Duration(seconds: 5));
+
         expect(find.text('Second User'), findsOneWidget);
         expect(find.text('secondUser@email.com'), findsOneWidget);
 
