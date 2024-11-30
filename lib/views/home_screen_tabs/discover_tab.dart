@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:folio/services/gemini_services.dart';
+import 'package:folio/core/service_locator.dart';
 
 class DiscoverTab extends ConsumerStatefulWidget {
   const DiscoverTab({super.key});
@@ -33,11 +33,13 @@ class _DiscoverTabState extends ConsumerState<DiscoverTab> {
       _isLoading = true;
     });
 
-    final geminiServices = GeminiServices();
+    final geminiServices = ref.watch(geminiServicesProvider);
 
     try {
-      List<String> services = await geminiServices.aiSearch(ref, _promptUser);
-
+      List<String> services = await geminiServices.aiSearch(_promptUser);
+      if(services.isNotEmpty){
+      }else{
+      }
       setState(() {
         _filteredServices = services;
         _isLoading = false;

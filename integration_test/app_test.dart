@@ -229,7 +229,11 @@ void main() {
         //Tap next on second onboarding screen
         expect(find.text('Select the services you\'re interested in.'),
             findsOneWidget);
+        await tester.enterText(find.byType(TextField), "bar");
+        await tester.pumpAndSettle(const Duration(seconds: 5));
         await tester.tap(barberServiceButton);
+        await tester.tap(find.byKey(const Key('clear-search-button')));
+        await tester.pumpAndSettle(const Duration(seconds: 3));
         await tester.tap(carDetailerServiceButton);
         await tester.tap(onboardingButton);
         await tester.pumpAndSettle(const Duration(seconds: 5));
@@ -337,7 +341,7 @@ void main() {
         await tester.pumpAndSettle(const Duration(seconds: 5));
         expect(find.text('First User'), findsOneWidget);
         expect(find.text('Barber'), findsOneWidget);
-        expect(find.text('Barber Portfolio'), findsOneWidget);
+        expect(find.text('Portfolio'), findsOneWidget);
         expect(find.text('firstUser@email.com'), findsOneWidget);
         expect(find.byType(Image), findsExactly(6));
         await container.read(authServicesProvider).signOut();
@@ -627,7 +631,7 @@ void main() {
         await tester.pumpAndSettle(const Duration(seconds: 4));
         expect(find.text('Second User'), findsOneWidget);
         expect(find.text('Barber'), findsOneWidget);
-        expect(find.text('Barber Portfolio'), findsOneWidget);
+        expect(find.text('Portfolio'), findsOneWidget);
         expect(find.text('secondUser@email.com'), findsOneWidget);
         expect(find.byType(Image), findsExactly(6));
         await container.read(authServicesProvider).signOut();

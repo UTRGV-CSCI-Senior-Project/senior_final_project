@@ -1,5 +1,4 @@
-// ignore_for_file: use_build_context_synchronously
-
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:folio/core/service_locator.dart';
@@ -31,20 +30,42 @@ class _ChooseServiceState extends ConsumerState<ChooseService> {
   late List<String> services = [];
   final searchController = TextEditingController();
   bool _isLoading = true;
+  Timer? debounce;
+  bool _isSearching = false;
 
   @override
   void initState() {
     super.initState();
     loadServices();
-    searchController.addListener(_filterServices);
+    searchController.addListener(_onSearchChanged);
   }
 
   @override
   void dispose() {
     serviceType.dispose();
-    searchController.removeListener(_filterServices);
+    searchController.removeListener(_onSearchChanged);
     searchController.dispose();
+    debounce?.cancel();
     super.dispose();
+  }
+
+  void _onSearchChanged() {
+    setState(() {
+      _isSearching = searchController.text.isNotEmpty;
+    });
+
+    if (debounce?.isActive ?? false) {
+      debounce?.cancel();
+    }
+    debounce = Timer(const Duration(milliseconds: 1300), () async {
+      if (searchController.text.isNotEmpty) {
+        _filterServices(searchController.text);
+      } else {
+        setState(() {
+          services = allServices;
+        });
+      }
+    });
   }
 
   Future<void> loadServices() async {
@@ -67,17 +88,46 @@ class _ChooseServiceState extends ConsumerState<ChooseService> {
     }
   }
 
-  void _filterServices() {
-    final query = searchController.text.toLowerCase().trim();
-    setState(() {
-      if (query.isEmpty) {
+  Future<void> _filterServices(String query) async {
+    if (query.isEmpty) {
+      setState(() {
         services = allServices;
-      } else {
-        services = allServices
-            .where((service) => service.toLowerCase().contains(query))
-            .toList();
-      }
+        _isSearching = false;
+      });
+      return;
+    }
+    setState(() {
+      _isSearching = true;
     });
+    final filtered = allServices
+        .where((service) => service.toLowerCase().contains(query))
+        .toList();
+
+    if (filtered.isEmpty) {
+      final aiSearchResults =
+          await ref.read(geminiServicesProvider).aiSearch(query);
+      if (aiSearchResults.isNotEmpty) {
+        setState(() {
+          services = aiSearchResults;
+          _isSearching = false;
+        });
+      } else {
+        final createdService =
+            await ref.read(geminiServicesProvider).aiEvaluator(query);
+        setState(() {
+          if (createdService.isNotEmpty) {
+            allServices.addAll(createdService);
+            services = createdService;
+          }
+          _isSearching = false;
+        });
+      }
+    } else {
+      setState(() {
+        services = filtered;
+        _isSearching = false;
+      });
+    }
   }
 
   @override
@@ -105,8 +155,8 @@ class _ChooseServiceState extends ConsumerState<ChooseService> {
           style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.w500),
         ),
         Text(
-          widget.subTitle ?? 'What service do you offer?',
-          style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w300),
+          widget.subTitle ?? 'What is your profession?',
+          style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w300),
         ),
         Container(
           margin: const EdgeInsets.only(top: 14),
@@ -118,21 +168,32 @@ class _ChooseServiceState extends ConsumerState<ChooseService> {
             cursorColor: Theme.of(context).textTheme.displayLarge?.color,
             controller: searchController,
             decoration: InputDecoration(
-              hintText: 'Search Folio',
-              enabledBorder: OutlineInputBorder(
-                  borderRadius: const BorderRadius.all(Radius.circular(50)),
-                  borderSide: BorderSide(width: 2, color: Colors.grey[400]!)),
-              focusedBorder: OutlineInputBorder(
-                  borderRadius: const BorderRadius.all(Radius.circular(50)),
-                  borderSide: BorderSide(width: 3, color: Colors.grey[400]!)),
-              hintStyle: GoogleFonts.inter(
-                  fontWeight: FontWeight.w500,
-                  color: Theme.of(context).textTheme.displayLarge?.color),
-              prefixIcon: Icon(Icons.search,
-                  color: Theme.of(context).textTheme.displayLarge?.color),
-              border: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(vertical: 15),
-            ),
+                hintText: 'Search Folio',
+                enabledBorder: OutlineInputBorder(
+                    borderRadius: const BorderRadius.all(Radius.circular(50)),
+                    borderSide: BorderSide(width: 2, color: Colors.grey[400]!)),
+                focusedBorder: OutlineInputBorder(
+                    borderRadius: const BorderRadius.all(Radius.circular(50)),
+                    borderSide: BorderSide(width: 3, color: Colors.grey[400]!)),
+                hintStyle: GoogleFonts.inter(
+                    fontWeight: FontWeight.w500,
+                    color: Theme.of(context).textTheme.displayLarge?.color),
+                prefixIcon: Icon(Icons.search,
+                    color: Theme.of(context).textTheme.displayLarge?.color),
+                border: InputBorder.none,
+                contentPadding: const EdgeInsets.symmetric(vertical: 15),
+                suffixIcon: _isSearching
+                    ? Transform.scale(
+                        scale: 0.6,
+                        child: const CircularProgressIndicator(
+                          strokeWidth: 6,
+                          color: Colors.black,
+                        ),
+                      )
+                    : IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: () => searchController.clear(),
+                      )),
           ),
         ),
         const SizedBox(height: 30.0),

@@ -63,26 +63,5 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-<<<<<<< HEAD
-	<key>CADisableMinimumFrameDurationOnPhone</key>
-	<true/>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Folio uses photos</string>
-	<key>UIApplicationSupportsIndirectInputEvents</key>
-	<true/>
-	<key>LSApplicationQueriesSchemes</key>
-	<array>
-	<string>instagram-stories</string>
-	<string>facebook-stories</string>
-	<string>facebook</string>
-	<string>instagram</string>
-	<string>twitter</string>
-	<string>whatsapp</string>
-    <string>tg</string>
-	</array>
-	<key>FacebookAppID</key>
-<string>1239400777110943</string>
-=======
->>>>>>> main
 </dict>
 </plist>

@@ -8,11 +8,13 @@ import 'package:folio/views/auth_onboarding_welcome/welcome_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 Future<void> main({bool useEmulator = false}) async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await dotenv.load(fileName: ".env");
 
   setupEmulators(useEmulators: useEmulator);
   runApp(const ProviderScope(child: MyApp()));

@@ -6,7 +6,6 @@ import 'package:folio/core/service_locator.dart';
 import 'package:folio/models/portfolio_model.dart';
 import 'package:folio/models/user_model.dart';
 import 'package:folio/widgets/error_widget.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -94,18 +93,19 @@ class _EditProfileState extends ConsumerState<EditProfile> {
                       user.email,
                       style: GoogleFonts.inter(fontSize: 16),
                     ),
-                    const SizedBox(height: 10),
-                    if (portfolio != null)
-                      SizedBox(
-                        width: 80,
-                        height: 50,
-                        child: ElevatedButton(
-                            onPressed: () {},
-                            child: const Text(
-                              'Share',
-                              style: TextStyle(color: Colors.black),
-                            )),
-                      ),
+                    // Removed share button, there is one in home_screen.dart in the speed dial
+                    // const SizedBox(height: 10),
+                    // if (portfolio != null)
+                    //   SizedBox(
+                    //     width: 80,
+                    //     height: 50,
+                    //     child: ElevatedButton(
+                    //         onPressed: () {},
+                    //         child: const Text(
+                    //           'Share',
+                    //           style: TextStyle(color: Colors.black),
+                    //         )),
+                    //   ),
                   ],
                 ),
               )
@@ -113,7 +113,7 @@ class _EditProfileState extends ConsumerState<EditProfile> {
           ),
           const SizedBox(height: 20.0),
           if (portfolio != null)
-            DefaultTabController(
+          Expanded(child: DefaultTabController(
               length: 2,
               child: Column(
                 children: [
@@ -124,7 +124,7 @@ class _EditProfileState extends ConsumerState<EditProfile> {
                     ],
                   ),
                   SizedBox(
-                    height: 400,
+                    height: MediaQuery.of(context).size.height * 0.5,
                     child: TabBarView(
                       children: [
                         ListView(children: [
@@ -179,7 +179,6 @@ class _EditProfileState extends ConsumerState<EditProfile> {
                                         }
                                       }
                                     }
-
                                     setState(() {
                                       _isImagePickerActive = false;
                                     });
@@ -289,7 +288,7 @@ class _EditProfileState extends ConsumerState<EditProfile> {
                           child: Padding(
                             padding: const EdgeInsets.all(20.0),
                             child: Text(
-                              "${rightText(portfolio.years, portfolio.months)}\n${portfolio.details}",
+                              "${portfolio.getFormattedTotalExperience()}\n${portfolio.details}",
                               style: const TextStyle(
                                   color: Colors.black,
                                   fontSize: 18,
@@ -302,7 +301,7 @@ class _EditProfileState extends ConsumerState<EditProfile> {
                   ),
                 ],
               ),
-            ),
+            ),),
           ErrorBox(
             errorMessage: errorMessage,
             onDismiss: () {
@@ -317,6 +316,7 @@ class _EditProfileState extends ConsumerState<EditProfile> {
   }
 }
 
+//There is already a function in portfolio model to format experience
 String rightText(int yrs, int months) {
   String service = '';
   if (yrs == 0) {
