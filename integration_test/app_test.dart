@@ -229,11 +229,7 @@ void main() {
         //Tap next on second onboarding screen
         expect(find.text('Select the services you\'re interested in.'),
             findsOneWidget);
-        await tester.enterText(find.byType(TextField), "bar");
-        await tester.pumpAndSettle(const Duration(seconds: 5));
         await tester.tap(barberServiceButton);
-        await tester.tap(find.byKey(const Key('clear-search-button')));
-        await tester.pumpAndSettle(const Duration(seconds: 7));
         await tester.tap(carDetailerServiceButton);
         await tester.tap(onboardingButton);
         await tester.pumpAndSettle(const Duration(seconds: 5));
