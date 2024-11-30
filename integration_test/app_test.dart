@@ -341,7 +341,7 @@ void main() {
         await tester.pumpAndSettle(const Duration(seconds: 5));
         expect(find.text('First User'), findsOneWidget);
         expect(find.text('Barber'), findsOneWidget);
-        expect(find.text('Portfolio'), findsOneWidget);
+        expect(find.text('Barber Portfolio'), findsOneWidget);
         expect(find.text('firstUser@email.com'), findsOneWidget);
         expect(find.byType(Image), findsExactly(6));
         await container.read(authServicesProvider).signOut();
@@ -631,7 +631,7 @@ void main() {
         await tester.pumpAndSettle(const Duration(seconds: 4));
         expect(find.text('Second User'), findsOneWidget);
         expect(find.text('Barber'), findsOneWidget);
-        expect(find.text('Portfolio'), findsOneWidget);
+        expect(find.text('Barber Portfolio'), findsOneWidget);
         expect(find.text('secondUser@email.com'), findsOneWidget);
         expect(find.byType(Image), findsExactly(6));
         await container.read(authServicesProvider).signOut();
