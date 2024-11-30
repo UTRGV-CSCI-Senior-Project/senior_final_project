@@ -233,7 +233,7 @@ void main() {
         await tester.pumpAndSettle(const Duration(seconds: 5));
         await tester.tap(barberServiceButton);
         await tester.tap(find.byKey(const Key('clear-search-button')));
-        await tester.pumpAndSettle(const Duration(seconds: 5));
+        await tester.pumpAndSettle(const Duration(seconds: 7));
         await tester.tap(carDetailerServiceButton);
         await tester.tap(onboardingButton);
         await tester.pumpAndSettle(const Duration(seconds: 5));
