@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:folio/core/service_locator.dart';
@@ -8,10 +9,15 @@ import 'package:google_fonts/google_fonts.dart';
 class ChooseService extends ConsumerStatefulWidget {
   final String initialService;
   final Function(String) onServiceSelected;
-  final String? title; 
+  final String? title;
   final String? subTitle;
 
-  const ChooseService({super.key, required this.onServiceSelected, this.initialService = "", this.title, this.subTitle});
+  const ChooseService(
+      {super.key,
+      required this.onServiceSelected,
+      this.initialService = "",
+      this.title,
+      this.subTitle});
 
   @override
   ConsumerState<ChooseService> createState() => _ChooseServiceState();
@@ -19,22 +25,47 @@ class ChooseService extends ConsumerStatefulWidget {
 
 class _ChooseServiceState extends ConsumerState<ChooseService> {
   final serviceType = TextEditingController();
-  String? selectedService; // Track the selected service
+  String? selectedService;
+  late List<String> allServices = [];
   late List<String> services = [];
   final searchController = TextEditingController();
   bool _isLoading = true;
+  Timer? debounce;
+  bool _isSearching = false;
 
   @override
   void initState() {
     super.initState();
     loadServices();
+    searchController.addListener(_onSearchChanged);
   }
 
   @override
   void dispose() {
     serviceType.dispose();
+    searchController.removeListener(_onSearchChanged);
     searchController.dispose();
+    debounce?.cancel();
     super.dispose();
+  }
+
+  void _onSearchChanged() {
+    setState(() {
+      _isSearching = searchController.text.isNotEmpty;
+    });
+
+    if (debounce?.isActive ?? false) {
+      debounce?.cancel();
+    }
+    debounce = Timer(const Duration(milliseconds: 1300), () async {
+      if (searchController.text.isNotEmpty) {
+        _filterServices(searchController.text);
+      } else {
+        setState(() {
+          services = allServices;
+        });
+      }
+    });
   }
 
   Future<void> loadServices() async {
@@ -42,15 +73,59 @@ class _ChooseServiceState extends ConsumerState<ChooseService> {
       final firestoreServices = ref.read(firestoreServicesProvider);
       final fetchedServices = await firestoreServices.getServices();
       setState(() {
-        services = fetchedServices;
+        allServices = fetchedServices;
+        services = allServices;
       });
     } catch (e) {
       setState(() {
+        allServices = [];
         services = [];
       });
     } finally {
       setState(() {
         _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _filterServices(String query) async {
+    if (query.isEmpty) {
+      setState(() {
+        services = allServices;
+        _isSearching = false;
+      });
+      return;
+    }
+    setState(() {
+      _isSearching = true;
+    });
+    final filtered = allServices
+        .where((service) => service.toLowerCase().contains(query))
+        .toList();
+
+    if (filtered.isEmpty) {
+      final aiSearchResults =
+          await ref.read(geminiServicesProvider).aiSearch(query);
+      if (aiSearchResults.isNotEmpty) {
+        setState(() {
+          services = aiSearchResults;
+          _isSearching = false;
+        });
+      } else {
+        final createdService =
+            await ref.read(geminiServicesProvider).aiEvaluator(query);
+        setState(() {
+          if (createdService.isNotEmpty) {
+            allServices.addAll(createdService);
+            services = createdService;
+          }
+          _isSearching = false;
+        });
+      }
+    } else {
+      setState(() {
+        services = filtered;
+        _isSearching = false;
       });
     }
   }
@@ -75,13 +150,13 @@ class _ChooseServiceState extends ConsumerState<ChooseService> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(widget.title ??
-          "Let's get your profile ready!",
+        Text(
+          widget.title ?? "Let's get your profile ready!",
           style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.w500),
         ),
-        Text(widget.subTitle ??
-          'What service do you offer?',
-          style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w300),
+        Text(
+          widget.subTitle ?? 'What is your profession?',
+          style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w300),
         ),
         Container(
           margin: const EdgeInsets.only(top: 14),
@@ -93,28 +168,41 @@ class _ChooseServiceState extends ConsumerState<ChooseService> {
             cursorColor: Theme.of(context).textTheme.displayLarge?.color,
             controller: searchController,
             decoration: InputDecoration(
-              hintText: 'Search Folio',
-              enabledBorder: OutlineInputBorder(
-                  borderRadius: const BorderRadius.all(Radius.circular(50)),
-                  borderSide: BorderSide(width: 2, color: Colors.grey[400]!)),
-              focusedBorder: OutlineInputBorder(
-                  borderRadius: const BorderRadius.all(Radius.circular(50)),
-                  borderSide: BorderSide(width: 3, color: Colors.grey[400]!)),
-              hintStyle: GoogleFonts.inter(
-                  fontWeight: FontWeight.w500,
-                  color: Theme.of(context).textTheme.displayLarge?.color),
-              prefixIcon: Icon(Icons.search,
-                  color: Theme.of(context).textTheme.displayLarge?.color),
-              border: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(vertical: 15),
-            ),
+                hintText: 'Search Folio',
+                enabledBorder: OutlineInputBorder(
+                    borderRadius: const BorderRadius.all(Radius.circular(50)),
+                    borderSide: BorderSide(width: 2, color: Colors.grey[400]!)),
+                focusedBorder: OutlineInputBorder(
+                    borderRadius: const BorderRadius.all(Radius.circular(50)),
+                    borderSide: BorderSide(width: 3, color: Colors.grey[400]!)),
+                hintStyle: GoogleFonts.inter(
+                    fontWeight: FontWeight.w500,
+                    color: Theme.of(context).textTheme.displayLarge?.color),
+                prefixIcon: Icon(Icons.search,
+                    color: Theme.of(context).textTheme.displayLarge?.color),
+                border: InputBorder.none,
+                contentPadding: const EdgeInsets.symmetric(vertical: 15),
+                suffixIcon: _isSearching
+                    ? Transform.scale(
+                        scale: 0.6,
+                        child: const CircularProgressIndicator(
+                          strokeWidth: 6,
+                          color: Colors.black,
+                        ),
+                      )
+                    : IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: () => searchController.clear(),
+                      )),
           ),
         ),
         const SizedBox(height: 30.0),
         Expanded(
             child: ServiceSelectionWidget(
           services: services,
-          initialSelectedServices: widget.initialService.isNotEmpty ? {widget.initialService: true} : {},
+          initialSelectedServices: widget.initialService.isNotEmpty
+              ? {widget.initialService: true}
+              : {},
           onServicesSelected: (service) {
             // Find the selected service (there should only be one)
             setState(() {
@@ -131,5 +219,14 @@ class _ChooseServiceState extends ConsumerState<ChooseService> {
         )),
       ],
     );
+  }
+
+  String capitalizeEachWord(String text) {
+    return text
+        .split(' ')
+        .map((word) => word.isNotEmpty
+            ? word[0].toUpperCase() + word.substring(1).toLowerCase()
+            : '')
+        .join(' ');
   }
 }

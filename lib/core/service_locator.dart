@@ -13,6 +13,7 @@ import 'package:folio/repositories/user_repository.dart';
 import 'package:folio/services/auth_services.dart';
 import 'package:folio/services/cloud_messaging_services.dart';
 import 'package:folio/services/firestore_services.dart';
+import 'package:folio/services/gemini_services.dart';
 import 'package:folio/services/storage_services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:rxdart/rxdart.dart';
@@ -70,6 +71,11 @@ final cloudMessagingServicesProvider = Provider<CloudMessagingServices>((ref) {
   final firebaseFunctions = FirebaseFunctions.instance;
 
   return CloudMessagingServices(firebaseMessaging, firestoreServices, firebaseFunctions);
+});
+
+final geminiServicesProvider = Provider<GeminiServices>((ref){
+  final firestoreServices = ref.read(firestoreServicesProvider);
+  return GeminiServices(firestoreServices);
 });
 
 ////////////////// SERVICE FILES //////////////////

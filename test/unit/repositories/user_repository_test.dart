@@ -12,7 +12,7 @@ import 'package:mockito/annotations.dart';
 import 'package:test/test.dart';
 
 import '../../mocks/auth_services_test.mocks.dart';
-import '../../mocks/create_portfolio_screen.mocks.dart';
+import '../../mocks/create_portfolio_screen_test.mocks.dart';
 @GenerateMocks([AuthServices, FirestoreServices, StorageServices, CloudMessagingServices])
 import '../../mocks/user_repository_test.mocks.dart';
 

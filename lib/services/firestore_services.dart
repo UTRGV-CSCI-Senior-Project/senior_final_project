@@ -298,6 +298,27 @@ class FirestoreServices {
     }
   }
 
+  Future<void> addService(String service) async {
+    try{
+      final serviceRef = _firestore.collection('services').doc(service);
+      final serviceDoc = await serviceRef.get();
+
+      if (serviceDoc.exists) {
+        return;
+      } else {
+        await serviceRef.set({
+        'service': service,
+        });
+      }
+    }catch (e){
+      if(e is AppException){
+        rethrow;
+      }else{
+        throw AppException('add-service-error');
+      }
+    }
+  }
+
   ///////////////////////// FEEDBACK COLLECTION /////////////////////////
 
   Future<void> addFeedback(FeedbackModel feedbackModel) async {

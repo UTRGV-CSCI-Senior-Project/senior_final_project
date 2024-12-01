@@ -118,7 +118,6 @@ void main() {
     container = ProviderContainer(
         overrides: [imagePickerProvider.overrideWithValue(mockImagePicker)]);
     await container.read(authServicesProvider).signOut();
-
   });
 
   setUp(() {
@@ -179,12 +178,14 @@ void main() {
     final host = Platform.isAndroid ? '10.0.2.2' : '127.0.0.1';
     try {
       final response = await http.get(
-        Uri.parse('http://$host:9099/emulator/v1/projects/senior-final-project/verificationCodes'),
+        Uri.parse(
+            'http://$host:9099/emulator/v1/projects/senior-final-project/verificationCodes'),
       );
       if (response.statusCode == 200) {
-        final Map<String, dynamic> data = jsonDecode(response.body) as Map<String, dynamic>;
+        final Map<String, dynamic> data =
+            jsonDecode(response.body) as Map<String, dynamic>;
         final List<dynamic> codes = data['verificationCodes'] as List<dynamic>;
-        
+
         if (codes.isNotEmpty) {
           return codes.first['code'] as String;
         }
@@ -418,14 +419,16 @@ void main() {
 
         await tester.tap(fullNameField);
         await tester.pumpAndSettle(const Duration(seconds: 3));
-        await tester.sendKeyEvent(LogicalKeyboardKey.backspace); // Clear existing text
+        await tester
+            .sendKeyEvent(LogicalKeyboardKey.backspace); // Clear existing text
         await tester.pumpAndSettle(const Duration(seconds: 2));
         await tester.enterText(fullNameField, 'New Name');
         await tester.pumpAndSettle(const Duration(seconds: 3));
 
         await tester.tap(usernameField);
         await tester.pumpAndSettle(const Duration(seconds: 3));
-        await tester.sendKeyEvent(LogicalKeyboardKey.backspace); // Clear existing text
+        await tester
+            .sendKeyEvent(LogicalKeyboardKey.backspace); // Clear existing text
         await tester.pumpAndSettle(const Duration(seconds: 2));
         await tester.enterText(usernameField, 'newusername');
         await tester.pumpAndSettle(const Duration(seconds: 3));
@@ -773,61 +776,60 @@ void main() {
       });
     });
 
-
     testWidgets(
         'As an existing user, I can sign in, go to the account settings and add my phone number',
         (WidgetTester tester) async {
-        //Navigate to sign up screen
-        await navigateToLogInScreen(tester);
+      //Navigate to sign up screen
+      await navigateToLogInScreen(tester);
 
-        //Sign In with the correct credentials
-        await tester.enterText(emailField, 'firstUser@email.com');
-        await tester.enterText(passwordField, '123456');
-        FocusManager.instance.primaryFocus?.unfocus();
+      //Sign In with the correct credentials
+      await tester.enterText(emailField, 'firstUser@email.com');
+      await tester.enterText(passwordField, '123456');
+      FocusManager.instance.primaryFocus?.unfocus();
 
-        //Tap Sign In and wait
-        final scrollable = find.byType(Scrollable);
-        await tester.scrollUntilVisible(
-            signInButton, 500.0, // Scroll amount per attempt
-            scrollable: scrollable.first);
-        await tester.tap(signInButton);
-        await tester.pumpAndSettle(const Duration(seconds: 5));
+      //Tap Sign In and wait
+      final scrollable = find.byType(Scrollable);
+      await tester.scrollUntilVisible(
+          signInButton, 500.0, // Scroll amount per attempt
+          scrollable: scrollable.first);
+      await tester.tap(signInButton);
+      await tester.pumpAndSettle(const Duration(seconds: 5));
 
-        await tester.tap(profileTabButton);
-        await tester.pumpAndSettle(const Duration(seconds: 5));
-        await tester.tap(speedDialButton);
-        await tester.pumpAndSettle(const Duration(seconds: 4));
-        await tester.tap(settingsButton);
-        await tester.pumpAndSettle(const Duration(seconds: 4));
-        await tester.tap(find.text('Account'));
-        await tester.pumpAndSettle(const Duration(seconds: 4));
+      await tester.tap(profileTabButton);
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.tap(speedDialButton);
+      await tester.pumpAndSettle(const Duration(seconds: 4));
+      await tester.tap(settingsButton);
+      await tester.pumpAndSettle(const Duration(seconds: 4));
+      await tester.tap(find.text('Account'));
+      await tester.pumpAndSettle(const Duration(seconds: 4));
 
-        await tester.tap(find.byKey(const Key('Phone Number')));
-        await tester.pumpAndSettle(const Duration(seconds: 10));
+      await tester.tap(find.byKey(const Key('Phone Number')));
+      await tester.pumpAndSettle(const Duration(seconds: 10));
 
-        await tester.enterText(verifyPasswordField, '123456');
-        await tester.tap(verifyPasswordButton);
-        await tester.pump(const Duration(seconds: 5));
-        expect(find.text('Add your phone number'), findsOneWidget);
+      await tester.enterText(verifyPasswordField, '123456');
+      await tester.tap(verifyPasswordButton);
+      await tester.pump(const Duration(seconds: 5));
+      expect(find.text('Add your phone number'), findsOneWidget);
 
-        await tester.enterText(find.byType(TextFormField), '5555550000');
-        await tester.tap(find.byKey(const Key('send-code-button')));
-        await tester.pump(const Duration(seconds: 10));
+      await tester.enterText(find.byType(TextFormField), '5555550000');
+      await tester.tap(find.byKey(const Key('send-code-button')));
+      await tester.pump(const Duration(seconds: 10));
 
-        final code = await getLatestVerificationCode();
+      final code = await getLatestVerificationCode();
 
-        expect(find.byType(SmsCodeDialog), findsOneWidget);
-        await tester.enterText(find.byKey(const Key('pinput-field')), code ?? '');
-        await tester.pump(const Duration(seconds: 5));
-        await tester.tap(find.byKey(const Key('submit-sms-button')));
-        await tester.pumpAndSettle(const Duration(seconds: 10));
+      expect(find.byType(SmsCodeDialog), findsOneWidget);
+      await tester.enterText(find.byKey(const Key('pinput-field')), code ?? '');
+      await tester.pump(const Duration(seconds: 5));
+      await tester.tap(find.byKey(const Key('submit-sms-button')));
+      await tester.pumpAndSettle(const Duration(seconds: 10));
 
-        await tester.tap(speedDialButton);
-        await tester.pumpAndSettle(const Duration(seconds: 4));
-        await tester.tap(settingsButton);
-        await tester.pumpAndSettle(const Duration(seconds: 4));
-        await tester.tap(find.text('Account'));
-        await tester.pumpAndSettle(const Duration(seconds: 4));
+      await tester.tap(speedDialButton);
+      await tester.pumpAndSettle(const Duration(seconds: 4));
+      await tester.tap(settingsButton);
+      await tester.pumpAndSettle(const Duration(seconds: 4));
+      await tester.tap(find.text('Account'));
+      await tester.pumpAndSettle(const Duration(seconds: 4));
 
         expect(find.text('+15555550000'), findsOneWidget);
         await container.read(authServicesProvider).signOut();
@@ -1411,39 +1413,42 @@ void main() {
     testWidgets(
         'As an existing user, I should not be able to add a phone number if my email is not verified',
         (WidgetTester tester) async {
-        await navigateToLogInScreen(tester);
+      await navigateToLogInScreen(tester);
 
-        //Sign In with the correct credentials
-        await tester.enterText(emailField, 'testuser@email.com');
-        await tester.enterText(passwordField, '123456');
-        FocusManager.instance.primaryFocus?.unfocus();
+      //Sign In with the correct credentials
+      await tester.enterText(emailField, 'testuser@email.com');
+      await tester.enterText(passwordField, '123456');
+      FocusManager.instance.primaryFocus?.unfocus();
 
-        //Tap Sign In and wait
-        final scrollable = find.byType(Scrollable);
-        await tester.scrollUntilVisible(
-            signInButton, 500.0, // Scroll amount per attempt
-            scrollable: scrollable.first);
-        await tester.tap(signInButton);
-        await tester.pumpAndSettle(const Duration(seconds: 5));
+      //Tap Sign In and wait
+      final scrollable = find.byType(Scrollable);
+      await tester.scrollUntilVisible(
+          signInButton, 500.0, // Scroll amount per attempt
+          scrollable: scrollable.first);
+      await tester.tap(signInButton);
+      await tester.pumpAndSettle(const Duration(seconds: 5));
 
-        await tester.tap(noVerificationButton.first);
-        await tester.pumpAndSettle(const Duration(seconds: 3));
+      await tester.tap(noVerificationButton.first);
+      await tester.pumpAndSettle(const Duration(seconds: 3));
 
-        await tester.tap(profileTabButton);
-        await tester.pumpAndSettle(const Duration(seconds: 5));
-        await tester.tap(speedDialButton);
-        await tester.pumpAndSettle(const Duration(seconds: 4));
-        await tester.tap(settingsButton);
-        await tester.pumpAndSettle(const Duration(seconds: 4));
-        await tester.tap(find.text('Account'));
-        await tester.pumpAndSettle(const Duration(seconds: 4));
+      await tester.tap(profileTabButton);
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.tap(speedDialButton);
+      await tester.pumpAndSettle(const Duration(seconds: 4));
+      await tester.tap(settingsButton);
+      await tester.pumpAndSettle(const Duration(seconds: 4));
+      await tester.tap(find.text('Account'));
+      await tester.pumpAndSettle(const Duration(seconds: 4));
 
-        await tester.tap(find.byKey(const Key('Phone Number')));
-        await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.tap(find.byKey(const Key('Phone Number')));
+      await tester.pumpAndSettle(const Duration(seconds: 5));
 
-        expect(find.byType(EmailVerificationDialog), findsOneWidget);
-        expect(find.text('Your email address needs to be verified before adding a phone number. Would you like to us to send a verification link to your email?'), findsOneWidget);     
-      });
+      expect(find.byType(EmailVerificationDialog), findsOneWidget);
+      expect(
+          find.text(
+              'Your email address needs to be verified before adding a phone number. Would you like to us to send a verification link to your email?'),
+          findsOneWidget);
+    });
   });
   /////////////////////////////////////////////// SAD PATHS ////////////////////////////////////////////////////////////////////////
 
@@ -1534,7 +1539,103 @@ void main() {
         await container.read(authServicesProvider).signOut();
       });
     });
-
-    
   });
+  /*
+  group('ChooseService Integration Tests', () {
+    testWidgets('Test 1: No service selected does not proceed to next screen',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(MyApp()); // Replace MyApp with your main widget
+      await tester.pumpAndSettle();
+
+      // Find the button to go to the next screen
+      final nextButton = find.byKey(
+          Key('Servicenext-button')); // Change to your actual next button key
+
+      // Tap the next button
+      await tester.tap(nextButton);
+      await tester.pumpAndSettle();
+
+      // Verify that we are still on the current screen (e.g., check for the presence of the service selection)
+      expect(find.byType(ChooseService), findsOneWidget);
+    });
+
+    testWidgets('Test 2: Select a service goes to next screen',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(MyApp());
+      await tester.pumpAndSettle();
+
+      // Select a service
+      final serviceOption = find
+          .byKey(Key('service-button-0')); // Adjust to the first service's key
+      await tester.tap(serviceOption);
+      await tester.pumpAndSettle();
+
+      // Find and tap the next button
+      final nextButton = find.byKey(Key('next-button'));
+      await tester.tap(nextButton);
+      await tester.pumpAndSettle();
+
+      // Verify we are on the next screen
+      expect(find.text('Next Screen'),
+          findsOneWidget); // Change to whatever identifies the next screen
+    });
+
+    testWidgets('Test 3: Selecting a second service unmarks the first',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(MyApp());
+      await tester.pumpAndSettle();
+
+      // Select the first service
+      final firstService = find.byKey(Key('service-button-0'));
+      await tester.tap(firstService);
+      await tester.pumpAndSettle();
+
+      // Select the second service
+      final secondService = find.byKey(Key('service-button-1'));
+      await tester.tap(secondService);
+      await tester.pumpAndSettle();
+
+      // Check that the first service is unselected
+      expect(
+          find
+              .byKey(Key('service-button-0'))
+              .evaluate()
+              .first
+              .widget
+              .isSelected,
+          isFalse);
+      expect(
+          find
+              .byKey(Key('service-button-1'))
+              .evaluate()
+              .first
+              .widget
+              .isSelected,
+          isTrue);
+    });
+
+    testWidgets(
+        'Test 4: Passes correct String and boolean value to next screen',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(MyApp());
+      await tester.pumpAndSettle();
+
+      // Select a service
+      final serviceOption = find.byKey(Key('service-button-0'));
+      await tester.tap(serviceOption);
+      await tester.pumpAndSettle();
+
+      // Find and tap the next button
+      final nextButton = find.byKey(Key('next-button'));
+      await tester.tap(nextButton);
+      await tester.pumpAndSettle();
+
+      // Verify the values passed to the next screen
+      expect(find.text('Service Name'),
+          findsOneWidget); // Adjust based on how you display the service name
+      expect(find.byKey(Key('boolean-value-key')),
+          findsOneWidget); // Adjust based on your boolean value's key
+    });
+  });
+  */
 }
