@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:folio/core/app_exception.dart';
 import 'package:folio/models/user_model.dart';
+import 'package:folio/services/cloud_messaging_services.dart';
 import 'package:folio/services/storage_services.dart';
 import 'package:mockito/mockito.dart';
 import 'package:folio/core/service_locator.dart';
@@ -11,8 +12,8 @@ import 'package:mockito/annotations.dart';
 import 'package:test/test.dart';
 
 import '../../mocks/auth_services_test.mocks.dart';
-import '../../mocks/create_portfolio_screen.mocks.dart';
-@GenerateMocks([AuthServices, FirestoreServices, StorageServices])
+import '../../mocks/create_portfolio_screen_test.mocks.dart';
+@GenerateMocks([AuthServices, FirestoreServices, StorageServices, CloudMessagingServices])
 import '../../mocks/user_repository_test.mocks.dart';
 
 void main() {
@@ -23,19 +24,26 @@ void main() {
   late MockStorageServices mockStorageServices;
   late MockUser mockUser;
   late MockPortfolioRepository mockPortfolioRepository;
+  late MockCloudMessagingServices mockCloudMessagingServices;
+
 
   setUp(() {
     mockAuthServices = MockAuthServices();
     mockFirestoreServices = MockFirestoreServices();
     mockStorageServices = MockStorageServices();
     mockPortfolioRepository = MockPortfolioRepository();
+    mockCloudMessagingServices = MockCloudMessagingServices();
+
     mockUser = MockUser();
     container = ProviderContainer(overrides: [
       authServicesProvider.overrideWithValue(mockAuthServices),
       firestoreServicesProvider.overrideWithValue(mockFirestoreServices),
       storageServicesProvider.overrideWithValue(mockStorageServices),
-      portfolioRepositoryProvider.overrideWithValue(mockPortfolioRepository)
+      portfolioRepositoryProvider.overrideWithValue(mockPortfolioRepository),
+      cloudMessagingServicesProvider.overrideWithValue(mockCloudMessagingServices)
     ]);
+
+    when(mockUser.emailVerified).thenReturn(true);
   });
 
   group('createUser', () {
@@ -185,6 +193,7 @@ void main() {
 
   group('signOut', () {
     test('signs out successfully', () async {
+      when(mockCloudMessagingServices.removeToken()).thenAnswer((_) async {});
       when(mockAuthServices.signOut()).thenAnswer((_) async {});
 
       final userRepository = container.read(userRepositoryProvider);
@@ -194,6 +203,7 @@ void main() {
     });
 
     test('throws error when sign out fails', () async {
+      when(mockCloudMessagingServices.removeToken()).thenAnswer((_) async {});
       when(mockAuthServices.signOut())
           .thenThrow(AppException('sign-out-error'));
 
@@ -202,6 +212,17 @@ void main() {
           () => userRepository.signOut(),
           throwsA(predicate((e) =>
               e is AppException && e.toString().contains('sign-out-error'))));
+    });
+
+    test('signs out if token removal fails', () async {
+      when(mockCloudMessagingServices.removeToken()).thenThrow(AppException('remove-token-error'));
+       when(mockAuthServices.signOut()).thenAnswer((_) async {});
+
+
+      final userRepository = container.read(userRepositoryProvider);
+      await expectLater(userRepository.signOut(), completes);
+
+      verify(mockAuthServices.signOut()).called(1);
     });
   });
 
@@ -319,7 +340,6 @@ void main() {
   group('deleteUserAccount', () {
     test('successfully deletes professional user with profile picture',
         () async {
-      // Arrange
       final userWithPortfolio = UserModel(
           uid: 'test-uid',
           email: 'test@example.com',
@@ -341,11 +361,9 @@ void main() {
       when(mockAuthServices.deleteUser()).thenAnswer((_) async => {});
       when(mockAuthServices.signOut()).thenAnswer((_) async => {});
 
-      // Act
       final repository = container.read(userRepositoryProvider);
       await repository.deleteUserAccount();
 
-      // Assert
       verify(mockFirestoreServices.getUser()).called(1);
       verify(mockPortfolioRepository.deletePortfolio()).called(1);
       verify(mockStorageServices.deleteImage('profile_pictures/test-uid'))
@@ -356,7 +374,6 @@ void main() {
     });
 
     test('successfully deletes regular user without profile picture', () async {
-      // Arrange
       final regularUser = UserModel(
           uid: 'test-uid',
           email: 'test@example.com',
@@ -371,11 +388,9 @@ void main() {
       when(mockAuthServices.deleteUser()).thenAnswer((_) async => {});
       when(mockAuthServices.signOut()).thenAnswer((_) async => {});
 
-      // Act
       final repository = container.read(userRepositoryProvider);
       await repository.deleteUserAccount();
 
-      // Assert
       verify(mockFirestoreServices.getUser()).called(1);
       verifyNever(mockPortfolioRepository.deletePortfolio());
       verifyNever(mockStorageServices.deleteImage(any));
@@ -385,10 +400,8 @@ void main() {
     });
 
     test('throws AppException when user is not found', () async {
-      // Arrange
       when(mockFirestoreServices.getUser()).thenAnswer((_) async => null);
 
-      // Act & Assert
       final repository = container.read(userRepositoryProvider);
       expect(
         () => repository.deleteUserAccount(),
@@ -398,7 +411,6 @@ void main() {
     });
 
     test('throws AppException when portfolio deletion fails', () async {
-      // Arrange
       final userWithPortfolio = UserModel(
           uid: 'test-uid',
           email: 'test@example.com',
@@ -412,7 +424,6 @@ void main() {
       when(mockPortfolioRepository.deletePortfolio())
           .thenThrow(AppException('delete-portfolio-error'));
 
-      // Act & Assert
       final repository = container.read(userRepositoryProvider);
       expect(
         () => repository.deleteUserAccount(),
@@ -423,7 +434,6 @@ void main() {
     });
 
     test('throws AppException when profile picture deletion fails', () async {
-      // Arrange
       final userWithPhoto = UserModel(
           uid: 'test-uid',
           email: 'test@example.com',
@@ -437,7 +447,6 @@ void main() {
       when(mockStorageServices.deleteImage('profile_pictures/test-uid'))
           .thenThrow(AppException('delete-image-error'));
 
-      // Act & Assert
       final repository = container.read(userRepositoryProvider);
       expect(
         () => repository.deleteUserAccount(),
@@ -447,7 +456,6 @@ void main() {
     });
 
     test('throws AppException when user document deletion fails', () async {
-      // Arrange
       final user = UserModel(
           uid: 'test-uid',
           email: 'test@example.com',
@@ -460,7 +468,6 @@ void main() {
       when(mockFirestoreServices.deleteUser())
           .thenThrow(AppException('delete-user-doc-error'));
 
-      // Act & Assert
       final repository = container.read(userRepositoryProvider);
       expect(
         () => repository.deleteUserAccount(),
@@ -471,7 +478,6 @@ void main() {
     });
 
     test('throws AppException when auth user deletion fails', () async {
-      // Arrange
       final user = UserModel(
           uid: 'test-uid',
           email: 'test@example.com',
@@ -486,7 +492,6 @@ void main() {
       when(mockAuthServices.deleteUser())
           .thenThrow(AppException('delete-auth-user-error'));
 
-      // Act & Assert
       final repository = container.read(userRepositoryProvider);
       expect(
         () => repository.deleteUserAccount(),
@@ -497,16 +502,135 @@ void main() {
     });
 
     test('throws AppException for unexpected errors', () async {
-      // Arrange
       when(mockFirestoreServices.getUser())
           .thenThrow(Exception('Unexpected error'));
 
-      // Act & Assert
       final repository = container.read(userRepositoryProvider);
       expect(
         () => repository.deleteUserAccount(),
         throwsA(predicate((e) =>
             e is AppException && e.toString().contains('delete-user-error'))),
+      );
+    });
+  });
+
+  group('sendEmailVerification', () {
+    test('sends email verification successfully', () async {
+      when(mockAuthServices.sendVerificationEmail())
+          .thenAnswer((_) async => {});
+
+      final userRepository = container.read(userRepositoryProvider);
+      await userRepository.sendEmailVerification();
+
+      verify(mockAuthServices.sendVerificationEmail()).called(1);
+    });
+
+    test('throws email-verification-error when sending verification fails',
+        () async {
+      when(mockAuthServices.sendVerificationEmail())
+          .thenThrow(Exception('Failed to send verification email'));
+
+      final userRepository = container.read(userRepositoryProvider);
+      expect(
+        () => userRepository.sendEmailVerification(),
+        throwsA(predicate((e) =>
+            e is AppException &&
+            e.toString().contains('email-verification-error'))),
+      );
+    });
+
+    test('rethrows AppException from auth service', () async {
+      when(mockAuthServices.sendVerificationEmail())
+          .thenThrow(AppException('already-verified'));
+
+      final userRepository = container.read(userRepositoryProvider);
+      expect(
+        () => userRepository.sendEmailVerification(),
+        throwsA(predicate((e) =>
+            e is AppException && e.toString().contains('already-verified'))),
+      );
+    });
+  });
+
+  group('verifyPhone', () {
+    test('verifies phone number successfully', () async {
+      const phoneNumber = '+1234567890';
+      const verificationId = 'test-verification-id';
+      when(mockAuthServices.verifyPhoneNumber(phoneNumber))
+          .thenAnswer((_) async => verificationId);
+
+      final userRepository = container.read(userRepositoryProvider);
+      final result = await userRepository.verifyPhone(phoneNumber);
+
+      expect(result, equals(verificationId));
+      verify(mockAuthServices.verifyPhoneNumber(phoneNumber)).called(1);
+    });
+
+    test('throws verify-number-error when verification fails', () async {
+      const phoneNumber = '+1234567890';
+      when(mockAuthServices.verifyPhoneNumber(phoneNumber))
+          .thenThrow(Exception('Failed to verify phone number'));
+
+      final userRepository = container.read(userRepositoryProvider);
+      expect(
+        () => userRepository.verifyPhone(phoneNumber),
+        throwsA(predicate((e) =>
+            e is AppException && e.toString().contains('verify-number-error'))),
+      );
+    });
+
+    test('rethrows AppException from auth service', () async {
+      const phoneNumber = '+1234567890';
+      when(mockAuthServices.verifyPhoneNumber(phoneNumber))
+          .thenThrow(AppException('custom-error'));
+
+      final userRepository = container.read(userRepositoryProvider);
+      expect(
+        () => userRepository.verifyPhone(phoneNumber),
+        throwsA(predicate(
+            (e) => e is AppException && e.toString().contains('custom-error'))),
+      );
+    });
+  });
+
+  group('verifySmsCode', () {
+    test('verifies SMS code successfully', () async {
+      const verificationId = 'test-verification-id';
+      const smsCode = '123456';
+      when(mockAuthServices.verifySmsCode(verificationId, smsCode))
+          .thenAnswer((_) async => {});
+
+      final userRepository = container.read(userRepositoryProvider);
+      await userRepository.verifySmsCode(verificationId, smsCode);
+
+      verify(mockAuthServices.verifySmsCode(verificationId, smsCode)).called(1);
+    });
+
+    test('throws verify-sms-error when SMS verification fails', () async {
+      const verificationId = 'test-verification-id';
+      const smsCode = '123456';
+      when(mockAuthServices.verifySmsCode(verificationId, smsCode))
+          .thenThrow(Exception('Failed to verify SMS code'));
+
+      final userRepository = container.read(userRepositoryProvider);
+      expect(
+        () => userRepository.verifySmsCode(verificationId, smsCode),
+        throwsA(predicate((e) =>
+            e is AppException && e.toString().contains('verify-sms-error'))),
+      );
+    });
+
+    test('rethrows AppException from auth service', () async {
+      const verificationId = 'test-verification-id';
+      const smsCode = '123456';
+      when(mockAuthServices.verifySmsCode(verificationId, smsCode))
+          .thenThrow(AppException('custom-error'));
+
+      final userRepository = container.read(userRepositoryProvider);
+      expect(
+        () => userRepository.verifySmsCode(verificationId, smsCode),
+        throwsA(predicate(
+            (e) => e is AppException && e.toString().contains('custom-error'))),
       );
     });
   });

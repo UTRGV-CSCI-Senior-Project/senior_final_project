@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:folio/core/app_exception.dart';
@@ -20,13 +22,46 @@ class _UpdateServicesScreenState extends ConsumerState<UpdateServicesScreen> {
   bool isLoading = true;
   bool isSaving = false;
   List<String> services = [];
+  List<String> filteredServices = [];
   Map<String, bool> selectedServices = {};
+  final searchController = TextEditingController();
   String errorMessage = "";
+  Timer? debounce;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     loadCurrentInterests();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    searchController.addListener(_onSearchChanged);
+  }
+
+  @override
+  void dispose() {
+    searchController.removeListener(_onSearchChanged);
+    searchController.dispose();
+    debounce?.cancel();
+    super.dispose();
+  }
+
+  void _onSearchChanged() {
+    if (debounce?.isActive ?? false) {
+      debounce?.cancel();
+    }
+    debounce = Timer(const Duration(seconds: 1), () async {
+      final query = searchController.text.trim();
+      if (query.isNotEmpty) {
+        filterServices(query);
+      } else {
+        setState(() {
+          filteredServices = services;
+        });
+      }
+    });
   }
 
   Future<void> loadCurrentInterests() async {
@@ -48,6 +83,25 @@ class _UpdateServicesScreenState extends ConsumerState<UpdateServicesScreen> {
         errorMessage = "Failed to load services. Please try again.";
         isLoading = false;
       });
+    }
+  }
+
+  void filterServices(String query) async {
+    final filtered = services
+        .where((service) => service.toLowerCase().contains(query.toLowerCase()))
+        .toList();
+    if (filtered.isNotEmpty) {
+      setState(() {
+        filteredServices = filtered;
+      });
+    } else {
+      final aiSearchResults =
+          await ref.read(geminiServicesProvider).aiSearch(query);
+          if(aiSearchResults.isNotEmpty){
+      setState(() {
+        filteredServices = aiSearchResults;
+      });
+          }
     }
   }
 
@@ -134,9 +188,10 @@ class _UpdateServicesScreenState extends ConsumerState<UpdateServicesScreen> {
                   borderRadius: BorderRadius.circular(25),
                 ),
                 child: TextField(
+                  controller: searchController,
                   cursorColor: Theme.of(context).textTheme.displayLarge?.color,
                   decoration: InputDecoration(
-                    hintText: 'Search Folio',
+                    hintText: 'Search for a service',
                     enabledBorder: OutlineInputBorder(
                         borderRadius:
                             const BorderRadius.all(Radius.circular(50)),
@@ -162,7 +217,8 @@ class _UpdateServicesScreenState extends ConsumerState<UpdateServicesScreen> {
               ),
               Expanded(
                 child: ServiceSelectionWidget(
-                    services: services,
+                    services:
+                        filteredServices.isEmpty ? services : filteredServices,
                     initialSelectedServices: selectedServices,
                     onServicesSelected: (newService) {
                       setState(() {

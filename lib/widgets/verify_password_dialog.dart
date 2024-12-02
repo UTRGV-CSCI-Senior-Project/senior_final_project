@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 void verifyPasswordDialog(
   BuildContext context,
   String title,
+  String description,
   Function(String) onVerified,
 ) {
   final TextEditingController passwordController = TextEditingController();
@@ -37,8 +38,7 @@ void verifyPasswordDialog(
                           children: [
                             Column(
                               children: [
-                                Text(
-                                  'Please verify your password before continuing.',
+                                Text(description,
                                   style: GoogleFonts.inter(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w500),

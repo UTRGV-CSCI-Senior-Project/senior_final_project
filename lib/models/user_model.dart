@@ -7,21 +7,29 @@ class UserModel {
   final bool _completedOnboarding;
   final List<String> _preferredServices;
   final String? _profilePictureUrl;
+  final bool _isEmailVerified;
+  final String? _phoneNumber;
+  final bool _isPhoneVerified;
+  final List<String>? _fcmTokens;
   double? _latitude;
   double? _longitude;
 
-  UserModel({
-    required String uid,
-    required String username,
-    String? fullName,
-    required String email,
-    required bool isProfessional,
-    bool completedOnboarding = false,
-    List<String> preferredServices = const [],
-    String? profilePictureUrl,
+  UserModel(
+      {required String uid,
+      required String username,
+      String? fullName,
+      required String email,
+      required bool isProfessional,
+      bool completedOnboarding = false,
+      List<String> preferredServices = const [],
+      String? profilePictureUrl,
     double? latitude,
     double? longitude,
-  })  : _uid = uid,
+    List<String>? fcmTokens,
+      bool isEmailVerified = false,
+      String? phoneNumber,
+      bool isPhoneVerified = false})
+      : _uid = uid,
         _username = username,
         _fullName = fullName,
         _email = email,
@@ -30,7 +38,11 @@ class UserModel {
         _preferredServices = preferredServices,
         _profilePictureUrl = profilePictureUrl,
         _latitude = latitude,
-        _longitude = longitude {
+        _longitude = longitude,
+        _fcmTokens = fcmTokens,
+        _isEmailVerified = isEmailVerified,
+        _phoneNumber = phoneNumber,
+        _isPhoneVerified = isPhoneVerified {
     if (_uid.isEmpty) {
       throw ArgumentError('UID cannot be empty');
     }
@@ -50,7 +62,10 @@ class UserModel {
   bool get completedOnboarding => _completedOnboarding;
   List<String> get preferredServices => _preferredServices;
   String? get profilePictureUrl => _profilePictureUrl;
-  double? get latitude => _latitude;
+  bool get isEmailVerified => _isEmailVerified;
+  String? get phoneNumber => _phoneNumber;
+  bool get isPhoneVerified => _isPhoneVerified;
+  List<String>? get fcmTokens => _fcmTokens;  double? get latitude => _latitude;
   double? get longitude => _longitude;
 
   toJson() {
@@ -63,6 +78,10 @@ class UserModel {
       "completedOnboarding": completedOnboarding,
       "preferredServices": preferredServices,
       "profilePictureUrl": profilePictureUrl,
+      "isEmailVerified": isEmailVerified,
+      "isPhoneVerified": isPhoneVerified,
+      "phoneNumber": phoneNumber,
+      "fcmTokens": fcmTokens
       "latitude": latitude,
       "longitude": longitude,
     };
@@ -96,6 +115,12 @@ class UserModel {
       profilePictureUrl: json['profilePictureUrl'] as String?,
       latitude: json["latitude"] as double?,
       longitude: json["longitude"] as double?,
-    );
+    ,
+        isEmailVerified: json['isEmailVerified'] ?? false,
+        phoneNumber: json['phoneNumber'] as String?,
+        isPhoneVerified: json['isPhoneVerified'] ?? false,
+        fcmTokens: (json['fcmTokens'] as List?)?.map((e) => e.toString()).toList()
+        );
+      
   }
 }

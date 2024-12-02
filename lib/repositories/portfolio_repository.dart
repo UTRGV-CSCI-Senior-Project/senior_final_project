@@ -19,6 +19,8 @@ class PortfolioRepository {
       final portfolio = PortfolioModel(service: service, details: details, experienceStartDate: initialDate, years: years, months: months, images: imageData, location: location, latAndLong: latAndLong, geohash: geohash, professionalsName: professionalsName);
       await _firestoreServices.savePortfolioDetails(portfolio.toJson());
 
+      await _firestoreServices.addService(service);
+
       await _firestoreServices.updateUser({'isProfessional': true});
     } catch (e) {
       if (e is AppException) {

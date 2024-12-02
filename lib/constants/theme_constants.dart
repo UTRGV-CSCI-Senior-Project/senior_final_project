@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 // Light Theme Colors
@@ -28,6 +29,7 @@ const Color darkErrorColor = Color(0xFFEF5350); // Vibrant red for errors in dar
 ThemeData lightTheme = ThemeData(
     scaffoldBackgroundColor: lightBackgroundColor,
     appBarTheme: const AppBarTheme(
+      systemOverlayStyle: SystemUiOverlayStyle.dark,
       backgroundColor: Colors.transparent,
       iconTheme: IconThemeData(color: lightPrimaryColor),
       titleTextStyle: TextStyle(
@@ -110,6 +112,7 @@ enabledBorder: const OutlineInputBorder(
 ThemeData darkTheme = ThemeData(
     scaffoldBackgroundColor: darkBackgroundColor,
     appBarTheme: const AppBarTheme(
+      systemOverlayStyle: SystemUiOverlayStyle.light,
       backgroundColor: Colors.transparent,
       iconTheme: IconThemeData(color: darkPrimaryColor),
       titleTextStyle: TextStyle(
