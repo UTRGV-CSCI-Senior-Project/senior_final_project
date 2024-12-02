@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:folio/models/portfolio_model.dart';
 import 'package:folio/models/user_model.dart';
-import 'package:folio/views/home/profile_tab.dart';
+import 'package:folio/views/home/profile/profile_tab.dart';
 
 void main() {
   group('EditProfile Tests', () {

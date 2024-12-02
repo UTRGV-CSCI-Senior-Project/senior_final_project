@@ -6,7 +6,7 @@ import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:folio/core/app_exception.dart';
 import 'package:folio/core/service_locator.dart';
 import 'package:folio/views/home/inbox_tab.dart';
-import 'package:folio/views/home/profile_tab.dart';
+import 'package:folio/views/home/profile/profile_tab.dart';
 import 'package:folio/views/auth_onboarding_welcome/loading_screen.dart';
 import 'package:folio/views/auth_onboarding_welcome/onboarding_screen.dart';
 import 'package:folio/views/home/discover_tab.dart';
@@ -29,17 +29,16 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-    Timer? _emailCheckTimer;
-    bool _isInitializingNotifications = false;
+  Timer? _emailCheckTimer;
+  bool _isInitializingNotifications = false;
 
   @override
   void initState() {
     super.initState();
-   WidgetsBinding.instance.addPostFrameCallback((_) async {
-    try{
-      _initializeMessaging();
-    }catch(e){
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        _initializeMessaging();
+      } catch (e) {}
       _emailCheckTimer = Timer(const Duration(milliseconds: 100), () {
         if (mounted) {
           _checkAndShowEmailVerification();
@@ -47,13 +46,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       });
     });
   }
- @override
+
+  @override
   void dispose() {
     _emailCheckTimer?.cancel();
     super.dispose();
   }
 
-void _checkAndShowEmailVerification() {
+  void _checkAndShowEmailVerification() {
     final userData = ref.read(userDataStreamProvider).value;
     if (userData == null) return;
 
@@ -67,14 +67,14 @@ void _checkAndShowEmailVerification() {
       if (!hasShownDialog && !userModel.isEmailVerified && mounted) {
         // Set flag before showing dialog
         ref.read(hasShownEmailDialogProvider.notifier).state = true;
-        
+
         // Use root navigator and ensure dialog is modal
         showDialog(
           context: context,
           barrierDismissible: false,
           useRootNavigator: true,
           builder: (BuildContext dialogContext) => const PopScope(
-            canPop: false,  // Prevent back button dismissal
+            canPop: false, // Prevent back button dismissal
             child: EmailVerificationDialog(),
           ),
         );
@@ -96,7 +96,6 @@ void _checkAndShowEmailVerification() {
       _isInitializingNotifications = false;
     }
   }
-
 
   @override
   Widget build(BuildContext context) {

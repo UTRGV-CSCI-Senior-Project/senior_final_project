@@ -123,7 +123,10 @@ class _EditProfileState extends ConsumerState<EditProfile> {
             ],
           ),
           Row(
-            children: [TextButton(onPressed: () {}, child: Text(""))],
+            children: [
+              TextButton(onPressed: () {}, child: Text("Portfolio")),
+              TextButton(onPressed: () {}, child: Text("Schedule"))
+            ],
           ),
           const SizedBox(height: 40.0),
           if (portfolio != null)

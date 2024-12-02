@@ -54,6 +54,7 @@ dependencies:
   http: ^1.2.2
   firebase_messaging: ^15.1.5
   cloud_functions: ^5.1.5
+  syncfusion_flutter_calendar: ^27.2.4
 
 dev_dependencies:
   flutter_test:
