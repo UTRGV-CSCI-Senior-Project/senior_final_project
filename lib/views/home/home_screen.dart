@@ -225,7 +225,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   HomeTab(userModel: userModel),
                   const DiscoverTab(),
                   InboxTab(userModel: userModel),
-                  EditProfile(
+                  ProfilePortfolio(
                       userModel: userModel, portfolioModel: userPortfolio),
                 ],
               ),
