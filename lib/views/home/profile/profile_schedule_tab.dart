@@ -22,7 +22,7 @@ class _PortfolioCalenderState extends ConsumerState<PortfolioCalender> {
   @override
   Widget build(BuildContext context) {
     return SfCalendar(
-      view: CalendarView.week, // Example: Set the default view to month
+      view: CalendarView.day, // Example: Set the default view to month
       dataSource: MeetingDataSource(_getDataSource()),
       todayHighlightColor: Colors.blue, // Customize properties as required
     );
