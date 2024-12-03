@@ -260,7 +260,9 @@ void main() {
         'isEmailVerified': false,
         'phoneNumber': null,
         'isPhoneVerified': false,
-        'fcmTokens': null
+        'fcmTokens': null,
+         'latitude': null,
+         'longitude': null
       };
       when(mockFirebaseFirestore.collection('users'))
           .thenReturn(mockCollectionReference);
@@ -355,6 +357,7 @@ void main() {
       const uid = 'testUid';
       final portfolioJson = {
         'service': 'Barber',
+        'uid': 'test-uid',
         'details': 'details',
         'years': 5,
         'months': 3,
@@ -368,7 +371,10 @@ void main() {
             'downloadUrl': 'http://example.com/image2'
           }
         ],
-        'experienceStartDate': null
+        'experienceStartDate': null,
+        'location':  null,
+        'latAndLong': null,
+        'professionalsName': null
       };
 
       when(mockFirebaseFirestore.collection('portfolios'))
@@ -693,6 +699,7 @@ void main() {
       final Map<String, dynamic> portfolioData = {
         'details': 'Test bio',
         'service': 'Barber',
+        'uid': 'test-uid',
         'years': 4,
         'months': 4,
         'images': [
@@ -774,7 +781,9 @@ void main() {
         'isEmailVerified': FieldValue.delete(),
         'isPhoneVerified': FieldValue.delete(),
         'phoneNumber': FieldValue.delete(),
-        'fcmTokens': FieldValue.delete()
+        'fcmTokens': FieldValue.delete(),
+        'latitude': FieldValue.delete(),
+        'longitude': FieldValue.delete(),
       })).called(1);
     });
 
@@ -1398,6 +1407,108 @@ void main() {
           firestoreServices.updateChatroomParticipant(),
           throwsA(isA<AppException>().having(
               (e) => e.code, 'error', 'update-chatroom-participant-error')));
+    });
+  });
+
+  group('getBounds', () {
+    test('calculates correct bounds for given location and radius', () {
+      const centerLat = 40.7128;
+      const centerLong = -74.0060;
+      const radiusKm = 10.0;
+
+      final bounds = firestoreServices.getBounds(centerLat, centerLong, radiusKm);
+
+      expect(bounds['minLat'], lessThan(centerLat));
+      expect(bounds['maxLat'], greaterThan(centerLat));
+      expect(bounds['minLong'], lessThan(centerLong));
+      expect(bounds['maxLong'], greaterThan(centerLong));
+    });
+
+    test('handles zero radius correctly', () {
+      const centerLat = 40.7128;
+      const centerLong = -74.0060;
+      const radiusKm = 0.0;
+
+      final bounds = firestoreServices.getBounds(centerLat, centerLong, radiusKm);
+
+      expect(bounds['minLat'], closeTo(centerLat, 0.0001));
+      expect(bounds['maxLat'], closeTo(centerLat, 0.0001));
+      expect(bounds['minLong'], closeTo(centerLong, 0.0001));
+      expect(bounds['maxLong'], closeTo(centerLong, 0.0001));
+    });
+  });
+
+  group('getNearbyPortfolios', () {
+    test('retrieves nearby portfolios successfully', () async {
+      const lat = 40.7128;
+      const lng = -74.0060;
+      final bounds = firestoreServices.getBounds(lat, lng, 32.1869);
+      final Map<String, dynamic> portfolioData = {
+        'details': 'Test bio',
+        'service': 'Barber',
+        'uid': 'test-uid',
+        'years': 4,
+        'months': 4,
+        'images': [
+          {'filePath': 'path1', 'downloadUrl': 'url1'},
+          {'filePath': 'path2', 'downloadUrl': 'url2'},
+        ],
+      };
+    
+
+      // Setup mock chain for Firestore query
+      when(mockFirebaseFirestore.collection('portfolios')).thenReturn(mockCollectionReference);
+      // Chained where clauses with specific arguments
+      when(mockCollectionReference.where(
+        'latAndLong.longitude', 
+        isGreaterThanOrEqualTo: bounds['minLong']
+      )).thenReturn(mockQuery);
+      
+      when(mockQuery.where(
+        'latAndLong.longitude', 
+        isLessThanOrEqualTo: bounds['maxLong']
+      )).thenReturn(mockQuery);
+      
+      when(mockQuery.where(
+        'latAndLong.latitude', 
+        isGreaterThanOrEqualTo: bounds['minLat']
+      )).thenReturn(mockQuery);
+      
+      when(mockQuery.where(
+        'latAndLong.latitude', 
+        isLessThanOrEqualTo: bounds['maxLat']
+      )).thenReturn(mockQuery);
+      when(mockQuery.get()).thenAnswer((_) async {
+        return mockQuerySnapshot;
+      });
+      final mockQueryDocumentSnapshot =
+          MockQueryDocumentSnapshot<Map<String, dynamic>>();
+      when(mockQuerySnapshot.docs).thenReturn([
+          mockQueryDocumentSnapshot
+        ]);
+      when(mockQueryDocumentSnapshot.data()).thenReturn(portfolioData);
+
+      final result = await firestoreServices.getNearbyPortfolios(lat, lng);
+
+      expect(result, isNotEmpty);
+      expect(result.first.uid, 'test-uid');
+    });
+
+    test('handles generic exception by throwing AppException', () async {
+      const lat = 40.7128;
+      const lng = -74.0060;
+
+      // Setup mock to throw a generic exception
+      when(mockFirebaseFirestore.collection('portfolios')).thenReturn(mockCollectionReference);
+      when(mockCollectionReference.where(any)).thenReturn(mockQuery);
+      when(mockQuery.get()).thenThrow(Exception('Database error'));
+
+      expect(
+        () => firestoreServices.getNearbyPortfolios(lat, lng),
+        throwsA(predicate((e) => 
+          e is AppException && e.toString().contains('get-portfolios-error')
+        ))
+      );
     });
   });
 }

@@ -9,11 +9,13 @@ class PortfolioModel {
   final DateTime? _experienceStartDate;
   final Map<String, String?>? _location;
   final Map<String, double?>? _latAndLong;
-  final String? _geohash;
   final String? _professionalsName;
+  final String _uid;
+
 
   PortfolioModel({
     required String service,
+    required String uid,
     String details = "",
     int years = 0,
     int months = 0,
@@ -21,9 +23,9 @@ class PortfolioModel {
     DateTime? experienceStartDate,
      Map<String, String?>? location,
      Map<String, double?>? latAndLong,
-    String? geohash,
     String? professionalsName
   })  : _service = service,
+        _uid = uid,
         _details = details,
         _years = years,
         _months = months,
@@ -31,10 +33,12 @@ class PortfolioModel {
         _experienceStartDate = experienceStartDate,
         _location = location,
         _latAndLong = latAndLong,
-        _geohash = geohash,
         _professionalsName = professionalsName
         {
     if (service.isEmpty) {
+      throw ArgumentError('service cannot be empty');
+    }
+    if (uid.isEmpty) {
       throw ArgumentError('UID cannot be empty');
     }
   }
@@ -47,8 +51,8 @@ class PortfolioModel {
   DateTime? get experienceStartDate => _experienceStartDate;
   Map<String, String?>? get location => _location;
    Map<String, double?>? get latAndLong => _latAndLong;
-   String? get geohash => _geohash;
    String? get professionalsName => _professionalsName;
+   String get uid => _uid;
 
 
   // Convert the model to JSON format
@@ -62,8 +66,8 @@ class PortfolioModel {
       "experienceStartDate": experienceStartDate,
       "location": location,
       "latAndLong": latAndLong,
-      "geohash": geohash,
-      "professionalsName": professionalsName
+      "professionalsName": professionalsName,
+      "uid": uid
     };
   }
 
@@ -77,6 +81,10 @@ class PortfolioModel {
     if (!json.containsKey('years')) {
       throw ArgumentError('empty-years');
     }
+    if(!json.containsKey('uid')){
+      throw ArgumentError('empty-uid');
+    }
+
 
     final experienceStartDateTimestamp = json['experienceStartDate'];
     final experienceStartDate = experienceStartDateTimestamp is Timestamp
@@ -99,8 +107,8 @@ class PortfolioModel {
       latAndLong: json['latAndLong'] != null
           ? Map<String, double?>.from(json['latAndLong'] as Map)
           : null,
-      geohash: json['geohash'] as String?,
-      professionalsName: json['professionalsName'] as String?
+      professionalsName: json['professionalsName'] as String?,
+      uid: json['uid'] as String
     );
   }
 

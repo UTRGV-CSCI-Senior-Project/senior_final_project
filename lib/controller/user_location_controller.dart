@@ -4,14 +4,18 @@ import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 
 class LocationService {
-  /// Check if location services are enabled.
+  final GeolocatorPlatform _geolocator;
+  final GeocodingService _geocodingService;
+
+  LocationService(this._geolocator, this._geocodingService);
+  /// Check if location services are enabled.a
   Future<bool> checkService() async {
-    return await Geolocator.isLocationServiceEnabled();
+    return await _geolocator.isLocationServiceEnabled();
   }
 
   /// Check and request location permissions.
   Future<bool> checkPermission() async {
-    LocationPermission permission = await Geolocator.checkPermission();
+    LocationPermission permission = await _geolocator.checkPermission();
 
     if (permission == LocationPermission.whileInUse ||
         permission == LocationPermission.always) {
@@ -19,7 +23,7 @@ class LocationService {
     }
 
     if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
+      return false;
     }
 
     // Return false if permissions are still denied or denied forever.
@@ -44,7 +48,7 @@ class LocationService {
     }
 
     try {
-      return await Geolocator.getCurrentPosition();
+      return await _geolocator.getCurrentPosition();
     } catch (e) {
       throw AppException('get-location-error');
     }
@@ -58,7 +62,7 @@ class LocationService {
   /// Calculate distance between two points in miles.
   double calculateDistanceInMiles(Position p1, Position p2) {
     return 0.000621371 *
-        Geolocator.distanceBetween(
+        _geolocator.distanceBetween(
           p1.latitude,
           p1.longitude,
           p2.latitude,
@@ -70,7 +74,7 @@ class LocationService {
   Future<String> getAddress(double latitude, double longitude) async {
     try {
       List<Placemark> placemarks =
-          await placemarkFromCoordinates(latitude, longitude);
+          await _geocodingService.getPlacemarksFromCoordinates(latitude, longitude);
       if (placemarks.isNotEmpty) {
         Placemark place = placemarks.first;
         return [
@@ -94,7 +98,7 @@ class LocationService {
   Future<String> getCity(double latitude, double longitude) async {
     try {
       List<Placemark> placemarks =
-          await placemarkFromCoordinates(latitude, longitude);
+          await _geocodingService.getPlacemarksFromCoordinates(latitude, longitude);
       return placemarks.isNotEmpty
           ? placemarks.first.locality ?? 'City not found.'
           : 'City not found.';
@@ -114,13 +118,20 @@ class LocationService {
   }
 
   Future<void> openLocationSettings() async {
-    await Geolocator.openLocationSettings();
+    await _geolocator.openLocationSettings();
   }
 
   Stream<Position> getPositionStream() {
-    return Geolocator.getPositionStream(
+    return _geolocator.getPositionStream(
         locationSettings: const LocationSettings(
-      distanceFilter: 48280,
+      distanceFilter: 32186,
     ));
+  }
+}
+
+class GeocodingService {
+  Future<List<Placemark>> getPlacemarksFromCoordinates(
+      double latitude, double longitude) {
+    return placemarkFromCoordinates(latitude, longitude);
   }
 }

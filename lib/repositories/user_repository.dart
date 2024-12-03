@@ -239,4 +239,17 @@ class UserRepository {
       }
     }
   }
+
+  Future<UserModel?> getOtherUser(String uid) async {
+    try{
+      return await _firestoreServices.getOtherUser(uid);
+    }catch(e){
+      if(e is AppException)
+      {
+        rethrow;
+      }else{
+        throw AppException('get-other-user-error');
+      }
+    }
+  }
 }

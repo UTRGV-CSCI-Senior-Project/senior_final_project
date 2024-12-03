@@ -13,7 +13,8 @@ import 'package:test/test.dart';
 
 import '../../mocks/auth_services_test.mocks.dart';
 import '../../mocks/create_portfolio_screen_test.mocks.dart';
-@GenerateMocks([AuthServices, FirestoreServices, StorageServices, CloudMessagingServices])
+@GenerateMocks(
+    [AuthServices, FirestoreServices, StorageServices, CloudMessagingServices])
 import '../../mocks/user_repository_test.mocks.dart';
 
 void main() {
@@ -25,7 +26,6 @@ void main() {
   late MockUser mockUser;
   late MockPortfolioRepository mockPortfolioRepository;
   late MockCloudMessagingServices mockCloudMessagingServices;
-
 
   setUp(() {
     mockAuthServices = MockAuthServices();
@@ -40,7 +40,8 @@ void main() {
       firestoreServicesProvider.overrideWithValue(mockFirestoreServices),
       storageServicesProvider.overrideWithValue(mockStorageServices),
       portfolioRepositoryProvider.overrideWithValue(mockPortfolioRepository),
-      cloudMessagingServicesProvider.overrideWithValue(mockCloudMessagingServices)
+      cloudMessagingServicesProvider
+          .overrideWithValue(mockCloudMessagingServices)
     ]);
 
     when(mockUser.emailVerified).thenReturn(true);
@@ -215,9 +216,9 @@ void main() {
     });
 
     test('signs out if token removal fails', () async {
-      when(mockCloudMessagingServices.removeToken()).thenThrow(AppException('remove-token-error'));
-       when(mockAuthServices.signOut()).thenAnswer((_) async {});
-
+      when(mockCloudMessagingServices.removeToken())
+          .thenThrow(AppException('remove-token-error'));
+      when(mockAuthServices.signOut()).thenAnswer((_) async {});
 
       final userRepository = container.read(userRepositoryProvider);
       await expectLater(userRepository.signOut(), completes);
@@ -631,6 +632,37 @@ void main() {
         () => userRepository.verifySmsCode(verificationId, smsCode),
         throwsA(predicate(
             (e) => e is AppException && e.toString().contains('custom-error'))),
+      );
+    });
+  });
+
+  group('getOtherUser', () {
+    test('successfully returns other user', () async {
+      final otherUser = UserModel(
+          uid: 'uid',
+          username: 'username',
+          email: 'email@email.com',
+          isProfessional: false);
+
+      when(mockFirestoreServices.getOtherUser('uid'))
+          .thenAnswer((_) async => otherUser);
+      final userRepository = container.read(userRepositoryProvider);
+
+      final result = await userRepository.getOtherUser('uid');
+
+      expect(result, otherUser);
+      verify(mockFirestoreServices.getOtherUser('uid')).called(1);
+    });
+    test('throws app exception when firestore getOtherUser fails', () async {
+      when(mockFirestoreServices.getOtherUser('uid'))
+          .thenThrow(Exception('error-error'));
+      final userRepository = container.read(userRepositoryProvider);
+
+      expect(
+        () => userRepository.getOtherUser('uid'),
+        throwsA(predicate((e) =>
+            e is AppException &&
+            e.toString().contains('get-other-user-error'))),
       );
     });
   });

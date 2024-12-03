@@ -95,9 +95,11 @@ _passwordFocusNode.addListener(() => _scrollToFocused(_usernameFocusNode));
               ErrorBox(
                   errorMessage: errorMessage,
                   onDismiss: () {
-                    setState(() {
+                    if(context.mounted) {
+                      setState(() {
                       errorMessage = "";
                     });
+                    }
                   }),
               const SizedBox(
                 height: 25,

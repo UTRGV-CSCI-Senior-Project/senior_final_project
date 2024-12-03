@@ -4,10 +4,11 @@ import 'package:folio/core/service_locator.dart';
 import 'package:folio/models/portfolio_model.dart';
 import 'package:folio/models/user_model.dart';
 import 'package:folio/views/home/update_services_screen.dart';
+import 'package:folio/views/view_account/view_profile_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class HomeTab extends ConsumerStatefulWidget {
-  final UserModel? userModel;
+  final UserModel userModel;
 
   const HomeTab({
     super.key,
@@ -50,7 +51,7 @@ class _HomeTabState extends ConsumerState<HomeTab> {
                             MaterialPageRoute(
                                 builder: (context) => UpdateServicesScreen(
                                       selectedServices:
-                                          widget.userModel!.preferredServices,
+                                          widget.userModel.preferredServices,
                                     )));
                       },
                       child: Text(
@@ -67,15 +68,14 @@ class _HomeTabState extends ConsumerState<HomeTab> {
                   height: 50,
                   child: ListView.builder(
                       scrollDirection: Axis.horizontal,
-                      itemCount:
-                          widget.userModel?.preferredServices.length ?? 0,
+                      itemCount: widget.userModel.preferredServices.length,
                       itemBuilder: (context, index) {
                         return Padding(
                           padding: const EdgeInsets.only(right: 8),
                           child: ActionChip(
                             onPressed: () {},
                             label: Text(
-                              widget.userModel!.preferredServices[index]
+                              widget.userModel.preferredServices[index]
                                   .toUpperCase(),
                               style: GoogleFonts.inter(
                                   fontSize: 14,
@@ -113,18 +113,21 @@ class _HomeTabState extends ConsumerState<HomeTab> {
                       style: GoogleFonts.inter(
                           fontWeight: FontWeight.w900, fontSize: 16),
                     ),
-                    GestureDetector(
-                      key: const Key("Edit_Proffesion_Key"),
-                      onTap: () {},
-                      child: Text(
-                        "See More",
-                        style: GoogleFonts.inter(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Theme.of(context).colorScheme.tertiary),
-                      ),
-                    ),
+                    // GestureDetector(
+                    //   key: const Key("Edit_Proffesion_Key"),
+                    //   onTap: () {},
+                    //   child: Text(
+                    //     "See More",
+                    //     style: GoogleFonts.inter(
+                    //         fontSize: 14,
+                    //         fontWeight: FontWeight.w600,
+                    //         color: Theme.of(context).colorScheme.tertiary),
+                    //   ),
+                    // ),
                   ],
+                ),
+                const SizedBox(
+                  height: 8,
                 ),
                 ref.watch(nearbyPortfoliosProvider).when(
                     data: (portfolios) {
@@ -133,7 +136,7 @@ class _HomeTabState extends ConsumerState<HomeTab> {
                             child: Text("No portfolios found nearby."));
                       }
                       return SizedBox(
-                        height: 250,
+                        height: 275,
                         child: ListView.builder(
                           scrollDirection: Axis.horizontal,
                           itemCount: portfolios.length,
@@ -160,8 +163,8 @@ class _HomeTabState extends ConsumerState<HomeTab> {
   }
 
   Widget _buildPortfolio(PortfolioModel portfolio) {
-    return Container(
-      height: 250,
+    return 
+    Container(
       width: 255,
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.secondary.withOpacity(0.05),
@@ -204,22 +207,55 @@ class _HomeTabState extends ConsumerState<HomeTab> {
                   .min, // This ensures the column takes minimum space
 
               children: [
-                Text(
-                  portfolio.professionalsName ?? "Professional's Name",
-                  style: GoogleFonts.inter(
-                      fontSize: 16, fontWeight: FontWeight.bold),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        portfolio.professionalsName ?? "Professional's Name",
+                        style: GoogleFonts.inter(
+                            fontSize: 16, fontWeight: FontWeight.bold),
+                            overflow: TextOverflow.ellipsis,
+  maxLines: 1
+                      ),
+                    ),
+                    const SizedBox(width: 8), // Add spacing between columns
+                    Flexible(
+                      child: Text(
+                        portfolio.location?['city'] ?? '',
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                        style: GoogleFonts.inter(
+                            fontSize: 13, fontWeight: FontWeight.w500),
+                        textAlign: TextAlign.end,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(
+                  height: 8,
                 ),
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(portfolio.service,
+                    Expanded(
+                      child: Text(
+                        portfolio.service,
                         style: GoogleFonts.inter(
-                            fontSize: 13, fontWeight: FontWeight.w500)),
-                    const Spacer(),
-                    Text(
-                      portfolio.getFormattedTotalExperience(),
-                      style: GoogleFonts.inter(
-                          fontSize: 13, fontWeight: FontWeight.w500),
-                    )
+                            fontSize: 13, fontWeight: FontWeight.w500),
+                      ),
+                    ),
+                    const SizedBox(width: 8), // Add spacing between columns
+                    Flexible(
+                      child: Text(
+                        portfolio.getFormattedTotalExperience(),
+                        style: GoogleFonts.inter(
+                            fontSize: 13, fontWeight: FontWeight.w500),
+                        textAlign: TextAlign.end,
+                        overflow: TextOverflow.ellipsis,
+  maxLines: 1
+                      ),
+                    ),
                   ],
                 ),
               ],
@@ -237,10 +273,20 @@ class _HomeTabState extends ConsumerState<HomeTab> {
                           color: Theme.of(context).colorScheme.primary,
                           width: 2,
                         ),
-                        borderRadius: const BorderRadius.all(Radius.circular(50)))),
-                onPressed: () {},
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(50)))),
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => ViewProfileScreen(
+                                uid: portfolio.uid,
+                                portfolioModel: portfolio,
+                                currentUser: widget.userModel,
+                              )));
+                },
                 child: Text(
-                  'View Portfolio',
+                  'View',
                   style: GoogleFonts.inter(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,

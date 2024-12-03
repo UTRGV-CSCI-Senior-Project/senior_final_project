@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
@@ -313,13 +312,8 @@ void _checkLocationPermission(BuildContext context, WidgetRef ref) async {
         await locationService.openLocationSettings();
       }
       ref.read(hasShownLocationPermissionDialog.notifier).state = true;
-    } else {}
-  } catch (e) {
-    // Handle any exceptions during permission check
-    if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error checking location permissions: $e')),
-      );
     }
+  } catch (e) {
+    return;
   }
 }

@@ -41,11 +41,11 @@ final firebaseStorageProvider = Provider<FirebaseStorage>((ref) {
   return FirebaseStorage.instance;
 });
 
-final firebaseFunctions = Provider<FirebaseFunctions>((ref) {
+final firebaseFunctionsProvider = Provider<FirebaseFunctions>((ref) {
   return FirebaseFunctions.instance;
 });
 
-final firebaseMessaging = Provider<FirebaseMessaging>((ref) {
+final firebaseMessagingProvider = Provider<FirebaseMessaging>((ref) {
   return FirebaseMessaging.instance;
 });
 
@@ -70,8 +70,8 @@ final storageServicesProvider = Provider<StorageServices>((ref) {
 
 final cloudMessagingServicesProvider = Provider<CloudMessagingServices>((ref) {
   final firestoreServices = ref.read(firestoreServicesProvider);
-  final firebaseMessaging = FirebaseMessaging.instance;
-  final firebaseFunctions = FirebaseFunctions.instance;
+  final firebaseMessaging = ref.read(firebaseMessagingProvider);
+  final firebaseFunctions = ref.read(firebaseFunctionsProvider);
 
   return CloudMessagingServices(firebaseMessaging, firestoreServices, firebaseFunctions);
 });
@@ -181,7 +181,10 @@ final chatroomStreamProvider = StreamProvider<List<ChatroomModel>>((ref) {
 ////////////////// STREAMS //////////////////
 ///
 final locationServiceProvider = Provider<LocationService>((ref){
- return LocationService();
+   GeolocatorPlatform geolocatorPlatform = GeolocatorPlatform.instance;
+   GeocodingService geocodingService = GeocodingService();
+      return LocationService(geolocatorPlatform, geocodingService);
+    
 });
 
 final currentPositionProvider = StateProvider<Position?>((ref) => null);
@@ -193,11 +196,8 @@ final positionStreamProvider = StreamProvider<Position>((ref){
 
 final nearbyPortfoliosProvider = FutureProvider<List<PortfolioModel>>((ref) async {
   final positionAsyncValue = ref.watch(positionStreamProvider);
-
   return positionAsyncValue.when(data: (position) async {
-    final locationService = ref.read(locationServiceProvider);
-    final geohash = locationService.createGeohash(position.latitude, position.longitude);
-    return await ref.read(portfolioRepositoryProvider).getNearbyPortfolios(geohash);
+    return await ref.read(portfolioRepositoryProvider).getNearbyPortfolios(position.latitude, position.longitude);
   }, loading: () => [],
     error: (error, stack) => [],);
 });

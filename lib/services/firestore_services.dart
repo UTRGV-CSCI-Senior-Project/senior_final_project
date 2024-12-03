@@ -11,7 +11,6 @@ import 'package:folio/models/feedback_model.dart';
 import 'package:folio/models/messaging_models/message_model.dart';
 import 'package:folio/models/portfolio_model.dart';
 import 'package:folio/models/user_model.dart';
-import 'package:folio/core/user_location_controller.dart';
 
 class FirestoreServices {
   final FirebaseFirestore _firestore;
@@ -196,13 +195,15 @@ class FirestoreServices {
         .snapshots()
         .map((snapshot) {
       if (!snapshot.exists) {
-        return null;
-      }
-      try {
-        return PortfolioModel.fromJson(snapshot.data()!);
-      } catch (e) {
-        throw AppException('invalid-portfolio-data');
-      }
+          return null;
+        }
+        try {
+          final data = snapshot.data()!;
+          data['uid'] ??= snapshot.id;
+          return PortfolioModel.fromJson(data);
+        } catch (e) {
+          throw AppException('invalid-portfolio-data');
+        }
     }).handleError((error) {
       if (error is AppException && error.code == 'invalid-portfolio-data') {
         throw error;
@@ -286,6 +287,48 @@ class FirestoreServices {
     }
   }
 
+  Map<String, double> getBounds(
+      double centerLat, double centerLong, double radiusKm) {
+    const earthRadius = 6371.0;
+
+    double latDelta = (radiusKm / earthRadius) * (180 / pi);
+    double longDelta =
+        (radiusKm / (earthRadius * cos(centerLat * pi / 180))) * (180 / pi);
+
+    return {
+      'minLat': centerLat - latDelta,
+      'maxLat': centerLat + latDelta,
+      'minLong': centerLong - longDelta,
+      'maxLong': centerLong + longDelta
+    };
+  }
+
+  Future<List<PortfolioModel>> getNearbyPortfolios(
+      double lat, double lng) async {
+    try {
+      final bounds = getBounds(lat, lng, 32.1869);
+      final query = _firestore
+          .collection("portfolios")
+          .where('latAndLong.longitude',
+              isGreaterThanOrEqualTo: bounds['minLong'])
+          .where('latAndLong.longitude', isLessThanOrEqualTo: bounds['maxLong'])
+          .where('latAndLong.latitude',
+              isGreaterThanOrEqualTo: bounds['minLat'])
+          .where('latAndLong.latitude', isLessThanOrEqualTo: bounds['maxLat']);
+      final querySnapshot = await query.get();
+      return querySnapshot.docs.map((doc) {
+        final data = doc.data();
+        data['uid'] ??= doc.id;
+        return PortfolioModel.fromJson(data);
+      }).toList();
+    } catch (e) {
+      if (e is AppException) {
+        rethrow;
+      } else {
+        throw AppException('get-portfolios-error');
+      }
+    }
+  }
   ///////////////////////// SERVICE COLLECTION /////////////////////////
 
   Future<List<String>> getServices() async {
@@ -303,7 +346,7 @@ class FirestoreServices {
   }
 
   Future<void> addService(String service) async {
-    try{
+    try {
       final serviceRef = _firestore.collection('services').doc(service);
       final serviceDoc = await serviceRef.get();
 
@@ -311,13 +354,13 @@ class FirestoreServices {
         return;
       } else {
         await serviceRef.set({
-        'service': service,
+          'service': service,
         });
       }
-    }catch (e){
-      if(e is AppException){
+    } catch (e) {
+      if (e is AppException) {
         rethrow;
-      }else{
+      } else {
         throw AppException('add-service-error');
       }
     }
@@ -336,63 +379,6 @@ class FirestoreServices {
     }
   }
 
-  //////////////User Location
-  Future<void> savingLocation() async {
-    try {
-      final uid = await _ref.read(authServicesProvider).currentUserUid();
-
-      if (uid == null) {
-        throw AppException('no-user');
-      }
-
-      final location = await getCurrentLatiLong();
-
-      await _firestore.collection("users").doc(uid).update({
-        'location': GeoPoint(location[0], location[1]),
-      });
-    } catch (e) {
-      throw AppException('adding-location-error');
-    }
-  }
-
-  Future<List<double>> getUserLatiLong() async {
-    try {
-      final uid = await _ref.read(authServicesProvider).currentUserUid();
-
-      if (uid == null) {
-        throw AppException('no-user');
-      }
-
-      final userDoc = await _firestore.collection('users').doc(uid).get();
-
-      if (!userDoc.exists) {
-        throw AppException('user-not-found');
-      }
-
-      final data = userDoc.data();
-      if (data == null ||
-          !data.containsKey('latitude') ||
-          !data.containsKey('longitude')) {
-        throw AppException('location-not-found');
-      }
-
-      return [data['latitude'], data['longitude']];
-    } catch (e) {
-      throw AppException('getting-location-error');
-    }
-  }
-
-  Future<List<PortfolioModel>> getNearbyPortfolios(String targetGeohash, {int maxResults = 10}) async {
-  String geohashPrefix = targetGeohash.substring(0, min(4, targetGeohash.length));
-
-  try{
-    QuerySnapshot querySnapshot = await _firestore.collection('portfolios').where('geohash', isGreaterThanOrEqualTo: geohashPrefix).where('geohash', isLessThan: '$geohashPrefix\uf8ff').limit(maxResults).get();
-    return querySnapshot.docs.map((doc) => PortfolioModel.fromJson(doc.data() as Map<String, dynamic>)).toList();
-  }catch (e){
-    return [];
-  }
-  }
-
   ///////////////////////// FEEDBACK COLLECTION /////////////////////////
 
   ///////////////////////// MESSAGE COLLECTION /////////////////////////
@@ -401,19 +387,19 @@ class FirestoreServices {
     try {
       final userOne = await getUser();
       if (userOne != null) {
-      
-      final userIds = chatroomId.split('_');
-      final otherUserId =
-          userIds.first == userOne.uid ? userIds.last : userIds.first;
-      final userTwo = await getOtherUser(otherUserId);
+        final userIds = chatroomId.split('_');
+        final otherUserId =
+            userIds.first == userOne.uid ? userIds.last : userIds.first;
+        final userTwo = await getOtherUser(otherUserId);
 
-      if (userTwo != null) {
-        final participantOne = ChatParticipant.fromUserModel(userOne);
-        final participantTwo = ChatParticipant.fromUserModel(userTwo);
-        return [participantOne, participantTwo];
-      } else {
-        throw AppException('no-chat-participant');
-      }}
+        if (userTwo != null) {
+          final participantOne = ChatParticipant.fromUserModel(userOne);
+          final participantTwo = ChatParticipant.fromUserModel(userTwo);
+          return [participantOne, participantTwo];
+        } else {
+          throw AppException('no-chat-participant');
+        }
+      }
       return [];
     } catch (e) {
       if (e is AppException) {

@@ -69,7 +69,7 @@ class SettingsScreen extends ConsumerWidget {
                               context,
                               MaterialPageRoute(
                                   builder: (context) =>
-                                       CreatePortfolioScreen(name: user.fullName ?? user.username)));
+                                       CreatePortfolioScreen(name: user.fullName ?? user.username, uid: user.uid,)));
                         },
                       ),
                     if (user.isProfessional && portfolio != null)

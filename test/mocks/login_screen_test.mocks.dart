@@ -6,6 +6,7 @@
 import 'dart:async' as _i3;
 import 'dart:io' as _i4;
 
+import 'package:folio/models/user_model.dart' as _i6;
 import 'package:folio/repositories/user_repository.dart' as _i2;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i5;
@@ -177,4 +178,13 @@ class MockUserRepository extends _i1.Mock implements _i2.UserRepository {
         returnValue: _i3.Future<void>.value(),
         returnValueForMissingStub: _i3.Future<void>.value(),
       ) as _i3.Future<void>);
+
+  @override
+  _i3.Future<_i6.UserModel?> getOtherUser(String? uid) => (super.noSuchMethod(
+        Invocation.method(
+          #getOtherUser,
+          [uid],
+        ),
+        returnValue: _i3.Future<_i6.UserModel?>.value(),
+      ) as _i3.Future<_i6.UserModel?>);
 }

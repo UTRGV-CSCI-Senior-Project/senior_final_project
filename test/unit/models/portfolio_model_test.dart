@@ -7,18 +7,26 @@ void main() {
   group('PortfolioModel constructor', () {
     test('creates a valid portfolio', () {
       final portfolio = PortfolioModel(
-          service: 'Barber', details: 'Im a barber', years: 3, months: 1);
+          service: 'Barber', details: 'Im a barber', years: 3, months: 1,uid: 'test-uid');
 
       expect(portfolio.service, 'Barber');
       expect(portfolio.details, 'Im a barber');
       expect(portfolio.years, 3);
       expect(portfolio.months, 1);
+      expect(portfolio.uid, 'test-uid');
     });
 
     test('throws an error when service is empty', () {
       expect(
           () => PortfolioModel(
-              service: '', details: 'deets', years: 2, months: 2),
+              service: '', details: 'deets', years: 2, months: 2,uid: 'test-uid'),
+          throwsArgumentError);
+    });
+
+    test('throws an error when uid is empty', () {
+      expect(
+          () => PortfolioModel(
+              service: 'service', details: 'deets', years: 2, months: 2,uid: ''),
           throwsArgumentError);
     });
   });
@@ -27,6 +35,7 @@ void main() {
     test('should return a valid JSON representation', () {
       final portfolio = PortfolioModel(
           service: 'Barber',
+          uid: 'test-uid',
           details: 'Im a barber',
           years: 3,
           months: 1,
@@ -40,6 +49,7 @@ void main() {
       expect(json['years'], 3);
       expect(json['months'], 1);
       expect(json['images'], [{'filePath': 'image/path', 'downloadUrl': 'image.url'}]);
+      expect(json['uid'], 'test-uid');
     });
   });
 
@@ -50,6 +60,7 @@ void main() {
         'details': 'Nails!',
         'years': 3,
         'months': 1,
+        'uid': 'test-uid',
         'images': [{'filePath': 'image/path', 'downloadUrl': 'image.url'}]
       };
 
@@ -60,10 +71,20 @@ void main() {
       expect(portfolio.years, 3);
       expect(portfolio.months, 1);
       expect(portfolio.images, [{'filePath': 'image/path', 'downloadUrl': 'image.url'}]);
+      expect(portfolio.uid, 'test-uid');
     });
 
     test('should throw an error when service is missing', () {
       expect(() => PortfolioModel.fromJson({
+        'details': 'deets',
+        'years': 3,
+        'months': 1,
+        'uid': 'test-uid'
+      }), throwsArgumentError);
+    });
+     test('should throw an error when uid is missing', () {
+      expect(() => PortfolioModel.fromJson({
+        'service': 'service',
         'details': 'deets',
         'years': 3,
         'months': 1
@@ -78,6 +99,7 @@ void main() {
       details: 'Professional barber',
       years: 3,
       months: 5,
+      uid: 'test-uid'
     );
 
     final experience = portfolio.calculateTotalExperience();
@@ -94,6 +116,7 @@ void main() {
       details: 'Professional barber',
       years: 1,
       months: 6,
+      uid: 'test-uid',
       experienceStartDate: startDate,
     );
 
@@ -106,6 +129,7 @@ void main() {
     final portfolio = PortfolioModel(
       service: 'Barber',
       details: 'Professional barber',
+      uid: 'test-uid',
       years: 2,
       months: 14, // This should convert to 3 years and 2 months
     );
@@ -119,6 +143,7 @@ void main() {
 group('getFormattedTotalExperience', () {
   test('should format experience with only years', () {
     final portfolio = PortfolioModel(
+      uid: 'test-uid',
       service: 'Barber',
       years: 2,
       months: 0,
@@ -132,6 +157,7 @@ group('getFormattedTotalExperience', () {
       service: 'Barber',
       years: 0,
       months: 5,
+      uid: 'test-uid',
     );
 
     expect(portfolio.getFormattedTotalExperience(), '5 months');
@@ -142,6 +168,7 @@ group('getFormattedTotalExperience', () {
       service: 'Barber',
       years: 1,
       months: 1,
+      uid: 'test-uid',
     );
 
     expect(portfolio.getFormattedTotalExperience(), '1 year, 1 month');
@@ -152,6 +179,7 @@ group('getFormattedTotalExperience', () {
       service: 'Barber',
       years: 0,
       months: 0,
+      uid: 'test-uid',
     );
 
     expect(portfolio.getFormattedTotalExperience(), 'Beginner');
@@ -162,12 +190,14 @@ group('getFormattedTotalExperience', () {
       service: 'Barber',
       years: 1,
       months: 1,
+      uid: 'test-uid',
     );
 
     final portfolioPlural = PortfolioModel(
       service: 'Barber',
       years: 2,
       months: 2,
+      uid: 'test-uid',
     );
 
     expect(portfolioSingular.getFormattedTotalExperience(), '1 year, 1 month');

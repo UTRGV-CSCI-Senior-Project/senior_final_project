@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_places_autocomplete_widgets/address_autocomplete_widgets.dart';
 
@@ -17,7 +18,7 @@ class _AddLocationTabState extends State<AddLocationTab> {
       Text(
         "Let's get your profile ready!",
         style: GoogleFonts.poppins(fontSize: 22, fontWeight: FontWeight.w500),
-      ),
+      ), 
       const SizedBox(height: 8.0),
       Text(
         "Enter your business location.\nOthers won't be able to see this.",
@@ -25,7 +26,7 @@ class _AddLocationTabState extends State<AddLocationTab> {
       ),
       const SizedBox(height: 16.0),
       AddressAutocompleteTextField(
-        mapsApiKey: '',
+        mapsApiKey: dotenv.env['PLACES_API_KEY'] ?? '',
         decoration: InputDecoration(
           hintText: 'Enter your address',
           hintStyle: GoogleFonts.inter(

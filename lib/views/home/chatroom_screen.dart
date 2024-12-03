@@ -48,7 +48,11 @@ class _ChatroomScreenState extends ConsumerState<ChatroomScreen> {
                       child: Text('Error: ${snapshot.error}'),
                     );
                   }
+
                   final messages = snapshot.data ?? [];
+                  if (messages.isEmpty) {
+                    return const Center(child: Text('No messages yet'));
+                  }
                   return ListView.builder(
                     reverse: true,
                     itemCount: messages.length,

@@ -21,7 +21,7 @@ void main() {
       images: [
         {'downloadUrl': 'https://example.com/image1.jpg', 'filePath': 'path1'},
         {'downloadUrl': 'https://example.com/image2.jpg', 'filePath': 'path2'},
-      ],
+      ],uid: 'test-uid',
     );
 
     testWidgets('displays user information correctly',

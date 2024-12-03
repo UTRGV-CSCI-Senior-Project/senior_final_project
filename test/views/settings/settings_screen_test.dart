@@ -116,6 +116,7 @@ void main() {
           isProfessional: true,
         ),
         'portfolio': PortfolioModel(
+          uid: 'test-uid',
             service: 'Barber',
             details: 'I am a barber',
             years: 5,
@@ -155,6 +156,7 @@ void main() {
           isProfessional: true,
         ),
         'portfolio': PortfolioModel(
+          uid: 'test-uid',
             service: 'Barber',
             details: 'I am a barber',
             years: 5,
@@ -196,6 +198,7 @@ void main() {
           isProfessional: true,
         ),
         'portfolio': PortfolioModel(
+          uid: 'test-uid',
             service: 'Barber',
             details: 'I am a barber',
             years: 5,

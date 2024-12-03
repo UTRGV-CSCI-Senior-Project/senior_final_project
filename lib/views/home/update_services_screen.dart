@@ -57,9 +57,11 @@ class _UpdateServicesScreenState extends ConsumerState<UpdateServicesScreen> {
       if (query.isNotEmpty) {
         filterServices(query);
       } else {
-        setState(() {
+        if(context.mounted) {
+          setState(() {
           filteredServices = services;
         });
+        }
       }
     });
   }
@@ -69,7 +71,8 @@ class _UpdateServicesScreenState extends ConsumerState<UpdateServicesScreen> {
       final firestoreServices = ref.read(firestoreServicesProvider);
 
       final fetchedServices = await firestoreServices.getServices();
-      setState(() {
+      if(context.mounted) {
+        setState(() {
         services = fetchedServices;
         selectedServices = {
           for (var service in services)
@@ -78,11 +81,14 @@ class _UpdateServicesScreenState extends ConsumerState<UpdateServicesScreen> {
 
         isLoading = false;
       });
+      }
     } catch (e) {
-      setState(() {
+      if(context.mounted) {
+        setState(() {
         errorMessage = "Failed to load services. Please try again.";
         isLoading = false;
       });
+      }
     }
   }
 
@@ -91,31 +97,39 @@ class _UpdateServicesScreenState extends ConsumerState<UpdateServicesScreen> {
         .where((service) => service.toLowerCase().contains(query.toLowerCase()))
         .toList();
     if (filtered.isNotEmpty) {
-      setState(() {
+      if(context.mounted) {
+        setState(() {
         filteredServices = filtered;
       });
+      }
     } else {
       final aiSearchResults =
           await ref.read(geminiServicesProvider).aiSearch(query);
           if(aiSearchResults.isNotEmpty){
-      setState(() {
+            if(context.mounted) {
+              setState(() {
         filteredServices = aiSearchResults;
       });
+            }
           }
     }
   }
 
   Future<void> updateServices() async {
     if (!selectedServices.values.any((selected) => selected)) {
-      setState(() {
+      if(context.mounted) {
+        setState(() {
         errorMessage = "Please select at least one.";
       });
+      }
       return;
     }
-    setState(() {
+    if(context.mounted) {
+      setState(() {
       isSaving = true;
       errorMessage = "";
     });
+    }
     try {
       final selectedServicesList = selectedServices.entries
           .where((entry) => entry.value)
@@ -129,15 +143,19 @@ class _UpdateServicesScreenState extends ConsumerState<UpdateServicesScreen> {
       if (!mounted) return;
       Navigator.pop(context);
     } catch (e) {
-      setState(() {
+      if(context.mounted) {
+        setState(() {
         errorMessage = e is AppException
             ? e.message
             : "Failed to update interests. Please try again.";
       });
+      }
     } finally {
-      setState(() {
+      if(context.mounted) {
+        setState(() {
         isSaving = false;
       });
+      }
     }
   }
 
@@ -221,9 +239,11 @@ class _UpdateServicesScreenState extends ConsumerState<UpdateServicesScreen> {
                         filteredServices.isEmpty ? services : filteredServices,
                     initialSelectedServices: selectedServices,
                     onServicesSelected: (newService) {
-                      setState(() {
+                      if(context.mounted) {
+                        setState(() {
                         selectedServices.addAll(newService);
                       });
+                      }
                     },
                     isLoading: isLoading),
               ),
@@ -232,9 +252,11 @@ class _UpdateServicesScreenState extends ConsumerState<UpdateServicesScreen> {
                   ? ErrorBox(
                       errorMessage: errorMessage,
                       onDismiss: () {
-                        setState(() {
+                        if(context.mounted) {
+                          setState(() {
                           errorMessage = "";
                         });
+                        }
                       })
                   : Container(),
               TextButton(

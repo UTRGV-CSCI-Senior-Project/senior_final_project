@@ -41,8 +41,8 @@ class MockPortfolioRepository extends _i1.Mock
     List<_i4.File>? images,
     Map<String, String?>? location,
     Map<String, double?>? latAndLong,
-    String? geohash,
     String? professionalsName,
+    String? uid,
   ) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -55,8 +55,8 @@ class MockPortfolioRepository extends _i1.Mock
             images,
             location,
             latAndLong,
-            geohash,
             professionalsName,
+            uid,
           ],
         ),
         returnValue: _i3.Future<void>.value(),
@@ -109,11 +109,17 @@ class MockPortfolioRepository extends _i1.Mock
       ) as _i3.Future<void>);
 
   @override
-  _i3.Future<List<_i5.PortfolioModel>> getNearbyPortfolios(String? geohash) =>
+  _i3.Future<List<_i5.PortfolioModel>> getNearbyPortfolios(
+    double? lat,
+    double? long,
+  ) =>
       (super.noSuchMethod(
         Invocation.method(
           #getNearbyPortfolios,
-          [geohash],
+          [
+            lat,
+            long,
+          ],
         ),
         returnValue:
             _i3.Future<List<_i5.PortfolioModel>>.value(<_i5.PortfolioModel>[]),

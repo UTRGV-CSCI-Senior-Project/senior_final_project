@@ -13,7 +13,8 @@ import 'package:google_fonts/google_fonts.dart';
 
 class CreatePortfolioScreen extends ConsumerStatefulWidget {
   final String name;
-  const CreatePortfolioScreen({super.key, required this.name});
+  final String uid;
+  const CreatePortfolioScreen({super.key, required this.name, required this.uid});
 
   @override
   ConsumerState<CreatePortfolioScreen> createState() =>
@@ -32,7 +33,6 @@ class _CreatePortfolioScreenState extends ConsumerState<CreatePortfolioScreen> {
   bool _isLoading = false;
   Map<String, String?>? _location;
   Map<String, double?>? _latAndLong;
-  String? _geohash;
 
   void _onServiceSelected(String service) {
     setState(() {
@@ -74,9 +74,6 @@ class _CreatePortfolioScreenState extends ConsumerState<CreatePortfolioScreen> {
         'latitude': latitude,
         'longitude': longitude
       };
-      if(latitude != null && longitude != null) {
-        _geohash = ref.read(locationServiceProvider).createGeohash(latitude, longitude);
-      }
     });
   }
 
@@ -229,8 +226,8 @@ class _CreatePortfolioScreenState extends ConsumerState<CreatePortfolioScreen> {
                                   _images, 
                                   _location,
                                   _latAndLong,
-                                  _geohash,
-                                  widget.name
+                                  widget.name,
+                                  widget.uid
                                   );
                               if (context.mounted) {
                                 Navigator.of(context).pop();

@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -13,20 +12,25 @@ import 'package:folio/views/home/home_screen.dart';
 import 'package:folio/views/auth_onboarding_welcome/loading_screen.dart';
 import 'package:folio/views/auth_onboarding_welcome/onboarding_screen.dart';
 import 'package:folio/views/auth_onboarding_welcome/welcome_screen.dart';
+import 'package:folio/widgets/edit_profile_sheet.dart';
 import 'package:folio/widgets/email_verification_dialog.dart';
+import 'package:folio/widgets/request_location_dialog.dart';
 import 'package:mockito/mockito.dart';
 import '../../mocks/login_screen_test.mocks.dart';
 import '../../mocks/user_repository_test.mocks.dart';
+import '../../mocks/home_screen_test.mocks.dart';
 
 void main() {
   late MockUserRepository mockUserRepository;
   late MockFirestoreServices mockFirestoreServices;
   late MockCloudMessagingServices mockCloudMessagingServices;
+  late MockLocationService mockLocationService;
 
   setUp(() {
     mockUserRepository = MockUserRepository();
     mockFirestoreServices = MockFirestoreServices();
     mockCloudMessagingServices = MockCloudMessagingServices();
+    mockLocationService = MockLocationService();
     when(mockFirestoreServices.getServices()).thenAnswer((_) async => [
           'Nail Tech',
           'Barber',
@@ -53,6 +57,7 @@ void main() {
         chatroomStreamProvider.overrideWith((ref) => 
         chatroomModel != null ? Stream.value(chatroomModel) : Stream.value([])
         ),
+        locationServiceProvider.overrideWithValue(mockLocationService)
       ],
     );
   }
@@ -454,6 +459,175 @@ void main() {
       //Expect two chatrooms to show with other participant's name
       expect(find.text("User One"), findsOneWidget);
       expect(find.text('User Three'), findsOneWidget);
+    });
+  });
+
+  group('Location Permission', () {
+    testWidgets('shows location permission dialog when not granted', (WidgetTester tester) async {
+      when(mockLocationService.checkPermission()).thenAnswer((_) async => false);
+
+      final userModel = UserModel(
+        uid: 'testuid',
+        username: 'username',
+        email: 'email@email.com',
+        isProfessional: false,
+        fullName: 'Test User',
+        completedOnboarding: true,
+        isEmailVerified: true,
+      );
+
+      final container = ProviderContainer(
+        overrides: [
+          userDataStreamProvider.overrideWith((ref) => Stream.value({'user': userModel})),
+          locationServiceProvider.overrideWithValue(mockLocationService),
+          hasShownLocationPermissionDialog.overrideWith((ref) => false),
+        ],
+      );
+
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: const MaterialApp(home: HomeScreen()),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+      
+      expect(find.byType(RequestLocationDialog), findsOneWidget);
+    });
+
+    testWidgets('does not show location dialog if already shown', (WidgetTester tester) async {
+      when(mockLocationService.checkPermission()).thenAnswer((_) async => false);
+
+      final userModel = UserModel(
+        uid: 'testuid',
+        username: 'username',
+        email: 'email@email.com',
+        isProfessional: false,
+        fullName: 'Test User',
+        completedOnboarding: true,
+        isEmailVerified: true,
+      );
+
+      final container = ProviderContainer(
+        overrides: [
+          userDataStreamProvider.overrideWith((ref) => Stream.value({'user': userModel})),
+          locationServiceProvider.overrideWithValue(mockLocationService),
+          hasShownLocationPermissionDialog.overrideWith((ref) => true),
+        ],
+      );
+
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: const MaterialApp(home: HomeScreen()),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+      
+      expect(find.byType(RequestLocationDialog), findsNothing);
+    });
+  });
+
+  group('Messaging Initialization', () {
+    testWidgets('handles messaging initialization error', (WidgetTester tester) async {
+      when(mockCloudMessagingServices.initNotifications())
+          .thenThrow(Exception('Messaging init failed'));
+
+      final userModel = UserModel(
+        uid: 'testuid',
+        username: 'username',
+        email: 'email@email.com',
+        isProfessional: false,
+        fullName: 'Test User',
+        completedOnboarding: true,
+        isEmailVerified: true,
+      );
+
+      final container = ProviderContainer(
+        overrides: [
+          userDataStreamProvider.overrideWith((ref) => Stream.value({'user': userModel})),
+          cloudMessagingServicesProvider.overrideWithValue(mockCloudMessagingServices),
+        ],
+      );
+
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: const MaterialApp(home: HomeScreen()),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+      
+      // Verify app still loads without crashing
+      expect(find.text('Welcome, Test User!'), findsOneWidget);
+    });
+  });
+
+  group('Speed Dial Menu', () {
+    testWidgets('opens settings screen from speed dial', (WidgetTester tester) async {
+      final userModel = UserModel(
+        uid: 'testuid',
+        username: 'username',
+        email: 'email@email.com',
+        isProfessional: false,
+        fullName: 'Test User',
+        completedOnboarding: true,
+        isEmailVerified: true,
+      );
+
+      final container = createProviderContainer(userModel: userModel);
+      await tester.pumpWidget(createHomeScreen(container));
+      await tester.pumpAndSettle();
+
+      // Navigate to profile tab
+      await tester.tap(find.byIcon(Icons.person_outline));
+      await tester.pumpAndSettle();
+
+      // Open speed dial
+      await tester.tap(find.byKey(const Key('speeddial-button')));
+      await tester.pumpAndSettle();
+
+      // Tap settings
+      await tester.tap(find.text('Settings'));
+      await tester.pumpAndSettle();
+
+      // Verify settings screen is opened
+      expect(find.text('Settings'), findsOneWidget);
+      container.dispose();
+    });
+    testWidgets('opens edit profile from speed dial', (WidgetTester tester) async {
+      final userModel = UserModel(
+        uid: 'testuid',
+        username: 'username',
+        email: 'email@email.com',
+        isProfessional: false,
+        fullName: 'Test User',
+        completedOnboarding: true,
+        isEmailVerified: true,
+      );
+
+      final container = createProviderContainer(userModel: userModel);
+      await tester.pumpWidget(createHomeScreen(container));
+      await tester.pumpAndSettle();
+
+      // Navigate to profile tab
+      await tester.tap(find.byIcon(Icons.person_outline));
+      await tester.pumpAndSettle();
+
+      // Open speed dial
+      await tester.tap(find.byKey(const Key('speeddial-button')));
+      await tester.pumpAndSettle();
+
+      // Tap settings
+      await tester.tap(find.text('Edit Profile'));
+      await tester.pumpAndSettle();
+
+      // Verify settings screen is opened
+      expect(find.byType(EditProfileSheet), findsOneWidget);
+      container.dispose();
     });
   });
 }

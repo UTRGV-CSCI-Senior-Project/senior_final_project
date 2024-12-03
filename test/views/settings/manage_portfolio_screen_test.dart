@@ -33,6 +33,7 @@ void main() {
     details: 'I am a barber',
     years: 5,
     months: 5,
+    uid: 'test-uid',
     images: [
       {'filePath': 'image1/path', 'downloadUrl': 'image1.url'}
     ],

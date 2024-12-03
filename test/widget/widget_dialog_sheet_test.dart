@@ -22,9 +22,9 @@ import 'package:folio/widgets/update_email_dialog.dart';
 import 'package:folio/widgets/verify_password_dialog.dart';
 import 'package:mockito/mockito.dart';
 
+import '../../integration_test/app_test.dart';
 import '../mocks/inbox_tab_test.mocks.dart';
-import '../mocks/login_screen_test.mocks.dart';
-import '../mocks/onboarding_screen_test.mocks.dart';
+import '../mocks/signup_screen_test.mocks.dart';
 import '../mocks/user_repository_test.mocks.dart';
 
 class MockBuildContext extends Mock implements BuildContext {}

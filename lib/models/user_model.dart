@@ -81,7 +81,7 @@ class UserModel {
       "isEmailVerified": isEmailVerified,
       "isPhoneVerified": isPhoneVerified,
       "phoneNumber": phoneNumber,
-      "fcmTokens": fcmTokens
+      "fcmTokens": fcmTokens,
       "latitude": latitude,
       "longitude": longitude,
     };
@@ -115,7 +115,6 @@ class UserModel {
       profilePictureUrl: json['profilePictureUrl'] as String?,
       latitude: json["latitude"] as double?,
       longitude: json["longitude"] as double?,
-    ,
         isEmailVerified: json['isEmailVerified'] ?? false,
         phoneNumber: json['phoneNumber'] as String?,
         isPhoneVerified: json['isPhoneVerified'] ?? false,

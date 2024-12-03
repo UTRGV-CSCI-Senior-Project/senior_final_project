@@ -10,13 +10,31 @@ class PortfolioRepository {
 
   PortfolioRepository(this._firestoreServices, this._storageServices);
 
-  Future<void> createPortfolio(String service, String details, int months,
-      int years, List<File> images, Map<String, String?>? location, Map<String, double?>? latAndLong, String? geohash, String? professionalsName) async {
+  Future<void> createPortfolio(
+      String service,
+      String details,
+      int months,
+      int years,
+      List<File> images,
+      Map<String, String?>? location,
+      Map<String, double?>? latAndLong,
+      String? professionalsName,
+      String uid) async {
     try {
       final imageData = await _storageServices.uploadFilesForUser(images);
 
       final initialDate = DateTime.now();
-      final portfolio = PortfolioModel(service: service, details: details, experienceStartDate: initialDate, years: years, months: months, images: imageData, location: location, latAndLong: latAndLong, geohash: geohash, professionalsName: professionalsName);
+      final portfolio = PortfolioModel(
+          service: service,
+          details: details,
+          experienceStartDate: initialDate,
+          years: years,
+          months: months,
+          images: imageData,
+          location: location,
+          latAndLong: latAndLong,
+          professionalsName: professionalsName,
+          uid: uid);
       await _firestoreServices.savePortfolioDetails(portfolio.toJson());
 
       await _firestoreServices.addService(service);
@@ -96,7 +114,16 @@ class PortfolioRepository {
     }
   }
 
-  Future<List<PortfolioModel>> getNearbyPortfolios(String geohash) async {
-    return await _firestoreServices.getNearbyPortfolios(geohash);
+  Future<List<PortfolioModel>> getNearbyPortfolios(
+      double lat, double long) async {
+    try {
+      return await _firestoreServices.getNearbyPortfolios(lat, long);
+    } catch (e) {
+      if (e is AppException) {
+        rethrow;
+      } else {
+        throw AppException('get-nearby-portfolios-error');
+      }
+    }
   }
 }
