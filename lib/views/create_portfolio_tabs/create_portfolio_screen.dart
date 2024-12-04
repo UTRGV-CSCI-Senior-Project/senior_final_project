@@ -197,7 +197,7 @@ class _CreatePortfolioScreenState extends ConsumerState<CreatePortfolioScreen> {
                               _latAndLong?['longitude'] == null) {
                             setState(() {
                               errorMessage =
-                                  "Please enter your business location.";
+                                  "Please provide your business location to proceed.";
                             });
                           } else {
                             setState(() {

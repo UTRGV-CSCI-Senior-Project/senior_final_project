@@ -266,6 +266,7 @@ class _HomeTabState extends ConsumerState<HomeTab> {
             child: SizedBox(
               width: double.infinity,
               child: TextButton(
+                key: const Key('view-portfolio-button'),
                 style: TextButton.styleFrom(
                     backgroundColor: Colors.transparent,
                     shape: RoundedRectangleBorder(

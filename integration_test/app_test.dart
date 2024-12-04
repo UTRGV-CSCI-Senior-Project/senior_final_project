@@ -1,10 +1,14 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:folio/controller/user_location_controller.dart';
 import 'package:folio/views/home/profile_tab.dart';
 import 'package:folio/widgets/chatroom_tile_widget.dart';
 import 'package:folio/widgets/email_verification_dialog.dart';
 import 'package:folio/widgets/message_tile_widget.dart';
 import 'package:folio/widgets/sms_code_dialog.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_places_autocomplete_widgets/address_autocomplete_widgets.dart';
 import 'package:network_image_mock/network_image_mock.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -37,6 +41,8 @@ class MockImagePicker extends ImagePicker {
 
     return XFile(tempFile.path);
   }
+
+  
 
   @override
   Future<List<XFile>> pickMultiImage(
@@ -72,6 +78,66 @@ class MockImagePicker extends ImagePicker {
     return xFiles;
   }
 }
+
+ class MockLocationService extends LocationService {
+  MockLocationService()
+      : super(
+          GeolocatorPlatform.instance,
+          GeocodingService(),
+        );
+
+  final Position _mockPosition = Position(
+    latitude: 37.7749,
+    longitude: -122.4194,
+    accuracy: 0,
+    altitude: 0,
+    heading: 0,
+    speed: 0,
+    speedAccuracy: 0,
+    timestamp: DateTime.now(),
+    altitudeAccuracy: 0.0,
+    headingAccuracy: 0.0,
+  );
+
+  final String _mockAddress = "San Francisco, CA, USA";
+  final String _mockCity = "San Francisco";
+
+  @override
+  Future<bool> checkService() async {
+    return true;
+  }
+
+  @override
+  Future<bool> checkPermission() async {
+    return true;
+  }
+
+  @override
+  Future<Position> getCurrentLocation() async {
+    return _mockPosition;
+  }
+
+  @override
+  Future<List<double>> getCurrentLatiLong() async {
+    return [_mockPosition.latitude, _mockPosition.longitude];
+  }
+
+  @override
+  Future<String> getAddress(double latitude, double longitude) async {
+    return _mockAddress;
+  }
+
+  @override
+  Future<String> getCity(double latitude, double longitude) async {
+    return _mockCity;
+  }
+
+  @override
+  Stream<Position> getPositionStream() {
+    return Stream<Position>.value(_mockPosition);
+  }
+}
+
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -113,19 +179,24 @@ void main() {
   setUpAll(() async {
     await Firebase.initializeApp();
     setupEmulators(useEmulators: true);
-
+    dotenv.load(fileName: '.env');
     final mockImagePicker = MockImagePicker();
-
+    final mockLocationService = MockLocationService();
     container = ProviderContainer(
-        overrides: [imagePickerProvider.overrideWithValue(mockImagePicker)]);
+        overrides: [imagePickerProvider.overrideWithValue(mockImagePicker),
+        locationServiceProvider.overrideWithValue(mockLocationService)
+        ]);
     await container.read(authServicesProvider).signOut();
   });
 
   setUp(() {
     final mockImagePicker = MockImagePicker();
+    final mockLocationService = MockLocationService();
 
     container = ProviderContainer(
-        overrides: [imagePickerProvider.overrideWithValue(mockImagePicker)]);
+        overrides: [imagePickerProvider.overrideWithValue(mockImagePicker),
+        locationServiceProvider.overrideWithValue(mockLocationService)
+        ]);
   });
 
   tearDown(() {
@@ -200,8 +271,9 @@ void main() {
 
 /////////////////////////////////////////////// HAPPY PATHS //////////////////////////////////////////////////////////////////////
   group('Happy Paths', () {
+  
     testWidgets(
-        'As a new user, I can sign up, complete onboarding, and reach the home screen.',
+        'As a new user, I can sign up, complete onboarding, reach the home screen, and view a near by portfolio',
         (WidgetTester tester) async {
       await mockNetworkImagesFor(() async {
         //Navigate to sign up screen
@@ -237,6 +309,15 @@ void main() {
         //Expect to see home screen with user's full name
 
         expect(find.textContaining('First Last'), findsOneWidget);
+        expect(find.text('First User'), findsOneWidget);
+        expect(find.text('Beginner'), findsOneWidget);
+        expect(find.text('San Francisco'), findsOneWidget);
+
+        await tester.tap(find.byKey(const Key('view-portfolio-button')).first);
+        await tester.pumpAndSettle(const Duration(seconds: 5));
+        expect(find.text('First User'), findsOneWidget);
+        expect(find.text('San Francisco, California'), findsOneWidget);
+        expect(find.byType(Image), findsExactly(6));
         await container.read(authServicesProvider).signOut();
       });
     });
@@ -332,7 +413,7 @@ void main() {
         await tester.pumpAndSettle(const Duration(seconds: 5));
 
         //Expect to see home screen with user's full name.
-        expect(find.textContaining('First User'), findsOneWidget);
+        expect(find.textContaining('First User'), findsExactly(2));
 
         await tester.tap(profileTabButton);
         await tester.pumpAndSettle(const Duration(seconds: 5));
@@ -613,16 +694,32 @@ void main() {
         await tester.pumpAndSettle(const Duration(seconds: 4));
         await tester.tap(find.text('Become a professional'));
         await tester.pumpAndSettle(const Duration(seconds: 4));
+        //Choose service
         await tester.tap(barberServiceButton);
         await tester.tap(createPortfolioNextButton);
         await tester.pumpAndSettle(const Duration(seconds: 5));
+        //Leave experience blank
         await tester.tap(createPortfolioNextButton);
         await tester.pumpAndSettle(const Duration(seconds: 5));
+
+        //Add images
         await tester.tap(imagePickerButton);
         await tester.pumpAndSettle(const Duration(seconds: 5));
         await tester.tap(createPortfolioNextButton);
         await tester.pumpAndSettle(const Duration(seconds: 5));
+
+        //Leave details blank
         await tester.tap(createPortfolioNextButton);
+        await tester.pumpAndSettle(const Duration(seconds: 5));
+
+        //Enter address
+        await tester.enterText(find.byType(AddressAutocompleteTextField), '123 Main Street, San Francisco');
+        await tester.pumpAndSettle(const Duration(seconds: 5));
+        await tester.tap(find.byType(ListTile).first);
+        await tester.pumpAndSettle(const Duration(seconds: 5));
+        await tester.tap(createPortfolioNextButton);
+
+
         await tester.pumpAndSettle(const Duration(seconds: 40));
         await tester.tap(find.byKey(const Key('settings-back-button')));
         await tester.pumpAndSettle(const Duration(seconds: 4));
@@ -1128,7 +1225,7 @@ void main() {
     });
 
     testWidgets(
-        "As a user trying to create a portfolio, I should see errors if I don't select a service or upload at least 5 images",
+        "As a user trying to create a portfolio, I should see errors if I don't select a service, upload at least 5 images, or add a location",
         (WidgetTester tester) async {
       await mockNetworkImagesFor(() async {
         await navigateToLogInScreen(tester);
@@ -1173,7 +1270,20 @@ void main() {
         await tester.pumpAndSettle(const Duration(seconds: 4));
 
         //Expect to see error messages for required images
-        expect(find.text('Please upload at least 5 images.'), findsOneWidget);
+        expect(find.text('Please upload at least 5 images.'), findsOneWidget);//Add images
+        await tester.tap(imagePickerButton);
+        await tester.pumpAndSettle(const Duration(seconds: 5));
+        await tester.tap(createPortfolioNextButton);
+        await tester.pumpAndSettle(const Duration(seconds: 5));
+
+        //Leave details blank
+        await tester.tap(createPortfolioNextButton);
+        await tester.pumpAndSettle(const Duration(seconds: 5));
+
+        await tester.tap(createPortfolioNextButton);
+        await tester.pumpAndSettle(const Duration(seconds: 4));
+        expect(find.text('Please provide your business location to proceed.'), findsOneWidget);
+
         await container.read(authServicesProvider).signOut();
       });
     });
