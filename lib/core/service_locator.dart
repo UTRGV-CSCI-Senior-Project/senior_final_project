@@ -197,7 +197,6 @@ final positionStreamProvider = StreamProvider<Position>((ref){
 final nearbyPortfoliosProvider = FutureProvider<List<PortfolioModel>>((ref) async {
   final positionAsyncValue = ref.watch(positionStreamProvider);
   return positionAsyncValue.when(data: (position) async {
-    print('position: $position');
     return await ref.read(portfolioRepositoryProvider).getNearbyPortfolios(position.latitude, position.longitude);
   }, loading: () => [],
     error: (error, stack) => [],);
