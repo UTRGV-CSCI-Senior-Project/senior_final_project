@@ -54,8 +54,6 @@ class GeminiServices {
         return allServices;
       }
 
-      
-
       final prompt = """
     You are an expert at matching user searches to professional services.
 
@@ -111,8 +109,13 @@ class GeminiServices {
         return [];
       }
 
+
       List<String> allServices = await getAllServices();
 
+      if(userPrompt.isEmpty){
+        return allServices;
+      }
+      
       final prompt = """
       You are an expert evaluator for a professional service platform.
       Evaluate the user-provided service name based on the following rules:
@@ -181,6 +184,87 @@ class GeminiServices {
       } else {
         return [];
       }
+    } catch (e) {
+      return [];
+    }
+  }
+
+  Future<List<String>> aiDiscover(String promptUser) async {
+    try {
+      final apiKey = fetchApiKey();
+      if (apiKey == null) {
+        return [];
+      }
+
+      List<String> allServices = await getAllServices();
+      if (promptUser.isEmpty) {
+        return allServices;
+      }
+
+      final prompt = """
+    You are an expert at understanding user's intent when searching a professional discovery app.
+
+    Available services: ${allServices.join(', ')}.
+    User's search: $promptUser
+
+    Your task:
+    1. Determine if the input is:
+       a) A person's name (First name, Last name, or Full name)
+       b) A service search
+    2. For service searches:
+       - Match relevant services from the available list
+       - Include synonyms and closely related terms
+    3. Return the appropriate output based on the input type
+
+    Rules:
+    1. For person names: 
+       - Return the name exactly as entered if it appears to be a name
+       - Capitalize correctly
+       - Accept first names, last names, or full names
+    2. For service searches:
+       - Only return services from the available list
+       - Ignore vague, ambiguous, or unrelated inputs
+       - Respond with "NO MATCHES" if no valid match exists
+    3. Return a concise response
+      - If returning a name, just return the name
+      - If returning a service or services, return them in a comma separated list
+
+    Examples:
+    - Input: "John" → Output: John
+    - Input: "Doe" → Output: Doe
+    - Input: "John Doe" → Output: John Doe
+    - Input: "someone to cut my hair" → Output: Hair Stylist, Barber
+    - Input: "fix my computer" → Output: IT Technician, Computer Repair Specialist
+    - Input: "random text" → Output: NO MATCHES
+    """;
+
+      final aiResponse = await _generateContent(prompt, apiKey);
+      if (aiResponse != null && aiResponse.isNotEmpty) {
+        if (aiResponse.trim() == "NO MATCHES") {
+          return [];
+        }
+        try {
+          final responseList = aiResponse
+              .split(',')
+              .map((service) => service.trim())
+              .where((service) => service.isNotEmpty)
+              .toList();
+
+          if (responseList.length == 1 &&
+              !allServices.contains(responseList[0])) {
+            // Assume it's a name and return directly
+            return responseList;
+          }
+
+          final validServices = responseList
+              .where((service) => allServices.contains(service))
+              .toList();
+          return validServices;
+        } catch (e) {
+          return [];
+        }
+      }
+      return [];
     } catch (e) {
       return [];
     }

@@ -487,4 +487,45 @@ void main() {
       );
     });
   });
+
+  group('getDiscoverPortfolios', () {
+    test('returns discover portfolios', () async {
+      final portfolios = [
+        PortfolioModel(service: 'service', uid: 'user1', professionalsName: 'User One', nameArray: ['User', 'One']),
+        PortfolioModel(service: 'service2', uid: 'user2', professionalsName: 'User Two', nameArray: ['User', 'Two'])
+      ];
+
+
+      when(mockFirestoreServices.discoverPortfolios(any))
+          .thenAnswer((_) async => portfolios);
+
+      final repository = container.read(portfolioRepositoryProvider);
+      final result = await repository.getDiscoverPortfolios(['User']);
+
+      expect(result, equals(portfolios));
+      verify(mockFirestoreServices.discoverPortfolios(any))
+          .called(1);
+    });
+
+    test('should throw AppException when discoverPortfolios fails', () async {
+      final portfolios = [
+        PortfolioModel(service: 'service', uid: 'user1', professionalsName: 'User One', nameArray: ['User', 'One']),
+        PortfolioModel(service: 'service2', uid: 'user2', professionalsName: 'User Two', nameArray: ['User', 'Two'])
+      ];
+
+
+      when(mockFirestoreServices.discoverPortfolios(['User', 'One']))
+          .thenThrow(AppException('discover-portfolios-error'));
+
+
+      final repository = container.read(portfolioRepositoryProvider);
+      expect(
+        () => repository.getDiscoverPortfolios(['User', 'One']),
+        throwsA(predicate((e) =>
+            e is AppException &&
+            e.toString().contains('discover-portfolios-error'))),
+      );
+    });
+
+  });
 }

@@ -231,7 +231,7 @@ void _checkAndShowEmailVerification() {
                 index: selectedIndex,
                 children: [
                   HomeTab(userModel: userModel),
-                  const DiscoverTab(),
+                  DiscoverTab(userModel: userModel,),
                   InboxTab(userModel: userModel),
                   EditProfile(
                       userModel: userModel, portfolioModel: userPortfolio),
@@ -303,7 +303,7 @@ void _checkLocationPermission(BuildContext context, WidgetRef ref) async {
 
   try {
     bool hasPermission = await locationService.checkPermission();
-
+    ref.read(positionListenerProvider);
     if (!hasPermission && context.mounted) {
       bool? shouldRequestPermission = await showDialog<bool>(
           context: context,

@@ -6,6 +6,7 @@ import 'package:folio/models/portfolio_model.dart';
 import 'package:folio/models/user_model.dart';
 import 'package:folio/views/home/home_tab.dart';
 import 'package:folio/views/home/update_services_screen.dart';
+import 'package:folio/widgets/portfolio_card.dart';
 
 void main(){
    group('HomeTab Tests', () {
@@ -68,6 +69,7 @@ void main(){
         UncontrolledProviderScope(container: container, child: MaterialApp(home: Scaffold(body: HomeTab(userModel: user),),))
       );
       await tester.pumpAndSettle();
+      expect(find.byType(PortfolioCard), findsNothing);
 
       expect(find.text('No portfolios found nearby.'), findsOneWidget);
     });
@@ -91,7 +93,7 @@ void main(){
         UncontrolledProviderScope(container: container, child: MaterialApp(home: Scaffold(body: HomeTab(userModel: user),),))
       );
       await tester.pumpAndSettle();
-
+      expect(find.byType(PortfolioCard), findsExactly(2));
       expect(find.text('Photographer'), findsOneWidget);
       expect(find.text('Barber'), findsOneWidget);
       expect(find.text('Test Name'), findsOneWidget);

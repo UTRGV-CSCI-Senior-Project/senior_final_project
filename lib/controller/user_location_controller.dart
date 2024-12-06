@@ -8,6 +8,7 @@ class LocationService {
   final GeocodingService _geocodingService;
 
   LocationService(this._geolocator, this._geocodingService);
+
   /// Check if location services are enabled.a
   Future<bool> checkService() async {
     return await _geolocator.isLocationServiceEnabled();
@@ -37,6 +38,7 @@ class LocationService {
 
   /// Fetch the current latitude and longitude.
   Future<Position> getCurrentLocation() async {
+
     bool serviceEnabled = await checkService();
     if (!serviceEnabled) {
       throw AppException("location-service-disabled");
@@ -70,11 +72,20 @@ class LocationService {
         );
   }
 
+  int distanceInMiles(Position p1, double latitude, double longitude) {
+    return (_geolocator.distanceBetween(
+          p1.latitude,
+          p1.longitude,
+          latitude,
+          longitude,
+        ) * 0.000621371).round();
+  }
+
   /// Get the street address for given latitude and longitude.
   Future<String> getAddress(double latitude, double longitude) async {
     try {
-      List<Placemark> placemarks =
-          await _geocodingService.getPlacemarksFromCoordinates(latitude, longitude);
+      List<Placemark> placemarks = await _geocodingService
+          .getPlacemarksFromCoordinates(latitude, longitude);
       if (placemarks.isNotEmpty) {
         Placemark place = placemarks.first;
         return [
@@ -97,8 +108,8 @@ class LocationService {
   /// Get the city for given latitude and longitude.
   Future<String> getCity(double latitude, double longitude) async {
     try {
-      List<Placemark> placemarks =
-          await _geocodingService.getPlacemarksFromCoordinates(latitude, longitude);
+      List<Placemark> placemarks = await _geocodingService
+          .getPlacemarksFromCoordinates(latitude, longitude);
       return placemarks.isNotEmpty
           ? placemarks.first.locality ?? 'City not found.'
           : 'City not found.';
@@ -121,12 +132,19 @@ class LocationService {
     await _geolocator.openLocationSettings();
   }
 
-  Stream<Position> getPositionStream() {
+ Stream<Position> getPositionStream()  {
+    try {
     return _geolocator.getPositionStream(
-        locationSettings: const LocationSettings(
-      distanceFilter: 32186,
-    ));
+      locationSettings: const LocationSettings(
+        distanceFilter: 32186,
+      )
+    );
+  } catch (e) {
+    // Handle potential location permission errors
+    return const Stream.empty();
   }
+  }
+
 }
 
 class GeocodingService {

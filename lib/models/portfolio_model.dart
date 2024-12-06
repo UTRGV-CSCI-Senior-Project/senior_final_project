@@ -11,6 +11,7 @@ class PortfolioModel {
   final Map<String, double?>? _latAndLong;
   final String? _professionalsName;
   final String _uid;
+  final List<String>? _nameArray;
 
 
   PortfolioModel({
@@ -23,7 +24,8 @@ class PortfolioModel {
     DateTime? experienceStartDate,
      Map<String, String?>? location,
      Map<String, double?>? latAndLong,
-    String? professionalsName
+    String? professionalsName,
+    List<String>? nameArray
   })  : _service = service,
         _uid = uid,
         _details = details,
@@ -33,7 +35,8 @@ class PortfolioModel {
         _experienceStartDate = experienceStartDate,
         _location = location,
         _latAndLong = latAndLong,
-        _professionalsName = professionalsName
+        _professionalsName = professionalsName,
+        _nameArray = nameArray
         {
     if (service.isEmpty) {
       throw ArgumentError('service cannot be empty');
@@ -53,6 +56,7 @@ class PortfolioModel {
    Map<String, double?>? get latAndLong => _latAndLong;
    String? get professionalsName => _professionalsName;
    String get uid => _uid;
+   List<String>? get nameArray => _nameArray;
 
 
   // Convert the model to JSON format
@@ -67,7 +71,8 @@ class PortfolioModel {
       "location": location,
       "latAndLong": latAndLong,
       "professionalsName": professionalsName,
-      "uid": uid
+      "uid": uid,
+      "nameArray": nameArray
     };
   }
 
@@ -108,7 +113,10 @@ class PortfolioModel {
           ? Map<String, double?>.from(json['latAndLong'] as Map)
           : null,
       professionalsName: json['professionalsName'] as String?,
-      uid: json['uid'] as String
+      uid: json['uid'] as String,
+      nameArray: (json['nameArray'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toList(),
     );
   }
 

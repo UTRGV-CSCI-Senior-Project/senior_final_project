@@ -57,7 +57,7 @@ class _ChooseServiceState extends ConsumerState<ChooseService> {
     if (debounce?.isActive ?? false) {
       debounce?.cancel();
     }
-    debounce = Timer(const Duration(milliseconds: 1300), () async {
+    debounce = Timer(const Duration(milliseconds: 1000), () async {
       if (searchController.text.isNotEmpty) {
         _filterServices(searchController.text);
       } else {

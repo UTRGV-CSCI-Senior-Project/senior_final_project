@@ -73,4 +73,31 @@ void main() {
       expect(result, []);
     });
   });
+
+  group('aiDiscover', () {
+    test('should return empty list when API key is null', () async {
+      // Simulate no API key in environment
+      dotenv.testLoad(fileInput: '');
+
+      final result = await geminiServices.aiDiscover('');
+      expect(result, []);
+    });
+
+    test('should return all services  when prompt is empty', () async {
+      dotenv.testLoad(fileInput: 'GEMINI_API_KEY=test_key');
+      when(mockFirestoreServices.getServices())
+          .thenAnswer((_) async => ['Service1', 'Service2']);
+
+      final result = await geminiServices.aiDiscover('');
+      expect(result, ['Service1', 'Service2']);
+    });
+
+    test('should handle exception in getAllServices', () async {
+      when(mockFirestoreServices.getServices())
+          .thenThrow(AppException('get-services-error'));
+
+      final result = await geminiServices.aiDiscover('');
+      expect(result, []);
+    });
+  });
 }

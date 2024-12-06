@@ -187,17 +187,28 @@ final locationServiceProvider = Provider<LocationService>((ref){
     
 });
 
-final currentPositionProvider = StateProvider<Position?>((ref) => null);
-
 final positionStreamProvider = StreamProvider<Position>((ref){
   final locationService = ref.watch(locationServiceProvider);
   return locationService.getPositionStream();
 });
 
+final currentPositionProvider = StateProvider<Position?>((ref) => null);
+
+final positionListenerProvider = Provider<void>((ref) {
+  ref.listen<AsyncValue<Position>>(positionStreamProvider, (previous, next) {
+    next.whenData((position) {
+      ref.read(currentPositionProvider.notifier).state = position;
+    });
+  });
+});
+
 final nearbyPortfoliosProvider = FutureProvider<List<PortfolioModel>>((ref) async {
   final positionAsyncValue = ref.watch(positionStreamProvider);
   return positionAsyncValue.when(data: (position) async {
-    return await ref.read(portfolioRepositoryProvider).getNearbyPortfolios(position.latitude, position.longitude);
+    if (position.latitude >= -90 && position.latitude <= 90 &&
+          position.longitude >= -180 && position.longitude <= 180) {
+        return await ref.read(portfolioRepositoryProvider).getNearbyPortfolios(position.latitude, position.longitude);
+      }      return [];
   }, loading: () => [],
     error: (error, stack) => [],);
 });

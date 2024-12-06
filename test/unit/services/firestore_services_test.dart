@@ -374,7 +374,8 @@ void main() {
         'experienceStartDate': null,
         'location':  null,
         'latAndLong': null,
-        'professionalsName': null
+        'professionalsName': null,
+        'nameArray': null
       };
 
       when(mockFirebaseFirestore.collection('portfolios'))
@@ -1510,5 +1511,75 @@ void main() {
         ))
       );
     });
+  });
+
+  group('discoverPortfolios', () {
+
+    test('retrieves discover portfolios correctly', () async {
+    MockQuery<Map<String, dynamic>> mockNameQuery = MockQuery<Map<String, dynamic>>();
+    MockQuery<Map<String, dynamic>> mockServiceQuery = MockQuery<Map<String, dynamic>>();  
+    MockQuerySnapshot<Map<String, dynamic>> mockNameQuerySnapshot = MockQuerySnapshot<Map<String, dynamic>>();
+    MockQuerySnapshot<Map<String, dynamic>> mockServiceQuerySnapshot = MockQuerySnapshot<Map<String, dynamic>>();
+    MockQueryDocumentSnapshot<Map<String, dynamic>> mockQueryDocumentSnapshot = MockQueryDocumentSnapshot<Map<String, dynamic>>();
+    final mockDocs = [
+      mockQueryDocumentSnapshot
+    ];
+     final portfolioJson = {
+        'service': 'Nail Tech',
+        'uid': 'test-uid',
+        'details': 'details',
+        'years': 5,
+        'months': 3,
+        'images': [
+          {
+            'filePath': 'path/to/image1',
+            'downloadUrl': 'http://example.com/image1'
+          },
+          {
+            'filePath': 'path/to/image2',
+            'downloadUrl': 'http://example.com/image2'
+          }
+        ],
+        'experienceStartDate': null,
+        'location':  null,
+        'latAndLong': null,
+        'professionalsName': null,
+        'nameArray': null
+      };
+
+    final searchQuery = ['Nail Tech'];
+         when(mockFirebaseFirestore.collection('portfolios'))
+        .thenReturn(mockCollectionReference);
+    when(mockCollectionReference.where('nameArray', arrayContainsAny: searchQuery))
+        .thenReturn(mockNameQuery);
+    when(mockCollectionReference.where('service', whereIn: searchQuery))
+        .thenReturn(mockServiceQuery);
+    when(mockNameQuery.get()).thenAnswer((_) async => mockNameQuerySnapshot);
+    when(mockServiceQuery.get()).thenAnswer((_) async => mockServiceQuerySnapshot);
+    when(mockNameQuerySnapshot.docs).thenReturn(mockDocs);
+    when(mockServiceQuerySnapshot.docs).thenReturn(mockDocs);
+    when(mockQueryDocumentSnapshot.data()).thenReturn(portfolioJson);
+
+final result = await firestoreServices.discoverPortfolios(searchQuery);
+    expect(result.length, 1);
+    expect(result.first.service, 'Nail Tech');
+
+    });
+
+    test('returns empty list when searchQuery is empty', () async {
+    final result = await firestoreServices.discoverPortfolios([]);
+    expect(result, isEmpty);
+  });
+
+   test('throws AppException on error', () async {
+    final searchQuery = ['nail', 'tech'];
+    when(mockFirebaseFirestore.collection('portfolios'))
+        .thenThrow(Exception('Firestore error'));
+
+    expect(
+      () async => await firestoreServices.discoverPortfolios(searchQuery),
+      throwsA(isA<AppException>().having((e) => e.code, 'code', 'discover-portfolios-error')),
+    );
+  });
   });
 }

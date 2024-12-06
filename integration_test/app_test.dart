@@ -87,7 +87,7 @@ class MockImagePicker extends ImagePicker {
         );
 
   final Position _mockPosition = Position(
-    latitude: 37.7749,
+    latitude: 37.7300,
     longitude: -122.4194,
     accuracy: 0,
     altitude: 0,
@@ -172,6 +172,10 @@ void main() {
   final feedbackButton = find.byKey(const Key('submit-feedback-button'));
   final noVerificationButton = find.byKey(const Key('no-verification-button'));
   final inboxTabButton = find.byKey(const Key('inbox-button'));
+  final discoverTabButton = find.byKey(const Key('discover-button'));
+  final discoverTextField = find.byKey(const Key('discover-field'));
+  final removeRadiusButton = find.byKey(const Key('remove-radius'));
+
 ////////////////////////////////////////////////////////////////////////
 
 //////////////////////// Set Up and Tear Down //////////////////////////
@@ -311,7 +315,7 @@ void main() {
         expect(find.textContaining('First Last'), findsOneWidget);
         expect(find.text('First User'), findsOneWidget);
         expect(find.text('Beginner'), findsOneWidget);
-        expect(find.text('San Francisco'), findsOneWidget);
+        expect(find.text('6 mi away'), findsOneWidget);
 
         await tester.tap(find.byKey(const Key('view-portfolio-button')).first);
         await tester.pumpAndSettle(const Duration(seconds: 5));
@@ -357,6 +361,54 @@ void main() {
         await tester.pumpAndSettle(const Duration(seconds: 5));
         //Expect to see home screen with user's full name
         expect(find.textContaining('Second User'), findsOneWidget);
+        await container.read(authServicesProvider).signOut();
+      });
+    });
+
+    testWidgets(
+        'As an existing user I can sign in, go to the discover tab, and search and filter portfolios',
+        (WidgetTester tester) async {
+      await mockNetworkImagesFor(() async {
+        //Navigate to sign in screen
+        await navigateToLogInScreen(tester);
+
+        //Enter necessary data and sign in
+        await tester.enterText(emailField, 'secondUser@email.com');
+        await tester.enterText(passwordField, '123456');
+
+        FocusManager.instance.primaryFocus?.unfocus();
+        final scrollable = find.byType(Scrollable);
+        await tester.scrollUntilVisible(
+            signInButton, 500.0, // Scroll amount per attempt
+            scrollable: scrollable.first);
+        await tester.tap(signInButton);
+        await tester.pumpAndSettle(const Duration(seconds: 5));
+
+        await tester.tap(discoverTabButton);
+        await tester.pumpAndSettle(const Duration(seconds: 5));
+
+        expect(find.text('First User'), findsOneWidget);
+        expect(find.text('6 mi away'), findsOneWidget);
+
+        await tester.enterText(discoverTextField, 'Someone to cut my hair');
+        await tester.pumpAndSettle(const Duration(seconds: 10));
+
+        expect(find.text('First User'), findsOneWidget);
+        expect(find.text('6 mi away'), findsOneWidget);
+        expect(find.text('Barber'), findsOneWidget);
+
+        await tester.tap(find.byKey(const Key('filter-button')));
+        await tester.pumpAndSettle(const Duration(seconds: 5));
+        await tester.scrollUntilVisible(removeRadiusButton, 50, scrollable: find.byType(Scrollable).last);
+        await tester.tap(removeRadiusButton);
+        await tester.tap(removeRadiusButton);
+        await tester.tap(removeRadiusButton);
+        await tester.tap(removeRadiusButton);
+        await tester.tap(removeRadiusButton);
+        await tester.tap(find.byKey(const Key('apply-filters-button')));
+        await tester.pumpAndSettle(const Duration(seconds: 5));
+
+        expect(find.text('No portfolios matched your selected filters.'), findsOneWidget);
         await container.read(authServicesProvider).signOut();
       });
     });

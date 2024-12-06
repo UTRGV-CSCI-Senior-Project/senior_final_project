@@ -66,4 +66,14 @@ class MockGeminiServices extends _i1.Mock implements _i2.GeminiServices {
         ),
         returnValue: _i4.Future<List<String>>.value(<String>[]),
       ) as _i4.Future<List<String>>);
+
+  @override
+  _i4.Future<List<String>> aiDiscover(String? promptUser) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #aiDiscover,
+          [promptUser],
+        ),
+        returnValue: _i4.Future<List<String>>.value(<String>[]),
+      ) as _i4.Future<List<String>>);
 }

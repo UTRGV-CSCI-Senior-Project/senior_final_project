@@ -52,7 +52,7 @@ class _UpdateServicesScreenState extends ConsumerState<UpdateServicesScreen> {
     if (debounce?.isActive ?? false) {
       debounce?.cancel();
     }
-    debounce = Timer(const Duration(seconds: 1), () async {
+    debounce = Timer(const Duration(milliseconds: 700), () async {
       final query = searchController.text.trim();
       if (query.isNotEmpty) {
         filterServices(query);

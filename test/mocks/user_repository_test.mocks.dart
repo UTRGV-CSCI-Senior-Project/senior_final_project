@@ -359,6 +359,18 @@ class MockFirestoreServices extends _i1.Mock implements _i6.FirestoreServices {
       ) as _i3.Future<List<_i8.PortfolioModel>>);
 
   @override
+  _i3.Future<List<_i8.PortfolioModel>> discoverPortfolios(
+          List<String>? searchQuery) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #discoverPortfolios,
+          [searchQuery],
+        ),
+        returnValue:
+            _i3.Future<List<_i8.PortfolioModel>>.value(<_i8.PortfolioModel>[]),
+      ) as _i3.Future<List<_i8.PortfolioModel>>);
+
+  @override
   _i3.Future<List<String>> getServices() => (super.noSuchMethod(
         Invocation.method(
           #getServices,

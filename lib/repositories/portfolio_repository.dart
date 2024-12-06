@@ -18,7 +18,7 @@ class PortfolioRepository {
       List<File> images,
       Map<String, String?>? location,
       Map<String, double?>? latAndLong,
-      String? professionalsName,
+      String professionalsName,
       String uid) async {
     try {
       final imageData = await _storageServices.uploadFilesForUser(images);
@@ -34,6 +34,7 @@ class PortfolioRepository {
           location: location,
           latAndLong: latAndLong,
           professionalsName: professionalsName,
+          nameArray: professionalsName.split(' '),
           uid: uid);
       await _firestoreServices.savePortfolioDetails(portfolio.toJson());
 
@@ -123,6 +124,18 @@ class PortfolioRepository {
         rethrow;
       } else {
         throw AppException('get-nearby-portfolios-error');
+      }
+    }
+  }
+
+  Future<List<PortfolioModel>> getDiscoverPortfolios(List<String> searchQuery) async {
+    try{
+      return await _firestoreServices.discoverPortfolios(searchQuery);
+    } catch (e) {
+      if (e is AppException){
+        rethrow;
+      }else{
+        throw AppException('get-discover-portfolios-error');
       }
     }
   }

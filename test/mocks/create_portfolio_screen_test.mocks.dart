@@ -124,4 +124,16 @@ class MockPortfolioRepository extends _i1.Mock
         returnValue:
             _i3.Future<List<_i5.PortfolioModel>>.value(<_i5.PortfolioModel>[]),
       ) as _i3.Future<List<_i5.PortfolioModel>>);
+
+  @override
+  _i3.Future<List<_i5.PortfolioModel>> getDiscoverPortfolios(
+          List<String>? searchQuery) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #getDiscoverPortfolios,
+          [searchQuery],
+        ),
+        returnValue:
+            _i3.Future<List<_i5.PortfolioModel>>.value(<_i5.PortfolioModel>[]),
+      ) as _i3.Future<List<_i5.PortfolioModel>>);
 }
