@@ -78,7 +78,6 @@ class UserRepository {
     try{
       await _cloudMessagingServices.removeToken();
     }catch(e){
-      
     }
 
     try {

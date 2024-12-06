@@ -6,7 +6,7 @@ import 'package:folio/models/portfolio_model.dart';
 import 'package:folio/views/settings/manage_portfolio_screen.dart';
 import 'package:mockito/mockito.dart';
 
-import '../../mocks/create_portfolio_screen.mocks.dart';
+import '../../mocks/create_portfolio_screen_test.mocks.dart';
 import '../../mocks/login_screen_test.mocks.dart';
 import '../../mocks/user_repository_test.mocks.dart';
 

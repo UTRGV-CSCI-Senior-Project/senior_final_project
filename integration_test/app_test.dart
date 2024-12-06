@@ -1539,4 +1539,102 @@ void main() {
       });
     });
   });
+  /*
+  group('ChooseService Integration Tests', () {
+    testWidgets('Test 1: No service selected does not proceed to next screen',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(MyApp()); // Replace MyApp with your main widget
+      await tester.pumpAndSettle();
+
+      // Find the button to go to the next screen
+      final nextButton = find.byKey(
+          Key('Servicenext-button')); // Change to your actual next button key
+
+      // Tap the next button
+      await tester.tap(nextButton);
+      await tester.pumpAndSettle();
+
+      // Verify that we are still on the current screen (e.g., check for the presence of the service selection)
+      expect(find.byType(ChooseService), findsOneWidget);
+    });
+
+    testWidgets('Test 2: Select a service goes to next screen',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(MyApp());
+      await tester.pumpAndSettle();
+
+      // Select a service
+      final serviceOption = find
+          .byKey(Key('service-button-0')); // Adjust to the first service's key
+      await tester.tap(serviceOption);
+      await tester.pumpAndSettle();
+
+      // Find and tap the next button
+      final nextButton = find.byKey(Key('next-button'));
+      await tester.tap(nextButton);
+      await tester.pumpAndSettle();
+
+      // Verify we are on the next screen
+      expect(find.text('Next Screen'),
+          findsOneWidget); // Change to whatever identifies the next screen
+    });
+
+    testWidgets('Test 3: Selecting a second service unmarks the first',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(MyApp());
+      await tester.pumpAndSettle();
+
+      // Select the first service
+      final firstService = find.byKey(Key('service-button-0'));
+      await tester.tap(firstService);
+      await tester.pumpAndSettle();
+
+      // Select the second service
+      final secondService = find.byKey(Key('service-button-1'));
+      await tester.tap(secondService);
+      await tester.pumpAndSettle();
+
+      // Check that the first service is unselected
+      expect(
+          find
+              .byKey(Key('service-button-0'))
+              .evaluate()
+              .first
+              .widget
+              .isSelected,
+          isFalse);
+      expect(
+          find
+              .byKey(Key('service-button-1'))
+              .evaluate()
+              .first
+              .widget
+              .isSelected,
+          isTrue);
+    });
+
+    testWidgets(
+        'Test 4: Passes correct String and boolean value to next screen',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(MyApp());
+      await tester.pumpAndSettle();
+
+      // Select a service
+      final serviceOption = find.byKey(Key('service-button-0'));
+      await tester.tap(serviceOption);
+      await tester.pumpAndSettle();
+
+      // Find and tap the next button
+      final nextButton = find.byKey(Key('next-button'));
+      await tester.tap(nextButton);
+      await tester.pumpAndSettle();
+
+      // Verify the values passed to the next screen
+      expect(find.text('Service Name'),
+          findsOneWidget); // Adjust based on how you display the service name
+      expect(find.byKey(Key('boolean-value-key')),
+          findsOneWidget); // Adjust based on your boolean value's key
+    });
+  });
+  */
 }

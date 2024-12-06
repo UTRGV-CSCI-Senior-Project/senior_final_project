@@ -333,6 +333,16 @@ class MockFirestoreServices extends _i1.Mock implements _i6.FirestoreServices {
       ) as _i3.Future<List<String>>);
 
   @override
+  _i3.Future<void> addService(String? service) => (super.noSuchMethod(
+        Invocation.method(
+          #addService,
+          [service],
+        ),
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
+
+  @override
   _i3.Future<void> addFeedback(_i9.FeedbackModel? feedbackModel) =>
       (super.noSuchMethod(
         Invocation.method(

@@ -24,6 +24,8 @@ class PortfolioRepository {
         'images': imageData
       });
 
+      await _firestoreServices.addService(service);
+
       await _firestoreServices.updateUser({'isProfessional': true});
     } catch (e) {
       if (e is AppException) {

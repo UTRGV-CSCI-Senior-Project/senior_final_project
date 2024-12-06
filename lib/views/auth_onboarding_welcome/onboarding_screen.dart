@@ -26,7 +26,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   String errorMessage = "";
   bool _isLoading = false;
   bool _servicesAreLoading = true;
-
+  final searchController = TextEditingController();
+  List<String> filteredServices = [];
   late List<String> services = [];
 
   final Map<String, bool> selectedServices = {};
@@ -42,6 +43,21 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     _pageController.dispose();
     _fullNameController.dispose();
     super.dispose();
+  }
+
+  void filterServices(String query) {
+    if (query.isEmpty) {
+      setState(() {
+        filteredServices = services;
+      });
+      return;
+    }
+    setState(() {
+      filteredServices = services
+          .where(
+              (service) => service.toLowerCase().contains(query.toLowerCase()))
+          .toList();
+    });
   }
 
   Future<void> loadServices() async {
@@ -235,6 +251,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           ),
           child: TextField(
             cursorColor: Theme.of(context).textTheme.displayLarge?.color,
+            controller: searchController,
+            onChanged: filterServices,
             decoration: InputDecoration(
               hintText: 'Search Folio',
               enabledBorder: OutlineInputBorder(
@@ -250,6 +268,16 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   color: Theme.of(context).textTheme.displayLarge?.color),
               border: InputBorder.none,
               contentPadding: const EdgeInsets.symmetric(vertical: 15),
+              suffixIcon: searchController.text.isNotEmpty
+                  ? IconButton(
+                      key: const Key('clear-search-button'),
+                      icon: const Icon(Icons.clear),
+                      onPressed: () {
+                        searchController.clear();
+                        filterServices('');
+                      },
+                    )
+                  : null,
             ),
           ),
         ),
@@ -258,7 +286,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         ),
         Expanded(
             child: ServiceSelectionWidget(
-                services: services,
+                services:
+                    filteredServices.isNotEmpty ? filteredServices : services,
                 initialSelectedServices: selectedServices,
                 onServicesSelected: (newServices) {
                   if (mounted) {

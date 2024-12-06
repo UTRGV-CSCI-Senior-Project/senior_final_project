@@ -160,6 +160,10 @@ PODS:
     - FlutterMacOS
   - PromisesObjC (2.4.0)
   - RecaptchaInterop (100.0.0)
+  - share_plus (0.0.1):
+    - Flutter
+  - social_share (0.0.1):
+    - Flutter
 
 DEPENDENCIES:
   - cloud_firestore (from `.symlinks/plugins/cloud_firestore/ios`)
@@ -176,6 +180,8 @@ DEPENDENCIES:
   - integration_test (from `.symlinks/plugins/integration_test/ios`)
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
+  - share_plus (from `.symlinks/plugins/share_plus/ios`)
+  - social_share (from `.symlinks/plugins/social_share/ios`)
 
 SPEC REPOS:
   trunk:
@@ -236,6 +242,10 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/package_info_plus/ios"
   path_provider_foundation:
     :path: ".symlinks/plugins/path_provider_foundation/darwin"
+  share_plus:
+    :path: ".symlinks/plugins/share_plus/ios"
+  social_share:
+    :path: ".symlinks/plugins/social_share/ios"
 
 CHECKOUT OPTIONS:
   FirebaseFirestore:
@@ -283,6 +293,8 @@ SPEC CHECKSUMS:
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   RecaptchaInterop: 7d1a4a01a6b2cb1610a47ef3f85f0c411434cb21
+  share_plus: 8b6f8b3447e494cca5317c8c3073de39b3600d1f
+  social_share: 702a5e3842addd22db515aa9e1e00a4b80a0296d
 
 PODFILE CHECKSUM: 0a98e45d91f3ff42cc48187866fce08289a47cd5
 

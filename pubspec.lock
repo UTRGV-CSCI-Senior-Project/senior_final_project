@@ -435,6 +435,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_dotenv:
+    dependency: "direct main"
+    description:
+      name: flutter_dotenv
+      sha256: b7c7be5cd9f6ef7a78429cabd2774d3c4af50e79cb2b7593e3d5d763ef95c61b
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.2.1"
   flutter_driver:
     dependency: transitive
     description: flutter
@@ -482,6 +490,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  font_awesome_flutter:
+    dependency: "direct main"
+    description:
+      name: font_awesome_flutter
+      sha256: "275ff26905134bcb59417cf60ad979136f1f8257f2f449914b2c3e05bbb4cd6f"
+      url: "https://pub.dev"
+    source: hosted
+    version: "10.7.0"
   frontend_server_client:
     dependency: transitive
     description:
@@ -960,10 +976,10 @@ packages:
     dependency: "direct main"
     description:
       name: share_plus
-      sha256: "9c9bafd4060728d7cdb2464c341743adbd79d327cb067ec7afb64583540b47c8"
+      sha256: "3af2cda1752e5c24f2fc04b6083b40f013ffe84fb90472f30c6499a9213d5442"
       url: "https://pub.dev"
     source: hosted
-    version: "10.1.2"
+    version: "10.1.1"
   share_plus_platform_interface:
     dependency: transitive
     description:
@@ -1009,6 +1025,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.99"
+  social_share:
+    dependency: "direct main"
+    description:
+      name: social_share
+      sha256: eb19a0f6f5a29c7bb71e5bb1991145eb52472184363b6e2da70695befd8be041
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.3.1"
   source_gen:
     dependency: transitive
     description:

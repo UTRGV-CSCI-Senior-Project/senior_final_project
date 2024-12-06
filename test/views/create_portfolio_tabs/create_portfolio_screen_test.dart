@@ -9,7 +9,7 @@ import 'package:folio/views/create_portfolio_tabs/more_details_screen.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
-import '../../mocks/create_portfolio_screen.mocks.dart';
+import '../../mocks/create_portfolio_screen_test.mocks.dart';
 import '../../mocks/onboarding_screen_test.mocks.dart';
 import '../../mocks/user_repository_test.mocks.dart';
 
