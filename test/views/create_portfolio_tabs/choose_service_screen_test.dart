@@ -6,7 +6,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:folio/core/service_locator.dart';
 import 'package:folio/views/auth_onboarding_welcome/state_screens.dart';
 import 'package:folio/views/create_portfolio_tabs/choose_service_screen.dart';
-import 'package:mockito/mockito.dart';
 
 import '../../mocks/user_repository_test.mocks.dart';
 

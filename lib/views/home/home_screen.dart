@@ -21,6 +21,7 @@ import 'package:google_fonts/google_fonts.dart';
 final selectedIndexProvider = StateProvider<int>((ref) => 0);
 final hasShownEmailDialogProvider = StateProvider<bool>((ref) => false);
 final hasShownLocationPermissionDialog = StateProvider<bool>((ref) => false);
+final discoverSearchProvider = StateProvider<String?>((ref) => null);
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});

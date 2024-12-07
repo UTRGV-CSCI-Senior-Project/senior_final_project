@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:folio/controller/user_location_controller.dart';
 import 'package:folio/core/service_locator.dart';
 import 'package:folio/models/user_model.dart';
+import 'package:folio/views/home/home_screen.dart';
 import 'package:folio/views/home/update_services_screen.dart';
 import 'package:folio/widgets/portfolio_card.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -76,7 +77,15 @@ class _HomeTabState extends ConsumerState<HomeTab> {
                         return Padding(
                           padding: const EdgeInsets.only(right: 8),
                           child: ActionChip(
-                            onPressed: () {},
+                            onPressed: () {
+                              // Update the global search provider with the selected service
+                              ref.read(discoverSearchProvider.notifier).state =
+                                  widget.userModel.preferredServices[index];
+
+                              // Change the tab to Discover
+                              ref.read(selectedIndexProvider.notifier).state =
+                                  1;
+                            },
                             label: Text(
                               widget.userModel.preferredServices[index]
                                   .toUpperCase(),
@@ -157,7 +166,9 @@ class _HomeTabState extends ConsumerState<HomeTab> {
                             final portfolio = portfolios[index];
                             return Padding(
                               padding: const EdgeInsets.only(right: 16),
-                              child: PortfolioCard(currentUser: widget.userModel, portfolio: portfolio),
+                              child: PortfolioCard(
+                                  currentUser: widget.userModel,
+                                  portfolio: portfolio),
                             );
                           },
                         ),
@@ -173,4 +184,5 @@ class _HomeTabState extends ConsumerState<HomeTab> {
         ),
       ),
     ));
-  }}
+  }
+}

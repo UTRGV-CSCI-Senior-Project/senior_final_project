@@ -6,6 +6,7 @@ import 'package:folio/controller/user_location_controller.dart';
 import 'package:folio/core/service_locator.dart';
 import 'package:folio/models/portfolio_model.dart';
 import 'package:folio/models/user_model.dart';
+import 'package:folio/views/home/home_screen.dart';
 import 'package:folio/widgets/portfolio_list_item.dart';
 import 'package:folio/widgets/sort_filter_sheet.dart';
 import 'package:geolocator/geolocator.dart';
@@ -28,7 +29,7 @@ class _DiscoverTabState extends ConsumerState<DiscoverTab> {
   Timer? _debounce;
   String sortOption = 'Distance';
   String sortDirection = 'Ascending';
-  double radius = 30.0;
+  double radius = 100.0;
   List<String> selectedServices = [];
   List<PortfolioModel> filteredPortfolios = [];
 
@@ -41,7 +42,7 @@ class _DiscoverTabState extends ConsumerState<DiscoverTab> {
   @override
   void dispose() {
     _debounce?.cancel();
-    searchController.dispose(); // Dispose of the controller when done
+    searchController.dispose();
     super.dispose();
   }
 
@@ -89,7 +90,8 @@ class _DiscoverTabState extends ConsumerState<DiscoverTab> {
         comparison = distanceA.compareTo(distanceB);
       } else if (sortOption == 'Name') {
         if (a.professionalsName != null && b.professionalsName != null) {
-           comparison = (a.professionalsName ?? '').compareTo(b.professionalsName ?? '');
+          comparison =
+              (a.professionalsName ?? '').compareTo(b.professionalsName ?? '');
         }
       } else if (sortOption == 'Service') {
         comparison = a.service.compareTo(b.service);
@@ -103,28 +105,59 @@ class _DiscoverTabState extends ConsumerState<DiscoverTab> {
     final searchResults = ref.watch(searchResultsProvider);
     final isSearching = ref.watch(isSearchingProvider);
     final currentLocation = ref.watch(currentPositionProvider);
+    
 
     void discover(String query) async {
       ref.read(isSearchingProvider.notifier).state = true;
-      try {
-        final geminiDiscover =
-            await ref.watch(geminiServicesProvider).aiDiscover(query);
-        if (geminiDiscover.isNotEmpty) {
-          final results = await ref
-              .watch(portfolioRepositoryProvider)
-              .getDiscoverPortfolios(geminiDiscover);
-          if (results.isNotEmpty) {
-            ref.read(searchResultsProvider.notifier).state =
-                results; // Update the provider
-            filterPortfolios(results, currentLocation);
-          }
+      final fetchedServices = await ref.read(servicesStreamProvider.future);
+      final filtered = fetchedServices
+          .where(
+              (service) => service.toLowerCase().contains(query.toLowerCase()))
+          .toList();
+      if (filtered.isNotEmpty) {
+        try{
+        final results = await ref
+            .watch(portfolioRepositoryProvider)
+            .getDiscoverPortfolios(filtered);
+        if (results.isNotEmpty) {
+          ref.read(searchResultsProvider.notifier).state =
+              results; // Update the provider
+          filterPortfolios(results, currentLocation);
         }
-      } catch (e) {
-        ref.read(searchResultsProvider.notifier).state = [];
-      } finally {
-        ref.read(isSearchingProvider.notifier).state = false;
+        }catch (e) {
+          ref.read(searchResultsProvider.notifier).state = [];
+        }finally {
+          ref.read(isSearchingProvider.notifier).state = false;
+        }
+      } else {
+        try {
+          final geminiDiscover =
+              await ref.watch(geminiServicesProvider).aiDiscover(query);
+          if (geminiDiscover.isNotEmpty) {
+            final results = await ref
+                .watch(portfolioRepositoryProvider)
+                .getDiscoverPortfolios(geminiDiscover);
+            if (results.isNotEmpty) {
+              ref.read(searchResultsProvider.notifier).state =
+                  results; // Update the provider
+              filterPortfolios(results, currentLocation);
+            }
+          }
+        } catch (e) {
+          ref.read(searchResultsProvider.notifier).state = [];
+        } finally {
+          ref.read(isSearchingProvider.notifier).state = false;
+        }
       }
     }
+
+  ref.listen(discoverSearchProvider, (previous, next) {
+    if (next != null) {
+      searchController.text = next;
+      discover(next);
+      ref.read(discoverSearchProvider.notifier).state = null;
+    }
+  });
 
     void onSearchChanged(String text) {
       if (_debounce?.isActive ?? false) {
@@ -160,7 +193,7 @@ class _DiscoverTabState extends ConsumerState<DiscoverTab> {
                           Theme.of(context).textTheme.displayLarge?.color,
                       controller: searchController,
                       decoration: InputDecoration(
-                        hintText: 'Search',
+                        hintText: 'Search a service or question',
                         enabledBorder: OutlineInputBorder(
                             borderRadius:
                                 const BorderRadius.all(Radius.circular(50)),
@@ -173,6 +206,7 @@ class _DiscoverTabState extends ConsumerState<DiscoverTab> {
                                 BorderSide(width: 3, color: Colors.grey[400]!)),
                         hintStyle: GoogleFonts.inter(
                             fontWeight: FontWeight.w500,
+                            fontSize: 14,
                             color: Theme.of(context)
                                 .textTheme
                                 .displayLarge
@@ -235,8 +269,9 @@ class _DiscoverTabState extends ConsumerState<DiscoverTab> {
               height: 12,
             ),
             if (searchResults.isNotEmpty && filteredPortfolios.isEmpty)
-            Expanded(child: Center(
-                  child: Text(
+              Expanded(
+                  child: Center(
+                      child: Text(
                 'No portfolios matched your selected filters.',
                 style: GoogleFonts.poppins(
                     fontSize: 18, fontWeight: FontWeight.w600),
@@ -257,8 +292,9 @@ class _DiscoverTabState extends ConsumerState<DiscoverTab> {
         data: (portfolios) {
           final currentLocation = ref.watch(currentPositionProvider);
           if (portfolios.isEmpty) {
-            return Expanded( child: Center(
-                child: Text(
+            return Expanded(
+                child: Center(
+                    child: Text(
               'No portfolios were found.',
               style: GoogleFonts.poppins(
                   fontSize: 18, fontWeight: FontWeight.w600),
@@ -267,8 +303,9 @@ class _DiscoverTabState extends ConsumerState<DiscoverTab> {
           }
           filterPortfolios(portfolios, currentLocation);
           if (filteredPortfolios.isEmpty) {
-            return Expanded(child: Center(
-                child: Text(
+            return Expanded(
+                child: Center(
+                    child: Text(
               'No portfolios matched your selected filters.',
               style: GoogleFonts.poppins(
                   fontSize: 18, fontWeight: FontWeight.w600),
@@ -291,10 +328,11 @@ class _DiscoverTabState extends ConsumerState<DiscoverTab> {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) =>
-            Center(child: Text("Failed to load portfolios: $error", style: GoogleFonts.poppins(
-                  fontSize: 18, fontWeight: FontWeight.w600),
-              textAlign: TextAlign.center)));
+        error: (error, stack) => Center(
+            child: Text("Failed to load portfolios: $error",
+                style: GoogleFonts.poppins(
+                    fontSize: 18, fontWeight: FontWeight.w600),
+                textAlign: TextAlign.center)));
   }
 
   Widget _buildSearchPortfolios(List<PortfolioModel> portfolios) {
