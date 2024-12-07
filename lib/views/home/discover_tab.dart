@@ -235,13 +235,13 @@ class _DiscoverTabState extends ConsumerState<DiscoverTab> {
               height: 12,
             ),
             if (searchResults.isNotEmpty && filteredPortfolios.isEmpty)
-              Center(
+            Expanded(child: Center(
                   child: Text(
                 'No portfolios matched your selected filters.',
                 style: GoogleFonts.poppins(
                     fontSize: 18, fontWeight: FontWeight.w600),
                 textAlign: TextAlign.center,
-              ))
+              )))
             else if (searchResults.isNotEmpty && filteredPortfolios.isNotEmpty)
               _buildSearchPortfolios(filteredPortfolios)
             else if (searchResults.isEmpty)
@@ -257,23 +257,23 @@ class _DiscoverTabState extends ConsumerState<DiscoverTab> {
         data: (portfolios) {
           final currentLocation = ref.watch(currentPositionProvider);
           if (portfolios.isEmpty) {
-            return Center(
+            return Expanded( child: Center(
                 child: Text(
               'No portfolios were found.',
               style: GoogleFonts.poppins(
                   fontSize: 18, fontWeight: FontWeight.w600),
               textAlign: TextAlign.center,
-            ));
+            )));
           }
           filterPortfolios(portfolios, currentLocation);
           if (filteredPortfolios.isEmpty) {
-            return Center(
+            return Expanded(child: Center(
                 child: Text(
               'No portfolios matched your selected filters.',
               style: GoogleFonts.poppins(
                   fontSize: 18, fontWeight: FontWeight.w600),
               textAlign: TextAlign.center,
-            ));
+            )));
           }
           return Expanded(
             child: ListView.builder(

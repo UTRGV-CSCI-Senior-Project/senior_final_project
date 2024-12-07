@@ -23,8 +23,11 @@ class LocationService {
       return true;
     }
 
-    if (permission == LocationPermission.denied) {
-      return false;
+    if (permission == LocationPermission.denied  || permission == LocationPermission.deniedForever) {
+      try{
+        permission = await _geolocator.requestPermission();
+      }catch(e){
+      }
     }
 
     // Return false if permissions are still denied or denied forever.
@@ -34,6 +37,10 @@ class LocationService {
     }
 
     return true;
+  }
+
+  Future<void> requestPeremission() async {
+    await _geolocator.requestPermission();
   }
 
   /// Fetch the current latitude and longitude.
