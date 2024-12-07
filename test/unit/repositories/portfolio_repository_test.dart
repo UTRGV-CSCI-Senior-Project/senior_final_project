@@ -56,7 +56,7 @@ void main() {
           6,
           2,
           images,
-          {'city': 'City', 'state': 'state'},
+          '1234s Street',
           {'latitude': 40.7128, 'longitude': -74.0060},
           'Test Name',
           'test-uid');
@@ -83,7 +83,7 @@ void main() {
             6,
             2,
             images,
-            {'city': 'City', 'state': 'state'},
+           '1234s Street',
             {'latitude': 40.7128, 'longitude': -74.0060},
             'Test Name',
             'test-uid'),
@@ -115,7 +115,7 @@ void main() {
             6,
             2,
             images,
-            {'city': 'City', 'state': 'state'},
+            '1234s Street',
             {'latitude': 40.7128, 'longitude': -74.0060},
             'Test Name',
             'test-uid'),
@@ -149,7 +149,7 @@ void main() {
             6,
             2,
             images,
-            {'city': 'City', 'state': 'state'},
+            '1234s Street',
             {'latitude': 40.7128, 'longitude': -74.0060},
             'Test Name',
             'test-uid'),
@@ -508,12 +508,6 @@ void main() {
     });
 
     test('should throw AppException when discoverPortfolios fails', () async {
-      final portfolios = [
-        PortfolioModel(service: 'service', uid: 'user1', professionalsName: 'User One', nameArray: ['User', 'One']),
-        PortfolioModel(service: 'service2', uid: 'user2', professionalsName: 'User Two', nameArray: ['User', 'Two'])
-      ];
-
-
       when(mockFirestoreServices.discoverPortfolios(['User', 'One']))
           .thenThrow(AppException('discover-portfolios-error'));
 

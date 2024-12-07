@@ -26,12 +26,11 @@ class SettingsScreen extends ConsumerWidget {
           return Scaffold(
             appBar: AppBar(
               leading: IconButton(
-                key: const Key('settings-back-button'),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            icon: const Icon(Icons.arrow_back_ios,
-                size: 24)),
+                  key: const Key('settings-back-button'),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  icon: const Icon(Icons.arrow_back_ios, size: 24)),
               title: Text(
                 'Settings',
                 style: GoogleFonts.inter(
@@ -58,18 +57,45 @@ class SettingsScreen extends ConsumerWidget {
                       onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) =>  AccountScreen(user: user))),
+                              builder: (context) => AccountScreen(user: user))),
                     ),
                     if (!user.isProfessional)
                       SettingsItem(
                         title: 'Become a professional',
                         leading: const Icon(Icons.create_new_folder_outlined),
                         onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                       CreatePortfolioScreen(name: user.fullName ?? user.username, uid: user.uid,)));
+                           Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => CreatePortfolioScreen(
+                                          name: user.fullName ?? user.username,
+                                          uid: user.uid,
+                                        )));
+                          // if (user.isEmailVerified && user.isPhoneVerified) {
+                          //   Navigator.push(
+                          //       context,
+                          //       MaterialPageRoute(
+                          //           builder: (context) => CreatePortfolioScreen(
+                          //                 name: user.fullName ?? user.username,
+                          //                 uid: user.uid,
+                          //               )));
+                          // } else {
+                          //   ScaffoldMessenger.of(context).showSnackBar(
+                          //     SnackBar(
+                          //         backgroundColor:
+                          //             Theme.of(context).colorScheme.error,
+                          //         showCloseIcon: true,
+                          //         behavior: SnackBarBehavior.floating,
+                          //         content: Text(
+                          //             'Your email address and phone number must be verified before creating a portfolio.',
+                          //             style: GoogleFonts.inter(
+                          //                 fontSize: 16,
+                          //                 fontWeight: FontWeight.w600,
+                          //                 color: Theme.of(context)
+                          //                     .colorScheme
+                          //                     .onPrimary))),
+                          //   );
+                          // }
                         },
                       ),
                     if (user.isProfessional && portfolio != null)
@@ -80,23 +106,41 @@ class SettingsScreen extends ConsumerWidget {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) =>
-                                       ManagePortfolioScreen(portfolioModel: portfolio,)));
+                                  builder: (context) => ManagePortfolioScreen(
+                                        portfolioModel: portfolio,
+                                      )));
                         },
                       ),
                     SettingsItem(
                       title: 'Notifications',
                       leading: const Icon(Icons.notifications_none_outlined),
-                      onTap: () {},
+                      onTap: () {
+                        ref
+                            .watch(locationServiceProvider)
+                            .openLocationSettings();
+                      },
+                    ),
+                    SettingsItem(
+                      title: 'Location',
+                      leading: const Icon(Icons.location_on_outlined),
+                      onTap: () {
+                        ref
+                            .watch(locationServiceProvider)
+                            .openLocationSettings();
+                      },
                     ),
                     SettingsItem(
                       title: 'Log Out',
-                      leading:  Icon(Icons.logout_outlined, color: Theme.of(context).colorScheme.error,),
+                      leading: Icon(
+                        Icons.logout_outlined,
+                        color: Theme.of(context).colorScheme.error,
+                      ),
                       color: Theme.of(context).colorScheme.error,
                       onTap: () {
                         showDialog(
                             context: context,
-                            builder: (BuildContext  context) => const LogoutDialog() );
+                            builder: (BuildContext context) =>
+                                const LogoutDialog());
                       },
                     ),
                     const SizedBox(height: 30),
@@ -108,14 +152,22 @@ class SettingsScreen extends ConsumerWidget {
                       title: 'Report a bug',
                       leading: const Icon(Icons.bug_report_outlined),
                       onTap: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => FeedbackScreen(type: 'bug', userId: user.uid)));
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => FeedbackScreen(
+                                    type: 'bug', userId: user.uid)));
                       },
                     ),
                     SettingsItem(
                       title: 'Get Help',
                       leading: const Icon(Icons.feedback_outlined),
                       onTap: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => FeedbackScreen(type: 'help', userId: user.uid)));
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => FeedbackScreen(
+                                    type: 'help', userId: user.uid)));
                       },
                     ),
                   ],
@@ -131,5 +183,3 @@ class SettingsScreen extends ConsumerWidget {
         loading: () => const LoadingView());
   }
 }
-
-

@@ -25,6 +25,9 @@ void main() {
       portfolioRepositoryProvider.overrideWithValue(mockPortfolioRepository),
       userRepositoryProvider.overrideWithValue(mockUserRepository),
       firestoreServicesProvider.overrideWithValue(mockFirestoreServices),
+      servicesStreamProvider.overrideWith((ref){
+        return Stream.value(['Nail Tech', 'Barber', 'Tattoo Artist', 'Car Detailer']);
+      })
     ]);
   });
 
@@ -62,8 +65,7 @@ void main() {
 
     testWidgets('shows service selection dialog when service tile is tapped',
         (WidgetTester tester) async {
-          when(mockFirestoreServices.getServices()).thenAnswer(
-        (_) async => ['Nail Tech', 'Barber', 'Tattoo Artist', 'Car Detailer']);
+
        await tester.pumpWidget(
         UncontrolledProviderScope(
           container: container,
@@ -127,8 +129,7 @@ void main() {
         (WidgetTester tester) async {
       when(mockPortfolioRepository.updatePortfolio(fields: anyNamed('fields')))
           .thenAnswer((_) async => {});
-      when(mockFirestoreServices.getServices()).thenAnswer(
-        (_) async => ['Nail Tech', 'Barber', 'Tattoo Artist', 'Car Detailer']);
+
 
       await tester.pumpWidget(
         UncontrolledProviderScope(

@@ -82,8 +82,8 @@ void main(){
         overrides: [
           nearbyPortfoliosProvider.overrideWith((ref){
             return [
-              PortfolioModel(service: 'Photographer', uid: 'test-uid', details:'Professional photography', years: 6, months: 7,  images: [],location: {'city': 'City', 'state': 'state'}, latAndLong: {'latitude': 40.7128, 'longitude': -74.0060}, professionalsName: 'Test Name',),
-              PortfolioModel(service: 'Barber', uid: 'test-uid2', details:'Professional barber', years: 5, months: 7,  images: [],location: {'city': 'Hidalgo', 'state': 'Texas'}, latAndLong: {'latitude': 40.7128, 'longitude': -74.0060}, professionalsName: 'Test Name2',)
+              PortfolioModel(service: 'Photographer', uid: 'test-uid', details:'Professional photography', years: 6, months: 7,  images: [],address: '1234s Street', latAndLong: {'latitude': 40.7128, 'longitude': -74.0060}, professionalsName: 'Test Name',),
+              PortfolioModel(service: 'Barber', uid: 'test-uid2', details:'Professional barber', years: 5, months: 7,  images: [],address: '1234s Street', latAndLong: {'latitude': 40.7128, 'longitude': -74.0060}, professionalsName: 'Test Name2',)
 
             ];
           })

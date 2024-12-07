@@ -61,7 +61,7 @@ void main() {
             years: 6,
             months: 7,
             images: [],
-            location: {'city': 'City', 'state': 'state'},
+            address: '1234s Street',
             latAndLong: {'latitude': 40.7128, 'longitude': -74.0060},
             professionalsName: 'Test Name',
           ),
@@ -72,7 +72,7 @@ void main() {
             years: 5,
             months: 7,
             images: [],
-            location: {'city': 'Hidalgo', 'state': 'Texas'},
+            address: '1234s Street',
             latAndLong: {'latitude': 40.7128, 'longitude': -74.0060},
             professionalsName: 'Test Name2',
           )
@@ -130,7 +130,7 @@ void main() {
             years: 6,
             months: 7,
             images: [],
-            location: {'city': 'City', 'state': 'state'},
+            address: '1234s Street',
             latAndLong: {'latitude': 40.7128, 'longitude': -74.0060},
             professionalsName: 'Test Name',
           ),]);

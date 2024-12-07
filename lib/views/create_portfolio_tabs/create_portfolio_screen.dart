@@ -31,7 +31,7 @@ class _CreatePortfolioScreenState extends ConsumerState<CreatePortfolioScreen> {
   String? _details;
   String errorMessage = "";
   bool _isLoading = false;
-  Map<String, String?>? _location;
+  String? _address;
   Map<String, double?>? _latAndLong;
 
   void _onServiceSelected(String service) {
@@ -64,12 +64,9 @@ class _CreatePortfolioScreenState extends ConsumerState<CreatePortfolioScreen> {
   }
 
   void _onAddressSelected(
-      String? city, String? state, double? latitude, double? longitude) {
+      String? address, double? latitude, double? longitude) {
     setState(() {
-      _location = {
-        'city': city,
-        'state': state,
-      };
+      _address = address;
       _latAndLong = {
         'latitude': latitude,
         'longitude': longitude
@@ -197,7 +194,7 @@ class _CreatePortfolioScreenState extends ConsumerState<CreatePortfolioScreen> {
                               _latAndLong?['longitude'] == null) {
                             setState(() {
                               errorMessage =
-                                  "Please provide your business location to proceed.";
+                                  "Please provide your business's location to proceed.";
                             });
                           } else {
                             setState(() {
@@ -224,7 +221,7 @@ class _CreatePortfolioScreenState extends ConsumerState<CreatePortfolioScreen> {
                                   _months,
                                   _years,
                                   _images, 
-                                  _location,
+                                  _address,
                                   _latAndLong,
                                   widget.name,
                                   widget.uid
@@ -252,6 +249,7 @@ class _CreatePortfolioScreenState extends ConsumerState<CreatePortfolioScreen> {
                         }
                       },
                 style: TextButton.styleFrom(
+                  backgroundColor: _isLoading ? Colors.grey[400] : null,
                   minimumSize: const Size.fromHeight(50),
                 ),
                 child: _isLoading

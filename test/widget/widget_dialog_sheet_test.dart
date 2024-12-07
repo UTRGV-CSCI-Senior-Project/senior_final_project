@@ -8,7 +8,6 @@ import 'package:folio/models/messaging_models/message_model.dart';
 import 'package:folio/models/portfolio_model.dart';
 import 'package:folio/models/user_model.dart';
 import 'package:folio/views/home/chatroom_screen.dart';
-import 'package:folio/views/view_account/view_profile_screen.dart';
 import 'package:folio/widgets/account_item_widget.dart';
 import 'package:folio/widgets/chatroom_tile_widget.dart';
 import 'package:folio/widgets/delete_account_dialog.dart';
@@ -813,7 +812,11 @@ void main() {
                 body: ChatRoomTile(
                     chatroom: mockChatroom,
                     currentUserId: 'user1',
-                    senderName: 'User One'),
+                    sender: UserModel(
+        uid: 'user123',
+        email: 'test@example.com',
+        username: 'username',
+        isProfessional: false)),
               ),
             ),
           ),
@@ -854,7 +857,11 @@ void main() {
                 body: ChatRoomTile(
                     chatroom: mockChatroom,
                     currentUserId: 'user1',
-                    senderName: 'User One'),
+                    sender: UserModel(
+        uid: 'user123',
+        email: 'test@example.com',
+        username: 'username',
+        isProfessional: false)),
               ),
             ),
           ),
@@ -950,7 +957,7 @@ void main() {
       professionalsName: 'John Doe',
       service: 'Photography',
       latAndLong: {'latitude': 40.7128, 'longitude': -74.0060},
-      location: {'city': 'New York'},
+      address: '1234s Street',
       images: [],
     );
     final testUser = UserModel(
@@ -1006,7 +1013,7 @@ void main() {
       professionalsName: 'John Doe',
       service: 'Photography',
       latAndLong: {'latitude': 40.7128, 'longitude': -74.0060},
-      location: {'city': 'New York'},
+      address: '1234s Street',
       images: [],
     );
     final testUser = UserModel(

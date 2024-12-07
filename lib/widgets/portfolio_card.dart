@@ -92,13 +92,13 @@ class PortfolioCard extends ConsumerWidget {
                               textAlign: TextAlign.end,
                             )
                           : Text(
-                              portfolio.location?['city'] ?? '',
+                              'no location',
                               overflow: TextOverflow.ellipsis,
                               maxLines: 1,
                               style: GoogleFonts.inter(
                                   fontSize: 13, fontWeight: FontWeight.w500),
                               textAlign: TextAlign.end,
-                            ),
+                            )
                     ),
                   ],
                 ),

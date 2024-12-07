@@ -237,7 +237,9 @@ void _checkAndShowEmailVerification() {
                       userModel: userModel, portfolioModel: userPortfolio),
                 ],
               ),
-              bottomNavigationBar: NavigationBar(
+              bottomNavigationBar: MediaQuery.of(context).viewInsets.bottom > 0 ? const SizedBox.shrink() :
+              
+              NavigationBar(
                 height: MediaQuery.of(context).viewInsets.bottom + 50,
                 selectedIndex: selectedIndex,
                 onDestinationSelected: (index) {

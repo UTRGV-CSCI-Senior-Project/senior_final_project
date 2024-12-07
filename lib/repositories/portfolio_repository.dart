@@ -16,7 +16,7 @@ class PortfolioRepository {
       int months,
       int years,
       List<File> images,
-      Map<String, String?>? location,
+      String? address,
       Map<String, double?>? latAndLong,
       String professionalsName,
       String uid) async {
@@ -31,7 +31,7 @@ class PortfolioRepository {
           years: years,
           months: months,
           images: imageData,
-          location: location,
+          address: address,
           latAndLong: latAndLong,
           professionalsName: professionalsName,
           nameArray: professionalsName.split(' '),

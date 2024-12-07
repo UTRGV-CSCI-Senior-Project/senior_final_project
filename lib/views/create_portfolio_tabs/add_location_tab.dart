@@ -4,8 +4,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_places_autocomplete_widgets/address_autocomplete_widgets.dart';
 
 class AddLocationTab extends StatefulWidget {
-  final Function(String?, String?, double?, double?) onAddressChosen;
-  const AddLocationTab({super.key, required this.onAddressChosen});
+  final Function(String?, double?, double?) onAddressChosen;
+  String? title;
+  String? subtitle;
+   AddLocationTab({super.key, required this.onAddressChosen, this.title, this.subtitle});
 
   @override
   State<AddLocationTab> createState() => _AddLocationTabState();
@@ -16,12 +18,12 @@ class _AddLocationTabState extends State<AddLocationTab> {
   Widget build(BuildContext context) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text(
-        "Let's get your profile ready!",
+        widget.title ?? "Let's get your profile ready!",
         style: GoogleFonts.poppins(fontSize: 22, fontWeight: FontWeight.w500),
       ), 
       const SizedBox(height: 8.0),
       Text(
-        "Enter your business location.\nOthers won't be able to see this.",
+        widget.subtitle ?? "Enter your business location.\nOthers won't be able to see this.",
         style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w300),
       ),
       const SizedBox(height: 16.0),
@@ -76,7 +78,7 @@ class _AddLocationTabState extends State<AddLocationTab> {
         elevation: 0,
         overlayOffset: 4,
         onSuggestionClick: (place) {
-          widget.onAddressChosen(place.city, place.state, place.lat, place.lng);
+          widget.onAddressChosen(place.formattedAddress, place.lat, place.lng);
         },
         showGoogleTradeMark: false,
       )

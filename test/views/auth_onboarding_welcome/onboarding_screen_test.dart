@@ -31,7 +31,16 @@ void main() {
     return ProviderContainer(overrides: [
       userRepositoryProvider.overrideWithValue(mockUserRepository),
       firestoreServicesProvider.overrideWithValue(mockFirestoreServices),
-      imagePickerProvider.overrideWithValue(mockImagePicker)
+      imagePickerProvider.overrideWithValue(mockImagePicker),
+      servicesStreamProvider.overrideWith((ref){
+              return Stream.value([
+          'Nail Tech',
+          'Barber',
+          'Tattoo Artist',
+          'Car Detailer',
+          'Hair Stylist'
+        ]);
+            })
     ]);
   }
 

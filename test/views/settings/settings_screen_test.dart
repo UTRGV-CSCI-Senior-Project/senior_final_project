@@ -266,6 +266,7 @@ testWidgets('navigates to get help screen when click on report a bug',
         ),
       );
       await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(find.text('Get Help'), 50);
       await tester.tap(find.text('Get Help'));
       await tester.pumpAndSettle();
       expect(find.textContaining("Need assistance? We're here to help!"), findsOneWidget);

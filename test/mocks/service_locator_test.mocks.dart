@@ -40,15 +40,6 @@ class MockGeminiServices extends _i1.Mock implements _i2.GeminiServices {
       ) as String);
 
   @override
-  _i4.Future<List<String>> getAllServices() => (super.noSuchMethod(
-        Invocation.method(
-          #getAllServices,
-          [],
-        ),
-        returnValue: _i4.Future<List<String>>.value(<String>[]),
-      ) as _i4.Future<List<String>>);
-
-  @override
   _i4.Future<List<String>> aiSearch(String? promptUser) => (super.noSuchMethod(
         Invocation.method(
           #aiSearch,

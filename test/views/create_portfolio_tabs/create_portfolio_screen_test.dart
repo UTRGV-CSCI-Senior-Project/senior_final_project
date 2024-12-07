@@ -31,8 +31,7 @@ void main() {
     mockXFile = MockXFile();
     dotenv.testLoad(
         fileInput: 'GEMINI_API_KEY=test_key\nPLACES_API_KEY=test_key');
-    when(mockFirestoreServices.getServices()).thenAnswer(
-        (_) async => ['Nail Tech', 'Barber', 'Tattoo Artist', 'Car Detailer']);
+
   });
 
   ProviderContainer createProviderContainer() {
@@ -41,6 +40,9 @@ void main() {
         imagePickerProvider.overrideWithValue(mockImagePicker),
         firestoreServicesProvider.overrideWithValue(mockFirestoreServices),
         portfolioRepositoryProvider.overrideWithValue(mockPortfolioRepository),
+        servicesStreamProvider.overrideWith((ref){
+          return Stream.value(['Nail Tech', 'Barber', 'Tattoo Artist', 'Car Detailer']);
+        })
       ],
     );
   }
@@ -221,7 +223,7 @@ void main() {
         6,
         2,
         any,
-        {'city': 'New York', 'state': 'NY'},
+        mockPlace.formattedAddress,
         {'latitude': 40.7128, 'longitude': -74.0060},
         'Professionals Name',
         'test-uid',

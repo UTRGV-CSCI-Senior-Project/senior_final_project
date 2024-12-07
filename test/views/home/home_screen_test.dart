@@ -67,7 +67,7 @@ void main() {
                   years: 3,
                   months: 1,
                   uid: 'test-uid',
-                  location: {'city': 'San Francisco', 'state': 'California'},
+                  address: '1234s Street',
                   latAndLong: {'latitude': 40.7128, 'longitude': -74.0060},
                   professionalsName: 'Barber User',
                   nameArray: ['Barber', 'User']),
@@ -77,11 +77,20 @@ void main() {
                   years:6,
                   months: 1,
                   uid: 'test-uid',
-                  location: {'city': 'San Francisco', 'state': 'California'},
+                  address: '1234s Street',
                   latAndLong: {'latitude': 40.7128, 'longitude': -74.0060},
                   professionalsName: 'Nail User',
                   nameArray: ['Nail', 'User'])
-            ])
+            ]),
+            servicesStreamProvider.overrideWith((ref){
+              return Stream.value([
+          'Nail Tech',
+          'Barber',
+          'Tattoo Artist',
+          'Car Detailer',
+          'Hair Stylist'
+        ]);
+            })
       ],
     );
   }

@@ -7,7 +7,7 @@ class PortfolioModel {
   final int _months;
   final List<Map<String, String>> _images;
   final DateTime? _experienceStartDate;
-  final Map<String, String?>? _location;
+  final String? _address;
   final Map<String, double?>? _latAndLong;
   final String? _professionalsName;
   final String _uid;
@@ -22,7 +22,7 @@ class PortfolioModel {
     int months = 0,
     List<Map<String, String>> images = const [],
     DateTime? experienceStartDate,
-     Map<String, String?>? location,
+     String? address,
      Map<String, double?>? latAndLong,
     String? professionalsName,
     List<String>? nameArray
@@ -33,7 +33,7 @@ class PortfolioModel {
         _months = months,
         _images = images ,
         _experienceStartDate = experienceStartDate,
-        _location = location,
+        _address = address,
         _latAndLong = latAndLong,
         _professionalsName = professionalsName,
         _nameArray = nameArray
@@ -52,7 +52,7 @@ class PortfolioModel {
   int get months => _months;
   List<Map<String, String>> get images => _images;
   DateTime? get experienceStartDate => _experienceStartDate;
-  Map<String, String?>? get location => _location;
+  String? get address => _address;
    Map<String, double?>? get latAndLong => _latAndLong;
    String? get professionalsName => _professionalsName;
    String get uid => _uid;
@@ -68,7 +68,7 @@ class PortfolioModel {
       "months": months,
       "images": images,
       "experienceStartDate": experienceStartDate,
-      "location": location,
+      "address": address,
       "latAndLong": latAndLong,
       "professionalsName": professionalsName,
       "uid": uid,
@@ -106,9 +106,7 @@ class PortfolioModel {
               .toList() ??
           [],
       experienceStartDate: experienceStartDate,
-      location: json['location'] != null 
-          ? Map<String, String?>.from(json['location'] as Map)
-          : null,
+      address: json['address'] as String?,
       latAndLong: json['latAndLong'] != null
           ? Map<String, double?>.from(json['latAndLong'] as Map)
           : null,

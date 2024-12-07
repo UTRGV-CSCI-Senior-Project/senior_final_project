@@ -60,6 +60,17 @@ class _ViewProfileScreenState extends ConsumerState<ViewProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final portfolio = widget.portfolioModel;
+    final currentPosition = ref.watch(currentPositionProvider);
+    final locationService =  ref.watch(locationServiceProvider);
+    int? distance;
+    if (currentPosition != null && portfolio != null &&
+        portfolio.latAndLong?['longitude'] != null &&
+        portfolio.latAndLong?['latitude'] != null) {
+      distance = locationService.distanceInMiles(
+          currentPosition,
+          portfolio.latAndLong!['latitude']!,
+          portfolio.latAndLong!['longitude']!);
+    }
     if (isLoading) {
       return Scaffold(
         appBar: AppBar(
@@ -137,10 +148,8 @@ class _ViewProfileScreenState extends ConsumerState<ViewProfileScreen> {
                           '${portfolio.service} for ${portfolio.getFormattedTotalExperience()}',
                           style: GoogleFonts.inter(fontSize: 16),
                         ),
-                      if (portfolio != null)
-                        Text(
-                            '${portfolio.location?['city']}, ${portfolio.location?['state']}',
-                            style: GoogleFonts.inter(fontSize: 16))
+                      if(distance != null)
+                      Text('$distance miles away', style: GoogleFonts.inter(fontSize: 16))
                     ],
                   ),
                 )
@@ -261,8 +270,7 @@ class _ViewProfileScreenState extends ConsumerState<ViewProfileScreen> {
                             chatroomId: chatroomId,
                             otherParticipant:
                                 ChatParticipant.fromUserModel(user),
-                            senderName: widget.currentUser.fullName ??
-                                widget.currentUser.username)));
+                            sender: widget.currentUser)));
               },
               backgroundColor: Colors.lightGreen,
               elevation: 2,

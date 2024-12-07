@@ -372,7 +372,7 @@ void main() {
           }
         ],
         'experienceStartDate': null,
-        'location':  null,
+        'address':  null,
         'latAndLong': null,
         'professionalsName': null,
         'nameArray': null

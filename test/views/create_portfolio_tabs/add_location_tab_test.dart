@@ -15,7 +15,7 @@ void main(){
       MaterialApp(
         home: Scaffold(
           body: AddLocationTab(
-            onAddressChosen: (city, state, lat, lng) {
+            onAddressChosen: (address, lat, lng) {
             },
           ),
         ),
@@ -32,8 +32,7 @@ void main(){
 
   testWidgets('Address selection triggers onAddressChosen', (WidgetTester tester) async {
     bool onAddressChosenCalled = false;
-    String? capturedCity;
-    String? capturedState;
+    String? capturedAdd;
     double? capturedLat;
     double? capturedLng;
 
@@ -41,10 +40,9 @@ void main(){
       MaterialApp(
         home: Scaffold(
           body: AddLocationTab(
-            onAddressChosen: (city, state, lat, lng) {
+            onAddressChosen: (address, lat, lng) {
               onAddressChosenCalled = true;
-              capturedCity = city;
-              capturedState = state;
+              capturedAdd = address;
               capturedLat = lat;
               capturedLng = lng;
             },
@@ -68,8 +66,7 @@ void main(){
 
     // Verify callback was triggered with mock location
     expect(onAddressChosenCalled, isTrue);
-    expect(capturedCity, 'New York');
-    expect(capturedState, 'NY');
+    expect(capturedAdd, mockPlace.formattedAddress);
     expect(capturedLat, 40.7128);
     expect(capturedLng, -74.0060);
   });

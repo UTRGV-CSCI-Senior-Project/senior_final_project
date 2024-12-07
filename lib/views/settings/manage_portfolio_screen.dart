@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:folio/core/app_exception.dart';
 import 'package:folio/core/service_locator.dart';
 import 'package:folio/models/portfolio_model.dart';
+import 'package:folio/views/create_portfolio_tabs/add_location_tab.dart';
 import 'package:folio/views/create_portfolio_tabs/choose_service_screen.dart';
 import 'package:folio/views/create_portfolio_tabs/input_experience_screen.dart';
 import 'package:folio/views/create_portfolio_tabs/more_details_screen.dart';
@@ -26,6 +27,9 @@ class _ManagePortfolioScreenState extends ConsumerState<ManagePortfolioScreen> {
   int? newYears;
   int? newMonths;
   String newDetails = "";
+  String? newAddress;
+  double? newLatitude;
+  double? newLongitude;
 
   void _showServiceSelectionDialog(BuildContext context) {
     showDialog(
@@ -146,7 +150,7 @@ class _ManagePortfolioScreenState extends ConsumerState<ManagePortfolioScreen> {
                             }
                           },
                           style: TextButton.styleFrom(
-                            backgroundColor:
+                            backgroundColor: _isLoading ? Colors.grey[400] :
                                 Theme.of(context).colorScheme.primary,
                             padding: const EdgeInsets.symmetric(vertical: 12),
                           ),
@@ -283,7 +287,7 @@ class _ManagePortfolioScreenState extends ConsumerState<ManagePortfolioScreen> {
                             }
                           },
                           style: TextButton.styleFrom(
-                            backgroundColor:
+                            backgroundColor: _isLoading ? Colors.grey[400] :
                                 Theme.of(context).colorScheme.primary,
                             padding: const EdgeInsets.symmetric(vertical: 12),
                           ),
@@ -419,8 +423,8 @@ class _ManagePortfolioScreenState extends ConsumerState<ManagePortfolioScreen> {
                               }
                             },
                             style: TextButton.styleFrom(
-                              backgroundColor:
-                                  Theme.of(context).colorScheme.primary,
+                               backgroundColor: _isLoading ? Colors.grey[400] :
+                                Theme.of(context).colorScheme.primary,
                               padding: const EdgeInsets.symmetric(vertical: 12),
                             ),
                             child: _isLoading
@@ -458,6 +462,160 @@ class _ManagePortfolioScreenState extends ConsumerState<ManagePortfolioScreen> {
     );
   }
 
+  void _showLocationUpdateDialog(BuildContext context) {
+    showDialog(
+      useSafeArea: false,
+      context: context,
+      builder: (BuildContext dialogContext) {
+        // Changed to dialogContext
+        return StatefulBuilder(
+          // Wrap Dialog in StatefulBuilder
+          builder: (BuildContext context, StateSetter setDialogState) {
+            return Dialog.fullscreen(
+              child: Scaffold(
+                appBar: AppBar(
+                  title: null,
+                  automaticallyImplyLeading: false,
+                  leading: IconButton(
+                    padding: EdgeInsets.zero,
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    icon: const Icon(
+                      Icons.close,
+                      size: 30,
+                    ),
+                  ),
+                ),
+                body: SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Expanded(
+                          child: AddLocationTab(onAddressChosen: (String? address, double? latitude, double? longitude){
+                            setState(() {
+                              newAddress = address;
+                              newLatitude = latitude;
+                              newLongitude = longitude;
+                            });
+                          }, title: "Update your business's location.", subtitle: "Others won't be able to see this",)
+                        ),
+                        ElevatedButton(
+                          onPressed: () async {
+                            if ((newAddress != null  && widget.portfolioModel.address == newAddress) || 
+    (newLatitude != null && newLongitude != null && 
+     widget.portfolioModel.latAndLong?['latitude'] == newLatitude && 
+     widget.portfolioModel.latAndLong?['longitude'] == newLongitude))
+                            {
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    backgroundColor:
+                                        Theme.of(context).colorScheme.error,
+                                    showCloseIcon: true,
+                                    behavior: SnackBarBehavior.floating,
+                                    content: Text(
+                                      'Please choose a new address.',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onPrimary,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }
+                              Navigator.pop(context);
+                            } else if(newAddress != null && newLatitude != null && newLongitude != null){
+                              setDialogState(() {
+                                // Use setDialogState
+                                _isLoading = true;
+                              });
+
+                              try {
+                                await ref
+                                    .read(portfolioRepositoryProvider)
+                                    .updatePortfolio(
+                                        fields: {'address': newAddress, 'latAndLong': {'latitude': newLatitude, 'longitude': newLongitude}});
+
+                                if (context.mounted) {
+                                  Navigator.of(context).pop();
+                                  Navigator.of(context).pop();
+                                }
+                              } catch (e) {
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      backgroundColor:
+                                          Theme.of(context).colorScheme.error,
+                                      showCloseIcon: true,
+                                      behavior: SnackBarBehavior.floating,
+                                      content: Text(
+                                        e is AppException
+                                            ? e.message
+                                            : 'Error updating your portfolio. Try again later.',
+                                        style: GoogleFonts.inter(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onPrimary,
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                }
+                              } finally {
+                                if (context.mounted) {
+                                  setDialogState(() {
+                                    // Use setDialogState
+                                    _isLoading = false;
+                                  });
+                                }
+                              }
+                            }
+                          },
+                          style: TextButton.styleFrom(
+                             backgroundColor: _isLoading ? Colors.grey[400] :
+                                Theme.of(context).colorScheme.primary,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                          ),
+                          child: _isLoading
+                              ? SizedBox(
+                                  height: 25,
+                                  width: 25,
+                                  child: CircularProgressIndicator(
+                                    color:
+                                        Theme.of(context).colorScheme.onPrimary,
+                                    strokeWidth: 5,
+                                  ),
+                                )
+                              : Text(
+                                  'Update',
+                                  style: GoogleFonts.inter(
+                                    color:
+                                        Theme.of(context).colorScheme.onPrimary,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -493,6 +651,14 @@ class _ManagePortfolioScreenState extends ConsumerState<ManagePortfolioScreen> {
                 context: context,
                 value: widget.portfolioModel.details,
                 onTap: () => {_showDetailsUpdateDialog(context)}),
+                const SizedBox(
+              height: 12,
+            ),
+            accountItem(
+                title: 'Location',
+                context: context,
+                value: '${widget.portfolioModel.address}',
+                onTap: () => {_showLocationUpdateDialog(context)})
           ],
         ),
       )),

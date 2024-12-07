@@ -1,14 +1,15 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:folio/core/app_exception.dart';
-import 'package:folio/services/firestore_services.dart';
+import 'package:folio/core/service_locator.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 
 class GeminiServices {
   final String modelId = 'gemini-1.5-flash-latest';
   final String? apiKey = dotenv.env['GEMINI_API_KEY'];
-  final FirestoreServices _firestoreServices;
+  final Ref _ref;
 
-  GeminiServices(this._firestoreServices);
+  GeminiServices(this._ref);
 
   String? fetchApiKey() {
     try {
@@ -18,13 +19,13 @@ class GeminiServices {
     }
   }
 
-  Future<List<String>> getAllServices() async {
-    try {
-      return await _firestoreServices.getServices();
-    } catch (e) {
-      throw AppException('get-services-error');
-    }
-  }
+  // Future<List<String>> getAllServices() async {
+  //   try {
+  //     return await _firestoreServices.getServices();
+  //   } catch (e) {
+  //     throw AppException('get-services-error');
+  //   }
+  // }
 
   Future<String?> _generateContent(String prompt, String apiKey) async {
     final model = GenerativeModel(
@@ -48,8 +49,13 @@ class GeminiServices {
         return [];
       }
 
-      List<String> allServices = await getAllServices();
-
+final servicesAsyncValue = await _ref.read(servicesStreamProvider.future);
+    
+    List<String> allServices = servicesAsyncValue;
+    
+    if (allServices.isEmpty) {
+      return []; // Return empty list if no services available
+    }
       if (promptUser.isEmpty) {
         return allServices;
       }
@@ -110,7 +116,13 @@ class GeminiServices {
       }
 
 
-      List<String> allServices = await getAllServices();
+      final servicesAsyncValue = await _ref.read(servicesStreamProvider.future);
+    
+    List<String> allServices = servicesAsyncValue;
+    
+    if (allServices.isEmpty) {
+      return []; // Return empty list if no services available
+    }
 
       if(userPrompt.isEmpty){
         return allServices;
@@ -196,8 +208,13 @@ class GeminiServices {
         return [];
       }
 
-      List<String> allServices = await getAllServices();
-      if (promptUser.isEmpty) {
+final servicesAsyncValue = await _ref.read(servicesStreamProvider.future);
+    
+    List<String> allServices = servicesAsyncValue;
+    
+    if (allServices.isEmpty) {
+      return []; // Return empty list if no services available
+    }      if (promptUser.isEmpty) {
         return allServices;
       }
 

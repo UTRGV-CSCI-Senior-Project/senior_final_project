@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:folio/models/messaging_models/chatroom_model.dart';
+import 'package:folio/models/user_model.dart';
 import 'package:folio/views/home/chatroom_screen.dart';
 
 class ChatRoomTile extends StatelessWidget {
   final ChatroomModel chatroom;
   final String currentUserId;
-  final String senderName;
+  final UserModel sender;
 
   const ChatRoomTile({
     super.key,
     required this.chatroom,
     required this.currentUserId,
-    required this.senderName
+    required this.sender
   });
 
 
@@ -21,7 +22,7 @@ class ChatRoomTile extends StatelessWidget {
  final otherParticipant = chatroom.otherParticipant(currentUserId);
     return ListTile(
       onTap: (){
-        Navigator.push(context, MaterialPageRoute(builder: (context) => ChatroomScreen(chatroomId: chatroom.id, otherParticipant: otherParticipant, senderName: senderName,)));
+        Navigator.push(context, MaterialPageRoute(builder: (context) => ChatroomScreen(chatroomId: chatroom.id, otherParticipant: otherParticipant, sender: sender,)));
       },
       leading: CircleAvatar(
         radius: 28,

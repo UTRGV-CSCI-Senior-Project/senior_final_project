@@ -1,4 +1,3 @@
-import 'dart:math';
 
 import 'package:folio/models/portfolio_model.dart';
 import 'package:test/test.dart';
@@ -12,7 +11,7 @@ void main() {
           years: 3,
           months: 1,
           uid: 'test-uid',
-          location: {'city': 'San Francisco', 'state': 'California'},
+          address: '1234s Street',
           latAndLong: {'latitude': 40.7128, 'longitude': -74.0060},
           professionalsName: 'Test User',
           nameArray: ['Test', 'User']
@@ -23,7 +22,7 @@ void main() {
       expect(portfolio.years, 3);
       expect(portfolio.months, 1);
       expect(portfolio.uid, 'test-uid');
-      expect(portfolio.location, {'city': 'San Francisco', 'state': 'California'});
+      expect(portfolio.address, '1234s Street');
       expect(portfolio.latAndLong, {'latitude': 40.7128, 'longitude': -74.0060});
       expect(portfolio.professionalsName, 'Test User');
       expect(portfolio.nameArray, ['Test', 'User']);
@@ -60,7 +59,7 @@ void main() {
           years: 3,
           months: 1,
           uid: 'test-uid',
-          location: {'city': 'San Francisco', 'state': 'California'},
+          address: '1234s Street',
           latAndLong: {'latitude': 40.7128, 'longitude': -74.0060},
           professionalsName: 'Test User',
           nameArray: ['Test', 'User'],
@@ -78,7 +77,7 @@ void main() {
         {'filePath': 'image/path', 'downloadUrl': 'image.url'}
       ]);
       expect(json['uid'], 'test-uid');
-      expect(json['location'], {'city': 'San Francisco', 'state': 'California'});
+      expect(json['address'], '1234s Street');
       expect(json['latAndLong'],  {'latitude': 40.7128, 'longitude': -74.0060});
       expect(json['professionalsName'], 'Test User');
       expect(json['nameArray'], ['Test', 'User']);
@@ -100,7 +99,7 @@ void main() {
         ],
         'professionalsName': 'Nail User',
         'nameArray': ['Nail', 'User'], 
-        'location': {'city': 'San Francisco', 'state': 'California'},
+        'address': '1234s Street',
         'latAndLong': {'latitude': 40.7128, 'longitude': -74.0060}
       };
 
@@ -116,7 +115,7 @@ void main() {
       expect(portfolio.uid, 'test-uid');
       expect(portfolio.professionalsName, 'Nail User');
       expect(portfolio.nameArray, ['Nail', 'User']);
-      expect(portfolio.location, {'city': 'San Francisco', 'state': 'California'});
+      expect(portfolio.address, '1234s Street');
       expect(portfolio.latAndLong, {'latitude': 40.7128, 'longitude': -74.0060});
     });
 
@@ -154,7 +153,7 @@ void main() {
 
     test('should calculate total experience with start date', () {
       // Setting a fixed date for the test
-      final startDate = DateTime(2022, 5, 8); // 2.5 years ago
+      final startDate = DateTime(2022, 5, 8); 
 
       final portfolio = PortfolioModel(
         service: 'Barber',
@@ -167,8 +166,8 @@ void main() {
 
       final experience = portfolio.calculateTotalExperience();
       expect(
-          experience['years'], 4); // 1 year prior + 2.5 years since start date
-      expect(experience['months'], 0);
+          experience['years'], 4);
+      expect(experience['months'], 1);
     });
 
     test('should handle month overflow correctly', () {

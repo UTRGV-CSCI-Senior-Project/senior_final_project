@@ -33,23 +33,8 @@ class AuthScreenState extends ConsumerState<AuthScreen> {
   @override
   void initState() {
     _isLogin = widget.isLogin;
-
-    _usernameFocusNode.addListener(() => _scrollToFocused(_usernameFocusNode));
-_emailFocusNode.addListener(() => _scrollToFocused(_emailFocusNode));
-_passwordFocusNode.addListener(() => _scrollToFocused(_usernameFocusNode));
     super.initState();
   }
-
-  void _scrollToFocused(FocusNode focusNode){
-    if (focusNode.hasFocus) {
-      _scrollController.animateTo(
-        150.0, // Adjust this value based on your UI layout
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -141,6 +126,9 @@ _passwordFocusNode.addListener(() => _scrollToFocused(_usernameFocusNode));
               SizedBox(
                 width: double.infinity,
                 child: TextButton(
+                  style: _isLoading ? TextButton.styleFrom(
+                    backgroundColor: Colors.grey[400]
+                  ) : null,
                   key: Key(_isLogin ? 'signin-button' : 'signup-button'),
                   onPressed: _isLoading
                       ? null
@@ -175,6 +163,12 @@ _passwordFocusNode.addListener(() => _scrollToFocused(_usernameFocusNode));
                                   );
                                 }
                               } else {
+                                if(_usernameController.text.length < 3){
+                                  setState(() {
+                                    errorMessage = "Your username must be at least three characters long.";
+                                  });
+                                  return;
+                                }
                                 await userRepository.createUser(
                                   _usernameController.text,
                                   _emailController.text,

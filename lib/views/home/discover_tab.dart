@@ -65,7 +65,6 @@ class _DiscoverTabState extends ConsumerState<DiscoverTab> {
         return false;
       }).toList();
     }
-
     filteredPortfolios = List.from(filteredRadius);
     filteredPortfolios.sort((a, b) {
       int comparison = 0;
@@ -90,7 +89,7 @@ class _DiscoverTabState extends ConsumerState<DiscoverTab> {
         comparison = distanceA.compareTo(distanceB);
       } else if (sortOption == 'Name') {
         if (a.professionalsName != null && b.professionalsName != null) {
-          comparison = a.professionalsName!.compareTo(b.professionalsName!);
+           comparison = (a.professionalsName ?? '').compareTo(b.professionalsName ?? '');
         }
       } else if (sortOption == 'Service') {
         comparison = a.service.compareTo(b.service);
@@ -117,7 +116,7 @@ class _DiscoverTabState extends ConsumerState<DiscoverTab> {
           if (results.isNotEmpty) {
             ref.read(searchResultsProvider.notifier).state =
                 results; // Update the provider
-            filterPortfolios(searchResults, currentLocation);
+            filterPortfolios(results, currentLocation);
           }
         }
       } catch (e) {
@@ -215,10 +214,18 @@ class _DiscoverTabState extends ConsumerState<DiscoverTab> {
                     final result = await showSortFilterSheet(context,
                         sortOption, sortDirection, radius, selectedServices);
                     setState(() {
-                      sortOption = result?['sortBy'];
-                      sortDirection = result?['sortDirection'];
-                      radius = result?['radius'];
-                      selectedServices = result?['services'];
+                      if (result?['sortBy'] != null) {
+                        sortOption = result?['sortBy'];
+                      }
+                      if (result?['sortDirection'] != null) {
+                        sortDirection = result?['sortDirection'];
+                      }
+                      if (result?['radius'] != null) {
+                        radius = result?['radius'];
+                      }
+                      if (result?['services'] != null) {
+                        selectedServices = result?['services'];
+                      }
                     });
                   },
                 )
@@ -285,7 +292,9 @@ class _DiscoverTabState extends ConsumerState<DiscoverTab> {
         },
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stack) =>
-            Center(child: Text("Failed to load portfolios: $error")));
+            Center(child: Text("Failed to load portfolios: $error", style: GoogleFonts.poppins(
+                  fontSize: 18, fontWeight: FontWeight.w600),
+              textAlign: TextAlign.center)));
   }
 
   Widget _buildSearchPortfolios(List<PortfolioModel> portfolios) {

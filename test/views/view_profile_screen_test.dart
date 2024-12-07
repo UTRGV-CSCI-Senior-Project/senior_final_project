@@ -34,7 +34,7 @@ void main() {
         fullName: 'Profile User',
         profilePictureUrl: null);
     portfolioModel = PortfolioModel(
-          service: 'Barber', details: 'Im a barber. Im a barber. Im a barber. Im a barber. Im a barber. Im a barber. Im a barber. Im a barber.Im a barber. Im a barber. Im a barber. Im a barber. Im a barber. Im a barber. Im a barber. Im a barber. ', years: 3, months: 1,uid: 'profile-uid', location: {'city': 'Hidalgo', 'state': 'Texas'}, latAndLong: {'latitude': 40.7128, 'longitude': -74.0060}, professionalsName: 'Profile User');
+          service: 'Barber', details: 'Im a barber. Im a barber. Im a barber. Im a barber. Im a barber. Im a barber. Im a barber. Im a barber.Im a barber. Im a barber. Im a barber. Im a barber. Im a barber. Im a barber. Im a barber. Im a barber. ', years: 3, months: 1,uid: 'profile-uid', address: '1234s Street', latAndLong: {'latitude': 40.7128, 'longitude': -74.0060}, professionalsName: 'Profile User');
     providerContainer = ProviderContainer(overrides: [
       userRepositoryProvider.overrideWithValue(mockUserRepository)
     ]);
@@ -59,7 +59,6 @@ void main() {
     // Verify key profile elements
     expect(find.text(profileUser.fullName!), findsOneWidget);
     expect(find.text('Barber for 3 years, 1 month'), findsOneWidget);
-    expect(find.text('Hidalgo, Texas'), findsOneWidget);
   });
 
   testWidgets('Details text can be expanded', (WidgetTester tester) async {

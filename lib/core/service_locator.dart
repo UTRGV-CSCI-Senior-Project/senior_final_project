@@ -77,8 +77,7 @@ final cloudMessagingServicesProvider = Provider<CloudMessagingServices>((ref) {
 });
 
 final geminiServicesProvider = Provider<GeminiServices>((ref){
-  final firestoreServices = ref.read(firestoreServicesProvider);
-  return GeminiServices(firestoreServices);
+  return GeminiServices(ref);
 });
 
 ////////////////// SERVICE FILES //////////////////
@@ -176,6 +175,11 @@ final chatroomStreamProvider = StreamProvider<List<ChatroomModel>>((ref) {
   } else {
     return Stream.value([]);
   }
+});
+
+final servicesStreamProvider = StreamProvider<List<String>>((ref){
+  final firestoreServices = ref.watch(firestoreServicesProvider);
+  return  firestoreServices.getServicesStream();
 });
 
 ////////////////// STREAMS //////////////////

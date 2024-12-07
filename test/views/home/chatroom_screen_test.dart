@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:folio/core/service_locator.dart';
 import 'package:folio/models/messaging_models/chat_participant_model.dart';
 import 'package:folio/models/messaging_models/message_model.dart';
+import 'package:folio/models/user_model.dart';
 import 'package:folio/views/home/chatroom_screen.dart';
 import 'package:mockito/mockito.dart';
 
@@ -13,13 +14,11 @@ void main(){
   late MockMessageRepository mockMessageRepository;
   late String chatroomId;
   late ChatParticipant otherParticipant;
-  late String senderName;
  
   setUp((){
     mockMessageRepository = MockMessageRepository();
     chatroomId = 'user1_user2';
     otherParticipant = ChatParticipant(uid: 'user2', identifier: 'User Two', fcmTokens: []);
-    senderName = 'User One';
 
   });
 
@@ -29,7 +28,11 @@ void main(){
         messageRepositoryProvider.overrideWithValue(mockMessageRepository)
       ],
       child: MaterialApp(
-      home: ChatroomScreen(chatroomId: chatroomId, otherParticipant: otherParticipant, senderName: senderName),
+      home: ChatroomScreen(chatroomId: chatroomId, otherParticipant: otherParticipant, sender: UserModel(
+        uid: 'user123',
+        email: 'test@example.com',
+        username: 'User One',
+        isProfessional: false)),
     ));
   }
 

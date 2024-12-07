@@ -320,7 +320,7 @@ void main() {
         await tester.tap(find.byKey(const Key('view-portfolio-button')).first);
         await tester.pumpAndSettle(const Duration(seconds: 5));
         expect(find.text('First User'), findsOneWidget);
-        expect(find.text('San Francisco, California'), findsOneWidget);
+        expect(find.text('6 miles away'), findsOneWidget);
         expect(find.byType(Image), findsExactly(6));
         await container.read(authServicesProvider).signOut();
       });

@@ -175,7 +175,9 @@ class FirestoreServices {
       }
 
       try {
-        return PortfolioModel.fromJson(portfolioDoc.data()!);
+        final data = portfolioDoc.data()!;
+        data['uid'] ??= portfolioDoc.id;
+        return PortfolioModel.fromJson(data);
       } catch (e) {
         throw AppException('invalid-portfolio-data');
       }
@@ -195,15 +197,15 @@ class FirestoreServices {
         .snapshots()
         .map((snapshot) {
       if (!snapshot.exists) {
-          return null;
-        }
-        try {
-          final data = snapshot.data()!;
-          data['uid'] ??= snapshot.id;
-          return PortfolioModel.fromJson(data);
-        } catch (e) {
-          throw AppException('invalid-portfolio-data');
-        }
+        return null;
+      }
+      try {
+        final data = snapshot.data()!;
+        data['uid'] ??= snapshot.id;
+        return PortfolioModel.fromJson(data);
+      } catch (e) {
+        throw AppException('invalid-portfolio-data');
+      }
     }).handleError((error) {
       if (error is AppException && error.code == 'invalid-portfolio-data') {
         throw error;
@@ -330,71 +332,66 @@ class FirestoreServices {
     }
   }
 
-  Future<List<PortfolioModel>> discoverPortfolios(List<String> searchQuery) async {
+  Future<List<PortfolioModel>> discoverPortfolios(
+      List<String> searchQuery) async {
     try {
+      if (searchQuery.isEmpty) {
+        return [];
+      }
 
-    if (searchQuery.isEmpty) {
-      return [];
+      // Run two queries: one for professionalsName and one for service
+      final nameQuery = _firestore
+          .collection('portfolios')
+          .where('nameArray', arrayContainsAny: searchQuery)
+          .get();
+
+      final serviceQuery = _firestore
+          .collection('portfolios')
+          .where('service', whereIn: searchQuery)
+          .get();
+
+      // Wait for both queries to complete
+      final results = await Future.wait([nameQuery, serviceQuery]);
+
+      final nameResults = results[0].docs.map((doc) {
+        final data = doc.data();
+        // If uid is missing, add it from doc.id
+        if (data['uid'] == null) {
+          data['uid'] = doc.id;
+        }
+        return PortfolioModel.fromJson(data);
+      }).toList();
+
+      final serviceResults = results[1].docs.map((doc) {
+        final data = doc.data();
+        // If uid is missing, add it from doc.id
+        if (data['uid'] == null) {
+          data['uid'] = doc.id;
+        }
+        return PortfolioModel.fromJson(data);
+      }).toList();
+
+      // Merge results and remove duplicates based on a unique identifier
+      final allResults = [
+        ...nameResults,
+        ...serviceResults,
+      ];
+
+      final uniqueResults = allResults.fold<Map<String, PortfolioModel>>(
+        {},
+        (map, result) {
+          map[result.uid] = result;
+          return map;
+        },
+      );
+      return uniqueResults.values.toList();
+    } catch (e) {
+      if (e is AppException) {
+        rethrow;
+      } else {
+        throw AppException('discover-portfolios-error');
+      }
     }
-    
-    // Run two queries: one for professionalsName and one for service
-    final nameQuery = _firestore
-        .collection('portfolios')
-        .where('nameArray', arrayContainsAny: searchQuery)
-        .get();
-
-    final serviceQuery = _firestore
-        .collection('portfolios')
-        .where('service', whereIn: searchQuery)
-        .get();
-
-    // Wait for both queries to complete
-    final results = await Future.wait([nameQuery, serviceQuery]);
-
-     final nameResults = results[0].docs
-        .map((doc) {
-          final data = doc.data();
-          // If uid is missing, add it from doc.id
-          if (data['uid'] == null) {
-            data['uid'] = doc.id;
-          }
-          return PortfolioModel.fromJson(data);
-        })
-        .toList();
-
-    final serviceResults = results[1].docs
-        .map((doc) {
-          final data = doc.data();
-          // If uid is missing, add it from doc.id
-          if (data['uid'] == null) {
-            data['uid'] = doc.id;
-          }
-          return PortfolioModel.fromJson(data);
-        })
-        .toList();
-
-
-    // Merge results and remove duplicates based on a unique identifier
-    final allResults = [
-      ...nameResults,
-      ...serviceResults,
-    ];
-
-    final uniqueResults = allResults.fold<Map<String, PortfolioModel>>(
-      {},
-      (map, result) {
-        map[result.uid] = result;
-        return map;
-      },
-    );
-    return uniqueResults.values.toList();
-  } catch (e) {
-    if(e is AppException){
-      rethrow;
-    } else {
-      throw AppException('discover-portfolios-error');
-    }
-  }
   }
   ///////////////////////// SERVICE COLLECTION /////////////////////////
 
@@ -410,6 +407,19 @@ class FirestoreServices {
     } catch (e) {
       throw AppException('get-services-error');
     }
+  }
+
+  Stream<List<String>> getServicesStream() {
+    try {
+    return _firestore
+        .collection('services')
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) => doc.get('service') as String)
+            .toList());
+  } catch (e) {
+    throw AppException('get-services-stream-error');
+  }
   }
 
   Future<void> addService(String service) async {

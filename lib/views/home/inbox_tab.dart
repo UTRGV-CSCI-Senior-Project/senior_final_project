@@ -42,7 +42,7 @@ class _InboxTabState extends ConsumerState<InboxTab> {
                       (chatroom) => Padding(
                         padding: const EdgeInsets.only(bottom: 8.0),
                         child: ChatRoomTile(
-                          senderName: widget.userModel.fullName ?? widget.userModel.username,
+                          sender: widget.userModel,
                           chatroom: chatroom,
                           currentUserId: widget.userModel.uid,
                         ),
