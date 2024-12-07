@@ -5,7 +5,7 @@ import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:folio/core/app_exception.dart';
 import 'package:folio/core/service_locator.dart';
 import 'package:folio/views/home/inbox_tab.dart';
-import 'package:folio/views/home/profile_tab.dart';
+import 'package:folio/views/home/profile/profile_tab.dart';
 import 'package:folio/views/auth_onboarding_welcome/loading_screen.dart';
 import 'package:folio/views/auth_onboarding_welcome/onboarding_screen.dart';
 import 'package:folio/views/home/discover_tab.dart';
@@ -31,17 +31,16 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-    Timer? _emailCheckTimer;
-    bool _isInitializingNotifications = false;
+  Timer? _emailCheckTimer;
+  bool _isInitializingNotifications = false;
 
   @override
   void initState() {
     super.initState();
-   WidgetsBinding.instance.addPostFrameCallback((_) async {
-    try{
-      _initializeMessaging();
-    }catch(e){
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        _initializeMessaging();
+      } catch (e) {}
       _emailCheckTimer = Timer(const Duration(milliseconds: 100), () {
         if (mounted) {
           _checkAndShowEmailVerification();
@@ -49,13 +48,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       });
     });
   }
- @override
+
+  @override
   void dispose() {
     _emailCheckTimer?.cancel();
     super.dispose();
   }
 
-void _checkAndShowEmailVerification() {
+  void _checkAndShowEmailVerification() {
     final userData = ref.read(userDataStreamProvider).value;
     if (userData == null) return;
 
@@ -69,14 +69,14 @@ void _checkAndShowEmailVerification() {
       if (!hasShownDialog && !userModel.isEmailVerified && mounted) {
         // Set flag before showing dialog
         ref.read(hasShownEmailDialogProvider.notifier).state = true;
-        
+
         // Use root navigator and ensure dialog is modal
         showDialog(
           context: context,
           barrierDismissible: false,
           useRootNavigator: true,
           builder: (BuildContext dialogContext) => const PopScope(
-            canPop: false,  // Prevent back button dismissal
+            canPop: false, // Prevent back button dismissal
             child: EmailVerificationDialog(),
           ),
         );
@@ -98,7 +98,6 @@ void _checkAndShowEmailVerification() {
       _isInitializingNotifications = false;
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -232,55 +231,61 @@ void _checkAndShowEmailVerification() {
                 index: selectedIndex,
                 children: [
                   HomeTab(userModel: userModel),
-                  DiscoverTab(userModel: userModel,),
+                  DiscoverTab(
+                    userModel: userModel,
+                  ),
                   InboxTab(userModel: userModel),
-                  EditProfile(
+                  ProfilePortfolio(
                       userModel: userModel, portfolioModel: userPortfolio),
                 ],
               ),
-              bottomNavigationBar: MediaQuery.of(context).viewInsets.bottom > 0 ? const SizedBox.shrink() :
-              
-              NavigationBar(
-                height: MediaQuery.of(context).viewInsets.bottom + 50,
-                selectedIndex: selectedIndex,
-                onDestinationSelected: (index) {
-                  // Update the selected index when a destination is tapped
-                  ref.read(selectedIndexProvider.notifier).state = index;
-                },
-                destinations: [
-                  NavigationDestination(
-                    key: const Key('home-button'),
-                    icon: const Icon(
-                      Icons.home_outlined,
-                      size: 25,
+              bottomNavigationBar: MediaQuery.of(context).viewInsets.bottom > 0
+                  ? const SizedBox.shrink()
+                  : NavigationBar(
+                      height: MediaQuery.of(context).viewInsets.bottom + 50,
+                      selectedIndex: selectedIndex,
+                      onDestinationSelected: (index) {
+                        // Update the selected index when a destination is tapped
+                        ref.read(selectedIndexProvider.notifier).state = index;
+                      },
+                      destinations: [
+                        NavigationDestination(
+                          key: const Key('home-button'),
+                          icon: const Icon(
+                            Icons.home_outlined,
+                            size: 25,
+                          ),
+                          selectedIcon: Icon(Icons.home,
+                              color: Theme.of(context).colorScheme.primary,
+                              size: 30),
+                          label: 'Home',
+                        ),
+                        NavigationDestination(
+                          key: const Key('discover-button'),
+                          icon: const Icon(Icons.explore_outlined, size: 25),
+                          selectedIcon: Icon(Icons.explore,
+                              color: Theme.of(context).colorScheme.primary,
+                              size: 30),
+                          label: 'Discover',
+                        ),
+                        NavigationDestination(
+                          key: const Key('inbox-button'),
+                          icon: const Icon(Icons.email_outlined, size: 25),
+                          selectedIcon: Icon(Icons.email,
+                              color: Theme.of(context).colorScheme.primary,
+                              size: 30),
+                          label: 'Inbox',
+                        ),
+                        NavigationDestination(
+                          key: const Key('profile-button'),
+                          icon: const Icon(Icons.person_outline, size: 25),
+                          selectedIcon: Icon(Icons.person,
+                              color: Theme.of(context).colorScheme.primary,
+                              size: 30),
+                          label: 'Profile',
+                        ),
+                      ],
                     ),
-                    selectedIcon: Icon(Icons.home,
-                        color: Theme.of(context).colorScheme.primary, size: 30),
-                    label: 'Home',
-                  ),
-                  NavigationDestination(
-                    key: const Key('discover-button'),
-                    icon: const Icon(Icons.explore_outlined, size: 25),
-                    selectedIcon: Icon(Icons.explore,
-                        color: Theme.of(context).colorScheme.primary, size: 30),
-                    label: 'Discover',
-                  ),
-                  NavigationDestination(
-                    key: const Key('inbox-button'),
-                    icon: const Icon(Icons.email_outlined, size: 25),
-                    selectedIcon: Icon(Icons.email,
-                        color: Theme.of(context).colorScheme.primary, size: 30),
-                    label: 'Inbox',
-                  ),
-                  NavigationDestination(
-                    key: const Key('profile-button'),
-                    icon: const Icon(Icons.person_outline, size: 25),
-                    selectedIcon: Icon(Icons.person,
-                        color: Theme.of(context).colorScheme.primary, size: 30),
-                    label: 'Profile',
-                  ),
-                ],
-              ),
             );
           } else {
             return const OnboardingScreen();
@@ -301,6 +306,7 @@ void _checkAndShowEmailVerification() {
         loading: () => const LoadingScreen());
   }
 }
+
 void _checkLocationPermission(BuildContext context, WidgetRef ref) async {
   final locationService = ref.read(locationServiceProvider);
 
@@ -310,7 +316,8 @@ void _checkLocationPermission(BuildContext context, WidgetRef ref) async {
     if (!hasPermission && context.mounted) {
       bool? shouldRequestPermission = await showDialog<bool>(
           context: context,
-          builder: (BuildContext dialogContext) => const RequestLocationDialog());
+          builder: (BuildContext dialogContext) =>
+              const RequestLocationDialog());
       if (shouldRequestPermission ?? false) {
         await locationService.openLocationSettings();
       }

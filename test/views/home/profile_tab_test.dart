@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:folio/models/portfolio_model.dart';
 import 'package:folio/models/user_model.dart';
-import 'package:folio/views/home/profile_tab.dart';
+import 'package:folio/views/home/profile/profile_tab.dart';
 
 void main() {
   group('EditProfile Tests', () {
@@ -21,7 +21,8 @@ void main() {
       images: [
         {'downloadUrl': 'https://example.com/image1.jpg', 'filePath': 'path1'},
         {'downloadUrl': 'https://example.com/image2.jpg', 'filePath': 'path2'},
-      ],uid: 'test-uid',
+      ],
+      uid: 'test-uid',
     );
 
     testWidgets('displays user information correctly',
@@ -30,7 +31,7 @@ void main() {
         ProviderScope(
           child: MaterialApp(
             home: Scaffold(
-              body: EditProfile(
+              body: ProfilePortfolio(
                 userModel: mockUserModel,
                 portfolioModel: mockPortfolioModel,
               ),

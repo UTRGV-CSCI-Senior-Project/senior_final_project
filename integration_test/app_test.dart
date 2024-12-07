@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:folio/controller/user_location_controller.dart';
-import 'package:folio/views/home/profile_tab.dart';
+import 'package:folio/views/home/profile/profile_tab.dart';
 import 'package:folio/widgets/chatroom_tile_widget.dart';
 import 'package:folio/widgets/email_verification_dialog.dart';
 import 'package:folio/widgets/message_tile_widget.dart';
@@ -42,8 +42,6 @@ class MockImagePicker extends ImagePicker {
     return XFile(tempFile.path);
   }
 
-  
-
   @override
   Future<List<XFile>> pickMultiImage(
       {double? maxWidth,
@@ -79,7 +77,7 @@ class MockImagePicker extends ImagePicker {
   }
 }
 
- class MockLocationService extends LocationService {
+class MockLocationService extends LocationService {
   MockLocationService()
       : super(
           GeolocatorPlatform.instance,
@@ -138,7 +136,6 @@ class MockImagePicker extends ImagePicker {
   }
 }
 
-
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   late ProviderContainer container;
@@ -186,10 +183,10 @@ void main() {
     dotenv.load(fileName: '.env');
     final mockImagePicker = MockImagePicker();
     final mockLocationService = MockLocationService();
-    container = ProviderContainer(
-        overrides: [imagePickerProvider.overrideWithValue(mockImagePicker),
-        locationServiceProvider.overrideWithValue(mockLocationService)
-        ]);
+    container = ProviderContainer(overrides: [
+      imagePickerProvider.overrideWithValue(mockImagePicker),
+      locationServiceProvider.overrideWithValue(mockLocationService)
+    ]);
     await container.read(authServicesProvider).signOut();
   });
 
@@ -197,10 +194,10 @@ void main() {
     final mockImagePicker = MockImagePicker();
     final mockLocationService = MockLocationService();
 
-    container = ProviderContainer(
-        overrides: [imagePickerProvider.overrideWithValue(mockImagePicker),
-        locationServiceProvider.overrideWithValue(mockLocationService)
-        ]);
+    container = ProviderContainer(overrides: [
+      imagePickerProvider.overrideWithValue(mockImagePicker),
+      locationServiceProvider.overrideWithValue(mockLocationService)
+    ]);
   });
 
   tearDown(() {
@@ -275,7 +272,6 @@ void main() {
 
 /////////////////////////////////////////////// HAPPY PATHS //////////////////////////////////////////////////////////////////////
   group('Happy Paths', () {
-  
     testWidgets(
         'As a new user, I can sign up, complete onboarding, reach the home screen, and view a near by portfolio',
         (WidgetTester tester) async {
@@ -399,7 +395,8 @@ void main() {
 
         await tester.tap(find.byKey(const Key('filter-button')));
         await tester.pumpAndSettle(const Duration(seconds: 5));
-        await tester.scrollUntilVisible(removeRadiusButton, 50, scrollable: find.byType(Scrollable).last);
+        await tester.scrollUntilVisible(removeRadiusButton, 50,
+            scrollable: find.byType(Scrollable).last);
         await tester.tap(removeRadiusButton);
         await tester.tap(removeRadiusButton);
         await tester.tap(removeRadiusButton);
@@ -408,7 +405,8 @@ void main() {
         await tester.tap(find.byKey(const Key('apply-filters-button')));
         await tester.pumpAndSettle(const Duration(seconds: 10));
 
-        expect(find.text('No portfolios matched your selected filters.'), findsOneWidget);
+        expect(find.text('No portfolios matched your selected filters.'),
+            findsOneWidget);
         await container.read(authServicesProvider).signOut();
       });
     });
@@ -658,7 +656,7 @@ void main() {
         await tester.tap(dialogButton);
         await tester.pumpAndSettle(const Duration(seconds: 5));
 
-        expect(find.byType(EditProfile), findsOneWidget);
+        expect(find.byType(ProfilePortfolio), findsOneWidget);
         await container.read(authServicesProvider).signOut();
       });
     });
@@ -707,7 +705,7 @@ void main() {
         await tester.tap(dialogButton);
         await tester.pumpAndSettle(const Duration(seconds: 5));
 
-        expect(find.byType(EditProfile), findsOneWidget);
+        expect(find.byType(ProfilePortfolio), findsOneWidget);
         await container.read(authServicesProvider).signOut();
       });
     });
@@ -765,12 +763,12 @@ void main() {
         await tester.pumpAndSettle(const Duration(seconds: 5));
 
         //Enter address
-        await tester.enterText(find.byType(AddressAutocompleteTextField), '123 Main Street, San Francisco');
+        await tester.enterText(find.byType(AddressAutocompleteTextField),
+            '123 Main Street, San Francisco');
         await tester.pumpAndSettle(const Duration(seconds: 5));
         await tester.tap(find.byType(ListTile).first);
         await tester.pumpAndSettle(const Duration(seconds: 5));
         await tester.tap(createPortfolioNextButton);
-
 
         await tester.pumpAndSettle(const Duration(seconds: 40));
         await tester.tap(find.byKey(const Key('settings-back-button')));
@@ -982,11 +980,11 @@ void main() {
       await tester.tap(find.text('Account'));
       await tester.pumpAndSettle(const Duration(seconds: 4));
 
-        expect(find.text('+15555550000'), findsOneWidget);
-        await container.read(authServicesProvider).signOut();
-      });
+      expect(find.text('+15555550000'), findsOneWidget);
+      await container.read(authServicesProvider).signOut();
+    });
 
-      testWidgets(
+    testWidgets(
         'As an existing user I can sign in, go to the inbox tab, see my existing message threads, and send a message',
         (WidgetTester tester) async {
       await mockNetworkImagesFor(() async {
@@ -1017,7 +1015,8 @@ void main() {
         await tester.tap(find.byType(ChatRoomTile));
         await tester.pumpAndSettle(const Duration(seconds: 3));
         expect(find.text('Hello, I like your work!'), findsOneWidget);
-        await tester.enterText(find.byKey(const Key('message-field')), 'Do you have any appointments soon?');
+        await tester.enterText(find.byKey(const Key('message-field')),
+            'Do you have any appointments soon?');
         await tester.tap(find.byKey(const Key('send-message-button')));
         await tester.pumpAndSettle(const Duration(seconds: 10));
         expect(find.byType(MessageTile), findsExactly(2));
@@ -1323,7 +1322,8 @@ void main() {
         await tester.pumpAndSettle(const Duration(seconds: 4));
 
         //Expect to see error messages for required images
-        expect(find.text('Please upload at least 5 images.'), findsOneWidget);//Add images
+        expect(find.text('Please upload at least 5 images.'),
+            findsOneWidget); //Add images
         await tester.tap(imagePickerButton);
         await tester.pumpAndSettle(const Duration(seconds: 5));
         await tester.tap(createPortfolioNextButton);
@@ -1335,7 +1335,8 @@ void main() {
 
         await tester.tap(createPortfolioNextButton);
         await tester.pumpAndSettle(const Duration(seconds: 4));
-        expect(find.text("Please provide your business's location to proceed."), findsOneWidget);
+        expect(find.text("Please provide your business's location to proceed."),
+            findsOneWidget);
 
         await container.read(authServicesProvider).signOut();
       });

@@ -65,6 +65,7 @@ dependencies:
   firebase_messaging: ^15.1.5
   cloud_functions: ^5.1.5
   flutter_dotenv: ^5.2.1
+  syncfusion_flutter_calendar: ^27.2.5
 dev_dependencies:
   flutter_test:
     sdk: flutter

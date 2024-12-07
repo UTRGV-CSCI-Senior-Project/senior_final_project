@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:folio/controller/schedule_controller';
 
 class PortfolioModel {
   final String _service;
@@ -12,7 +13,9 @@ class PortfolioModel {
   final String? _professionalsName;
   final String _uid;
   final List<String>? _nameArray;
-
+  final DateTime?
+      _available; //for now we are assuming that the proffesional has a set time
+  final List<Meeting>? _meetings;
 
   PortfolioModel({
     required String service,
@@ -22,22 +25,25 @@ class PortfolioModel {
     int months = 0,
     List<Map<String, String>> images = const [],
     DateTime? experienceStartDate,
-     String? address,
-     Map<String, double?>? latAndLong,
+    String? address,
+    Map<String, double?>? latAndLong,
     String? professionalsName,
-    List<String>? nameArray
+    List<String>? nameArray,
+    DateTime? available,
+    List<Meeting>? meetings,
   })  : _service = service,
         _uid = uid,
         _details = details,
         _years = years,
         _months = months,
-        _images = images ,
+        _images = images,
         _experienceStartDate = experienceStartDate,
         _address = address,
         _latAndLong = latAndLong,
         _professionalsName = professionalsName,
-        _nameArray = nameArray
-        {
+        _nameArray = nameArray,
+        _available = available,
+        _meetings = meetings {
     if (service.isEmpty) {
       throw ArgumentError('service cannot be empty');
     }
@@ -53,11 +59,12 @@ class PortfolioModel {
   List<Map<String, String>> get images => _images;
   DateTime? get experienceStartDate => _experienceStartDate;
   String? get address => _address;
-   Map<String, double?>? get latAndLong => _latAndLong;
-   String? get professionalsName => _professionalsName;
-   String get uid => _uid;
-   List<String>? get nameArray => _nameArray;
-
+  Map<String, double?>? get latAndLong => _latAndLong;
+  String? get professionalsName => _professionalsName;
+  String get uid => _uid;
+  List<String>? get nameArray => _nameArray;
+  DateTime? get available => _available;
+  List<Meeting>? get meetings => _meetings;
 
   // Convert the model to JSON format
   Map<String, dynamic> toJson() {
@@ -86,15 +93,14 @@ class PortfolioModel {
     if (!json.containsKey('years')) {
       throw ArgumentError('empty-years');
     }
-    if(!json.containsKey('uid')){
+    if (!json.containsKey('uid')) {
       throw ArgumentError('empty-uid');
     }
 
-
     final experienceStartDateTimestamp = json['experienceStartDate'];
     final experienceStartDate = experienceStartDateTimestamp is Timestamp
-      ? experienceStartDateTimestamp.toDate()
-      : null;
+        ? experienceStartDateTimestamp.toDate()
+        : null;
 
     return PortfolioModel(
       service: json['service'] as String,
@@ -113,37 +119,35 @@ class PortfolioModel {
       professionalsName: json['professionalsName'] as String?,
       uid: json['uid'] as String,
       nameArray: (json['nameArray'] as List<dynamic>?)
-        ?.map((e) => e as String)
-        .toList(),
+          ?.map((e) => e as String)
+          .toList(),
     );
   }
 
- Map<String, int> calculateTotalExperience() {
+  Map<String, int> calculateTotalExperience() {
     int totalYears = _years;
     int totalMonths = _months;
 
-    
     if (_experienceStartDate != null) {
       final now = DateTime.now();
       final difference = now.difference(_experienceStartDate);
-      
+
       // Convert difference to years and months
-      int additionalMonths = (difference.inDays / 30.44).floor(); // Average days per month
+      int additionalMonths =
+          (difference.inDays / 30.44).floor(); // Average days per month
       int additionalYears = additionalMonths ~/ 12;
       int remainingMonths = additionalMonths % 12;
-      
+
       // Add the additional time to prior experience
       totalMonths += remainingMonths;
       totalYears += additionalYears;
-      
-     
     }
 
-     // Handle month overflow
-      if (totalMonths >= 12) {
-        totalYears += totalMonths ~/ 12;
-        totalMonths = totalMonths % 12;
-      }
+    // Handle month overflow
+    if (totalMonths >= 12) {
+      totalYears += totalMonths ~/ 12;
+      totalMonths = totalMonths % 12;
+    }
 
     return {
       'years': totalYears,
@@ -156,14 +160,14 @@ class PortfolioModel {
     final experience = calculateTotalExperience();
     final years = experience['years'] ?? 0;
     final months = experience['months'] ?? 0;
-    
+
     if (years == 0 && months == 0) {
       return "Beginner";
     }
-    
+
     final yearText = years == 1 ? "year" : "years";
     final monthText = months == 1 ? "month" : "months";
-    
+
     if (years == 0) {
       return "$months $monthText";
     }

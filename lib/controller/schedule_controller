@@ -1,0 +1,67 @@
+import 'package:syncfusion_flutter_calendar/calendar.dart';
+import 'package:flutter/material.dart';
+
+class MeetingDataSource extends CalendarDataSource {
+  /// Creates a meeting data source, used to set the appointment
+  /// collection to the calendar.
+  MeetingDataSource(List<Meeting> source) {
+    appointments = source;
+  }
+
+  @override
+  DateTime getStartTime(int index) {
+    return _getMeetingData(index).from;
+  }
+
+  @override
+  DateTime getEndTime(int index) {
+    return _getMeetingData(index).to;
+  }
+
+  @override
+  String getSubject(int index) {
+    return _getMeetingData(index).eventName;
+  }
+
+  @override
+  Color getColor(int index) {
+    return _getMeetingData(index).background;
+  }
+
+  @override
+  bool isAllDay(int index) {
+    return _getMeetingData(index).isAllDay;
+  }
+
+  /// Safely retrieves the meeting data for a given index.
+  Meeting _getMeetingData(int index) {
+    final dynamic meeting = appointments![index];
+    if (meeting is Meeting) {
+      return meeting; // Safe cast and return the Meeting object.
+    } else {
+      throw Exception('Appointment at index $index is not a Meeting.');
+    }
+  }
+}
+
+/// Custom business object class which contains properties to hold the detailed
+/// information about the event data that will be rendered in the calendar.
+class Meeting {
+  /// Creates a meeting class with required details.
+  Meeting(this.eventName, this.from, this.to, this.background, this.isAllDay);
+
+  /// Event name, equivalent to the subject property of [Appointment].
+  final String eventName;
+
+  /// Start time, equivalent to the start time property of [Appointment].
+  final DateTime from;
+
+  /// End time, equivalent to the end time property of [Appointment].
+  final DateTime to;
+
+  /// Background color, equivalent to the color property of [Appointment].
+  final Color background;
+
+  /// Whether the meeting is all day, equivalent to the isAllDay property of [Appointment].
+  final bool isAllDay;
+}
