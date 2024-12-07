@@ -87,12 +87,6 @@ jobs:
       - name: Clone Repository
         uses: actions/checkout@v4
 
-      - name: Erase all simulators
-        run: xcrun simctl erase all
-
-      - name: Shutdown all simulators
-        run: xcrun simctl shutdown all
-
       - name: Clean Xcode Derived Data
         run: rm -rf ~/Library/Developer/Xcode/DerivedData/*
 
