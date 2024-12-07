@@ -29,7 +29,7 @@ class _DiscoverTabState extends ConsumerState<DiscoverTab> {
   Timer? _debounce;
   String sortOption = 'Distance';
   String sortDirection = 'Ascending';
-  double radius = 100.0;
+  double radius = 30.0;
   List<String> selectedServices = [];
   List<PortfolioModel> filteredPortfolios = [];
 
