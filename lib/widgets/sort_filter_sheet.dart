@@ -9,13 +9,13 @@ Future<Map<String, dynamic>?> showSortFilterSheet(
   BuildContext context,
   String initialSortOption,
   String initialSortDirection,
-  double initialRadius,
+  double? initialRadius,
   List<String> initialSelectedServices,
 ) {
   return showModalBottomSheet(
       context: context,
       isScrollControlled: false,
-      isDismissible: true,
+      isDismissible: false,
       useSafeArea: true,
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
@@ -31,7 +31,7 @@ Future<Map<String, dynamic>?> showSortFilterSheet(
 class SortFilterSheet extends ConsumerStatefulWidget {
   final String initialSortOption;
   final String initialSortDirection;
-  final double initialRadius;
+  final double? initialRadius;
   final List<String> initialSelectedServices;
   const SortFilterSheet({
     super.key,
@@ -62,14 +62,16 @@ class _SortFilterSheetState extends ConsumerState<SortFilterSheet> {
   TextEditingController searchController = TextEditingController();
   final searchFocusNode = FocusNode();
   final scrollController = ScrollController();
+  late bool? isChecked;
 
   @override
   void initState() {
     super.initState();
     selectedSortOption = widget.initialSortOption;
     selectedSortDirection = widget.initialSortDirection;
-    currentRadius = widget.initialRadius;
+    currentRadius = widget.initialRadius ?? 30;
     selectedServices = List.from(widget.initialSelectedServices);
+    isChecked = widget.initialRadius != null;
     getServices();
   }
 
@@ -140,7 +142,7 @@ class _SortFilterSheetState extends ConsumerState<SortFilterSheet> {
                 Navigator.pop(context, {
                   'sortBy': selectedSortOption,
                   'sortDirection': selectedSortDirection,
-                  'radius': currentRadius,
+                  'radius': isChecked == true ? currentRadius : null,
                   'services': selectedServices,
                 });
               },
@@ -154,7 +156,7 @@ class _SortFilterSheetState extends ConsumerState<SortFilterSheet> {
                   bottom: 20,
                 ),
                 child: Container(
-                  padding: const EdgeInsets.only(top: 4, left: 2, right: 2),
+                  padding: const EdgeInsets.all(0),
                   child: Column(
                     children: [
                       Padding(
@@ -167,7 +169,7 @@ class _SortFilterSheetState extends ConsumerState<SortFilterSheet> {
                             Container(
                               width: double.infinity,
                               padding: const EdgeInsets.symmetric(
-                                  vertical: 12, horizontal: 24),
+                                  vertical: 12, horizontal: 12),
                               decoration: BoxDecoration(
                                   color: Colors.grey[500]!.withOpacity(0.2)),
                               child: Text('SORTING',
@@ -175,7 +177,7 @@ class _SortFilterSheetState extends ConsumerState<SortFilterSheet> {
                             ),
                             Padding(
                               padding: const EdgeInsets.symmetric(
-                                  vertical: 8, horizontal: 24),
+                                  vertical: 8, horizontal: 14),
                               child: Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
@@ -212,7 +214,7 @@ class _SortFilterSheetState extends ConsumerState<SortFilterSheet> {
                             ),
                             Padding(
                               padding: const EdgeInsets.symmetric(
-                                  vertical: 8, horizontal: 24),
+                                  vertical: 8, horizontal: 14),
                               child: Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
@@ -247,7 +249,7 @@ class _SortFilterSheetState extends ConsumerState<SortFilterSheet> {
                             Container(
                               width: double.infinity,
                               padding: const EdgeInsets.symmetric(
-                                  vertical: 12, horizontal: 24),
+                                  vertical: 12, horizontal: 12),
                               decoration: BoxDecoration(
                                   color: Colors.grey[500]!.withOpacity(0.2)),
                               child: Text('FILTERS',
@@ -255,11 +257,29 @@ class _SortFilterSheetState extends ConsumerState<SortFilterSheet> {
                             ),
                             Padding(
                               padding: const EdgeInsets.symmetric(
-                                  vertical: 8, horizontal: 24),
+                                  vertical: 8, horizontal: 14),
                               child: Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
+                                  SizedBox(
+                                    width: 24, // Reduce width
+                                    height: 24, // Reduce height
+                                    child: Checkbox(
+                                        materialTapTargetSize: MaterialTapTargetSize
+                                            .shrinkWrap, // Reduce tap target size
+                                        visualDensity: VisualDensity
+                                            .compact, // Make checkbox more compact
+                                        activeColor: Theme.of(context)
+                                            .colorScheme
+                                            .primary,
+                                        value: isChecked,
+                                        onChanged: (bool? value) {
+                                          setState(() {
+                                            isChecked = value;
+                                          });
+                                        }),
+                                  ),
                                   Text('Location Radius',
                                       style: GoogleFonts.inter(fontSize: 18)),
                                   Row(
@@ -271,12 +291,14 @@ class _SortFilterSheetState extends ConsumerState<SortFilterSheet> {
                                             .primary,
                                         icon: const Icon(
                                             Icons.remove_circle_outline),
-                                        onPressed: () {
-                                          setState(() {
-                                            currentRadius =
-                                                max(5, currentRadius - 5);
-                                          });
-                                        },
+                                        onPressed: isChecked == true 
+                                            ? () {
+                                                setState(() {
+                                                  currentRadius =
+                                                      max(5, currentRadius - 5);
+                                                });
+                                              }
+                                            : null,
                                       ),
                                       Container(
                                         width: 60,
@@ -288,8 +310,8 @@ class _SortFilterSheetState extends ConsumerState<SortFilterSheet> {
                                               BorderRadius.circular(8),
                                         ),
                                         child: Center(
-                                          child: Text(
-                                            '${currentRadius.round()} mi',
+                                          child: Text(isChecked == true ? 
+                                            '${currentRadius.round()} mi' : 'ANY',
                                             style:
                                                 GoogleFonts.inter(fontSize: 16),
                                           ),
@@ -302,12 +324,14 @@ class _SortFilterSheetState extends ConsumerState<SortFilterSheet> {
                                             .primary,
                                         icon: const Icon(
                                             Icons.add_circle_outline),
-                                        onPressed: () {
-                                          setState(() {
-                                            currentRadius =
-                                                min(1000, currentRadius + 5);
-                                          });
-                                        },
+                                        onPressed: isChecked == true
+                                            ? () {
+                                                setState(() {
+                                                  currentRadius = min(
+                                                      1000, currentRadius + 5);
+                                                });
+                                              }
+                                            : null,
                                       ),
                                     ],
                                   ),
@@ -316,7 +340,7 @@ class _SortFilterSheetState extends ConsumerState<SortFilterSheet> {
                             ),
                             Padding(
                               padding: const EdgeInsets.symmetric(
-                                  vertical: 6, horizontal: 24),
+                                  vertical: 6, horizontal: 14),
                               child: Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,

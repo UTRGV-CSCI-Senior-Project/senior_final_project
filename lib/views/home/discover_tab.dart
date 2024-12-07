@@ -29,7 +29,7 @@ class _DiscoverTabState extends ConsumerState<DiscoverTab> {
   Timer? _debounce;
   String sortOption = 'Distance';
   String sortDirection = 'Ascending';
-  double radius = 30.0;
+  double? radius = 30.0;
   List<String> selectedServices = [];
   List<PortfolioModel> filteredPortfolios = [];
 
@@ -53,7 +53,7 @@ class _DiscoverTabState extends ConsumerState<DiscoverTab> {
       return selectedServices.contains(portfolio.service);
     }).toList();
     List<PortfolioModel> filteredRadius = filteredServices;
-    if (currentLocation != null) {
+    if (currentLocation != null && radius != null) {
       filteredRadius = filteredServices.where((portfolio) {
         if (portfolio.latAndLong?['longitude'] != null &&
             portfolio.latAndLong?['latitude'] != null) {
@@ -61,7 +61,7 @@ class _DiscoverTabState extends ConsumerState<DiscoverTab> {
               currentLocation,
               portfolio.latAndLong!['latitude']!,
               portfolio.latAndLong!['longitude']!);
-          return distance <= radius;
+          return distance <= radius!;
         }
         return false;
       }).toList();
@@ -254,9 +254,8 @@ class _DiscoverTabState extends ConsumerState<DiscoverTab> {
                       if (result?['sortDirection'] != null) {
                         sortDirection = result?['sortDirection'];
                       }
-                      if (result?['radius'] != null) {
                         radius = result?['radius'];
-                      }
+
                       if (result?['services'] != null) {
                         selectedServices = result?['services'];
                       }
@@ -288,7 +287,7 @@ class _DiscoverTabState extends ConsumerState<DiscoverTab> {
   }
 
   Widget _buildNearbyPortfolios() {
-    return ref.watch(nearbyPortfoliosProvider).when(
+    return ref.watch(allPortfoliosProvider).when(
         data: (portfolios) {
           final currentLocation = ref.watch(currentPositionProvider);
           if (portfolios.isEmpty) {

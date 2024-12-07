@@ -217,6 +217,11 @@ final nearbyPortfoliosProvider = FutureProvider<List<PortfolioModel>>((ref) asyn
     error: (error, stack) => [],);
 });
 
+final allPortfoliosProvider = FutureProvider<List<PortfolioModel>>((ref) async {
+  final portfolioRepo = ref.read(portfolioRepositoryProvider);
+  return portfolioRepo.getAllPortfolios();
+});
+
 void setupEmulators({bool useEmulators = false}) {
   if (useEmulators) {
     try {

@@ -332,6 +332,26 @@ class FirestoreServices {
     }
   }
 
+  Future<List<PortfolioModel>> getAllPortfolios() async {
+    try {
+      final query = _firestore
+          .collection("portfolios");
+         
+      final querySnapshot = await query.get();
+      return querySnapshot.docs.map((doc) {
+        final data = doc.data();
+        data['uid'] ??= doc.id;
+        return PortfolioModel.fromJson(data);
+      }).toList();
+    } catch (e) {
+      if (e is AppException) {
+        rethrow;
+      } else {
+        throw AppException('get-portfolios-error');
+      }
+    }
+  }
+
   Future<List<PortfolioModel>> discoverPortfolios(
       List<String> searchQuery) async {
     try {

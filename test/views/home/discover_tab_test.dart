@@ -52,7 +52,7 @@ void main() {
       currentPositionProvider.overrideWith((ref) {
         return position;
       }),
-      nearbyPortfoliosProvider.overrideWith((ref) {
+      allPortfoliosProvider.overrideWith((ref) {
         return [
           PortfolioModel(
             service: 'Photographer A',
@@ -95,7 +95,7 @@ void main() {
       await tester.enterText(find.byType(TextField), 'test search');
       expect(find.text('test search'), findsOneWidget);
     });
-    testWidgets('nearby portfolios load and display correctly',
+    testWidgets(' portfolios load and display correctly',
         (WidgetTester tester) async {
       when(mockLocationService.distanceInMiles(position, 40.7128, -74.006))
           .thenReturn(4);
@@ -167,7 +167,7 @@ void main() {
       currentPositionProvider.overrideWith((ref) {
         return position;
       }),
-      nearbyPortfoliosProvider.overrideWith((ref) {
+      allPortfoliosProvider.overrideWith((ref) {
         return [];
         })],
           child: MaterialApp(

@@ -22,15 +22,29 @@ class HomeTab extends ConsumerStatefulWidget {
 
 class _HomeTabState extends ConsumerState<HomeTab> {
   late LocationService locationService;
+  String? address;
 
   @override
   void initState() {
     super.initState();
-    locationService = ref.read(locationServiceProvider);
+    locationService =  ref.read(locationServiceProvider);
+    _fetchCurrentCity();
+  }
+
+  Future<void> _fetchCurrentCity() async {
+    try {
+      final currentCity = await locationService.getCurrentCity();
+      setState(() {
+        address = currentCity;
+      });
+    } catch (e) {
+      return;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+
     return SafeArea(
         child: SingleChildScrollView(
       child: Padding(
@@ -121,7 +135,7 @@ class _HomeTabState extends ConsumerState<HomeTab> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      "Near You",
+                      address != null ? 'Near $address' : "Near You",
                       style: GoogleFonts.inter(
                           fontWeight: FontWeight.w900, fontSize: 16),
                     ),

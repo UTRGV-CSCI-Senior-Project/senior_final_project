@@ -60,6 +60,28 @@ void main() {
             ? Stream.value(chatroomModel)
             : Stream.value([])),
         locationServiceProvider.overrideWithValue(mockLocationService),
+        allPortfoliosProvider.overrideWith((ref) => [
+              PortfolioModel(
+                  service: 'Barber',
+                  details: 'Im a barber',
+                  years: 3,
+                  months: 1,
+                  uid: 'test-uid',
+                  address: '1234s Street',
+                  latAndLong: {'latitude': 40.7128, 'longitude': -74.0060},
+                  professionalsName: 'Barber User',
+                  nameArray: ['Barber', 'User']),
+              PortfolioModel(
+                  service: 'Nail Tech',
+                  details: 'Im a nail tech',
+                  years:6,
+                  months: 1,
+                  uid: 'test-uid',
+                  address: '1234s Street',
+                  latAndLong: {'latitude': 40.7128, 'longitude': -74.0060},
+                  professionalsName: 'Nail User',
+                  nameArray: ['Nail', 'User'])
+            ]),
         nearbyPortfoliosProvider.overrideWith((ref) => [
               PortfolioModel(
                   service: 'Barber',

@@ -128,6 +128,18 @@ class PortfolioRepository {
     }
   }
 
+  Future<List<PortfolioModel>> getAllPortfolios() async {
+    try {
+      return await _firestoreServices.getAllPortfolios();
+    } catch (e) {
+      if (e is AppException) {
+        rethrow;
+      } else {
+        throw AppException('get-nearby-portfolios-error');
+      }
+    }
+  }
+
   Future<List<PortfolioModel>> getDiscoverPortfolios(List<String> searchQuery) async {
     try{
       return await _firestoreServices.discoverPortfolios(searchQuery);
