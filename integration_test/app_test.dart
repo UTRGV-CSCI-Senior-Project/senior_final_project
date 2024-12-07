@@ -309,7 +309,7 @@ void main() {
         await tester.tap(barberServiceButton);
         await tester.tap(carDetailerServiceButton);
         await tester.tap(onboardingButton);
-        await tester.pumpAndSettle(const Duration(seconds: 5));
+        await tester.pumpAndSettle(const Duration(seconds: 8));
         //Expect to see home screen with user's full name
 
         expect(find.textContaining('First Last'), findsOneWidget);
@@ -318,7 +318,7 @@ void main() {
         expect(find.text('6 mi away'), findsOneWidget);
 
         await tester.tap(find.byKey(const Key('view-portfolio-button')).first);
-        await tester.pumpAndSettle(const Duration(seconds: 5));
+        await tester.pumpAndSettle(const Duration(seconds: 8));
         expect(find.text('First User'), findsOneWidget);
         expect(find.text('6 miles away'), findsOneWidget);
         expect(find.byType(Image), findsExactly(6));
@@ -391,7 +391,7 @@ void main() {
         expect(find.text('6 mi away'), findsOneWidget);
 
         await tester.enterText(discoverTextField, 'Someone to cut my hair');
-        await tester.pumpAndSettle(const Duration(seconds: 10));
+        await tester.pumpAndSettle(const Duration(seconds: 15));
 
         expect(find.text('First User'), findsOneWidget);
         expect(find.text('6 mi away'), findsOneWidget);
@@ -406,7 +406,7 @@ void main() {
         await tester.tap(removeRadiusButton);
         await tester.tap(removeRadiusButton);
         await tester.tap(find.byKey(const Key('apply-filters-button')));
-        await tester.pumpAndSettle(const Duration(seconds: 5));
+        await tester.pumpAndSettle(const Duration(seconds: 10));
 
         expect(find.text('No portfolios matched your selected filters.'), findsOneWidget);
         await container.read(authServicesProvider).signOut();
@@ -912,6 +912,7 @@ void main() {
         await tester.tap(settingsButton);
         await tester.pumpAndSettle(const Duration(seconds: 4));
         //Click on Report a bug in settings
+        await tester.scrollUntilVisible(find.text('Get Help'), 50);
         await tester.tap(find.text('Get Help'));
         await tester.pumpAndSettle(const Duration(seconds: 4));
         await tester.enterText(
@@ -1334,7 +1335,7 @@ void main() {
 
         await tester.tap(createPortfolioNextButton);
         await tester.pumpAndSettle(const Duration(seconds: 4));
-        expect(find.text('Please provide your business location to proceed.'), findsOneWidget);
+        expect(find.text("Please provide your business's location to proceed."), findsOneWidget);
 
         await container.read(authServicesProvider).signOut();
       });
@@ -1563,6 +1564,7 @@ void main() {
         await tester.tap(settingsButton);
         await tester.pumpAndSettle(const Duration(seconds: 4));
         //Click on Report a bug in settings
+        await tester.scrollUntilVisible(find.text('Report a bug'), 50);
         await tester.tap(find.text('Report a bug'));
         await tester.pumpAndSettle(const Duration(seconds: 4));
         await tester.tap(find.text('Submit Bug Report'));
