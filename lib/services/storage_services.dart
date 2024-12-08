@@ -52,17 +52,14 @@ class StorageServices {
         await uploadRef.putFile(file);
 
         final downloadUrl = await uploadRef.getDownloadURL();
-        imageData.add({
-          'filePath': filePath,
-          'downloadUrl': downloadUrl
-        });
+        imageData.add({'filePath': filePath, 'downloadUrl': downloadUrl});
       }
 
       return imageData;
     } catch (e) {
-      if(e is AppException){
+      if (e is AppException) {
         rethrow;
-      }else{
+      } else {
         throw AppException('upload-files-error');
       }
     }
@@ -100,14 +97,12 @@ class StorageServices {
   }
 
   // Delete an image from Firebase Storage
-Future<void> deleteImage(String imagePath) async {
-  try {
-    final storageRef = _firebaseStorage.ref().child(imagePath);
-    await storageRef.delete();
-  } catch (e) {
-    throw AppException('delete-image-error');
+  Future<void> deleteImage(String imagePath) async {
+    try {
+      final storageRef = _firebaseStorage.ref().child(imagePath);
+      await storageRef.delete();
+    } catch (e) {
+      throw AppException('delete-image-error');
+    }
   }
-}
-
-
 }

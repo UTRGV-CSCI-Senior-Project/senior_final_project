@@ -57,7 +57,7 @@ class _ChooseServiceState extends ConsumerState<ChooseService> {
     if (debounce?.isActive ?? false) {
       debounce?.cancel();
     }
-    debounce = Timer(const Duration(milliseconds: 1300), () async {
+    debounce = Timer(const Duration(milliseconds: 1000), () async {
       if (searchController.text.isNotEmpty) {
         _filterServices(searchController.text);
       } else {
@@ -70,8 +70,7 @@ class _ChooseServiceState extends ConsumerState<ChooseService> {
 
   Future<void> loadServices() async {
     try {
-      final firestoreServices = ref.read(firestoreServicesProvider);
-      final fetchedServices = await firestoreServices.getServices();
+      final fetchedServices = await ref.read(servicesStreamProvider.future);
       setState(() {
         allServices = fetchedServices;
         services = allServices;
@@ -168,7 +167,7 @@ class _ChooseServiceState extends ConsumerState<ChooseService> {
             cursorColor: Theme.of(context).textTheme.displayLarge?.color,
             controller: searchController,
             decoration: InputDecoration(
-                hintText: 'Search Folio',
+                hintText: 'Search for your profession',
                 enabledBorder: OutlineInputBorder(
                     borderRadius: const BorderRadius.all(Radius.circular(50)),
                     borderSide: BorderSide(width: 2, color: Colors.grey[400]!)),
@@ -196,7 +195,7 @@ class _ChooseServiceState extends ConsumerState<ChooseService> {
                       )),
           ),
         ),
-        const SizedBox(height: 30.0),
+        const SizedBox(height: 12.0),
         Expanded(
             child: ServiceSelectionWidget(
           services: services,

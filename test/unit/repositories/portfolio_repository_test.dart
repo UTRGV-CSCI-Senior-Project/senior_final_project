@@ -45,14 +45,21 @@ void main() {
           .thenAnswer((_) async => {});
       when(mockFirestoreServices.updateUser({'isProfessional': true}))
           .thenAnswer((_) async => {});
-                when(mockFirestoreServices.addService('Photographer')).thenAnswer((_) async => {});
-
-
+      when(mockFirestoreServices.addService('Photographer'))
+          .thenAnswer((_) async => {});
 
       // Act
       final repository = container.read(portfolioRepositoryProvider);
       await repository.createPortfolio(
-          'Photographer', 'Professional photography', 6, 2, images);
+          'Photographer',
+          'Professional photography',
+          6,
+          2,
+          images,
+          '1234s Street',
+          {'latitude': 40.7128, 'longitude': -74.0060},
+          'Test Name',
+          'test-uid');
 
       // Assert
       verify(mockStorageServices.uploadFilesForUser(images)).called(1);
@@ -70,8 +77,16 @@ void main() {
       // Act & Assert
       final repository = container.read(portfolioRepositoryProvider);
       expect(
-        () =>
-            repository.createPortfolio('Photography', 'Details', 6, 2, images),
+        () => repository.createPortfolio(
+            'Photography',
+            'Details',
+            6,
+            2,
+            images,
+           '1234s Street',
+            {'latitude': 40.7128, 'longitude': -74.0060},
+            'Test Name',
+            'test-uid'),
         throwsA(predicate((e) =>
             e is AppException && e.toString().contains('upload-files-error'))),
       );
@@ -94,8 +109,16 @@ void main() {
       // Act & Assert
       final repository = container.read(portfolioRepositoryProvider);
       expect(
-        () =>
-            repository.createPortfolio('Photography', 'Details', 6, 2, images),
+        () => repository.createPortfolio(
+            'Photography',
+            'Details',
+            6,
+            2,
+            images,
+            '1234s Street',
+            {'latitude': 40.7128, 'longitude': -74.0060},
+            'Test Name',
+            'test-uid'),
         throwsA(predicate((e) =>
             e is AppException &&
             e.toString().contains('update-portfolio-error'))),
@@ -120,8 +143,16 @@ void main() {
       // Act & Assert
       final repository = container.read(portfolioRepositoryProvider);
       expect(
-        () =>
-            repository.createPortfolio('Photography', 'Details', 6, 2, images),
+        () => repository.createPortfolio(
+            'Photography',
+            'Details',
+            6,
+            2,
+            images,
+            '1234s Street',
+            {'latitude': 40.7128, 'longitude': -74.0060},
+            'Test Name',
+            'test-uid'),
         throwsA(predicate((e) =>
             e is AppException && e.toString().contains('update-user-error'))),
       );
@@ -269,10 +300,13 @@ void main() {
   group('deletePortfolio', () {
     test('should successfully delete portfolio with images', () async {
       // Arrange
-      final portfolio = PortfolioModel(service: 'Barber', images: [
-        {'filePath': 'file1/path', 'downloadUrl': 'url1.com'},
-        {'filePath': 'file2/path', 'downloadUrl': 'url2.com'}
-      ]);
+      final portfolio = PortfolioModel(
+          service: 'Barber',
+          images: [
+            {'filePath': 'file1/path', 'downloadUrl': 'url1.com'},
+            {'filePath': 'file2/path', 'downloadUrl': 'url2.com'}
+          ],
+          uid: 'test-uid');
 
       when(mockFirestoreServices.getPortfolio())
           .thenAnswer((_) async => portfolio);
@@ -321,10 +355,13 @@ void main() {
 
     test('should throw AppException when image deletion fails', () async {
       // Arrange
-      final portfolio = PortfolioModel(service: 'Barber', images: [
-        {'filePath': 'file1/path', 'downloadUrl': 'url1.com'},
-        {'filePath': 'file2/path', 'downloadUrl': 'url2.com'}
-      ]);
+      final portfolio = PortfolioModel(
+          service: 'Barber',
+          images: [
+            {'filePath': 'file1/path', 'downloadUrl': 'url1.com'},
+            {'filePath': 'file2/path', 'downloadUrl': 'url2.com'}
+          ],
+          uid: 'test-uid');
 
       when(mockFirestoreServices.getPortfolio())
           .thenAnswer((_) async => portfolio);
@@ -343,10 +380,13 @@ void main() {
 
     test('should throw AppException when portfolio deletion fails', () async {
       // Arrange
-      final portfolio = PortfolioModel(service: 'Barber', images: [
-        {'filePath': 'file1/path', 'downloadUrl': 'url1.com'},
-        {'filePath': 'file2/path', 'downloadUrl': 'url2.com'}
-      ]);
+      final portfolio = PortfolioModel(
+          service: 'Barber',
+          images: [
+            {'filePath': 'file1/path', 'downloadUrl': 'url1.com'},
+            {'filePath': 'file2/path', 'downloadUrl': 'url2.com'}
+          ],
+          uid: 'test-uid');
 
       when(mockFirestoreServices.getPortfolio())
           .thenAnswer((_) async => portfolio);
@@ -368,10 +408,13 @@ void main() {
 
     test('should throw AppException when user update fails', () async {
       // Arrange
-      final portfolio = PortfolioModel(service: 'Barber', images: [
-        {'filePath': 'file1/path', 'downloadUrl': 'url1.com'},
-        {'filePath': 'file2/path', 'downloadUrl': 'url2.com'}
-      ]);
+      final portfolio = PortfolioModel(
+          service: 'Barber',
+          images: [
+            {'filePath': 'file1/path', 'downloadUrl': 'url1.com'},
+            {'filePath': 'file2/path', 'downloadUrl': 'url2.com'}
+          ],
+          uid: 'test-uid');
 
       when(mockFirestoreServices.getPortfolio())
           .thenAnswer((_) async => portfolio);
@@ -405,5 +448,78 @@ void main() {
             e.toString().contains('delete-portfolio-error'))),
       );
     });
+  });
+
+  group('getNearbyPortfolios', () {
+    test('returns nearby portfolios', () async {
+      final portfolios = [
+        PortfolioModel(service: 'service', uid: 'user1'),
+        PortfolioModel(service: 'service2', uid: 'user2')
+      ];
+
+      const latitude = 40.7128;
+      const longitude = -74.0060;
+
+      when(mockFirestoreServices.getNearbyPortfolios(latitude, longitude))
+          .thenAnswer((_) async => portfolios);
+
+      final repository = container.read(portfolioRepositoryProvider);
+      final result = await repository.getNearbyPortfolios(latitude, longitude);
+
+      expect(result, equals(portfolios));
+      verify(mockFirestoreServices.getNearbyPortfolios(latitude, longitude))
+          .called(1);
+    });
+
+    test('should throw AppException when getNearbyPortfolios fails', () async {
+      const latitude = 40.7128;
+      const longitude = -74.0060;
+
+      when(mockFirestoreServices.getNearbyPortfolios(latitude, longitude))
+          .thenThrow(AppException('get-nearby-portfolios-error'));
+
+      final repository = container.read(portfolioRepositoryProvider);
+      expect(
+        () => repository.getNearbyPortfolios(latitude, longitude),
+        throwsA(predicate((e) =>
+            e is AppException &&
+            e.toString().contains('get-nearby-portfolios-error'))),
+      );
+    });
+  });
+
+  group('getDiscoverPortfolios', () {
+    test('returns discover portfolios', () async {
+      final portfolios = [
+        PortfolioModel(service: 'service', uid: 'user1', professionalsName: 'User One', nameArray: ['User', 'One']),
+        PortfolioModel(service: 'service2', uid: 'user2', professionalsName: 'User Two', nameArray: ['User', 'Two'])
+      ];
+
+
+      when(mockFirestoreServices.discoverPortfolios(any))
+          .thenAnswer((_) async => portfolios);
+
+      final repository = container.read(portfolioRepositoryProvider);
+      final result = await repository.getDiscoverPortfolios(['User']);
+
+      expect(result, equals(portfolios));
+      verify(mockFirestoreServices.discoverPortfolios(any))
+          .called(1);
+    });
+
+    test('should throw AppException when discoverPortfolios fails', () async {
+      when(mockFirestoreServices.discoverPortfolios(['User', 'One']))
+          .thenThrow(AppException('discover-portfolios-error'));
+
+
+      final repository = container.read(portfolioRepositoryProvider);
+      expect(
+        () => repository.getDiscoverPortfolios(['User', 'One']),
+        throwsA(predicate((e) =>
+            e is AppException &&
+            e.toString().contains('discover-portfolios-error'))),
+      );
+    });
+
   });
 }

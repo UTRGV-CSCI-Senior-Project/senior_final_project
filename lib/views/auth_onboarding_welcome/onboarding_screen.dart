@@ -29,6 +29,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   final searchController = TextEditingController();
   List<String> filteredServices = [];
   late List<String> services = [];
+      final nameFocusNode = FocusNode();
+    final searchFocusNode = FocusNode();
+
 
   final Map<String, bool> selectedServices = {};
 
@@ -42,6 +45,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   void dispose() {
     _pageController.dispose();
     _fullNameController.dispose();
+    nameFocusNode.dispose();
+    searchFocusNode.dispose();
     super.dispose();
   }
 
@@ -62,8 +67,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   Future<void> loadServices() async {
     try {
-      final firestoreServices = ref.read(firestoreServicesProvider);
-      final fetchedServices = await firestoreServices.getServices();
+      final fetchedServices = await ref.read(servicesStreamProvider.future);
       if (mounted) {
         setState(() {
           services = fetchedServices;
@@ -101,7 +105,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   }
 
   Widget buildProfile(BuildContext context) {
-    final nameFocusNode = FocusNode();
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -185,6 +188,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: TextField(
+              onTap: () => nameFocusNode.requestFocus(),
               focusNode: nameFocusNode,
               style:
                   GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w500),
@@ -216,6 +220,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   }
 
   Widget buildInterests(BuildContext context) {
+
+
     if (_servicesAreLoading) {
       return Center(
         child: CircularProgressIndicator(
@@ -250,6 +256,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             borderRadius: BorderRadius.circular(25),
           ),
           child: TextField(
+            onTap: () => searchFocusNode.requestFocus(),
             cursorColor: Theme.of(context).textTheme.displayLarge?.color,
             controller: searchController,
             onChanged: filterServices,
@@ -370,7 +377,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     key: const Key('onboarding-button'),
                     onPressed: () async {
                       if (_currentPage == 0) {
-                        if (_fullNameController.text.isEmpty) {
+                        if (_fullNameController.text.trim().isEmpty && _fullNameController.text.trim().length < 2) {
                           if (mounted) {
                             setState(() {
                               errorMessage = "Please enter your full name.";
@@ -438,7 +445,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     style: TextButton.styleFrom(
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20)),
-                        backgroundColor: const Color.fromARGB(255, 0, 111, 253),
+                        backgroundColor: _isLoading ? Colors.grey[400] : const Color.fromARGB(255, 0, 111, 253),
                         padding: const EdgeInsets.symmetric(vertical: 12)),
                     child: _isLoading
                         ? SizedBox(

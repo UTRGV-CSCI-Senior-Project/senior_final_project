@@ -7,22 +7,41 @@ class PortfolioModel {
   final int _months;
   final List<Map<String, String>> _images;
   final DateTime? _experienceStartDate;
+  final String? _address;
+  final Map<String, double?>? _latAndLong;
+  final String? _professionalsName;
+  final String _uid;
+  final List<String>? _nameArray;
+
 
   PortfolioModel({
     required String service,
+    required String uid,
     String details = "",
     int years = 0,
     int months = 0,
     List<Map<String, String>> images = const [],
-    DateTime? experienceStartDate
+    DateTime? experienceStartDate,
+     String? address,
+     Map<String, double?>? latAndLong,
+    String? professionalsName,
+    List<String>? nameArray
   })  : _service = service,
+        _uid = uid,
         _details = details,
         _years = years,
         _months = months,
         _images = images ,
-        _experienceStartDate = experienceStartDate
+        _experienceStartDate = experienceStartDate,
+        _address = address,
+        _latAndLong = latAndLong,
+        _professionalsName = professionalsName,
+        _nameArray = nameArray
         {
     if (service.isEmpty) {
+      throw ArgumentError('service cannot be empty');
+    }
+    if (uid.isEmpty) {
       throw ArgumentError('UID cannot be empty');
     }
   }
@@ -33,6 +52,12 @@ class PortfolioModel {
   int get months => _months;
   List<Map<String, String>> get images => _images;
   DateTime? get experienceStartDate => _experienceStartDate;
+  String? get address => _address;
+   Map<String, double?>? get latAndLong => _latAndLong;
+   String? get professionalsName => _professionalsName;
+   String get uid => _uid;
+   List<String>? get nameArray => _nameArray;
+
 
   // Convert the model to JSON format
   Map<String, dynamic> toJson() {
@@ -42,7 +67,12 @@ class PortfolioModel {
       "years": years,
       "months": months,
       "images": images,
-      "experienceStartDate": experienceStartDate
+      "experienceStartDate": experienceStartDate,
+      "address": address,
+      "latAndLong": latAndLong,
+      "professionalsName": professionalsName,
+      "uid": uid,
+      "nameArray": nameArray
     };
   }
 
@@ -56,6 +86,10 @@ class PortfolioModel {
     if (!json.containsKey('years')) {
       throw ArgumentError('empty-years');
     }
+    if(!json.containsKey('uid')){
+      throw ArgumentError('empty-uid');
+    }
+
 
     final experienceStartDateTimestamp = json['experienceStartDate'];
     final experienceStartDate = experienceStartDateTimestamp is Timestamp
@@ -71,7 +105,16 @@ class PortfolioModel {
               ?.map((e) => Map<String, String>.from(e as Map))
               .toList() ??
           [],
-      experienceStartDate: experienceStartDate
+      experienceStartDate: experienceStartDate,
+      address: json['address'] as String?,
+      latAndLong: json['latAndLong'] != null
+          ? Map<String, double?>.from(json['latAndLong'] as Map)
+          : null,
+      professionalsName: json['professionalsName'] as String?,
+      uid: json['uid'] as String,
+      nameArray: (json['nameArray'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toList(),
     );
   }
 

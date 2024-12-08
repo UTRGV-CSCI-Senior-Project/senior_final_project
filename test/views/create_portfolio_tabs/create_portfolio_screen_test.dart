@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:folio/core/service_locator.dart';
@@ -6,6 +7,7 @@ import 'package:folio/repositories/portfolio_repository.dart';
 import 'package:folio/views/create_portfolio_tabs/create_portfolio_screen.dart';
 import 'package:folio/views/create_portfolio_tabs/input_experience_screen.dart';
 import 'package:folio/views/create_portfolio_tabs/more_details_screen.dart';
+import 'package:google_maps_places_autocomplete_widgets/widgets/address_autocomplete_textfield.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
@@ -27,8 +29,9 @@ void main() {
     mockFirestoreServices = MockFirestoreServices();
     mockImagePicker = MockImagePicker();
     mockXFile = MockXFile();
-    when(mockFirestoreServices.getServices()).thenAnswer(
-        (_) async => ['Nail Tech', 'Barber', 'Tattoo Artist', 'Car Detailer']);
+    dotenv.testLoad(
+        fileInput: 'GEMINI_API_KEY=test_key\nPLACES_API_KEY=test_key');
+
   });
 
   ProviderContainer createProviderContainer() {
@@ -37,6 +40,9 @@ void main() {
         imagePickerProvider.overrideWithValue(mockImagePicker),
         firestoreServicesProvider.overrideWithValue(mockFirestoreServices),
         portfolioRepositoryProvider.overrideWithValue(mockPortfolioRepository),
+        servicesStreamProvider.overrideWith((ref){
+          return Stream.value(['Nail Tech', 'Barber', 'Tattoo Artist', 'Car Detailer']);
+        })
       ],
     );
   }
@@ -44,7 +50,11 @@ void main() {
   Widget createPortfolioScreen(ProviderContainer container) {
     return UncontrolledProviderScope(
       container: container,
-      child: const MaterialApp(home: CreatePortfolioScreen()),
+      child: const MaterialApp(
+          home: CreatePortfolioScreen(
+        name: 'Professionals Name',
+        uid: 'test-uid',
+      )),
     );
   }
 
@@ -77,7 +87,8 @@ void main() {
       await tester.pumpWidget(createPortfolioScreen(container));
       await tester.pumpAndSettle();
       // Select a service (you'll need to adjust this based on your ChooseService widget implementation)
-      await tester.tap(find.byKey(const Key('Barber-button'))); // Assuming this exists
+      await tester
+          .tap(find.byKey(const Key('Barber-button'))); // Assuming this exists
       await tester.pumpAndSettle();
 
       await tester.tap(nextButton);
@@ -87,7 +98,7 @@ void main() {
       expect(find.byType(InputExperience), findsOneWidget);
     });
 
-     testWidgets('can pick images and proceed to more details screen',
+    testWidgets('can pick images and proceed to more details screen',
         (WidgetTester tester) async {
       final container = createProviderContainer();
       await tester.pumpWidget(createPortfolioScreen(container));
@@ -106,7 +117,8 @@ void main() {
       await tester.pumpAndSettle();
 
       // Mock file selection
-      when(mockImagePicker.pickMultiImage()).thenAnswer((_) async => [mockXFile, mockXFile, mockXFile, mockXFile, mockXFile]);
+      when(mockImagePicker.pickMultiImage()).thenAnswer(
+          (_) async => [mockXFile, mockXFile, mockXFile, mockXFile, mockXFile]);
       when(mockXFile.path).thenReturn('path/to/image');
 
       await tester.tap(find.byKey(const Key('image-picker-button')));
@@ -136,7 +148,8 @@ void main() {
       await tester.pumpAndSettle();
 
       // Mock file selection
-      when(mockImagePicker.pickMultiImage()).thenAnswer((_) async => [mockXFile, mockXFile]);
+      when(mockImagePicker.pickMultiImage())
+          .thenAnswer((_) async => [mockXFile, mockXFile]);
       when(mockXFile.path).thenReturn('path/to/image');
 
       await tester.tap(find.byKey(const Key('image-picker-button')));
@@ -147,10 +160,17 @@ void main() {
       expect(find.text('Please upload at least 5 images.'), findsOneWidget);
     });
 
-    testWidgets('can proceed through entire flow',
-        (WidgetTester tester) async {
-           when(mockPortfolioRepository.createPortfolio(
-        any, any, any, any, any,
+    testWidgets('can proceed through entire flow', (WidgetTester tester) async {
+      when(mockPortfolioRepository.createPortfolio(
+        any,
+        any,
+        any,
+        any,
+        any,
+        any,
+        any,
+        any,
+        any,
       )).thenAnswer((_) async {});
       final container = createProviderContainer();
       await tester.pumpWidget(createPortfolioScreen(container));
@@ -161,22 +181,39 @@ void main() {
       await tester.tap(nextButton);
       await tester.pumpAndSettle();
 
-
       await tester.enterText(find.byKey(const Key('Years-field')), '2');
       await tester.enterText(find.byKey(const Key('Months-field')), '6');
       await tester.tap(nextButton);
       await tester.pumpAndSettle();
 
       // Mock file selection
-      when(mockImagePicker.pickMultiImage()).thenAnswer((_) async => [mockXFile, mockXFile, mockXFile, mockXFile, mockXFile]);
+      when(mockImagePicker.pickMultiImage()).thenAnswer(
+          (_) async => [mockXFile, mockXFile, mockXFile, mockXFile, mockXFile]);
       when(mockXFile.path).thenReturn('path/to/image');
 
       await tester.tap(find.byKey(const Key('image-picker-button')));
       await tester.tap(nextButton);
       await tester.pumpAndSettle();
 
-       await tester.enterText(find.byKey(const Key('details-field')), 'Test portfolio details');
-       await tester.pumpAndSettle();
+      await tester.enterText(
+          find.byKey(const Key('details-field')), 'Test portfolio details');
+      await tester.pumpAndSettle();
+      await tester.tap(nextButton);
+      await tester.pumpAndSettle();
+
+      expect(
+          find.text(
+              "Enter your business location.\nOthers won't be able to see this."),
+          findsOneWidget);
+      final AddressAutocompleteTextField autocompleteField =
+          tester.widget(find.byType(AddressAutocompleteTextField));
+
+      final mockPlace =
+          Place(city: 'New York', state: 'NY', lat: 40.7128, lng: -74.0060);
+
+      autocompleteField.onSuggestionClick?.call(mockPlace);
+      await tester.pump();
+
       await tester.tap(nextButton);
       await tester.pumpAndSettle();
 
@@ -186,13 +223,17 @@ void main() {
         6,
         2,
         any,
+        mockPlace.formattedAddress,
+        {'latitude': 40.7128, 'longitude': -74.0060},
+        'Professionals Name',
+        'test-uid',
       )).called(1);
 
       // Verify navigation back
       expect(find.byType(CreatePortfolioScreen), findsNothing);
     });
 
-     testWidgets('can remove image from upload images screen',
+    testWidgets('can remove image from upload images screen',
         (WidgetTester tester) async {
       final container = createProviderContainer();
       await tester.pumpWidget(createPortfolioScreen(container));
@@ -211,7 +252,8 @@ void main() {
       await tester.pumpAndSettle();
 
       // Mock file selection
-      when(mockImagePicker.pickMultiImage()).thenAnswer((_) async => [mockXFile, mockXFile, mockXFile, mockXFile, mockXFile]);
+      when(mockImagePicker.pickMultiImage()).thenAnswer(
+          (_) async => [mockXFile, mockXFile, mockXFile, mockXFile, mockXFile]);
       when(mockXFile.path).thenReturn('path/to/image');
       await tester.tap(find.byKey(const Key('image-picker-button')));
       await tester.pumpAndSettle();

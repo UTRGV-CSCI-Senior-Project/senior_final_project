@@ -16,6 +16,7 @@ BuildContext context, FocusNode focusNode ,{bool isPassword = false}) {
       ),
       const Padding(padding: EdgeInsets.only(bottom: 5)),
       TextField(
+        onTap: () => focusNode.requestFocus,
         focusNode: focusNode,
         onChanged: onChanged,
         key: Key(key),

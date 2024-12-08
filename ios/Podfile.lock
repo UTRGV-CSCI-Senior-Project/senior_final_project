@@ -1,5 +1,5 @@
 PODS:
-  - cloud_firestore (5.4.4):
+  - cloud_firestore (5.5.0):
     - Firebase/Firestore (= 11.2.0)
     - firebase_core
     - Flutter
@@ -26,7 +26,7 @@ PODS:
   - Firebase/Storage (11.2.0):
     - Firebase/CoreOnly
     - FirebaseStorage (~> 11.2.0)
-  - firebase_auth (5.3.1):
+  - firebase_auth (5.3.3):
     - Firebase/Auth (= 11.2.0)
     - firebase_core
     - Flutter
@@ -37,11 +37,11 @@ PODS:
     - Firebase/Messaging (= 11.2.0)
     - firebase_core
     - Flutter
-  - firebase_storage (12.3.3):
+  - firebase_storage (12.3.6):
     - Firebase/Storage (= 11.2.0)
     - firebase_core
     - Flutter
-  - FirebaseAppCheckInterop (11.3.0)
+  - FirebaseAppCheckInterop (11.5.0)
   - FirebaseAuth (11.2.0):
     - FirebaseAppCheckInterop (~> 11.0)
     - FirebaseAuthInterop (~> 11.0)
@@ -51,14 +51,14 @@ PODS:
     - GoogleUtilities/Environment (~> 8.0)
     - GTMSessionFetcher/Core (~> 3.4)
     - RecaptchaInterop (~> 100.0)
-  - FirebaseAuthInterop (11.3.0)
+  - FirebaseAuthInterop (11.5.0)
   - FirebaseCore (11.2.0):
     - FirebaseCoreInternal (~> 11.0)
     - GoogleUtilities/Environment (~> 8.0)
     - GoogleUtilities/Logger (~> 8.0)
   - FirebaseCoreExtension (11.2.0):
     - FirebaseCore (~> 11.0)
-  - FirebaseCoreInternal (11.3.0):
+  - FirebaseCoreInternal (11.5.0):
     - "GoogleUtilities/NSData+zlib (~> 8.0)"
   - FirebaseFirestore (11.2.0):
     - FirebaseFirestoreBinary (= 11.2.0)
@@ -113,6 +113,8 @@ PODS:
     - GoogleUtilities/Environment (~> 8.0)
     - GTMSessionFetcher/Core (~> 3.4)
   - Flutter (1.0.0)
+  - geocoding_ios (1.0.5):
+    - Flutter
   - geolocator_apple (1.2.0):
     - Flutter
   - GoogleDataTransport (10.1.0):
@@ -147,7 +149,7 @@ PODS:
     - Flutter
   - integration_test (0.0.1):
     - Flutter
-  - leveldb-library (1.22.5)
+  - leveldb-library (1.22.6)
   - nanopb (3.30910.0):
     - nanopb/decode (= 3.30910.0)
     - nanopb/encode (= 3.30910.0)
@@ -175,6 +177,7 @@ DEPENDENCIES:
   - firebase_storage (from `.symlinks/plugins/firebase_storage/ios`)
   - FirebaseFirestore (from `https://github.com/invertase/firestore-ios-sdk-frameworks.git`, tag `11.2.0`)
   - Flutter (from `Flutter`)
+  - geocoding_ios (from `.symlinks/plugins/geocoding_ios/ios`)
   - geolocator_apple (from `.symlinks/plugins/geolocator_apple/ios`)
   - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
   - integration_test (from `.symlinks/plugins/integration_test/ios`)
@@ -232,6 +235,8 @@ EXTERNAL SOURCES:
     :tag: 11.2.0
   Flutter:
     :path: Flutter
+  geocoding_ios:
+    :path: ".symlinks/plugins/geocoding_ios/ios"
   geolocator_apple:
     :path: ".symlinks/plugins/geolocator_apple/ios"
   image_picker_ios:
@@ -253,20 +258,20 @@ CHECKOUT OPTIONS:
     :tag: 11.2.0
 
 SPEC CHECKSUMS:
-  cloud_firestore: 5cb927f1a8c9d748d6fdbf16c6b267956cb82c53
+  cloud_firestore: 7037135a443cf16e3fc1da9271e61b7e2bfa0825
   cloud_functions: b857ab7c2c26bd389e2a97041211d73608c1f3a3
   device_info_plus: bf2e3232933866d73fe290f2942f2156cdd10342
   Firebase: 98e6bf5278170668a7983e12971a66b2cd57fc8c
-  firebase_auth: 0c77e299a8f2d1c74d1b1f6b78b3d4d802c19f47
+  firebase_auth: baab82e89e578f3066a60331c8aeec0f4019a6d5
   firebase_core: 92849f23b6b7097c1bcd2cec52f1c4bcb33ab90a
   firebase_messaging: 40cdc11b2c25f9479f1a3795d586e8fdb89b98c5
-  firebase_storage: 65d4aea1e6a42b153b738412f7ac8b1c9bfa6206
-  FirebaseAppCheckInterop: 7789a8adfb09e905ce02a76540b94b059029ea81
+  firebase_storage: a2e562d5cb3c9c6267a3dfc24291218407154f2a
+  FirebaseAppCheckInterop: d265d9f4484e7ec1c591086408840fdd383d1213
   FirebaseAuth: 2a198b8cdbbbd457f08d74df7040feb0a0e7777a
-  FirebaseAuthInterop: c453b7ba7c49b88b2f519bb8d2e29edf7ada4a2a
+  FirebaseAuthInterop: 1219bee9b23e6ebe84c256a0d95adab53d11c331
   FirebaseCore: a282032ae9295c795714ded2ec9c522fc237f8da
   FirebaseCoreExtension: cda74ddfb001224bd8fd1d6e74698b4ed07803de
-  FirebaseCoreInternal: ac26d09a70c730e497936430af4e60fb0c68ec4e
+  FirebaseCoreInternal: f47dd28ae7782e6a4738aad3106071a8fe0af604
   FirebaseFirestore: bce39d24776dad48f7fad4ac42a9e805971a71b2
   FirebaseFirestoreAbseilBinary: fa2ebd2ed02cadef5382e4f7c93f1b265c812c85
   FirebaseFirestoreBinary: 819db6b2586c6f974c7a1f9d8c870609edbf6e5a
@@ -281,13 +286,14 @@ SPEC CHECKSUMS:
   FirebaseSharedSwift: 7a0d78d155ede78407f0fdc89fbc914014c7c540
   FirebaseStorage: 9353f926690b2329957860abfcbc8b4074fe45e8
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  geolocator_apple: 6cbaf322953988e009e5ecb481f07efece75c450
+  geocoding_ios: d7460f56e80e118d57678efe5c2cdc888739ff18
+  geolocator_apple: 9bcea1918ff7f0062d98345d238ae12718acfbc1
   GoogleDataTransport: aae35b7ea0c09004c3797d53c8c41f66f219d6a7
   GoogleUtilities: 26a3abef001b6533cf678d3eb38fd3f614b7872d
   GTMSessionFetcher: 5aea5ba6bd522a239e236100971f10cb71b96ab6
   image_picker_ios: c560581cceedb403a6ff17f2f816d7fea1421fc1
   integration_test: 252f60fa39af5e17c3aa9899d35d908a0721b573
-  leveldb-library: e8eadf9008a61f9e1dde3978c086d2b6d9b9dc28
+  leveldb-library: cc8b8f8e013647a295ad3f8cd2ddf49a6f19be19
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
   package_info_plus: c0502532a26c7662a62a356cebe2692ec5fe4ec4
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46

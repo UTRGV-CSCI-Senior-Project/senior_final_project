@@ -11,6 +11,8 @@ class UserModel {
   final String? _phoneNumber;
   final bool _isPhoneVerified;
   final List<String>? _fcmTokens;
+  double? _latitude;
+  double? _longitude;
 
   UserModel(
       {required String uid,
@@ -21,6 +23,8 @@ class UserModel {
       bool completedOnboarding = false,
       List<String> preferredServices = const [],
       String? profilePictureUrl,
+    double? latitude,
+    double? longitude,
     List<String>? fcmTokens,
       bool isEmailVerified = false,
       String? phoneNumber,
@@ -33,6 +37,8 @@ class UserModel {
         _completedOnboarding = completedOnboarding,
         _preferredServices = preferredServices,
         _profilePictureUrl = profilePictureUrl,
+        _latitude = latitude,
+        _longitude = longitude,
         _fcmTokens = fcmTokens,
         _isEmailVerified = isEmailVerified,
         _phoneNumber = phoneNumber,
@@ -59,7 +65,9 @@ class UserModel {
   bool get isEmailVerified => _isEmailVerified;
   String? get phoneNumber => _phoneNumber;
   bool get isPhoneVerified => _isPhoneVerified;
-  List<String>? get fcmTokens => _fcmTokens;
+  List<String>? get fcmTokens => _fcmTokens;  double? get latitude => _latitude;
+  double? get longitude => _longitude;
+
   toJson() {
     return {
       "uid": uid,
@@ -73,7 +81,9 @@ class UserModel {
       "isEmailVerified": isEmailVerified,
       "isPhoneVerified": isPhoneVerified,
       "phoneNumber": phoneNumber,
-      "fcmTokens": fcmTokens
+      "fcmTokens": fcmTokens,
+      "latitude": latitude,
+      "longitude": longitude,
     };
   }
 
@@ -92,17 +102,19 @@ class UserModel {
     }
 
     return UserModel(
-        uid: json['uid'] as String,
-        username: json['username'] as String,
-        fullName: json['fullName'] as String?,
-        email: json['email'] as String,
-        isProfessional: json['isProfessional'] as bool,
-        completedOnboarding: json['completedOnboarding'] ?? false,
-        preferredServices: (json['preferredServices'] as List<dynamic>?)
-                ?.map((e) => e as String)
-                .toList() ??
-            [],
-        profilePictureUrl: json['profilePictureUrl'] as String?,
+      uid: json['uid'] as String,
+      username: json['username'] as String,
+      fullName: json['fullName'] as String?,
+      email: json['email'] as String,
+      isProfessional: json['isProfessional'] as bool,
+      completedOnboarding: json['completedOnboarding'] ?? false,
+      preferredServices: (json['preferredServices'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          [],
+      profilePictureUrl: json['profilePictureUrl'] as String?,
+      latitude: json["latitude"] as double?,
+      longitude: json["longitude"] as double?,
         isEmailVerified: json['isEmailVerified'] ?? false,
         phoneNumber: json['phoneNumber'] as String?,
         isPhoneVerified: json['isPhoneVerified'] ?? false,

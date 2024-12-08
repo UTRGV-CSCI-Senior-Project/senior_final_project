@@ -20,7 +20,10 @@ class UserRepository {
       this._authServices, this._firestoreServices, this._storageServices, this._ref, this._cloudMessagingServices);
 
   Future<void> createUser(
-      String username, String email, String password) async {
+    String username,
+    String email,
+    String password,
+  ) async {
     try {
       bool usernameIsUnique =
           await _firestoreServices.isUsernameUnique(username);
@@ -233,6 +236,19 @@ class UserRepository {
         rethrow;
       }else{
         throw AppException('verify-sms-error');
+      }
+    }
+  }
+
+  Future<UserModel?> getOtherUser(String uid) async {
+    try{
+      return await _firestoreServices.getOtherUser(uid);
+    }catch(e){
+      if(e is AppException)
+      {
+        rethrow;
+      }else{
+        throw AppException('get-other-user-error');
       }
     }
   }

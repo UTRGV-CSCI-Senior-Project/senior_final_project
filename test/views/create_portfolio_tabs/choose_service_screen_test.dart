@@ -6,7 +6,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:folio/core/service_locator.dart';
 import 'package:folio/views/auth_onboarding_welcome/state_screens.dart';
 import 'package:folio/views/create_portfolio_tabs/choose_service_screen.dart';
-import 'package:mockito/mockito.dart';
 
 import '../../mocks/user_repository_test.mocks.dart';
 
@@ -21,15 +20,15 @@ void main() {
 
     testWidgets('displays loading indicator while fetching services',
         (WidgetTester tester) async {
-      final completer = Completer<List<String>>();
-
-      when(mockFirestoreServices.getServices())
-          .thenAnswer((_) => completer.future);
+  
 
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
             firestoreServicesProvider.overrideWithValue(mockFirestoreServices),
+            servicesStreamProvider.overrideWith((ref){
+              return Stream.value([]);
+            })
           ],
           child: MaterialApp(
             home: ChooseService(onServiceSelected: (_) {}),
@@ -42,13 +41,15 @@ void main() {
 
     testWidgets('displays error view when service fetch fails',
         (WidgetTester tester) async {
-      when(mockFirestoreServices.getServices())
-          .thenThrow(Exception('Failed to fetch'));
+
 
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
             firestoreServicesProvider.overrideWithValue(mockFirestoreServices),
+            servicesStreamProvider.overrideWith((ref){
+              return Stream.error(Exception('Failed to fetch'));
+            })
           ],
           child: MaterialApp(
             home: ChooseService(onServiceSelected: (_) {}),
@@ -62,13 +63,15 @@ void main() {
 
     testWidgets('allows service selection', (WidgetTester tester) async {
       String? selectedService;
-      when(mockFirestoreServices.getServices()).thenAnswer((_) async =>
-          ['Nail Tech', 'Barber', 'Tattoo Artist', 'Car Detailer']);
+
 
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
             firestoreServicesProvider.overrideWithValue(mockFirestoreServices),
+            servicesStreamProvider.overrideWith((ref){
+              return Stream.value(['Nail Tech', 'Barber', 'Tattoo Artist', 'Car Detailer']);
+            })
           ],
           child: MaterialApp(
             home: Scaffold(

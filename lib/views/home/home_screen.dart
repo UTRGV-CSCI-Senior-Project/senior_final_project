@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
@@ -16,10 +15,13 @@ import 'package:folio/views/settings/settings_screen.dart';
 import 'package:folio/views/auth_onboarding_welcome/state_screens.dart';
 import 'package:folio/views/auth_onboarding_welcome/welcome_screen.dart';
 import 'package:folio/widgets/email_verification_dialog.dart';
+import 'package:folio/widgets/request_location_dialog.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 final selectedIndexProvider = StateProvider<int>((ref) => 0);
 final hasShownEmailDialogProvider = StateProvider<bool>((ref) => false);
+final hasShownLocationPermissionDialog = StateProvider<bool>((ref) => false);
+final discoverSearchProvider = StateProvider<String?>((ref) => null);
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -109,6 +111,12 @@ void _checkAndShowEmailVerification() {
           }
 
           if (userModel.completedOnboarding) {
+            final hashShownLocationPermission =
+                ref.watch(hasShownLocationPermissionDialog);
+            if (!hashShownLocationPermission) {
+              _checkLocationPermission(context, ref);
+            }
+
             final selectedIndex = ref.watch(selectedIndexProvider);
             ref.listen(emailVerificationStreamProvider, (previous, next) {});
 
@@ -224,13 +232,15 @@ void _checkAndShowEmailVerification() {
                 index: selectedIndex,
                 children: [
                   HomeTab(userModel: userModel),
-                  const DiscoverTab(),
+                  DiscoverTab(userModel: userModel,),
                   InboxTab(userModel: userModel),
                   EditProfile(
                       userModel: userModel, portfolioModel: userPortfolio),
                 ],
               ),
-              bottomNavigationBar: NavigationBar(
+              bottomNavigationBar: MediaQuery.of(context).viewInsets.bottom > 0 ? const SizedBox.shrink() :
+              
+              NavigationBar(
                 height: MediaQuery.of(context).viewInsets.bottom + 50,
                 selectedIndex: selectedIndex,
                 onDestinationSelected: (index) {
@@ -289,5 +299,24 @@ void _checkAndShowEmailVerification() {
           );
         },
         loading: () => const LoadingScreen());
+  }
+}
+void _checkLocationPermission(BuildContext context, WidgetRef ref) async {
+  final locationService = ref.read(locationServiceProvider);
+
+  try {
+    bool hasPermission = await locationService.checkPermission();
+    ref.read(positionListenerProvider);
+    if (!hasPermission && context.mounted) {
+      bool? shouldRequestPermission = await showDialog<bool>(
+          context: context,
+          builder: (BuildContext dialogContext) => const RequestLocationDialog());
+      if (shouldRequestPermission ?? false) {
+        await locationService.openLocationSettings();
+      }
+      ref.read(hasShownLocationPermissionDialog.notifier).state = true;
+    }
+  } catch (e) {
+    return;
   }
 }

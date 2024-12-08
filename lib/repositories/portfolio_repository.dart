@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:folio/core/app_exception.dart';
+import 'package:folio/models/portfolio_model.dart';
 import 'package:folio/services/firestore_services.dart';
 import 'package:folio/services/storage_services.dart';
 
@@ -9,20 +10,33 @@ class PortfolioRepository {
 
   PortfolioRepository(this._firestoreServices, this._storageServices);
 
-  Future<void> createPortfolio(String service, String details, int months,
-      int years, List<File> images) async {
+  Future<void> createPortfolio(
+      String service,
+      String details,
+      int months,
+      int years,
+      List<File> images,
+      String? address,
+      Map<String, double?>? latAndLong,
+      String professionalsName,
+      String uid) async {
     try {
       final imageData = await _storageServices.uploadFilesForUser(images);
 
       final initialDate = DateTime.now();
-      await _firestoreServices.savePortfolioDetails({
-        'service': service,
-        'details': details,
-        'experienceStartDate': initialDate,
-        'years': years,
-        'months': months,
-        'images': imageData
-      });
+      final portfolio = PortfolioModel(
+          service: service,
+          details: details,
+          experienceStartDate: initialDate,
+          years: years,
+          months: months,
+          images: imageData,
+          address: address,
+          latAndLong: latAndLong,
+          professionalsName: professionalsName,
+          nameArray: professionalsName.split(' '),
+          uid: uid);
+      await _firestoreServices.savePortfolioDetails(portfolio.toJson());
 
       await _firestoreServices.addService(service);
 
@@ -97,6 +111,43 @@ class PortfolioRepository {
         rethrow;
       } else {
         throw AppException('delete-portfolio-error');
+      }
+    }
+  }
+
+  Future<List<PortfolioModel>> getNearbyPortfolios(
+      double lat, double long) async {
+    try {
+      return await _firestoreServices.getNearbyPortfolios(lat, long);
+    } catch (e) {
+      if (e is AppException) {
+        rethrow;
+      } else {
+        throw AppException('get-nearby-portfolios-error');
+      }
+    }
+  }
+
+  Future<List<PortfolioModel>> getAllPortfolios() async {
+    try {
+      return await _firestoreServices.getAllPortfolios();
+    } catch (e) {
+      if (e is AppException) {
+        rethrow;
+      } else {
+        throw AppException('get-nearby-portfolios-error');
+      }
+    }
+  }
+
+  Future<List<PortfolioModel>> getDiscoverPortfolios(List<String> searchQuery) async {
+    try{
+      return await _firestoreServices.discoverPortfolios(searchQuery);
+    } catch (e) {
+      if (e is AppException){
+        rethrow;
+      }else{
+        throw AppException('get-discover-portfolios-error');
       }
     }
   }

@@ -63,5 +63,15 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Folio uses photos</string>
+	<key>UIApplicationSupportsIndirectInputEvents</key>
+	<true/>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>We use your location to show nearby professionals.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>We need your location to always show nearby professionals, even when the app is in the background.</string>
 </dict>
 </plist>

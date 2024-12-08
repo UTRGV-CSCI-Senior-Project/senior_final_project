@@ -19,7 +19,8 @@ jobs:
       - name: Write firebase_options.dart
         run: echo '${{ secrets.FIREBASE_OPTIONS }}' > lib/firebase_options.dart
       - name: Write .env file
-        run: echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" >> .env
+        run: echo -e "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}\nPLACES_API_KEY=${{ secrets.PLACES_API_KEY }}" > .env
+        
       - name: Run Unit Tests
         run: flutter test
 
@@ -60,7 +61,7 @@ jobs:
       - name: Write firebase.json
         run: echo '${{ secrets.FIREBASE_JSON }}' > firebase.json
       - name: Write .env file
-        run: echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" >> .env
+        run: echo -e "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}\nPLACES_API_KEY=${{ secrets.PLACES_API_KEY }}" > .env
 
       - name: Install firebase tools
         run: npm install -g firebase-tools
@@ -74,7 +75,7 @@ jobs:
       - name: Run Integration Tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 29
+          api-level: 34
           target: google_apis
           arch: x86_64
           profile: Nexus 6
@@ -85,12 +86,6 @@ jobs:
     steps:
       - name: Clone Repository
         uses: actions/checkout@v4
-
-      - name: Erase all simulators
-        run: xcrun simctl erase all
-
-      - name: Shutdown all simulators
-        run: xcrun simctl shutdown all
 
       - name: Clean Xcode Derived Data
         run: rm -rf ~/Library/Developer/Xcode/DerivedData/*
@@ -118,7 +113,7 @@ jobs:
       - name: Write firebase.json
         run: echo '${{ secrets.FIREBASE_JSON }}' > firebase.json
       - name: Write .env file
-        run: echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" >> .env
+        run: echo -e "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}\nPLACES_API_KEY=${{ secrets.PLACES_API_KEY }}" > .env
 
       - name: Install firebase tools
         run: npm install -g firebase-tools

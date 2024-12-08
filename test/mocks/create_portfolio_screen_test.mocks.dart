@@ -6,6 +6,7 @@
 import 'dart:async' as _i3;
 import 'dart:io' as _i4;
 
+import 'package:folio/models/portfolio_model.dart' as _i5;
 import 'package:folio/repositories/portfolio_repository.dart' as _i2;
 import 'package:mockito/mockito.dart' as _i1;
 
@@ -38,6 +39,10 @@ class MockPortfolioRepository extends _i1.Mock
     int? months,
     int? years,
     List<_i4.File>? images,
+    String? address,
+    Map<String, double?>? latAndLong,
+    String? professionalsName,
+    String? uid,
   ) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -48,6 +53,10 @@ class MockPortfolioRepository extends _i1.Mock
             months,
             years,
             images,
+            address,
+            latAndLong,
+            professionalsName,
+            uid,
           ],
         ),
         returnValue: _i3.Future<void>.value(),
@@ -98,4 +107,33 @@ class MockPortfolioRepository extends _i1.Mock
         returnValue: _i3.Future<void>.value(),
         returnValueForMissingStub: _i3.Future<void>.value(),
       ) as _i3.Future<void>);
+
+  @override
+  _i3.Future<List<_i5.PortfolioModel>> getNearbyPortfolios(
+    double? lat,
+    double? long,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #getNearbyPortfolios,
+          [
+            lat,
+            long,
+          ],
+        ),
+        returnValue:
+            _i3.Future<List<_i5.PortfolioModel>>.value(<_i5.PortfolioModel>[]),
+      ) as _i3.Future<List<_i5.PortfolioModel>>);
+
+  @override
+  _i3.Future<List<_i5.PortfolioModel>> getDiscoverPortfolios(
+          List<String>? searchQuery) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #getDiscoverPortfolios,
+          [searchQuery],
+        ),
+        returnValue:
+            _i3.Future<List<_i5.PortfolioModel>>.value(<_i5.PortfolioModel>[]),
+      ) as _i3.Future<List<_i5.PortfolioModel>>);
 }

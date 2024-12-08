@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -143,7 +144,9 @@ class FirestoreServices {
         'isEmailVerified': FieldValue.delete(),
         'isPhoneVerified': FieldValue.delete(),
         'phoneNumber': FieldValue.delete(),
-        'fcmTokens': FieldValue.delete()
+        'fcmTokens': FieldValue.delete(),
+        'latitude': FieldValue.delete(),
+        'longitude': FieldValue.delete(),
       });
     } catch (e) {
       if (e is AppException && e.code == "no-user") {
@@ -172,7 +175,9 @@ class FirestoreServices {
       }
 
       try {
-        return PortfolioModel.fromJson(portfolioDoc.data()!);
+        final data = portfolioDoc.data()!;
+        data['uid'] ??= portfolioDoc.id;
+        return PortfolioModel.fromJson(data);
       } catch (e) {
         throw AppException('invalid-portfolio-data');
       }
@@ -195,7 +200,9 @@ class FirestoreServices {
         return null;
       }
       try {
-        return PortfolioModel.fromJson(snapshot.data()!);
+        final data = snapshot.data()!;
+        data['uid'] ??= snapshot.id;
+        return PortfolioModel.fromJson(data);
       } catch (e) {
         throw AppException('invalid-portfolio-data');
       }
@@ -282,6 +289,130 @@ class FirestoreServices {
     }
   }
 
+  Map<String, double> getBounds(
+      double centerLat, double centerLong, double radiusKm) {
+    const earthRadius = 6371.0;
+
+    double latDelta = (radiusKm / earthRadius) * (180 / pi);
+    double longDelta =
+        (radiusKm / (earthRadius * cos(centerLat * pi / 180))) * (180 / pi);
+
+    return {
+      'minLat': centerLat - latDelta,
+      'maxLat': centerLat + latDelta,
+      'minLong': centerLong - longDelta,
+      'maxLong': centerLong + longDelta
+    };
+  }
+
+  Future<List<PortfolioModel>> getNearbyPortfolios(
+      double lat, double lng) async {
+    try {
+      final bounds = getBounds(lat, lng, 32.1869);
+      final query = _firestore
+          .collection("portfolios")
+          .where('latAndLong.longitude',
+              isGreaterThanOrEqualTo: bounds['minLong'])
+          .where('latAndLong.longitude', isLessThanOrEqualTo: bounds['maxLong'])
+          .where('latAndLong.latitude',
+              isGreaterThanOrEqualTo: bounds['minLat'])
+          .where('latAndLong.latitude', isLessThanOrEqualTo: bounds['maxLat']);
+      final querySnapshot = await query.get();
+      return querySnapshot.docs.map((doc) {
+        final data = doc.data();
+        data['uid'] ??= doc.id;
+        return PortfolioModel.fromJson(data);
+      }).toList();
+    } catch (e) {
+      if (e is AppException) {
+        rethrow;
+      } else {
+        throw AppException('get-portfolios-error');
+      }
+    }
+  }
+
+  Future<List<PortfolioModel>> getAllPortfolios() async {
+    try {
+      final query = _firestore
+          .collection("portfolios");
+         
+      final querySnapshot = await query.get();
+      return querySnapshot.docs.map((doc) {
+        final data = doc.data();
+        data['uid'] ??= doc.id;
+        return PortfolioModel.fromJson(data);
+      }).toList();
+    } catch (e) {
+      if (e is AppException) {
+        rethrow;
+      } else {
+        throw AppException('get-portfolios-error');
+      }
+    }
+  }
+
+  Future<List<PortfolioModel>> discoverPortfolios(
+      List<String> searchQuery) async {
+    try {
+      if (searchQuery.isEmpty) {
+        return [];
+      }
+
+      // Run two queries: one for professionalsName and one for service
+      final nameQuery = _firestore
+          .collection('portfolios')
+          .where('nameArray', arrayContainsAny: searchQuery)
+          .get();
+
+      final serviceQuery = _firestore
+          .collection('portfolios')
+          .where('service', whereIn: searchQuery)
+          .get();
+
+      // Wait for both queries to complete
+      final results = await Future.wait([nameQuery, serviceQuery]);
+
+      final nameResults = results[0].docs.map((doc) {
+        final data = doc.data();
+        // If uid is missing, add it from doc.id
+        if (data['uid'] == null) {
+          data['uid'] = doc.id;
+        }
+        return PortfolioModel.fromJson(data);
+      }).toList();
+
+      final serviceResults = results[1].docs.map((doc) {
+        final data = doc.data();
+        // If uid is missing, add it from doc.id
+        if (data['uid'] == null) {
+          data['uid'] = doc.id;
+        }
+        return PortfolioModel.fromJson(data);
+      }).toList();
+
+      // Merge results and remove duplicates based on a unique identifier
+      final allResults = [
+        ...nameResults,
+        ...serviceResults,
+      ];
+
+      final uniqueResults = allResults.fold<Map<String, PortfolioModel>>(
+        {},
+        (map, result) {
+          map[result.uid] = result;
+          return map;
+        },
+      );
+      return uniqueResults.values.toList();
+    } catch (e) {
+      if (e is AppException) {
+        rethrow;
+      } else {
+        throw AppException('discover-portfolios-error');
+      }
+    }
+  }
   ///////////////////////// SERVICE COLLECTION /////////////////////////
 
   Future<List<String>> getServices() async {
@@ -298,8 +429,21 @@ class FirestoreServices {
     }
   }
 
+  Stream<List<String>> getServicesStream() {
+    try {
+    return _firestore
+        .collection('services')
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) => doc.get('service') as String)
+            .toList());
+  } catch (e) {
+    throw AppException('get-services-stream-error');
+  }
+  }
+
   Future<void> addService(String service) async {
-    try{
+    try {
       final serviceRef = _firestore.collection('services').doc(service);
       final serviceDoc = await serviceRef.get();
 
@@ -307,13 +451,13 @@ class FirestoreServices {
         return;
       } else {
         await serviceRef.set({
-        'service': service,
+          'service': service,
         });
       }
-    }catch (e){
-      if(e is AppException){
+    } catch (e) {
+      if (e is AppException) {
         rethrow;
-      }else{
+      } else {
         throw AppException('add-service-error');
       }
     }
@@ -331,6 +475,7 @@ class FirestoreServices {
       throw AppException('add-feedback-error');
     }
   }
+
   ///////////////////////// FEEDBACK COLLECTION /////////////////////////
 
   ///////////////////////// MESSAGE COLLECTION /////////////////////////
@@ -339,19 +484,19 @@ class FirestoreServices {
     try {
       final userOne = await getUser();
       if (userOne != null) {
-      
-      final userIds = chatroomId.split('_');
-      final otherUserId =
-          userIds.first == userOne.uid ? userIds.last : userIds.first;
-      final userTwo = await getOtherUser(otherUserId);
+        final userIds = chatroomId.split('_');
+        final otherUserId =
+            userIds.first == userOne.uid ? userIds.last : userIds.first;
+        final userTwo = await getOtherUser(otherUserId);
 
-      if (userTwo != null) {
-        final participantOne = ChatParticipant.fromUserModel(userOne);
-        final participantTwo = ChatParticipant.fromUserModel(userTwo);
-        return [participantOne, participantTwo];
-      } else {
-        throw AppException('no-chat-participant');
-      }}
+        if (userTwo != null) {
+          final participantOne = ChatParticipant.fromUserModel(userOne);
+          final participantTwo = ChatParticipant.fromUserModel(userTwo);
+          return [participantOne, participantTwo];
+        } else {
+          throw AppException('no-chat-participant');
+        }
+      }
       return [];
     } catch (e) {
       if (e is AppException) {

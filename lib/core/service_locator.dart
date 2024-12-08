@@ -5,6 +5,8 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:folio/models/messaging_models/chatroom_model.dart';
+import 'package:folio/controller/user_location_controller.dart';
+import 'package:folio/models/portfolio_model.dart';
 import 'package:folio/models/user_model.dart';
 import 'package:folio/repositories/feedback_repository.dart';
 import 'package:folio/repositories/message_repository.dart';
@@ -15,6 +17,7 @@ import 'package:folio/services/cloud_messaging_services.dart';
 import 'package:folio/services/firestore_services.dart';
 import 'package:folio/services/gemini_services.dart';
 import 'package:folio/services/storage_services.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:rxdart/rxdart.dart';
 import 'dart:developer' as developer;
@@ -38,11 +41,11 @@ final firebaseStorageProvider = Provider<FirebaseStorage>((ref) {
   return FirebaseStorage.instance;
 });
 
-final firebaseFunctions = Provider<FirebaseFunctions>((ref) {
+final firebaseFunctionsProvider = Provider<FirebaseFunctions>((ref) {
   return FirebaseFunctions.instance;
 });
 
-final firebaseMessaging = Provider<FirebaseMessaging>((ref) {
+final firebaseMessagingProvider = Provider<FirebaseMessaging>((ref) {
   return FirebaseMessaging.instance;
 });
 
@@ -67,15 +70,14 @@ final storageServicesProvider = Provider<StorageServices>((ref) {
 
 final cloudMessagingServicesProvider = Provider<CloudMessagingServices>((ref) {
   final firestoreServices = ref.read(firestoreServicesProvider);
-  final firebaseMessaging = FirebaseMessaging.instance;
-  final firebaseFunctions = FirebaseFunctions.instance;
+  final firebaseMessaging = ref.read(firebaseMessagingProvider);
+  final firebaseFunctions = ref.read(firebaseFunctionsProvider);
 
   return CloudMessagingServices(firebaseMessaging, firestoreServices, firebaseFunctions);
 });
 
 final geminiServicesProvider = Provider<GeminiServices>((ref){
-  final firestoreServices = ref.read(firestoreServicesProvider);
-  return GeminiServices(firestoreServices);
+  return GeminiServices(ref);
 });
 
 ////////////////// SERVICE FILES //////////////////
@@ -175,7 +177,50 @@ final chatroomStreamProvider = StreamProvider<List<ChatroomModel>>((ref) {
   }
 });
 
+final servicesStreamProvider = StreamProvider<List<String>>((ref){
+  final firestoreServices = ref.watch(firestoreServicesProvider);
+  return  firestoreServices.getServicesStream();
+});
+
 ////////////////// STREAMS //////////////////
+///
+final locationServiceProvider = Provider<LocationService>((ref){
+   GeolocatorPlatform geolocatorPlatform = GeolocatorPlatform.instance;
+   GeocodingService geocodingService = GeocodingService();
+      return LocationService(geolocatorPlatform, geocodingService);
+    
+});
+
+final positionStreamProvider = StreamProvider<Position>((ref){
+  final locationService = ref.watch(locationServiceProvider);
+  return locationService.getPositionStream();
+});
+
+final currentPositionProvider = StateProvider<Position?>((ref) => null);
+
+final positionListenerProvider = Provider<void>((ref) {
+  ref.listen<AsyncValue<Position>>(positionStreamProvider, (previous, next) {
+    next.whenData((position) {
+      ref.read(currentPositionProvider.notifier).state = position;
+    });
+  });
+});
+
+final nearbyPortfoliosProvider = FutureProvider<List<PortfolioModel>>((ref) async {
+  final positionAsyncValue = ref.watch(positionStreamProvider);
+  return positionAsyncValue.when(data: (position) async {
+    if (position.latitude >= -90 && position.latitude <= 90 &&
+          position.longitude >= -180 && position.longitude <= 180) {
+        return await ref.read(portfolioRepositoryProvider).getNearbyPortfolios(position.latitude, position.longitude);
+      }      return [];
+  }, loading: () => [],
+    error: (error, stack) => [],);
+});
+
+final allPortfoliosProvider = FutureProvider<List<PortfolioModel>>((ref) async {
+  final portfolioRepo = ref.read(portfolioRepositoryProvider);
+  return portfolioRepo.getAllPortfolios();
+});
 
 void setupEmulators({bool useEmulators = false}) {
   if (useEmulators) {

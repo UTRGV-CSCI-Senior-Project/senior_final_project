@@ -5,6 +5,7 @@ import 'package:folio/core/service_locator.dart';
 import 'package:folio/models/messaging_models/chat_participant_model.dart';
 import 'package:folio/models/messaging_models/chatroom_model.dart';
 import 'package:folio/models/messaging_models/message_model.dart';
+import 'package:folio/models/portfolio_model.dart';
 import 'package:folio/models/user_model.dart';
 import 'package:folio/views/home/chatroom_screen.dart';
 import 'package:folio/widgets/account_item_widget.dart';
@@ -16,15 +17,19 @@ import 'package:folio/widgets/error_widget.dart';
 import 'package:folio/widgets/input_field_widget.dart';
 import 'package:folio/widgets/logout_dialog.dart';
 import 'package:folio/widgets/message_tile_widget.dart';
+import 'package:folio/widgets/portfolio_card.dart';
+import 'package:folio/widgets/portfolio_list_item.dart';
 import 'package:folio/widgets/service_selection_widget.dart';
 import 'package:folio/widgets/settings_item_widget.dart';
+import 'package:folio/widgets/sort_filter_sheet.dart';
 import 'package:folio/widgets/update_email_dialog.dart';
 import 'package:folio/widgets/verify_password_dialog.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:mockito/mockito.dart';
 
+import '../../integration_test/app_test.dart';
 import '../mocks/inbox_tab_test.mocks.dart';
-import '../mocks/login_screen_test.mocks.dart';
-import '../mocks/onboarding_screen_test.mocks.dart';
+import '../mocks/signup_screen_test.mocks.dart';
 import '../mocks/user_repository_test.mocks.dart';
 
 class MockBuildContext extends Mock implements BuildContext {}
@@ -807,7 +812,11 @@ void main() {
                 body: ChatRoomTile(
                     chatroom: mockChatroom,
                     currentUserId: 'user1',
-                    senderName: 'User One'),
+                    sender: UserModel(
+        uid: 'user123',
+        email: 'test@example.com',
+        username: 'username',
+        isProfessional: false)),
               ),
             ),
           ),
@@ -848,7 +857,11 @@ void main() {
                 body: ChatRoomTile(
                     chatroom: mockChatroom,
                     currentUserId: 'user1',
-                    senderName: 'User One'),
+                    sender: UserModel(
+        uid: 'user123',
+        email: 'test@example.com',
+        username: 'username',
+        isProfessional: false)),
               ),
             ),
           ),
@@ -900,7 +913,6 @@ void main() {
       // Check alignment
       final align = tester.widget<Align>(find.byType(Align));
       expect(align.alignment, Alignment.centerRight);
-
     });
 
     testWidgets(
@@ -930,11 +942,187 @@ void main() {
         expect(align.alignment, Alignment.centerLeft);
 
         final container = tester.widget<Container>(find.byType(Container));
-      final decoration = container.decoration as BoxDecoration;
+        final decoration = container.decoration as BoxDecoration;
 
-      // Check color
-      expect(decoration.color, Colors.grey[600]);
+        // Check color
+        expect(decoration.color, Colors.grey[600]);
       },
     );
+  });
+
+  group('PortfolioCard', () {
+    final mockLocationService = MockLocationService();
+    final testPortfolio = PortfolioModel(
+      uid: '123',
+      professionalsName: 'John Doe',
+      service: 'Photography',
+      latAndLong: {'latitude': 40.7128, 'longitude': -74.0060},
+      address: '1234s Street',
+      images: [],
+    );
+    final testUser = UserModel(
+        uid: 'user123',
+        email: 'test@example.com',
+        username: 'username',
+        isProfessional: false);
+
+    testWidgets('PortfolioCard renders correctly', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            currentPositionProvider.overrideWith((ref) {
+              return Position(
+                  latitude: 40.64,
+                  longitude: -74.0059,
+                  timestamp: DateTime.now(),
+                  accuracy: 10.0,
+                  altitude: 0.0,
+                  heading: 0.0,
+                  speed: 0.0,
+                  speedAccuracy: 0.0,
+                  altitudeAccuracy: 0,
+                  headingAccuracy: 0);
+            }),
+            locationServiceProvider.overrideWithValue(mockLocationService),
+          ],
+          child: MaterialApp(
+            home: Scaffold(
+              body: PortfolioCard(
+                portfolio: testPortfolio,
+                currentUser: testUser,
+              ),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('John Doe'), findsOneWidget);
+
+      expect(find.text('Photography'), findsOneWidget);
+
+      expect(find.text('5 mi away'), findsOneWidget);
+
+      expect(find.byKey(const Key('view-portfolio-button')), findsOneWidget);
+    });
+  });
+
+  group('PortfolioListItem', () {
+    final mockLocationService = MockLocationService();
+    final testPortfolio = PortfolioModel(
+      uid: '123',
+      professionalsName: 'John Doe',
+      service: 'Photography',
+      latAndLong: {'latitude': 40.7128, 'longitude': -74.0060},
+      address: '1234s Street',
+      images: [],
+    );
+    final testUser = UserModel(
+        uid: 'user123',
+        email: 'test@example.com',
+        username: 'username',
+        isProfessional: false);
+
+    testWidgets('PortfolioCard renders correctly', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            currentPositionProvider.overrideWith((ref) {
+              return Position(
+                  latitude: 40.64,
+                  longitude: -74.0059,
+                  timestamp: DateTime.now(),
+                  accuracy: 10.0,
+                  altitude: 0.0,
+                  heading: 0.0,
+                  speed: 0.0,
+                  speedAccuracy: 0.0,
+                  altitudeAccuracy: 0,
+                  headingAccuracy: 0);
+            }),
+            locationServiceProvider.overrideWithValue(mockLocationService),
+          ],
+          child: MaterialApp(
+            home: Scaffold(
+              body: PortfolioListItem(
+                portfolio: testPortfolio,
+                currentUser: testUser,
+              ),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('John Doe'), findsOneWidget);
+
+      expect(find.text('Photography'), findsOneWidget);
+
+      expect(find.text('5 mi away'), findsOneWidget);
+    });
+  });
+
+  group('SortAndFilterSheet', () {
+    Widget createTestWidget() {
+      return ProviderScope(
+        overrides: [
+          firestoreServicesProvider.overrideWithValue(mockFirestoreServices),
+        ],
+        child: MaterialApp(
+          home: Scaffold(
+            body: Builder(
+              builder: (context) {
+                return ElevatedButton(
+                  onPressed: () {
+                    showSortFilterSheet(
+                      context,
+                      'Distance',
+                      'Ascending',
+                      10.0,
+                      ['Service1'],
+                    );
+                  },
+                  child: const Text('Open Sheet'),
+                );
+              },
+            ),
+          ),
+        ),
+      );
+    }
+
+    testWidgets('shows SortFilterSheet and interacts with options',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(createTestWidget());
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Open Sheet'));
+      await tester.pumpAndSettle();
+      when(mockFirestoreServices.getServices())
+          .thenAnswer((_) async => ['Service1', 'Service2', 'Service3']);
+
+      expect(find.text('Sort and Filter'), findsOneWidget);
+
+      await tester.tap(find.text('Distance'));
+      await tester.pumpAndSettle();
+      expect(find.text('Name'), findsOneWidget);
+      await tester.tap(find.text('Name').last);
+      await tester.pumpAndSettle();
+      expect(find.text('Name'), findsOneWidget);
+      await tester.scrollUntilVisible(find.byKey(const Key('add-radius')), 50);
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('add-radius')));
+      await tester.pump();
+      expect(find.text('15 mi'), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('remove-radius')));
+      await tester.pump();
+      expect(find.text('10 mi'), findsOneWidget);
+      await tester.tap(find.byIcon(Icons.search));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byType(TextField), 'Service1');
+      await tester.pumpAndSettle();
+      expect(find.text('Service1'), findsOneWidget);
+      expect(find.text('Service2'), findsNothing);
+    });
   });
 }

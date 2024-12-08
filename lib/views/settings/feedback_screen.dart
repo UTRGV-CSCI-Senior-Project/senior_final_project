@@ -30,9 +30,6 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
 
     @override
   void initState(){
-    _subjectFocusNode.addListener(() => _scrollToFocused(_subjectFocusNode));
-    _messageFocusNode.addListener(() => _scrollToFocused(_messageFocusNode));
-
     super.initState();
   }
 
@@ -48,7 +45,7 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
       : 'Please describe your question or concern in detail';
 
   Future<void> _submitFeedback() async {
-    if(_subjectController.text.trim().isEmpty || _messageController.text.trim().isEmpty){
+    if(_subjectController.text.trim().isEmpty || _messageController.text.trim().isEmpty || _subjectController.text.trim().length <5 || _messageController.text.trim().length < 10 ){
        if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -103,7 +100,9 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
               showCloseIcon: true,
               behavior: SnackBarBehavior.floating,
               content: Text(
-                  e is AppException ? e.message : 'Authentication Failed',
+                  e is AppException ? e.message : widget.type == 'bug'
+                      ? 'There was an error sending your report! Please try again later.'
+                      : 'There was an error sending your  request! Please try again later.',
                   style: GoogleFonts.inter(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -117,22 +116,14 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
     }
   }
 
- void _scrollToFocused(FocusNode focusNode){
-    if (focusNode.hasFocus) {
-      _scrollController.animateTo(
-        150.0, // Adjust this value based on your UI layout
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
-    }
-  }
-
 
 
   @override
   void dispose() {
     _subjectController.dispose();
     _messageController.dispose();
+    _subjectFocusNode.dispose();
+    _messageFocusNode.dispose();
     super.dispose();
   }
 
@@ -187,7 +178,11 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
           ),
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-        floatingActionButton: Container(width: double.infinity, padding: const EdgeInsets.all(10), child: ElevatedButton(
+        floatingActionButton: Container(
+          width: double.infinity, padding: const EdgeInsets.all(10), child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: _isSubmitting ? Colors.grey[400] : null
+            ),
                       key: const Key('submit-feedback-button'),
                       onPressed: _isSubmitting ? null : _submitFeedback,
                       child: _isSubmitting

@@ -13,6 +13,7 @@ void showEditProfileSheet(BuildContext context, UserModel userModel) {
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
+    useSafeArea: true,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     ),
@@ -86,9 +87,22 @@ class _EditProfileSheetState extends ConsumerState<EditProfileSheet> {
   }
 
   void _updateProfile() async {
-    if (usernameController.text.isEmpty || nameController.text.isEmpty) {
+    if (usernameController.text.trim().isEmpty || nameController.text.trim().isEmpty) {
       setState(() {
         errorMessage = "Please fill in all necessary fields.";
+      });
+      return;
+    }
+
+    if (usernameController.text.trim().length < 3) {
+      setState(() {
+        errorMessage = "Your username must be at least 3 characters long.";
+      });
+      return;
+    }
+    if (nameController.text.trim().length < 2) {
+      setState(() {
+        errorMessage = "Your name must be at least 2 letters long.";
       });
       return;
     }
@@ -130,6 +144,9 @@ class _EditProfileSheetState extends ConsumerState<EditProfileSheet> {
         await ref
             .read(userRepositoryProvider)
             .updateProfile(profilePicture: profilePicture, fields: updates);
+        if(widget.userModel.isProfessional && updates.containsKey('fullName')){
+          await ref.read(portfolioRepositoryProvider).updatePortfolio(fields: {'professionalsName': updates['fullName'], 'nameArray': updates['fullName'].split(' ')});
+        }
       }
 
       if (mounted) {
@@ -349,6 +366,8 @@ class _EditProfileSheetState extends ConsumerState<EditProfileSheet> {
               child: TextButton(
                 key: const Key('update-button'),
                 style: TextButton.styleFrom(
+                   backgroundColor: isLoading ? Colors.grey[400] :
+                                Theme.of(context).colorScheme.primary,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),

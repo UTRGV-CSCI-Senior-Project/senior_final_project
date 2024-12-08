@@ -324,6 +324,53 @@ class MockFirestoreServices extends _i1.Mock implements _i6.FirestoreServices {
       ) as _i3.Future<void>);
 
   @override
+  Map<String, double> getBounds(
+    double? centerLat,
+    double? centerLong,
+    double? radiusKm,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #getBounds,
+          [
+            centerLat,
+            centerLong,
+            radiusKm,
+          ],
+        ),
+        returnValue: <String, double>{},
+      ) as Map<String, double>);
+
+  @override
+  _i3.Future<List<_i8.PortfolioModel>> getNearbyPortfolios(
+    double? lat,
+    double? lng,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #getNearbyPortfolios,
+          [
+            lat,
+            lng,
+          ],
+        ),
+        returnValue:
+            _i3.Future<List<_i8.PortfolioModel>>.value(<_i8.PortfolioModel>[]),
+      ) as _i3.Future<List<_i8.PortfolioModel>>);
+
+  @override
+  _i3.Future<List<_i8.PortfolioModel>> discoverPortfolios(
+          List<String>? searchQuery) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #discoverPortfolios,
+          [searchQuery],
+        ),
+        returnValue:
+            _i3.Future<List<_i8.PortfolioModel>>.value(<_i8.PortfolioModel>[]),
+      ) as _i3.Future<List<_i8.PortfolioModel>>);
+
+  @override
   _i3.Future<List<String>> getServices() => (super.noSuchMethod(
         Invocation.method(
           #getServices,
@@ -331,6 +378,15 @@ class MockFirestoreServices extends _i1.Mock implements _i6.FirestoreServices {
         ),
         returnValue: _i3.Future<List<String>>.value(<String>[]),
       ) as _i3.Future<List<String>>);
+
+  @override
+  _i3.Stream<List<String>> getServicesStream() => (super.noSuchMethod(
+        Invocation.method(
+          #getServicesStream,
+          [],
+        ),
+        returnValue: _i3.Stream<List<String>>.empty(),
+      ) as _i3.Stream<List<String>>);
 
   @override
   _i3.Future<void> addService(String? service) => (super.noSuchMethod(

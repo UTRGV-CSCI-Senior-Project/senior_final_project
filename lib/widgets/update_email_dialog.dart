@@ -62,6 +62,10 @@ void updateAccountDialog(BuildContext context, String title, String description,
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
                 child: TextButton(
+                  style: TextButton.styleFrom(
+                     backgroundColor: isLoading ? Colors.grey[400] :
+                                Theme.of(context).colorScheme.primary,
+                  ),
                     onPressed: () async {
                       setState(() {
                         isLoading = true;

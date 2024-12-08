@@ -162,6 +162,10 @@ class _PhoneVerificationFlowState extends ConsumerState<PhoneVerificationFlow> {
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: TextButton(
+              style: TextButton.styleFrom(
+ backgroundColor: _isLoading ? Colors.grey[400] :
+                                Theme.of(context).colorScheme.primary,
+              ),
               key: const Key('send-code-button'),
               onPressed: _isLoading ? null : () => _handlePhoneVerification(),
               child: _isLoading

@@ -3,17 +3,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:folio/core/service_locator.dart';
 import 'package:folio/models/messaging_models/chat_participant_model.dart';
 import 'package:folio/models/messaging_models/message_model.dart';
+import 'package:folio/models/user_model.dart';
 import 'package:folio/widgets/message_tile_widget.dart';
 
 class ChatroomScreen extends ConsumerStatefulWidget {
   final String chatroomId;
   final ChatParticipant otherParticipant;
-  final String senderName;
+  final UserModel sender;
   const ChatroomScreen(
       {super.key,
       required this.chatroomId,
       required this.otherParticipant,
-      required this.senderName});
+      required this.sender});
 
   @override
   ConsumerState<ChatroomScreen> createState() => _ChatroomScreenState();
@@ -31,9 +32,30 @@ class _ChatroomScreenState extends ConsumerState<ChatroomScreen> {
       ),
       body: SafeArea(
           child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
+        padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
         child: Column(
           children: [
+            // if (!widget.sender.isEmailVerified || !widget.sender.isPhoneVerified)
+            // Container(
+            //   color: Colors.amberAccent,
+            //   padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+            //   child: Row(
+            //     children: [
+            //       const Icon(Icons.warning, color: Colors.black54),
+            //       const SizedBox(width: 8),
+            //       Expanded(
+            //         child: Text(
+            //           !widget.sender.isEmailVerified && !widget.sender.isPhoneVerified
+            //               ? 'Your email and phone number are not verified. Please verify to enable messaging.'
+            //               : !widget.sender.isEmailVerified
+            //                   ? 'Your email is not verified. Please verify to enable messaging.'
+            //                   : 'Your phone number is not verified. Please verify to enable messaging.',
+            //           style: const TextStyle(color: Colors.black87),
+            //         ),
+            //       ),
+            //     ],
+            //   ),
+            // ),
             Expanded(
               child: StreamBuilder<List<MessageModel>>(
                 stream: ref
@@ -48,7 +70,11 @@ class _ChatroomScreenState extends ConsumerState<ChatroomScreen> {
                       child: Text('Error: ${snapshot.error}'),
                     );
                   }
+
                   final messages = snapshot.data ?? [];
+                  if (messages.isEmpty) {
+                    return const Center(child: Text('No messages yet'));
+                  }
                   return ListView.builder(
                     reverse: true,
                     itemCount: messages.length,
@@ -91,7 +117,9 @@ class _ChatroomScreenState extends ConsumerState<ChatroomScreen> {
                   // Send Button
                   ElevatedButton(
                     key: const Key('send-message-button'),
-                    onPressed: () async {
+                    onPressed: 
+                    // (widget.sender.isEmailVerified && widget.sender.isPhoneVerified) ?
+                    () async {
                       if (_messageController.text.isEmpty) {
                         return;
                       } else {
@@ -100,7 +128,7 @@ class _ChatroomScreenState extends ConsumerState<ChatroomScreen> {
                         });
                         try {
                           await ref.read(messageRepositoryProvider).sendMessage(
-                              widget.senderName,
+                              widget.sender.fullName ?? widget.sender.username,
                               widget.otherParticipant.uid,
                               _messageController.text,
                               widget.otherParticipant.fcmTokens);
@@ -113,8 +141,9 @@ class _ChatroomScreenState extends ConsumerState<ChatroomScreen> {
                           });
                         }
                       }
-                    },
-                    style: ElevatedButton.styleFrom(
+                    } 
+                    // : null
+                    ,style: ElevatedButton.styleFrom(
                       backgroundColor: Theme.of(context)
                           .colorScheme
                           .tertiary
@@ -125,7 +154,7 @@ class _ChatroomScreenState extends ConsumerState<ChatroomScreen> {
                     child: _isLoading
                         ? CircularProgressIndicator(
                             color: Theme.of(context).colorScheme.onPrimary,
-                            strokeWidth: 2,
+                            strokeWidth: 5,
                           )
                         : const Icon(Icons.send),
                   ),

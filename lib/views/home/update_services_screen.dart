@@ -52,70 +52,90 @@ class _UpdateServicesScreenState extends ConsumerState<UpdateServicesScreen> {
     if (debounce?.isActive ?? false) {
       debounce?.cancel();
     }
-    debounce = Timer(const Duration(seconds: 1), () async {
+    debounce = Timer(const Duration(milliseconds: 700), () async {
       final query = searchController.text.trim();
       if (query.isNotEmpty) {
         filterServices(query);
       } else {
-        setState(() {
-          filteredServices = services;
-        });
+        if (context.mounted) {
+          setState(() {
+            filteredServices = services;
+          });
+        }
       }
     });
   }
 
   Future<void> loadCurrentInterests() async {
     try {
-      final firestoreServices = ref.read(firestoreServicesProvider);
 
-      final fetchedServices = await firestoreServices.getServices();
-      setState(() {
-        services = fetchedServices;
-        selectedServices = {
-          for (var service in services)
-            service: widget.selectedServices.contains(service)
-        };
+      final fetchedServices = await ref.read(servicesStreamProvider.future);
+      if (context.mounted) {
+        setState(() {
+          services = fetchedServices;
+          selectedServices = {
+            for (var service in services)
+              service: widget.selectedServices.contains(service)
+          };
 
-        isLoading = false;
-      });
+          isLoading = false;
+        });
+      }
     } catch (e) {
-      setState(() {
-        errorMessage = "Failed to load services. Please try again.";
-        isLoading = false;
-      });
+      if (context.mounted) {
+        setState(() {
+          errorMessage = "Failed to load services. Please try again.";
+          isLoading = false;
+        });
+      }
     }
   }
 
   void filterServices(String query) async {
-    final filtered = services
-        .where((service) => service.toLowerCase().contains(query.toLowerCase()))
-        .toList();
-    if (filtered.isNotEmpty) {
-      setState(() {
-        filteredServices = filtered;
-      });
-    } else {
-      final aiSearchResults =
-          await ref.read(geminiServicesProvider).aiSearch(query);
-          if(aiSearchResults.isNotEmpty){
-      setState(() {
-        filteredServices = aiSearchResults;
-      });
+    if (query.isNotEmpty) {
+      final filtered = services
+          .where(
+              (service) => service.toLowerCase().contains(query.toLowerCase()))
+          .toList();
+      if (filtered.isNotEmpty) {
+        if (context.mounted) {
+          setState(() {
+            filteredServices = filtered;
+          });
+        }
+      } else {
+        final aiSearchResults =
+            await ref.read(geminiServicesProvider).aiSearch(query);
+        if (aiSearchResults.isNotEmpty) {
+          if (context.mounted) {
+            setState(() {
+              filteredServices = aiSearchResults;
+            });
           }
+        } else {
+          setState(() {
+            filteredServices = services;
+          });
+        }
+      }
     }
   }
 
   Future<void> updateServices() async {
     if (!selectedServices.values.any((selected) => selected)) {
-      setState(() {
-        errorMessage = "Please select at least one.";
-      });
+      if (context.mounted) {
+        setState(() {
+          errorMessage = "Please select at least one.";
+        });
+      }
       return;
     }
-    setState(() {
-      isSaving = true;
-      errorMessage = "";
-    });
+    if (context.mounted) {
+      setState(() {
+        isSaving = true;
+        errorMessage = "";
+      });
+    }
     try {
       final selectedServicesList = selectedServices.entries
           .where((entry) => entry.value)
@@ -129,15 +149,19 @@ class _UpdateServicesScreenState extends ConsumerState<UpdateServicesScreen> {
       if (!mounted) return;
       Navigator.pop(context);
     } catch (e) {
-      setState(() {
-        errorMessage = e is AppException
-            ? e.message
-            : "Failed to update interests. Please try again.";
-      });
+      if (context.mounted) {
+        setState(() {
+          errorMessage = e is AppException
+              ? e.message
+              : "Failed to update interests. Please try again.";
+        });
+      }
     } finally {
-      setState(() {
-        isSaving = false;
-      });
+      if (context.mounted) {
+        setState(() {
+          isSaving = false;
+        });
+      }
     }
   }
 
@@ -208,6 +232,14 @@ class _UpdateServicesScreenState extends ConsumerState<UpdateServicesScreen> {
                     prefixIcon: Icon(Icons.search,
                         color: Theme.of(context).textTheme.displayLarge?.color),
                     border: InputBorder.none,
+                    suffixIcon: searchController.text.isNotEmpty
+                        ? IconButton(
+                            onPressed: () {
+                              searchController.clear();
+                              filterServices('');
+                            },
+                            icon: const Icon(Icons.close))
+                        : null,
                     contentPadding: const EdgeInsets.symmetric(vertical: 15),
                   ),
                 ),
@@ -221,9 +253,11 @@ class _UpdateServicesScreenState extends ConsumerState<UpdateServicesScreen> {
                         filteredServices.isEmpty ? services : filteredServices,
                     initialSelectedServices: selectedServices,
                     onServicesSelected: (newService) {
-                      setState(() {
-                        selectedServices.addAll(newService);
-                      });
+                      if (context.mounted) {
+                        setState(() {
+                          selectedServices.addAll(newService);
+                        });
+                      }
                     },
                     isLoading: isLoading),
               ),
@@ -232,18 +266,19 @@ class _UpdateServicesScreenState extends ConsumerState<UpdateServicesScreen> {
                   ? ErrorBox(
                       errorMessage: errorMessage,
                       onDismiss: () {
-                        setState(() {
-                          errorMessage = "";
-                        });
+                        if (context.mounted) {
+                          setState(() {
+                            errorMessage = "";
+                          });
+                        }
                       })
                   : Container(),
               TextButton(
                   key: const Key('update-services-button'),
                   onPressed: updateServices,
                   style: TextButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20)),
-                      backgroundColor: const Color.fromARGB(255, 0, 111, 253),
+                  
+                      backgroundColor: isSaving ? Colors.grey[400] : null,
                       padding: const EdgeInsets.symmetric(vertical: 12)),
                   child: isSaving
                       ? SizedBox(

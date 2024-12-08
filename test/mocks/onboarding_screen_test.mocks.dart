@@ -83,6 +83,7 @@ class MockImagePicker extends _i1.Mock implements _i3.ImagePicker {
   @override
   _i4.Future<List<_i2.XFile>> pickMultiImage({
     double? maxWidth,
+    int? limit,
     double? maxHeight,
     int? imageQuality,
     bool? requestFullMetadata = true,
@@ -125,6 +126,7 @@ class MockImagePicker extends _i1.Mock implements _i3.ImagePicker {
   @override
   _i4.Future<List<_i2.XFile>> pickMultipleMedia({
     double? maxWidth,
+    int? limit,
     double? maxHeight,
     int? imageQuality,
     bool? requestFullMetadata = true,
