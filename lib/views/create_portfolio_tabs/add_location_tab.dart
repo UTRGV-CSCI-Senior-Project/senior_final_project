@@ -7,7 +7,8 @@ class AddLocationTab extends StatefulWidget {
   final Function(String?, double?, double?) onAddressChosen;
   String? title;
   String? subtitle;
-   AddLocationTab({super.key, required this.onAddressChosen, this.title, this.subtitle});
+  AddLocationTab(
+      {super.key, required this.onAddressChosen, this.title, this.subtitle});
 
   @override
   State<AddLocationTab> createState() => _AddLocationTabState();
@@ -20,10 +21,11 @@ class _AddLocationTabState extends State<AddLocationTab> {
       Text(
         widget.title ?? "Let's get your profile ready!",
         style: GoogleFonts.poppins(fontSize: 22, fontWeight: FontWeight.w500),
-      ), 
+      ),
       const SizedBox(height: 8.0),
       Text(
-        widget.subtitle ?? "Enter your business location.\nOthers won't be able to see this.",
+        widget.subtitle ??
+            "Enter your business location.\nOthers won't be able to see this.",
         style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w300),
       ),
       const SizedBox(height: 16.0),
@@ -74,7 +76,7 @@ class _AddLocationTabState extends State<AddLocationTab> {
         // Theme-based colors
         hoverColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
         selectionColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-        
+
         elevation: 0,
         overlayOffset: 4,
         onSuggestionClick: (place) {
