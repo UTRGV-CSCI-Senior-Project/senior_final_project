@@ -63,6 +63,29 @@ class PortfolioListItem extends ConsumerWidget {
                             fit: BoxFit.cover,
                             width: double.infinity,
                             height: double.infinity,
+                            loadingBuilder:
+                                        (context, child, loadingProgress) {
+                                      if (loadingProgress == null) {
+                                        return child;
+                                      }
+                                      return Center(
+                                        child: CircularProgressIndicator(
+                                            value: loadingProgress
+                                                        .expectedTotalBytes !=
+                                                    null
+                                                ? loadingProgress
+                                                        .cumulativeBytesLoaded /
+                                                    loadingProgress
+                                                        .expectedTotalBytes!
+                                                : null),
+                                      );
+                                    },
+                                    errorBuilder:
+                                        (context, error, stackTrace) =>
+                                            Container(
+                                                color: Colors.grey[300],
+                                                child: Icon(Icons.broken_image,
+                                                    color: Colors.grey[800]))
                           ),
                         );
                       },

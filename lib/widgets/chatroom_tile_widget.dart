@@ -33,6 +33,10 @@ class ChatRoomTile extends StatelessWidget {
                   fit: BoxFit.cover,
                   width: 56, // Adjust width to match CircleAvatar size
                   height: 56,
+                   loadingBuilder: (context, child, loadingProgress) {
+                            return const Icon(Icons.person, size: 28);
+                           
+                          },
                   errorBuilder: (context, error, stackTrace) {
                     return const Icon(Icons.person, size: 28); // Fallback icon
                   },
