@@ -105,7 +105,7 @@ class _DiscoverTabState extends ConsumerState<DiscoverTab> {
     final searchResults = ref.watch(searchResultsProvider);
     final isSearching = ref.watch(isSearchingProvider);
     final currentLocation = ref.watch(currentPositionProvider);
-    
+
 
     void discover(String query) async {
       ref.read(isSearchingProvider.notifier).state = true;
@@ -119,6 +119,7 @@ class _DiscoverTabState extends ConsumerState<DiscoverTab> {
         final results = await ref
             .watch(portfolioRepositoryProvider)
             .getDiscoverPortfolios(filtered);
+
         if (results.isNotEmpty) {
           ref.read(searchResultsProvider.notifier).state =
               results; // Update the provider
@@ -140,7 +141,7 @@ class _DiscoverTabState extends ConsumerState<DiscoverTab> {
             if (results.isNotEmpty) {
               ref.read(searchResultsProvider.notifier).state =
                   results; // Update the provider
-              filterPortfolios(results, currentLocation);
+          filterPortfolios(results, currentLocation);
             }
           }
         } catch (e) {
@@ -158,6 +159,8 @@ class _DiscoverTabState extends ConsumerState<DiscoverTab> {
       ref.read(discoverSearchProvider.notifier).state = null;
     }
   });
+
+  
 
     void onSearchChanged(String text) {
       if (_debounce?.isActive ?? false) {
@@ -260,6 +263,7 @@ class _DiscoverTabState extends ConsumerState<DiscoverTab> {
                         selectedServices = result?['services'];
                       }
                     });
+                    filterPortfolios(searchResults, currentLocation);
                   },
                 )
               ],
